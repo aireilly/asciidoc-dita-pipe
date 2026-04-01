@@ -3,9 +3,28 @@ SRC = src/configuring-and-managing-networking
 BUILD = build
 OUT = out
 
-.PHONY: all manifest docbook enrich dita-raw specialize split images validate clean
+DITA_OT_VERSION = 4.3.1
+
+.PHONY: all install manifest docbook enrich dita-raw specialize split images validate clean
 
 all: manifest docbook enrich dita-raw specialize split images
+
+install:
+	@echo "== Installing dependencies..."
+	gem install asciidoctor --no-document
+	pip install html2text
+	@if ! command -v dita >/dev/null 2>&1; then \
+		echo "== Installing DITA-OT $(DITA_OT_VERSION)..."; \
+		curl -sL https://github.com/dita-ot/dita-ot/releases/download/$(DITA_OT_VERSION)/dita-ot-$(DITA_OT_VERSION).zip -o /tmp/dita-ot.zip; \
+		unzip -q /tmp/dita-ot.zip -d /usr/local/share; \
+		ln -sf /usr/local/share/dita-ot-$(DITA_OT_VERSION)/bin/dita /usr/local/bin/dita; \
+		rm /tmp/dita-ot.zip; \
+	else \
+		echo "== DITA-OT already installed: $$(dita --version)"; \
+	fi
+	@echo "== Checking Java..."
+	@java -version 2>&1 | head -1
+	@echo "== Done. Run 'make all' to build."
 
 manifest: $(BUILD)/content-type-manifest.xml
 

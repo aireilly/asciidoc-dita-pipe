@@ -5,13 +5,18 @@ Multi-stage pipeline that transforms modular AsciiDoc documentation (Red Hat-sty
 ## Prerequisites
 
 - **asciidoctor** (tested with 2.0.23)
-- **Java 17+** (for Saxon)
+- **Java 17+** (for Saxon) — install via:
+  - Fedora/RHEL: `sudo dnf install java-17-openjdk`
+  - Ubuntu/Debian: `sudo apt install openjdk-17-jdk`
 - **Saxon HE 12.4** (included in `SaxonHE12-4J/`)
 - **DITA-OT 4.3.1+** (for validation and HTML5 output)
 
 ## Quick start
 
 ```bash
+# Install dependencies (requires Java 17+ already installed)
+make install
+
 # Full pipeline: AsciiDoc -> DocBook -> DITA -> HTML5
 make clean all validate
 ```
@@ -116,6 +121,7 @@ make split
 
 | Target | Description |
 |--------|-------------|
+| `make install` | Install asciidoctor, html2text, and DITA-OT |
 | `make all` | Run the full pipeline (stages 0-5 + images) |
 | `make validate` | Build HTML5 output with DITA-OT to validate |
 | `make stats` | Show topic type counts in specialized output |
