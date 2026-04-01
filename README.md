@@ -230,3 +230,7 @@ Run `scripts/compare-content.sh` to verify coverage after changes.
 |------|----------|---------|
 | Saxon HE 12.4 | `SaxonHE12-4J/` | XSLT 2.0 processor |
 | dbdita | `dbdita/` | IBM DocBook-to-DITA transform (proof of concept) |
+
+## License
+
+This project is licensed under the [Apache License, Version 2.0](LICENSE).
