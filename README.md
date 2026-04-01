@@ -209,6 +209,10 @@ The ~3% gap is due to:
 
 Run `scripts/compare-content.sh` to verify coverage after changes.
 
+## AsciiDoc callout handling
+
+<img width="881" height="540" alt="image" src="https://github.com/user-attachments/assets/631053ea-072e-436e-b273-f5e95a150627" />
+
 ## Known limitations
 
 - Section title paragraphs ("Additional resources") in concept and reference topics remain as `<p>` text rather than being converted to `<section><title>`. They are structurally valid but semantically informal.
