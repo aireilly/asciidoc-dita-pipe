@@ -211,7 +211,7 @@ Run `scripts/compare-content.sh` to verify coverage after changes.
 
 ## AsciiDoc callout handling
 
-<img width="881" height="540" alt="image" src="https://github.com/user-attachments/assets/631053ea-072e-436e-b273-f5e95a150627" />
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/631053ea-072e-436e-b273-f5e95a150627" />
 
 ## Known limitations
 
