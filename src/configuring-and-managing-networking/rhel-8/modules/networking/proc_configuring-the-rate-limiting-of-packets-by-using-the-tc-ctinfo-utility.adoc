@@ -1,0 +1,240 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="configuring-the-rate-limiting-of-packets-by-using-the-tc-ctinfo-utility_{context}"]
+= Configuring the rate limiting of packets by using the tc-ctinfo utility
+
+[role="_abstract"]
+With rate limiting, you can limit network traffic, prevent the exhaustion of resources in the network, and reduce the load on servers by limiting repetitive packet requests in a specific time frame.
+
+The connection tracking entry stores the `Netfilter` mark and connection information. When a router forwards a packet from the firewall, the router either removes or modifies the connection tracking entry from the packet. The connection tracking information (`ctinfo`) module retrieves data from connection tracking marks into various fields. This kernel module preserves the `Netfilter` mark by copying it into a socket buffer (`skb`) mark metadata field.
+
+.Prerequisites
+
+* The `iperf3` utility is installed on a server and a client.
+
+.Procedure
+
+. Perform the following steps on the server:
+
+.. Add a virtual link to the network interface:
++ 
+[literal,subs="+quotes"]
+----
+# *ip link add name ifb4eth0 numtxqueues 48 numrxqueues 48 type ifb*
+----
++
+This command has the following parameters:
+
+`name ifb4eth0` :: Sets a new virtual device interface.
+`numtxqueues 48` :: Sets the number of transmit queues.
+`numrxqueues 48` :: Sets the number of receive queues.
+`type ifb` :: Sets the type of the new device.
+
+.. Change the state of the interface:
++
+[literal,subs="+quotes"]
+----
+# *ip link set dev ifb4eth0 up*
+----
+
+.. Add the `qdisc` attribute on the physical network interface and apply it to the incoming traffic:
++
+[literal,subs="+quotes"]
+----
+# *tc qdisc add dev enp1s0 handle ffff: ingress*
+----
++
+In the `handle ffff:` option, the `handle` parameter assigns the major number `ffff:` as a default value to a classful `qdisc` on the `enp1s0` physical network interface, where `qdisc` is a queueing discipline parameter to analyze traffic control.
+
+.. Add a filter on the physical interface of the `ip` protocol to classify packets:
++
+[literal,subs="+quotes"]
+----
+# *tc filter add dev enp1s0 parent ffff: protocol ip u32 match u32 0 0 action ctinfo cpmark 100 action mirred egress redirect dev ifb4eth0*
+----
++
+This command has the following attributes:
+
+`parent ffff:` :: Sets major number `ffff:` for the parent `qdisc`.
+
+`u32 match u32 0 0` :: Sets the `u32` filter to `match` the IP headers the of `u32` pattern. The first `0` represents the second byte of IP header while the other `0` is for the mask match telling the filter which bits to match.
+
+`action ctinfo` :: Sets action to retrieve data from the connection tracking mark into various fields.
+
+`cpmark 100` :: Copies the connection tracking mark (connmark) `100` into the packet IP header field.
+
+`action mirred egress redirect dev ifb4eth0` :: Sets the `action` to `mirred` to redirect the received packets to the `ifb4eth0` destination interface.
+
+.. Add a classful `qdisc` to the interface:
++
+[literal,subs="+quotes"]
+----
+# *tc qdisc add dev ifb4eth0 root handle 1: htb default 1000*
+----
++
+This command sets the major number `1` to root `qdisc` and uses the `htb` hierarchy token bucket with classful `qdisc` of minor-id `1000`.
+
+.. Limit the traffic on the interface to 1 Mbit/s with an upper limit of 2 Mbit/s:
++
+[literal,subs="+quotes"]
+----
+# *tc class add dev ifb4eth0 parent 1:1 classid 1:100 htb ceil 2mbit rate 1mbit prio 100*
+----
++
+This command has the following parameters:
+
+`parent 1:1` :: Sets `parent` with `classid` as `1` and `root` as `1`.
+
+`classid 1:100` :: Sets `classid` as `1:100` where `1` is the number of parent `qdisc` and `100` is the number of classes of the parent `qdisc`.
+
+`htb ceil 2mbit` :: The `htb` classful `qdisc` allows upper limit bandwidth of `2 Mbit/s` as the `ceil` rate limit.
+
+.. Apply the Stochastic Fairness Queuing (`sfq`) of classless `qdisc` to interface with a time interval of `60` seconds to reduce queue algorithm perturbation:
++
+[literal,subs="+quotes"]
+----
+# *tc qdisc add dev ifb4eth0 parent 1:100 sfq perturb 60*
+----
+
+.. Add the firewall mark (`fw`) filter to the interface:
++
+[literal,subs="+quotes"]
+----
+# *tc filter add dev ifb4eth0 parent 1:0 protocol ip prio 100 handle 100 fw classid 1:100*
+----
+
+.. Restore the packet meta mark from the connection mark (`CONNMARK`):
++
+[literal,subs="+quotes"]
+----
+# *nft add rule ip mangle PREROUTING counter meta mark set ct mark*
+----
++
+In this command, the `nft` utility has a `mangle` table with the `PREROUTING` chain rule specification that alters incoming packets before routing to replace the packet mark with `CONNMARK`.
+
+.. If no `nft` table and chain exist, create a table and add a chain rule:
++
+[literal,subs="+quotes"]
+----
+# *nft add table ip mangle*
+# *nft add chain ip mangle PREROUTING {type filter hook prerouting priority mangle \;}*
+----
+
+.. Set the meta mark on `tcp` packets that are received on the specified destination address `192.0.2.3`:
++
+[literal,subs="+quotes"]
+----
+# *nft add rule ip mangle PREROUTING ip daddr 192.0.2.3 counter meta mark set 0x64* 
+----
+
+.. Save the packet mark into the connection mark:
++
+[literal,subs="+quotes"]
+----
+# *nft add rule ip mangle PREROUTING counter ct mark set mark*
+----
+
+.. Run the `iperf3` utility as the server on a system by using the `-s` parameter and the server then waits for the response of the client connection: 
++
+[literal,subs="+quotes"]
+----
+# *iperf3 -s*
+----
+
+. On the client, run `iperf3` as a client and connect to the server that listens on IP address `192.0.2.3` for periodic HTTP request-response timestamp:
++
+[literal,subs="+quotes"]
+----
+# *iperf3 -c 192.0.2.3 -t TCP_STREAM | tee rate*
+----
++
+`192.0.2.3` is the IP address of the server while `192.0.2.4` is the IP address of the client.
+
+. Terminate the `iperf3` utility on the server by pressing kbd:[Ctrl+C]:
++
+[literal,subs="+quotes"]
+....
+Accepted connection from 192.0.2.4, port 52128
+[5]  local 192.0.2.3 port 5201 connected to 192.0.2.4 port 52130
+[ID] Interval       	Transfer 	Bitrate
+[5]   0.00-1.00   sec   119 KBytes   973 Kbits/sec 
+[5]   1.00-2.00   sec   116 KBytes   950 Kbits/sec 
+...
+[ID] Interval       	Transfer 	Bitrate
+[5]   0.00-14.81  sec  1.51 MBytes   853 Kbits/sec  receiver
+
+iperf3: interrupt - the server has terminated
+....
+
+. Terminate the `iperf3` utility on the client by pressing kbd:[Ctrl+C]:
++
+[literal,subs="+quotes"]
+....
+Connecting to host 192.0.2.3, port 5201
+[5] local 192.0.2.4 port 52130 connected to 192.0.2.3 port 5201
+[ID] Interval       	Transfer 	Bitrate     	Retr  Cwnd
+[5]   0.00-1.00   sec   481 KBytes  3.94 Mbits/sec	0   76.4 KBytes  	 
+[5]   1.00-2.00   sec   223 KBytes  1.83 Mbits/sec	0   82.0 KBytes  	 
+...
+[ID] Interval       	Transfer 	Bitrate     	Retr
+[5]   0.00-14.00  sec  3.92 MBytes  2.35 Mbits/sec   32     sender
+[5]   0.00-14.00  sec  0.00 Bytes  0.00 bits/sec            receiver
+
+iperf3: error - the server has terminated
+....
+
+.Verification
+
+. Display the statistics about packet counts of the `htb` and `sfq` classes on the interface:
++
+[literal,subs="+quotes"]
+----
+# *tc -s qdisc show dev ifb4eth0* 
+
+qdisc htb 1: root 
+...
+ Sent 26611455 bytes 3054 pkt (dropped 76, overlimits 4887 requeues 0)
+...
+qdisc sfq 8001: parent 
+...
+ Sent 26535030 bytes 2296 pkt (dropped 76, overlimits 0 requeues 0)
+...
+----
+
+. Display the statistics of packet counts for the `mirred` and `ctinfo` actions:
++
+[literal,subs="+quotes"]
+----
+# *tc -s filter show dev enp1s0 ingress*
+filter parent ffff: protocol ip pref 49152 u32 chain 0
+filter parent ffff: protocol ip pref 49152 u32 chain 0 fh 800: ht divisor 1
+filter parent ffff: protocol ip pref 49152 u32 chain 0 fh 800::800 order 2048 key ht 800 bkt 0 terminal flowid not_in_hw (rule hit 8075 success 8075)
+  match 00000000/00000000 at 0 (success 8075 )
+    action order 1: ctinfo zone 0 pipe
+      index 1 ref 1 bind 1 cpmark 0x00000064 installed 3105 sec firstused 3105 sec DSCP set 0 error 0
+      CPMARK set 7712
+    Action statistics:
+    Sent 25891504 bytes 3137 pkt (dropped 0, overlimits 0 requeues 0)
+    backlog 0b 0p requeues 0
+
+    action order 2: mirred (Egress Redirect to device ifb4eth0) stolen
+       index 1 ref 1 bind 1 installed 3105 sec firstused 3105 sec
+    Action statistics:
+    Sent 25891504 bytes 3137 pkt (dropped 0, overlimits 61 requeues 0)
+    backlog 0b 0p requeues 0
+----
+
+. Display the statistics of the `htb` rate-limiter and its configuration:
++
+[literal,subs="+quotes"]
+----
+# *tc -s class show dev ifb4eth0*
+class htb 1:100 root leaf 8001: prio 7 rate 1Mbit ceil 2Mbit burst 1600b cburst 1600b
+ Sent 26541716 bytes 2373 pkt (dropped 61, overlimits 4887 requeues 0)
+ backlog 0b 0p requeues 0
+ lended: 7248 borrowed: 0 giants: 0
+ tokens: 187250 ctokens: 93625
+----
+

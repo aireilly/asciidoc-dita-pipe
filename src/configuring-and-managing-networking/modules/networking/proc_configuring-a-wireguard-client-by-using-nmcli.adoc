@@ -1,0 +1,170 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-wireguard-client-by-using-nmcli_{context}"]
+= Configuring a WireGuard client by using `nmcli`
+
+[role="_abstract"]
+You can configure a WireGuard client by creating a connection profile in NetworkManager. Use this method to let NetworkManager manage the WireGuard connection.
+
+This procedure assumes the following settings:
+
+* Client:
+
+** Private key: `aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A=`
+** Tunnel IPv4 address: `192.0.2.2/24`
+** Tunnel IPv6 address: `2001:db8:1::2/32`
+
+* Server:
+
+** Public key: `UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=`
+** Tunnel IPv4 address: `192.0.2.1/24`
+** Tunnel IPv6 address: `2001:db8:1::1/32`
+
+
+
+.Prerequisites
+
+* You have generated the public and private key for both the server and client.
+
+* You know the following information:
++
+** The private key of the client
+** The static tunnel IP addresses and subnet masks of the client
+** The public key of the server
+** The static tunnel IP addresses and subnet masks of the server
+
+
+
+.Procedure
+
+. Add a NetworkManager WireGuard connection profile:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection add type wireguard con-name client-wg0 ifname wg0*
+....
++
+This command creates a profile named `client-wg0` and assigns the virtual interface `wg0` to it.
+
+. Optional: Configure NetworkManager so that it does not automatically start the `client-wg` connection:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify client-wg0 autoconnect no*
+....
+
+. Set the tunnel IPv4 address and subnet mask of the client:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify client-wg0 ipv4.method manual ipv4.addresses 192.0.2.2/24*
+....
+
+. Set the tunnel IPv6 address and subnet mask of the client:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify client-wg0 ipv6.method manual ipv6.addresses 2001:db8:1::2/32*
+....
+
+. If you want to route all traffic through the tunnel, set the tunnel IP addresses of the server as the default gateway:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify client-wg0 ipv4.gateway 192.0.2.1 ipv6.gateway 2001:db8:1::1*
+....
++
+Routing all traffic through the tunnel requires that you set, in a later step, the `allowed-ips` on the this client to `0.0.0.0/0;::/0`.
++
+Note that routing all traffic through the tunnel can impact the connectivity to other hosts based on the server routing and firewall configuration.
+
+. Add the client's private key to the connection profile:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify client-wg0 wireguard.private-key "aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A="*
+....
+
+. Add peer configurations for each server that you want to allow to communicate with this client. You must add these settings manually, because the `nmcli` utility does not support setting the corresponding connection properties.
+
+.. Edit the `/etc/NetworkManager/system-connections/client-wg0.nmconnection` file, and append:
++
+[literal,subs="+quotes"]
+....
+*[wireguard-peer.UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=]*
+*endpoint=server.example.com:51820*
+*allowed-ips=192.0.2.1;2001:db8:1::1;*
+*persistent-keepalive=20*
+....
++
+* The `[wireguard-peer.__<public_key_of_the_server__>]` entry defines the peer section of the server, and the section name has the public key of the server.
+* The `endpoint` parameter sets the hostname or IP address and the port of the server. The client uses this information to establish the connection.
+* The `allowed-ips` parameter sets a list of IP addresses that can send data to this client. For example, set the parameter to:
+** The tunnel IP addresses of the server to allow only the server to communicate with this client. The value in the example above configures this scenario.
+** `0.0.0.0/0;::/0;` to allow any remote IPv4 and IPv6 address to communicate with this client. Use this setting to route all traffic through the tunnel and use the WireGuard server as default gateway.
+* The optional `persistent-keepalive` parameter defines an interval in seconds in which WireGuard sends a keepalive packet to the server. Set this parameter if you use the client in a network with network address translation (NAT) or if a firewall closes the UDP connection after some time of inactivity.
+
+.. Reload the `client-wg0` connection profile:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection load /etc/NetworkManager/system-connections/client-wg0.nmconnection*
+....
+
+. Reactivate the `client-wg0` connection:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up client-wg0*
+....
+
+. If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see xref:assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn[Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel].
+
+
+.Verification
+
+. Ping the IP addresses of the server:
++
+[literal,subs="+quotes"]
+....
+# *ping 192.0.2.1*
+# *ping6 2001:db8:1::1*
+....
+
+. Display the interface configuration of the `wg0` device:
++
+[literal,subs="+quotes"]
+....
+# *wg show wg0*
+interface: wg0
+  public key: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  private key: (hidden)
+  listening port: 51820
+
+peer: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  endpoint: server.example.com:51820
+  allowed ips: 192.0.2.1/32, 2001:db8:1::1/128
+  latest handshake: 1 minute, 41 seconds ago
+  transfer: 824 B received, 1.01 KiB sent
+  persistent keepalive: every 20 seconds
+....
++
+To display the private key in the output, use the `WG_HIDE_KEYS=never wg show wg0` command.
++
+Note that the output has only the `latest handshake` and `transfer` entries if you have already sent traffic through the VPN tunnel.
+
+. Display the IP configuration of the `wg0` device:
++
+[literal,subs="+quotes"]
+....
+# *ip address show wg0*
+10: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.2/24 brd 192.0.2.255 scope global noprefixroute wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::2/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::73d9:6f51:ea6f:863e/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+....
+

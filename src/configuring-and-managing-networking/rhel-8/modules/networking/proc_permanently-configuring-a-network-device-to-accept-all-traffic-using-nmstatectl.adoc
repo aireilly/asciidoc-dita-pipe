@@ -1,0 +1,54 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_permanently-configuring-a-network-device-to-accept-all-traffic-using-nmstatectl_{context}"]
+= Permanently configuring a network device to accept all traffic using `nmstatectl`
+
+[role="_abstract"]
+Use the `nmstatectl` utility to configure a device to accept all traffic regardless of the MAC addresses through the Nmstate API. The Nmstate API ensures that, after setting the configuration, the result matches the configuration file. If anything fails, `nmstatectl` automatically rolls back the changes to avoid leaving the system in an incorrect state.
+
+
+.Prerequisites
+* The `nmstate` package is installed.
+* The `enp1s0.yml` file that you used to configure the device is available.
+
+
+.Procedure
+
+. Edit the existing `enp1s0.yml` file for the `enp1s0` connection and add the following content to it:
++
+[source,yaml,subs="+quotes"]
+....
+---
+**interfaces:**
+  **- name: _enp1s0_**
+    **type: ethernet**
+    **state: up**
+    **accept -all-mac-address: _true_**
+....
++
+These settings configure the `enp1s0` device to accept all traffic.
+
+. Apply the network settings:
++
+[literal,subs="+quotes"]
+....
+# **nmstatectl apply ~/enp1s0.yml**
+....
+
+.Verification
+
+* Verify that the `802-3-ethernet.accept-all-mac-addresses` mode is enabled:
++
+[literal,subs="+quotes"]
+....
+# **nmstatectl show _enp1s0_**
+interfaces:
+  - name: _enp1s0_
+    type: ethernet
+    state: up
+    accept-all-mac-addresses:     *true*
+...
+....
++
+The `802-3-ethernet.accept-all-mac-addresses: true` indicates that the mode is enabled.
+

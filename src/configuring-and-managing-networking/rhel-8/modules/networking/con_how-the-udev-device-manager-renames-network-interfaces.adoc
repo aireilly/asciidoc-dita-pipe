@@ -1,0 +1,44 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="how-the-udev-device-manager-renames-network-interfaces_{context}"]
+= How the udev device manager renames network interfaces
+
+[role="_abstract"]
+The `udev` device manager processes a set of rules to implement a consistent naming scheme for network interfaces.
+
+Order of rule files:
+
+. Optional: `/usr/lib/udev/rules.d/60-net.rules`
++
+ifeval::[{ProductNumber} >= 9]
+This file exists only if you install the `initscripts-rename-device` package.
+endif::[]
+The `/usr/lib/udev/rules.d/60-net.rules` file defines that the deprecated `/usr/lib/udev/rename_device` helper utility searches for the `HWADDR` parameter in `/etc/sysconfig/network-scripts/ifcfg-*` files. If the value set in the variable matches the MAC address of an interface, the helper utility renames the interface to the name set in the `DEVICE` parameter of the `ifcfg` file.
++
+If the system uses only NetworkManager connection profiles in keyfile format, `udev` skips this step.
+// rename_device is deprecated. See BZ#1875485
+
+. Only on Dell systems: `/usr/lib/udev/rules.d/71-biosdevname.rules`
++
+This file exists only if the `biosdevname` package is installed, and the rules file defines that the `biosdevname` utility renames the interface according to its naming policy, if it was not renamed in the previous step.
++
+[NOTE]
+====
+Install and use `biosdevname` only on Dell systems.
+====
+
+. `/usr/lib/udev/rules.d/75-net-description.rules`
++
+This file defines how `udev` examines the network interface and sets the properties in `udev`-internal variables. These variables are then processed in the next step by the `/usr/lib/udev/rules.d/80-net-setup-link.rules` file. Some of the properties can be undefined.
+
+. `/usr/lib/udev/rules.d/80-net-setup-link.rules`
++
+This file calls the `net_setup_link` builtin of the `udev` service, and `udev` renames the interface based on the order of the policies in the `NamePolicy` parameter in the `/usr/lib/systemd/network/99-default.link` file. For further details, see xref:network-interface-naming-policies_consistent-network-interface-device-naming[Network interface naming policies].
++
+If none of the policies applies, `udev` does not rename the interface.
+
+
+[role="_additional-resources"]
+.Additional resources
+* link:https://access.redhat.com/solutions/5984311[Why are systemd network interface names different between major RHEL versions (Red Hat Knowledgebase)]
+

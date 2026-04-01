@@ -1,0 +1,50 @@
+:_mod-docs-content-type: REFERENCE
+:experimental:
+
+[id="ref_overview-of-xdp-features-by-network-cards_{context}"]
+= Overview of XDP features in {ProductShortName} {ProductNumber} by network cards
+
+[role="_abstract"]
+The XDP features available in RHEL depend on the network card and their drivers.
+
+The following is an overview of XDP-enabled network cards and the XDP features you can use with them:
+
+[cols="4,2,1,1,1,1,1,1"options="header"]
+|====
+|Network card|Driver|Basic|Redirect|Target|HW offload|Zero-copy|Large MTU
+|Amazon Elastic Network Adapter|`ena`|yes|yes|yes footnoteref:[xdp-on-interface,Only if an XDP program is loaded on the interface.]|no|no|no
+|aQuantia AQtion Ethernet card|`atlantic`|yes|yes|no|no|no|no
+|Broadcom NetXtreme-C/E 10/25/40/50 gigabit Ethernet|`bnxt_en`|yes|yes|yes footnoteref:[xdp-on-interface]|no|no|yes
+|Cavium Thunder Virtual function|`nicvf`|yes|no|no|no|no|no
+|Google Virtual NIC (gVNIC) support|`gve`|yes|yes|yes|no|yes|no
+|Intel(R) 10GbE PCI Express Virtual Function Ethernet|`ixgbevf`|yes|no|no|no|no|no
+|Intel(R) 10GbE PCI Express adapters|`ixgbe`|yes|yes|yes footnoteref:[xdp-on-interface]|no|yes|yes footnoteref:[transmitting-side-only,Transmitting side only. Cannot receive large packets through XDP.]
+|Intel(R) Ethernet Connection E800 Series|`ice`|yes|yes|yes footnoteref:[xdp-on-interface]|no|yes|yes
+|Intel(R) Ethernet Controller I225-LM/I225-V family|`igc`|yes|yes|yes|no|yes|yes footnoteref:[transmitting-side-only]
+|Intel(R) PCI Express Gigabit adapters|`igb`|yes|yes|yes footnoteref:[xdp-on-interface]|no|no|yes footnoteref:[transmitting-side-only]
+|Intel® Ethernet Controller XL710 Family|`i40e`|yes|yes|yes footnoteref:[xdp-on-interface] footnoteref:[requires-queues-ge-cpu-index,Requires several XDP TX queues allocated that are larger or equal to the largest CPU index.]|no|yes|no
+|Marvell OcteonTX2|`rvu_nicpf`|yes|yes|yes footnoteref:[xdp-on-interface] footnoteref:[requires-queues-ge-cpu-index]|no|no|no
+|Mellanox 5th generation network adapters (ConnectX series)|`mlx5_core`|yes|yes|yes footnoteref:[requires-queues-ge-cpu-index]|no|yes|yes
+|Mellanox Technologies 1/10/40Gbit Ethernet|`mlx4_en`|yes|yes|no|no|no|no
+|Microsoft Azure Network Adapter|`mana`|yes|yes|yes|no|no|no
+|Microsoft Hyper-V virtual network|`hv_netvsc`|yes|yes|yes|no|no|no
+|Netronome® NFP4000/NFP6000 NIC footnoteref:[netronome-xdp-limitation,Some of the listed features are not available for the Netronome® NFP3800 NIC.]|`nfp`|yes|no|no|yes|yes|no
+|QEMU Virtio network|`virtio_net`|yes|yes|yes footnoteref:[xdp-on-interface]|no|no|yes
+|QLogic QED 25/40/100Gb Ethernet NIC|`qede`|yes|yes|yes|no|no|no
+|STMicroelectronics Multi-Gigabit Ethernet|`stmmac`|yes|yes|yes|no|yes|no
+|Solarflare SFC9000/SFC9100/EF100-family|`sfc`|yes|yes|yes footnoteref:[requires-queues-ge-cpu-index]|no|no|no
+|Universal TUN/TAP device|`tun`|yes|yes|yes|no|no|no
+|Virtual Ethernet pair device|`veth`|yes|yes|yes|no|no|yes
+|VMware VMXNET3 ethernet driver|`vmxnet3`|yes|yes|yes footnoteref:[xdp-on-interface] footnoteref:[requires-queues-ge-cpu-index] |no|no|no
+|Xen paravirtual network device|`xen-netfront`|yes|yes|yes|no|no|no
+|====
+
+Legend:
+
+* Basic: Supports basic return codes: `DROP`, `PASS`, `ABORTED`, and `TX`.
+* Redirect: Supports the `XDP_REDIRECT` return code.
+* Target: Can be a target of a `XDP_REDIRECT` return code.
+* HW offload: Supports XDP hardware offload.
+* Zero-copy: Supports the zero-copy mode for the `AF_XDP` protocol family.
+* Large MTU: Supports packets larger than page size.
+

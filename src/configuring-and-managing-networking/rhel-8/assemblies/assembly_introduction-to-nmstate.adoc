@@ -1,0 +1,55 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-assembly_introduction-to-nmstate: {context}]
+
+
+ifndef::context[]
+[id="assembly_introduction-to-nmstate"]
+endif::[]
+ifdef::context[]
+[id="assembly_introduction-to-nmstate_{context}"]
+endif::[]
+= Introduction to Nmstate
+
+:context: assembly_introduction-to-nmstate
+
+[role="_abstract"]
+Nmstate is a declarative network manager API. When you use Nmstate, you describe the expected networking state by using YAML or JSON-formatted instructions.
+
+Nmstate has many benefits. For example, it:
+
+* Provides a stable and extensible interface to manage RHEL network capabilities
+
+* Supports atomic and transactional operations at the host and cluster level
+
+* Supports partial editing of most properties and preserves existing settings that are not specified in the instructions
+
+ifeval::[{ProductNumber} == 8]
+* Provides plug-in support to enable administrators to use their own plug-ins
+endif::[]
+
+Nmstate consists of the following packages:
+
+[cols="1,2",options="header"]
+|===
+| Packages | Contents
+| `nmstate` | The `nmstatectl` command-line utility
+| `python3-libnmstate` | The `libnmstate` Python library
+| `nmstate-libs` | The Nmstate C library
+| `nmstate-devel` | The Nmstate C library headers
+|===
+
+
+include::modules/networking/con_using-the-libnmstate-library-in-a-python-application.adoc[leveloffset=+1]
+
+include::modules/networking/proc_updating-the-current-network-configuration-using-nmstatectl.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} >= 9]
+include::modules/networking/con_the-nmstate-systemd-service.adoc[leveloffset=+1]
+endif::[]
+
+include::modules/networking/ref_network-states-for-the-network-rhel-system-role.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-assembly_introduction-to-nmstate[:context: {parent-context-of-assembly_introduction-to-nmstate}]
+ifndef::parent-context-of-assembly_introduction-to-nmstate[:!context:]
+

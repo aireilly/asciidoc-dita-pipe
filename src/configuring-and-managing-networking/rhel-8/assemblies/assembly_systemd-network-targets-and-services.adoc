@@ -1,0 +1,22 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-systemd-network-targets-and-services: {context}]
+
+[id="systemd-network-targets-and-services_{context}"]
+= Systemd network targets and services
+
+:context: systemd-network-targets-and-services
+
+[role="_abstract"]
+RHEL uses the `network` and `network-online` targets and the `NetworkManager-wait-online` service while applying network settings. Configure `systemd` services to start after the network is fully available if those services cannot react dynamically to a change in the network state.
+
+
+include::modules/networking/con_differences-between-the-network-and-network-online-systemd-target.adoc[leveloffset=+1]
+
+include::modules/networking/con_overview-of-networkmanager-wait-online.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-systemd-service-to-start-after-the-network-has-been-started.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-systemd-network-targets-and-services[:context: {parent-context-of-systemd-network-targets-and-services}]
+ifndef::parent-context-of-systemd-network-targets-and-services[:!context:]
+

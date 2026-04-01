@@ -1,0 +1,117 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-07-10
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_{context}"]
+= Configuring a client to connect to an IPsec VPN gateway by using GNOME Settings
+
+[role="_abstract"]
+To access resources on a remote private network, users must first configure an IPsec VPN connection. The GNOME Settings application provides a graphical solution to create an IPsec VPN connection profile in NetworkManager and to establish the tunnel.
+
+
+.Prerequisites
+
+* xref:setting-up-an-ipsec-gateway-manually_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication[You configured the IPsec VPN gateway].
+
+* The `NetworkManager-libreswan-gnome` package is installed.
+
+* The PKCS #12 file `~/file.p12` exists on the client with the following contents:
+** The private key of the user
+** The user certificate
+** The CA certificate
+** If required, intermediate certificates
+
++
+For details about creating a private key and certificate signing request (CSR), as well as about requesting a certificate from a CA, see your CA's documentation.
+
+* The Extended Key Usage (EKU) in the certificate is set to `TLS Web Client Authentication`.
+
+
+.Procedure
+
+. Initialize the Network Security Services (NSS) database:
++
+[subs="+quotes"]
+....
+# *ipsec initnss*
+....
++
+The command creates the database in the `/var/lib/ipsec/nss/` directory.
+
+. Import the PKCS #12 file into the NSS database:
++
+[subs="+quotes"]
+....
+# *ipsec import ~/file.p12*
+Enter password for PKCS12 file: _<password>_
+pk12util: PKCS12 IMPORT SUCCESSFUL
+correcting trust bits for Example-CA
+....
+
+. Display the nicknames of the user and CA certificates:
++
+[subs="+quotes"]
+....
+# *certutil -L -d  /var/lib/ipsec/nss/*
+Certificate Nickname     Trust Attributes
+                         SSL,S/MIME,JAR/XPI
+
+user                     u,u,u
+Example-CA               CT,,
+...
+....
++
+You require this information in the configuration file.
+
+. Press the kbd:[Super] key, type *Settings*, and press kbd:[Enter] to open the GNOME *Settings* application.
+
+. Click the btn:[+] button next to the *VPN* entry.
+
+. Select *IPsec based VPN* from the list.
+
+. On the *Identity* tab, fill the fields as follows:
++
+[cols="2,3,1",options="header"]
+.*Identity* tab settings
+|===
+| Field name | Value | Corresponding `ipsec.conf` parameter
+| *Name* | `_<networkmanager_profile_name>_` | N/A
+| *Gateway* | `_<ip_address_or_fqdn_of_the_gateway>_`| `right`
+| *Type* | `IKEv2 (certificate)` | `authby`
+| *Group name* | `%fromcert` | `leftid`
+| *Certificate name* | `_<user_certificate_nickname>_` | `leftcert`
+| *Remote ID* | `%fromcert` | `rightid`
+|===
+
+. Click *Advanced*.
+
+. In the *Advanced properties* window, fill the fields of the *Connectivity* tab as follows:
++
+[cols="2,3,1",options="header"]
+.*Connectivity* tab settings
+|===
+| Field name | Value | Corresponding `ipsec.conf` parameter
+| *Remote Network* | `192.0.2.0/24` | `rightsubnet`
+| *Narrowing* | Selected | `narrowing`
+| *Enable MOBIKE* | `yes` | `mobike`
+| *Delay* | `30` | `dpddelay`
+| *Timeout* | `120` | `dpdtimeout`
+| *Action* | `Clear` | `dpdaction`
+|===
+
+. Click btn:[Apply] to return to the connection settings.
+
+. Click btn:[Apply] to save the connection.
+
+. In the *Network* tab of the *Settings* application, toggle the switch next to the VPN profile to activate the connection.
+
+
+.Verification
+
+* Establish a connection to a host in the remote network or ping it.
+
+
+.Next steps
+
+* If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see xref:assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn[Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel].
+

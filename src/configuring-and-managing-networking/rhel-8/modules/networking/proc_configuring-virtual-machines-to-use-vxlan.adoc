@@ -1,0 +1,91 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_proc_configuring-virtual-machines-to-use-vxlan_{context}"]
+= Configuring virtual machines to use VXLAN
+
+[role="_abstract"]
+To configure a VM to use a bridge device with an attached virtual extensible LAN (VXLAN) on the host, create a new VM that uses the `vxlan10-bridge` virtual network or update the settings of existing VMs to use this network.
+
+Perform this procedure on the RHEL hosts.
+
+
+
+.Prerequisites
+
+* You configured the `vxlan10-bridge` virtual network in `libvirtd`.
+
+
+
+.Procedure
+
+* To create a new VM and configure it to use the `vxlan10-bridge` network, pass the `--network network:__vxlan10-bridge__` option to the `virt-install` command when you create the VM:
++
+[literal,subs="+quotes"]
+....
+# **virt-install ... --network network:__vxlan10-bridge__**
+....
+
+* To change the network settings of an existing VM:
+
+.. Connect the VM's network interface to the `vxlan10-bridge` virtual network:
++
+[literal,subs="+quotes"]
+....
+# **virt-xml __VM_name__ --edit --network network=__vxlan10-bridge__**
+....
+
+.. Shut down the VM, and start it again:
++
+[literal,subs="+quotes"]
+....
+# **virsh shutdown __VM_name__**
+# **virsh start __VM_name__**
+....
+
+
+
+.Verification
+
+. Display the virtual network interfaces of the VM on the host:
++
+[literal,subs="+quotes"]
+....
+# **virsh domiflist __VM_name__**
+ Interface   Type     Source           Model    MAC
+-------------------------------------------------------------------
+ __vnet1__       bridge   __vxlan10-bridge__   virtio   __52:54:00:c5:98:1c__
+....
+
+. Display the interfaces attached to the `vxlan10-bridge` bridge:
++
+[literal,subs="+quotes"]
+....
+# **ip link show master vxlan10-bridge**
+18: vxlan10: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue master __br0__ state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether __2a:53:bd:d5:b3:0a__ brd ff:ff:ff:ff:ff:ff
+19: vnet1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue master __br0__ state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether __52:54:00:c5:98:1c__ brd ff:ff:ff:ff:ff:ff
+....
++
+Note that the `libvirtd` service dynamically updates the bridge's configuration. When you start a VM which uses the `vxlan10-bridge` network, the corresponding `vnet*` device on the host appears as a port of the bridge.
+
+. Use address resolution protocol (ARP) requests to verify whether VMs are in the same VXLAN:
+
+.. Start two or more VMs in the same VXLAN.
+
+.. Send an ARP request from one VM to the other one:
++
+[literal,subs="+quotes"]
+....
+# **arping -c 1 __192.0.2.2__**
+ARPING __192.0.2.2__ from __192.0.2.1__ __enp1s0__
+Unicast reply from __192.0.2.2__ [__52:54:00:c5:98:1c__] __1.450ms__
+Sent 1 probe(s) (0 broadcast(s))
+Received 1 response(s) (0 request(s), 0 broadcast(s))
+....
++
+If the command shows a reply, the VM is in the same layer-2 domain and, in this case in the same VXLAN.
++
+Install the `iputils` package to use the `arping` utility.
+
+

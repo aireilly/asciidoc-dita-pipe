@@ -1,0 +1,88 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+[id="setting-the-default-gateway-on-an-existing-connection-by-using-nm-connection-editor_{context}"]
+= Setting the default gateway on an existing connection by using nm-connection-editor
+
+[role="_abstract"]
+In most situations, administrators set the default gateway when they create a connection. However, you can also set or update the default gateway setting on a previously created connection using the `nm-connection-editor` application.
+
+
+.Prerequisites
+
+* At least one static IP address must be configured on the connection on which the default gateway will be set.
+
+
+.Procedure
+
+. Open a terminal, and enter `nm-connection-editor`:
++
+[literal,subs="+quotes"]
+....
+# **nm-connection-editor**
+....
+
+. Select the connection to modify, and click the gear wheel icon to edit the existing connection.
+
+. Set the IPv4 default gateway. For example, to set the IPv4 address of the default gateway on the connection to `192.0.2.1`:
+
+.. Open the `IPv4 Settings` tab.
+
+.. Enter the address in the `gateway` field next to the IP range the gateway's address is within:
++
+image::set-default-gw-in-nm-connection-editor_ipv4.png["IPv4 address settings in `nm-connection-editor"]
+
+. Set the IPv6 default gateway. For example, to set the IPv6 address of the default gateway on the connection to `2001:db8:1::1`:
++
+.. Open the `IPv6` tab.
+
+.. Enter the address in the `gateway` field next to the IP range the gateway's address is within:
++
+image::set-default-gw-in-nm-connection-editor_ipv6.png["IPv6 address settings in `nm-connection-editor"]
+
+. Click btn:[OK].
+
+. Click btn:[Save].
+
+. Restart the network connection for changes to take effect. For example, to restart the `_example_` connection using the command line:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up _example_**
+....
++
+[WARNING]
+====
+All connections currently using this network connection are temporarily interrupted during the restart.
+====
+
+.Verification
+
+* Verify that the route is active.
++
+To display the IPv4 default gateway:
++
+[literal,subs="+quotes"]
+....
+# **ip -4 route**
+default via 192.0.2.1 dev _example_ proto static metric 100
+....
++
+To display the IPv6 default gateway:
++
+[literal,subs="+quotes"]
+....
+# **ip -6 route**
+default via 2001:db8:1::1 dev _example_ proto static metric 100 pref medium
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:configuring-an-ethernet-connection-by-using-nm-connection-editor_configuring-an-ethernet-connection[Configuring an Ethernet connection by using nm-connection-editor]
+endif::[]
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-an-ethernet-connection_configuring-and-managing-networking#configuring-an-ethernet-connection-by-using-nm-connection-editor_configuring-an-ethernet-connection[Configuring an Ethernet connection by using nm-connection-editor]
+endif::[]
+

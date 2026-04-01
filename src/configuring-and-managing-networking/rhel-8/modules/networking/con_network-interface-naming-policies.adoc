@@ -1,0 +1,42 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="network-interface-naming-policies_{context}"]
+= Network interface naming policies
+
+[role="_abstract"]
+By default, the `udev` device manager uses the `/usr/lib/systemd/network/99-default.link` file to determine how it renames interfaces. The `NamePolicy` parameter in this file defines which naming policies `udev` applies and in what order.
+
+Default order:
+
+[literal,subs="+quotes"]
+....
+ifeval::[{ProductNumber} == 8]
+NamePolicy=kernel database onboard slot path
+endif::[]
+ifeval::[{ProductNumber} >= 9]
+NamePolicy=keep kernel database onboard slot path
+endif::[]
+....
+
+The following table describes the different actions of `udev` based on which policy matches first as specified by the `NamePolicy` parameter:
+
+[options="header", cols="20%,60%,20%"]
+|===
+| Policy | Description | Example name
+ifeval::[{ProductNumber} >= 9]
+| keep | If the device already has a name that was assigned in the user space, `udev` does not rename this device. For example, this is the case if the name was assigned during device creation or by a rename operation. |
+endif::[]
+| kernel | If the kernel indicates that a device name is predictable, `udev` does not rename this device. | `lo`
+| database | This policy assigns names based on mappings in the `udev` hardware database. For details, see the `hwdb(7)` man page on your system. | `idrac`
+| onboard | Device names incorporate firmware or BIOS-provided index numbers for onboard devices. | `eno1`
+| slot | Device names incorporate firmware or BIOS-provided PCI Express (PCIe) hot-plug slot-index numbers. | `ens1`
+| path | Device names incorporate the physical location of the connector of the hardware. | `enp1s0`
+| mac | Device names incorporate the MAC address. By default, {ProductName} does not use this policy, but administrators can enable it. | `enx525400d5e0fb`
+|===
+
+
+[role="_additional-resources"]
+.Additional resources
+
+* xref:how-the-udev-device-manager-renames-network-interfaces_consistent-network-interface-device-naming[How the udev device manager renames network interfaces]
+

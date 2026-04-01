@@ -1,0 +1,191 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-an-ethernet-connection-by-using-the-nmcli-interactive-editor_{context}"]
+= Configuring an Ethernet connection by using the `nmcli` interactive editor
+
+[role="_abstract"]
+If you connect a host to the network over Ethernet, you can manage the connection's settings on the command line by using the `nmcli` utility.
+
+
+.Prerequisites
+
+* A physical or virtual Ethernet Network Interface Controller (NIC) exists in the server's configuration.
+
+
+.Procedure
+
+. List the NetworkManager connection profiles:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection show*
+NAME                UUID                                  TYPE      DEVICE
+Wired connection 1  a5eb6490-cc20-3668-81f8-0314a27f3f75  ethernet  enp1s0
+....
++
+By default, NetworkManager creates a profile for each NIC in the host. If you plan to connect this NIC only to a specific network, adapt the automatically-created profile. If you plan to connect this NIC to networks with different settings, create individual profiles for each network.
+
+. Start `nmcli` in interactive mode:
+
+** To create an additional connection profile, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection edit type ethernet con-name "_<connection-name>_"*
+....
+
+** To modify an existing connection profile, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection edit con-name "_<connection-name>_"*
+....
+
+. Optional: Rename the connection profile:
++
+[literal,subs="+quotes"]
+....
+nmcli> *set connection.id Internal-LAN*
+....
++
+On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.
++
+Do not use quotes to set an ID that contains spaces to avoid `nmcli` making the quotes part of the name. For example, to set `Example Connection` as ID, enter `set connection.id Example Connection`.
+
+. Display the current settings of the connection profile:
++
+[literal,subs="+quotes"]
+....
+nmcli> *print*
+...
+connection.interface-name:     enp1s0
+connection.autoconnect:        yes
+ipv4.method:                   auto
+ipv6.method:                   auto
+...
+....
+
+. If you create a new connection profile, set the network interface:
++
+[literal,subs="+quotes"]
+....
+nmcli> *set connection.interface-name enp1s0*
+....
+
+. Configure the IPv4 settings:
++
+** To use DHCP, enter:
++
+[literal,subs="+quotes"]
+....
+nmcli> *set ipv4.method auto*
+....
++
+Skip this step if `ipv4.method` is already set to `auto` (default).
+
+** To set a static IPv4 address, network mask, default gateway, DNS servers, and search domain, enter:
++
+[literal,subs="+quotes"]
+....
+nmcli> *ipv4.addresses 192.0.2.1/24*
+Do you also want to set 'ipv4.method' to 'manual'? [yes]: *yes*
+nmcli> *ipv4.gateway 192.0.2.254*
+nmcli> *ipv4.dns 192.0.2.200*
+nmcli> *ipv4.dns-search example.com*
+....
+
+. Configure the IPv6 settings:
++
+** To use stateless address autoconfiguration (SLAAC), enter:
++
+[literal,subs="+quotes"]
+....
+nmcli> *set ipv6.method auto*
+....
++
+Skip this step if `ipv6.method` is already set to `auto` (default).
+
+** To set a static IPv6 address, network mask, default gateway, DNS servers, and search domain, enter:
++
+[literal,subs="+quotes"]
+....
+nmcli> *ipv6.addresses 2001:db8:1::fffe/64*
+Do you also want to set 'ipv6.method' to 'manual'? [yes]: *yes*
+nmcli> *ipv6.gateway 2001:db8:1::fffe*
+nmcli> *ipv6.dns 2001:db8:1::ffbb*
+nmcli> *ipv6.dns-search example.com*
+....
+
+. Save and activate the connection:
++
+[literal,subs="+quotes"]
+....
+nmcli> *save persistent*
+....
+
+. Leave the interactive mode:
++
+[literal,subs="+quotes"]
+....
+nmcli> *quit*
+....
+
+
+.Verification
+
+. Display the IP settings of the NIC:
++
+[literal,subs="+quotes"]
+....
+# *ip address show enp1s0*
+2: enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:17:b8:b6 brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute enp1s0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::fffe/64 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+....
+
+. Display the IPv4 default gateway:
++
+[literal,subs="+quotes"]
+....
+# *ip route show default*
+default via 192.0.2.254 dev enp1s0 proto static metric 102
+....
+
+. Display the IPv6 default gateway:
++
+[literal,subs="+quotes"]
+....
+# *ip -6 route show default*
+default via 2001:db8:1::fffe dev enp1s0 proto static metric 102 pref medium
+....
+
+. Display the DNS settings:
++
+[literal,subs="+quotes"]
+....
+# *cat /etc/resolv.conf*
+search example.com
+nameserver 192.0.2.200
+nameserver 2001:db8:1::ffbb
+....
++
+If multiple connection profiles are active at the same time, the order of `nameserver` entries depend on the DNS priority values in these profiles and the connection types.
+
+. Use the `ping` utility to verify that this host can send packets to other hosts:
++
+[literal,subs="+quotes"]
+....
+# *ping _<host-name-or-IP-address>_*
+....
+
+
+.Troubleshooting
+
+* Verify that the network cable is plugged-in to the host and a switch.
+* Check whether the link failure exists only on this host or also on other hosts connected to the same switch.
+* Verify that the network cable and the network interface are working as expected. Perform hardware diagnosis steps and replace defective cables and network interface cards.
+* If the configuration on the disk does not match the configuration on the device, starting or restarting NetworkManager creates an in-memory connection that reflects the configuration of the device. For further details and how to avoid this problem, see the Red Hat Knowledgebase solution link:https://access.redhat.com/solutions/3068421[NetworkManager duplicates a connection after restart of NetworkManager service].
+

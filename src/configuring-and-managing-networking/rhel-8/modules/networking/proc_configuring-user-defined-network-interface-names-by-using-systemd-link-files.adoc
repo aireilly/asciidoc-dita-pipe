@@ -1,0 +1,132 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="configuring-user-defined-network-interface-names-by-using-systemd-link-files_{context}"]
+= Configuring user-defined network interface names by using systemd link files
+
+[role="_abstract"]
+You can use `systemd` link files to implement custom network interface names that reflect your organization's requirements.
+
+
+.Prerequisites
+
+* You must meet one of these conditions: NetworkManager does not manage this interface, or the corresponding connection profile uses the xref:assembly_networkmanager-connection-profiles-in-keyfile-format_configuring-and-managing-networking[keyfile format].
+
+
+.Procedure
+
+. Identify the network interface that you want to rename:
++
+[literal,subs="+quotes"]
+....
+# *ip link show*
+...
+enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...
+....
++
+Record the MAC address of the interface.
+
+. If it does not already exist, create the `/etc/systemd/network/` directory:
++
+[literal,subs="+quotes"]
+....
+# *mkdir -p /etc/systemd/network/*
+....
+
+. For each interface that you want to rename, create a `70-*.link` file in the `/etc/systemd/network/` directory with the following content:
++
+[source,subs="+quotes"]
+....
+[Match]
+MACAddress=__<MAC_address>__
+
+[Link]
+Name=__<new_interface_name>__
+....
++
+[IMPORTANT]
+====
+Use a file name with a `70-` prefix to keep the file names consistent with the `udev` rules-based solution.
+====
++
+For example, create the `/etc/systemd/network/70-provider0.link` file with the following content to rename the interface with MAC address `00:00:5e:00:53:1a` to `provider0`:
++
+[source,subs="+quotes"]
+....
+[Match]
+MACAddress=00:00:5e:00:53:1a
+
+[Link]
+Name=provider0
+....
+
+. Optional: Regenerate the `initrd` RAM disk image:
++
+[literal,subs="+quotes"]
+....
+# *dracut -f*
+....
++
+You require this step only if you need networking capabilities in the RAM disk. For example, this is the case if the root file system is stored on a network device, such as iSCSI.
+
+. Identify which NetworkManager connection profile uses the interface that you want to rename:
++
+[literal,subs="+quotes"]
+....
+# *nmcli -f device,name connection show*
+DEVICE  NAME
+enp1s0  example_profile
+...
+....
+
+. Unset the `connection.interface-name` property in the connection profile:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify example_profile connection.interface-name ""*
+....
+
+. Temporarily, configure the connection profile to match both the new and the previous interface name:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify example_profile match.interface-name "provider0 enp1s0"*
+....
+
+. Reboot the system:
++
+[literal,subs="+quotes"]
+....
+# *reboot*
+....
+
+. Verify that the device with the MAC address that you specified in the link file has been renamed to `provider0`:
++
+[literal,subs="+quotes"]
+....
+# *ip link show*
+provider0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...
+....
+
+. Configure the connection profile to match only the new interface name:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify example_profile match.interface-name "provider0"*
+....
++
+You have now removed the old interface name from the connection profile.
+
+. Reactivate the connection profile.
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up example_profile*
+....
+
+

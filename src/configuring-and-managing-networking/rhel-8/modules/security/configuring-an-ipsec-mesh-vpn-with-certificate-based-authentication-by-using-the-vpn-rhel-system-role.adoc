@@ -1,0 +1,184 @@
+:_newdoc-version: 2.17.0
+:_template-generated: 2024-03-08
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-an-ipsec-mesh-vpn-with-certificate-based-authentication-by-using-the-vpn-rhel-system-role_{context}"]
+= Configuring an IPsec mesh VPN with certificate-based authentication by using the `vpn` RHEL system role
+
+[role="_abstract"]
+An IPsec mesh creates a fully interconnected network where every server can communicate securely and directly with every other server. By using the `vpn` RHEL system role, you can automate configuring a VPN mesh with certificate-based authentication among managed nodes.
+
+An IPsec mesh is ideal for distributed database clusters or high-availability environments that span multiple data centers or cloud providers. Establishing a direct, encrypted tunnel between each pair of servers ensures secure communication without a central bottleneck.
+
+For authentication, using digital certificates managed by a Certificate Authority (CA) offers a highly secure and scalable solution. Each host in the mesh presents a certificate signed by a trusted CA. This method provides strong, verifiable authentication and simplifies user management. Access can be granted or revoked centrally at the CA, and Libreswan enforces this by checking each certificate against a certificate revocation list (CRL), denying access if a certificate appears on the list.
+
+
+.Prerequisites
+// Always include prerequisites that are the same for all system role procedures:
+include::common-content/snip_common-prerequisites.adoc[]
+* You prepared a PKCS #12 file for each managed node:
+** Each file contains:
+*** The private key of the server
+*** The server certificate
+*** The CA certificate
+*** If required, intermediate certificates
+** The files are named `_<managed_node_name_as_in_the_inventory>_.p12`.
+** The files are stored in the same directory as the playbook.
+** The server certificate contains the following fields:
+*** Extended Key Usage (EKU) is set to `TLS Web Server Authentication`.
+*** Common Name (CN) or Subject Alternative Name (SAN) is set to the fully-qualified domain name (FQDN) of the host.
+*** X509v3 CRL distribution points contain URLs to Certificate Revocation Lists (CRLs).
+
+
+.Procedure
+. Edit the `~/inventory` file, and append the `cert_name` variable:
++
+[source,ini,subs="+quotes"]
+....
+managed-node-01.example.com **cert_name=_managed-node-01.example.com_**
+managed-node-02.example.com **cert_name=_managed-node-02.example.com_**
+managed-node-03.example.com **cert_name=_managed-node-03.example.com_**
+....
++
+Set the `cert_name` variable to the value of the common name (CN) field used in the certificate for each host. Typically, the CN field is set to the fully-qualified domain name (FQDN).
+
+
+. Store your sensitive variables in an encrypted file:
+
+.. Create the vault:
++
+[subs="+quotes"]
+....
+$ *ansible-vault create ~/vault.yml*
+New Vault password: _<vault_password>_
+Confirm New Vault password: _<vault_password>_
+....
+
+.. After the `ansible-vault create` command opens an editor, enter the sensitive data in the `_<key>_: _<value>_` format:
++
+[source,ini,subs="+quotes"]
+....
+pkcs12_pwd: _<password>_
+....
+
+.. Save the changes, and close the editor. Ansible encrypts the data in the vault.
+
+
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+- name: Configuring VPN
+  hosts: managed-node-01.example.com, managed-node-02.example.com, managed-node-03.example.com
+  vars_files:
+    - ~/vault.yml
+  tasks:
+    - name: Install LibreSwan
+      ansible.builtin.package:
+        name: libreswan
+        state: present
+
+    - name: Identify the path to IPsec NSS database
+      ansible.builtin.set_fact:
+        nss_db_dir: "{{ '/etc/ipsec.d/' if
+          ansible_distribution in ['CentOS', 'RedHat']
+          and ansible_distribution_major_version is version('8', '=')
+          else '/var/lib/ipsec/nss/' }}"
+
+    - name: Locate IPsec NSS database files
+      ansible.builtin.find:
+        paths: "{{ nss_db_dir }}"
+        patterns: "*.db"
+      register: db_files
+
+    - name: Initialize IPsec NSS database if not initialized
+      ansible.builtin.command:
+        cmd: ipsec initnss
+      when: db_files.matched == 0
+
+    - name: Copy PKCS #12 file to the managed node
+      ansible.builtin.copy:
+        src: "~/{{ inventory_hostname }}.p12"
+        dest: "/etc/ipsec.d/{{ inventory_hostname }}.p12"
+        mode: 0600
+
+    - name: Import PKCS #12 file in IPsec NSS database
+      ansible.builtin.shell:
+        cmd: 'pk12util -d {{ nss_db_dir }} -i /etc/ipsec.d/{{ inventory_hostname }}.p12 -W "{{ pkcs12_pwd }}"'
+
+    - name: Remove PKCS #12 file
+      ansible.builtin.file:
+        path: "/etc/ipsec.d/{{ inventory_hostname }}.p12"
+        state: absent
+
+    - name: Opportunistic mesh IPsec VPN with certificate-based authentication
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.vpn
+      vars:
+        vpn_connections:
+          - opportunistic: true
+            auth_method: cert
+            policies:
+              - policy: private
+                cidr: default
+              - policy: private
+                cidr: 192.0.2.0/24
+              - policy: clear
+                cidr: 192.0.2.1/32
+        vpn_manage_firewall: true
+        vpn_manage_selinux: true
+....
++
+The settings specified in the example playbook include the following:
++
+`opportunistic: true`:: Enables an opportunistic mesh among multiple hosts. The `policies` variable defines for which subnets and hosts traffic must or can be encrypted and which of them should continue using plain text connections.
+`auth_method: cert`:: Enables certificate-based authentication. This requires that you specify the nickname of each managed node's certificate in the inventory.
+`policies: _<list_of_policies>_`:: Defines the Libreswan policies in YAML list format.
++
+The default policy is `private-or-clear`. To change it to `private`, the above playbook contains an according policy for the default `cidr` entry.
++
+To prevent a loss of the SSH connection during the execution of the playbook if the Ansible control node is in the same IP subnet as the managed nodes, add a `clear` policy for the control node's IP address. For example, if the mesh should be configured for the `192.0.2.0/24` subnet and the control node uses the IP address `192.0.2.1`, you require a `clear` policy for `192.0.2.1/32` as shown in the playbook.
++
+For details about policies, see the `ipsec.conf(5)` man page on a system with Libreswan installed.
+`vpn_manage_firewall: true`:: Defines that the role opens the required ports in the `firewalld` service on the managed nodes.
+`vpn_manage_selinux: true`:: Defines that the role sets the required SELinux port type on the IPsec ports.
+
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.vpn/README.md` file on the control node.
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --ask-vault-pass --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --ask-vault-pass ~/playbook.yml*
+....
+
+
+.Verification
+
+. On a node in the mesh, ping another node to activate the connection:
++
+[subs="+quotes"]
+....
+[root@managed-node-01]# *ping managed-node-02.example.com*
+....
+
+. Confirm that the connection is active:
++
+[subs="+quotes"]
+....
+[root@managed-node-01]# *ipsec trafficstatus*
+006 #2: "private#192.0.2.0/24"[1] ...192.0.2.2, type=ESP, add_time=1741938929, inBytes=372408, outBytes=545728, maxBytes=2^63B, id='CN=managed-node-02.example.com'
+....
+

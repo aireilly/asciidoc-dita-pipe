@@ -1,0 +1,33 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="displaying-tcp-state-change-information_{context}"]
+= Displaying TCP state change information
+
+[role="_abstract"]
+During a TCP session, the TCP state changes. The `tcpstates` utility uses eBPF functions to trace these state changes, and prints details including the duration in each state. For example, use `tcpstates` to identify if connections spend too much time in the initialization state.
+
+
+.Procedure
+
+. Use the following command to start tracing TCP state changes:
++
+[subs="+quotes"]
+....
+# */usr/share/bcc/tools/tcpstates*
+SKADDR           C-PID C-COMM     LADDR     LPORT RADDR       RPORT OLDSTATE    -> NEWSTATE    MS
+ffff9cd377b3af80 0     swapper/1  0.0.0.0   22    0.0.0.0     0     LISTEN      -> SYN_RECV    0.000
+ffff9cd377b3af80 0     swapper/1  192.0.2.1 22    192.0.2.45  53152 SYN_RECV    -> ESTABLISHED 0.067
+ffff9cd377b3af80 818   sssd_nss   192.0.2.1 22    192.0.2.45  53152 ESTABLISHED -> CLOSE_WAIT  65636.773
+ffff9cd377b3af80 1432  sshd       192.0.2.1 22    192.0.2.45  53152 CLOSE_WAIT  -> LAST_ACK    24.409
+ffff9cd377b3af80 1267  pulseaudio 192.0.2.1 22    192.0.2.45  53152 LAST_ACK    -> CLOSE       0.376
+...
+....
++
+Each time a connection changes its state, `tcpstates` displays a new line with updated connection details.
++
+If multiple connections change their state at the same time, use the socket address in the first column (`SKADDR`) to determine which entries belong to the same connection.
+
+. Press kbd:[Ctrl]+kbd:[C] to stop the tracing process.
+

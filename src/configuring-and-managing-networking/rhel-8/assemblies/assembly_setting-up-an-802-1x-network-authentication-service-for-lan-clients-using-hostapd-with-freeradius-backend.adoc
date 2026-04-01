@@ -1,0 +1,52 @@
+ifdef::context[:parent-context-of-assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend: {context}]
+
+:_mod-docs-content-type: ASSEMBLY
+
+ifndef::context[]
+[id="assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend"]
+endif::[]
+ifdef::context[]
+[id="assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend_{context}"]
+endif::[]
+= Setting up an 802.1x network authentication service for LAN clients by using `hostapd` with FreeRADIUS backend
+
+:context: assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend
+
+[role="_abstract"]
+The IEEE 802.1X standard defines secure authentication and authorization methods to protect networks from unauthorized clients. By using the `hostapd` service and FreeRADIUS, you can provide network access control (NAC) in your network.
+
+[NOTE]
+====
+Red Hat supports only FreeRADIUS with Red Hat Identity Management (IdM) as the backend source of authentication.
+====
+
+In this documentation, the RHEL host acts as a bridge to connect different clients with an existing network. However, the RHEL host grants only authenticated clients access to the network.
+
+image::rhel-authenticator-802-1x.png["RHEL acting as a bridge to connect different clients."]
+
+
+== Prerequisites
+
+* A clean installation of the `freeradius` and `freeradius-ldap` packages.
++
+If the packages are already installed, remove the `/etc/raddb/` directory, uninstall and then install the packages again. Do not reinstall the packages by using the `{PackageManagerCommand} reinstall` command, because the permissions and symbolic links in the `/etc/raddb/` directory are then different.
+
+* The host on which you want to configure FreeRADIUS is a link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/installing_identity_management/index[client in an IdM domain].
+
+
+include::modules/networking/proc_setting-up-the-bridge-on-the-authenticator.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-freeradius-to-authenticate-network-clients-securely-using-eap.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-hostapd-as-an-authenticator-in-a-wired-network.adoc[leveloffset=+1]
+
+include::modules/networking/proc_testing-eap-ttls-authentication-against-a-freeradius-server-or-authenticator.adoc[leveloffset=+1]
+
+include::modules/networking/proc_blocking-and-allowing-traffic-based-on-hostapd-authentication-events.adoc[leveloffset=+1]
+
+
+
+
+ifdef::parent-context-of-assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend[:context: {parent-context-of-assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend}]
+ifndef::parent-context-of-assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend[:!context:]
+

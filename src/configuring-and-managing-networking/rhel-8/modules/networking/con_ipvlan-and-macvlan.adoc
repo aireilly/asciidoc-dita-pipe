@@ -1,0 +1,23 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="ipvlan-and-macvlan_{context}"]
+= Comparison of IPVLAN and MACVLAN
+
+[role="_abstract"]
+The following table shows the major differences between MACVLAN and IPVLAN:
+
+[cols=2*,options="header",frame=rows]
+|===
+|MACVLAN | IPVLAN
+
+|Uses MAC address for each MACVLAN device.
+
+Note that, if a switch reaches the maximum number of MAC addresses it can store in its MAC table, connectivity can be lost.
+|Uses a single MAC address which does not limit the number of IPVLAN devices.
+
+|Netfilter rules for a global namespace cannot affect traffic to or from a MACVLAN device in a child namespace.
+|It is possible to control traffic to or from an IPVLAN device in *L3 mode* and *L3S mode*.
+|===
+
+Both IPVLAN and MACVLAN do not require any level of encapsulation.
+

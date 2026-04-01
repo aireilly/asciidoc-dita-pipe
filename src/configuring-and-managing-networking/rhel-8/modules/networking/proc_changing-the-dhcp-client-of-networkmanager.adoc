@@ -1,0 +1,51 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_changing-the-dhcp-client-of-networkmanager_{context}"]
+= Changing the DHCP client of NetworkManager
+
+[role="_abstract"]
+By default, NetworkManager uses its internal DHCP client. However, if you require a DHCP client with features that the built-in client does not provide, you can alternatively configure NetworkManager to use `dhclient`.
+
+Note that RHEL does not provide `dhcpcd` and, therefore, NetworkManager cannot use this client.
+
+
+.Procedure
+
+. Create the `/etc/NetworkManager/conf.d/dhcp-client.conf` file with the following content:
++
+[source,subs="+quotes"]
+....
+[main]
+dhcp=dhclient
+....
++
+You can set the `dhcp` parameter to `internal` (default) or `dhclient`.
+
+. If you set the `dhcp` parameter to `dhclient`, install the `dhcp-client` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# *{PackageManagerCommand} install dhcp-client*
+....
+
+. Restart NetworkManager:
++
+[literal,subs="+quotes"]
+....
+# *systemctl restart NetworkManager*
+....
++
+Note that the restart temporarily interrupts all network connections.
+
+
+.Verification
+
+* Search in the `/var/log/messages` log file for an entry similar to the following:
++
+[literal,subs="+quotes"]
+....
+Apr 26 09:54:19 server NetworkManager[27748]: <info>  [1650959659.8483] dhcp-init: Using DHCP client 'dhclient'
+....
++
+This log entry confirms that NetworkManager uses `dhclient` as DHCP client.
+

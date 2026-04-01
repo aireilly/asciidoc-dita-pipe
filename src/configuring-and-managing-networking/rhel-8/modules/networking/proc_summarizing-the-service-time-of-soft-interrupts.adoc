@@ -1,0 +1,30 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="summarizing-the-service-time-of-soft-interrupts_{context}"]
+= Summarizing the service time of soft interrupts
+
+[role="_abstract"]
+The `softirqs` utility summarizes the time spent servicing soft interrupts (soft IRQs) and shows this time as either totals or histogram distributions. This utility uses the `irq:softirq_enter` and `irq:softirq_exit` kernel tracepoints, which is a stable tracing mechanism.
+
+
+.Procedure
+. Enter the following command to start the tracing `soft irq` event time:
++
+[subs="+quotes"]
+----
+# */usr/share/bcc/tools/softirqs*
+Tracing soft irq event time... Hit Ctrl-C to end.
+^C
+SOFTIRQ          TOTAL_usecs
+tasklet                  166
+block                   9152
+net_rx                 12829
+rcu                    53140
+sched                 182360
+timer                 306256
+----
+
+. Press kbd:[Ctrl]+kbd:[C] to stop the tracing process.
+

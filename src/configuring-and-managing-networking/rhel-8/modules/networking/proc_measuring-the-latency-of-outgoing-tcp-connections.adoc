@@ -1,0 +1,31 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="measuring-the-latency-of-outgoing-tcp-connections_{context}"]
+= Measuring the latency of outgoing TCP connections
+
+[role="_abstract"]
+The `tcpconnlat` utility uses eBPF features to measure the time between a sent `SYN` packet and the received response packet.
+
+The TCP connection latency is the time taken to establish a connection. This typically involves the kernel TCP/IP processing and network round trip time, and not the application runtime.
+
+
+.Procedure
+
+. Start measuring the latency of outgoing connections:
++
+[subs="+quotes"]
+....
+# */usr/share/bcc/tools/tcpconnlat*
+PID    COMM         IP SADDR      DADDR          DPORT LAT(ms)
+32151  isc-worker00 4  192.0.2.1  192.0.2.254    53    0.60
+32155  ssh          4  192.0.2.1  203.0.113.190  22    26.34
+32319  curl         4  192.0.2.1  198.51.100.59  443   188.96
+...
+....
++
+Each time the kernel processes an outgoing connection, `tcpconnlat` displays the details of the connection after the kernel receives the response packet.
+
+. Press kbd:[Ctrl]+kbd:[C] to stop the tracing process.
+

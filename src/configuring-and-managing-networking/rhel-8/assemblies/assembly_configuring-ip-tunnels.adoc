@@ -1,0 +1,47 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-configuring-ip-tunnels: {context}]
+
+ifndef::context[]
+[id="configuring-ip-tunnels"]
+endif::[]
+ifdef::context[]
+[id="configuring-ip-tunnels_{context}"]
+endif::[]
+= Configuring IP tunnels
+
+:context: configuring-ip-tunnels
+
+[role="_abstract"]
+Similar to a VPN, an IP tunnel directly connects two networks over a third network, such as the internet. However, not all tunnel protocols support encryption.
+
+The routers in both networks that establish the tunnel requires at least two interfaces:
+
+* One interface that is connected to the local network
+* One interface that is connected to the network through which the tunnel is established.
+
+To establish the tunnel, you create a virtual interface on both routers with an IP address from the remote subnet.
+
+NetworkManager supports the following IP tunnels:
+
+* Generic Routing Encapsulation (GRE)
+* Generic Routing Encapsulation over IPv6 (IP6GRE)
+* Generic Routing Encapsulation Terminal Access Point (GRETAP)
+* Generic Routing Encapsulation Terminal Access Point over IPv6 (IP6GRETAP)
+* IPv4 over IPv4 (IPIP)
+* IPv4 over IPv6 (IPIP6)
+* IPv6 over IPv6 (IP6IP6)
+* Simple Internet Transition (SIT)
+
+Depending on the type, these tunnels act either on layer 2 or 3 of the Open Systems Interconnection (OSI) model.
+
+
+include::modules/networking/proc_configuring-an-ipip-tunnel-using-nmcli-to-encapsulate-ipv4-traffic-in-ipv4-packets.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-gre-tunnel-using-nmcli-to-encapsulate-layer-3-traffic-in-ipv4-packets.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-gretap-tunnel-to-transfer-ethernet-frames-over-ipv4.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-configuring-ip-tunnels[:context: {parent-context-of-configuring-ip-tunnels}]
+ifndef::parent-context-of-configuring-ip-tunnels[:!context:]
+

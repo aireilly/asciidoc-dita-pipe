@@ -1,0 +1,51 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-firewalld-on-a-wireguard-server-by-using-the-graphical-interface_{context}"]
+= Configuring `firewalld` on a WireGuard server by using the graphical interface
+
+[role="_abstract"]
+Configure the `firewalld` service on the WireGuard server, allowing incoming connections from clients. If clients need to use the server as their default gateway and route all traffic through the tunnel, enable also masquerading.
+
+
+.Procedure
+
+. Press the kbd:[Super] key, enter `firewall`, and select the *Firewall* application from the results.
+
+. Select `Permanent` in the *Configuration* list.
+
+. Select the `public` zone.
+
+. Allow incoming connections to the WireGuard port:
+
+.. On the *Ports* tab, click btn:[Add].
+
+.. Enter the port number you set for incoming WireGuard connections:
+
+.. Select `udp` from the `Protocol` list.
+
+.. Click btn:[OK].
+
+. If clients should route all traffic through the tunnel and use the WireGuard server as the default gateway:
+
+.. Navigate to the *Masquerading* tab of the *public* zone.
+
+.. Select `Masquerade zone`.
+
+. Select menu:Options[Reload Firewalld].
+
+
+
+.Verification
+
+* Display the configuration of the `public` zone:
++
+[literal,subs="+quotes"]
+....
+# *firewall-cmd --list-all*
+public (active)
+  ...
+  ports: 51820/udp
+  masquerade: yes
+  ...
+....
+

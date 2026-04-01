@@ -1,0 +1,45 @@
+:_mod-docs-content-type: ASSEMBLY
+:parent-context-of-configuring-network-bonding: {context}
+
+[id='configuring-network-bonding_{context}']
+= Configuring a network bond
+
+:context: configuring-network-bonding
+
+[role="_abstract"]
+A network bond aggregates physical and virtual network interfaces into a single logical one. The kernel exclusively handles all operations. You can create bonds on different device types, such as Ethernet or VLANs, for higher throughput or redundancy.
+
+{RHEL} provides administrators different options to configure bond devices. For example:
+
+* Use `nmcli` to configure bond connections using the command line.
+* Use the {ProductShortName} web console to configure bond connections using a web browser.
+* Use `nmtui` to configure bond connections in a text-based user interface.
+* Use the `nm-connection-editor` application to configure bond connections in a graphical interface.
+* Use `nmstatectl` to configure bond connections through the Nmstate API.
+* Use {RHELSystemRoles}s to automate the bond configuration on one or multiple hosts.
+
+
+include::modules/networking/con_understanding-the-default-behavior-of-controller-and-port-interfaces.adoc[leveloffset=+1]
+
+include::modules/networking/con_upstream-switch-configuration-depending-on-the-bonding-modes.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-bond-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-bond-by-using-the-rhel-web-console.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-bond-by-using-nmtui.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-bond-by-using-nm-connection-editor.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-bond-by-using-nmstatectl.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-bond-by-using-the-network-rhel-system-role.adoc[leveloffset=+1]
+
+include::modules/networking/proc_creating-a-network-bond-to-enable-switching-between-an-ethernet-and-wireless-connection-without-interrupting-the-vpn.adoc[leveloffset=+1]
+
+include::modules/networking/ref_the-different-network-bonding-modes.adoc[leveloffset=+1]
+
+include::modules/networking/ref_xmit-hash-policy-bonding-parameter.adoc[leveloffset=+1]
+
+:context: {parent-context-of-configuring-network-bonding}
+

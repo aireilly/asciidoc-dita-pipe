@@ -1,0 +1,28 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="understanding-mptcp_{context}"]
+= Understanding MPTCP
+
+[role="_abstract"]
+The Multipath TCP (MPTCP) protocol provides simultaneous usage of multiple paths between connection endpoints. The protocol design improves connection stability and also brings other benefits compared to the single-path TCP. 
+
+[NOTE]
+====
+In MPTCP terminology, links are considered as paths.
+====
+
+The following are some of the advantages of using MPTCP:
+
+* It allows a connection to simultaneously use multiple network interfaces.
+* In case a connection is bound to a link speed, the usage of multiple links can increase the connection throughput. Note, that in case of the connection is bound to a CPU, the usage of multiple links causes the connection slowdown.
+* It increases the resilience to link failures.
+
+
+[role="_additional-resources"]
+.Additional resources
+* link:https://www.redhat.com/en/blog/understanding-multipath-tcp-networking-highway-future[Understanding Multipath TCP: High availability for endpoints and the networking highway of the future]
+* link:https://www.rfc-editor.org/rfc/rfc8684[RFC8684: TCP Extensions for Multipath Operation with Multiple Addresses]
+ifeval::[{ProductNumber} == 8]
+* link:https://developers.redhat.com/blog/2020/08/19/multipath-tcp-on-red-hat-enterprise-linux-8-3-from-0-to-1-subflows#[Multipath TCP on Red Hat Enterprise Linux 8.3: From 0 to 1 subflows]
+endif::[]
+

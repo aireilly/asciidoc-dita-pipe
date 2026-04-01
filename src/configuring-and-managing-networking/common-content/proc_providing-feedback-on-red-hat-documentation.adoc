@@ -1,0 +1,39 @@
+:_mod-docs-content-type: PROCEDURE
+
+[preface]
+[id="proc_providing-feedback-on-red-hat-documentation_{context}"]
+= Providing feedback on Red Hat documentation
+
+[role="_abstract"]
+We appreciate your feedback on our documentation. Let us know how we can improve it.
+
+////
+[l10n-exclude-start]
+.Submitting comments on specific passages
+
+. View the documentation in the *Multi-page HTML* format and ensure that you see the *Feedback* button in the upper right corner after the page fully loads.
+. Use your cursor to highlight the part of the text that you want to comment on.
+. Click the *Add Feedback* button that appears near the highlighted text.
+. Add your feedback and click *Submit*.
+
+[l10n-exclude-end]
+////
+
+////
+.Submitting feedback through Bugzilla (account required)
+
+. Log in to the link:https://bugzilla.redhat.com/enter_bug.cgi?product=Red%20Hat%20Enterprise%20Linux%208&component=Documentation[Bugzilla] website.
+. Select the correct version from the *Version* menu.
+. Enter a descriptive title in the *Summary* field.
+. Enter your suggestion for improvement in the *Description* field. Include links to the relevant parts of the documentation.
+. Click *Submit Bug*.
+
+////
+
+.Submitting feedback through Jira (account required)
+
+. Log in to the link:https://issues.redhat.com/projects/RHELDOCS/issues[Jira] website.
+. Click *Create* in the top navigation bar
+. Enter a descriptive title in the *Summary* field.
+. Enter your suggestion for improvement in the *Description* field. Include links to the relevant parts of the documentation.
+. Click *Create* at the bottom of the dialogue.

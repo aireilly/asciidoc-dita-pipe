@@ -1,0 +1,127 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-wireguard-server-by-using-the-wg-quick-service_{context}"]
+= Configuring a WireGuard server by using the `wg-quick` service
+
+[role="_abstract"]
+You can configure the WireGuard server by creating a configuration file in the `/etc/wireguard/` directory. Use this method to configure the service independently from NetworkManager.
+
+This procedure assumes the following settings:
+
+* Server:
+
+** Private key: `YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg=`
+** Tunnel IPv4 address: `192.0.2.1/24`
+** Tunnel IPv6 address: `2001:db8:1::1/32`
+
+* Client:
+
+** Public key: `bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=`
+** Tunnel IPv4 address: `192.0.2.2/24`
+** Tunnel IPv6 address: `2001:db8:1::2/32`
+
+
+
+.Prerequisites
+
+* You have generated the public and private key for both the server and client.
+
+* You know the following information:
++
+** The private key of the server
+** The static tunnel IP addresses and subnet masks of the client
+** The public key of the client
+** The static tunnel IP addresses and subnet masks of the server
+
+
+
+.Procedure
+
+. Install the `wireguard-tools` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# *{PackageManagerCommand} install wireguard-tools*
+....
+
+. Create the `/etc/wireguard/wg0.conf` file with the following content:
++
+[literal,subs="+quotes"]
+....
+*[Interface]*
+*Address = 192.0.2.1/24, 2001:db8:1::1/32*
+*ListenPort = 51820*
+*PrivateKey = YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg=*
+
+*[Peer]*
+*PublicKey = bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=*
+*AllowedIPs = 192.0.2.2, 2001:db8:1::2*
+....
++
+* The `[Interface]` section describes the WireGuard settings of the interface on the server:
++
+** `Address`: A comma-separated list of the server's tunnel IP addresses.
+** `PrivateKey`: The private key of the server.
+** `ListenPort`: The port on which WireGuard listens for incoming UDP connections.
++
+Always set a fixed port number on hosts that receive incoming WireGuard connections. If you do not set a port, WireGuard uses a random free port each time you activate the `wg0` interface.
+
+* Each `[Peer]` section describes the settings of one client:
++
+** `PublicKey`: The public key of the client.
+** `AllowedIPs`: The tunnel IP addresses of the client that are allowed to send data to this server.
+
+. Enable and start the WireGuard connection:
++
+[literal,subs="+quotes"]
+....
+# *systemctl enable --now wg-quick@wg0*
+....
++
+The systemd instance name must match the name of the configuration file in the `/etc/wireguard/` directory without the `.conf` suffix. The service also uses this name for the virtual network interface.
+
+. If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see xref:assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn[Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel].
+
+
+.Verification
+
+. Display the interface configuration of the `wg0` device:
++
+[literal,subs="+quotes"]
+....
+# *wg show wg0*
+interface: wg0
+  public key: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  private key: (hidden)
+  listening port: 51820
+
+peer: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  allowed ips: 192.0.2.2/32, 2001:db8:1::2/128
+....
++
+To display the private key in the output, use the `WG_HIDE_KEYS=never wg show wg0` command.
+
+. Display the IP configuration of the `wg0` device:
++
+[literal,subs="+quotes"]
+....
+# *ip address show wg0*
+20: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.1/24 scope global wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global
+       valid_lft forever preferred_lft forever
+....
+
+
+.Next steps
+
+ifdef::networking-title[]
+* xref:proc_configuring-firewalld-on-a-wireguard-server-by-using-the-command-line_assembly_setting-up-a-wireguard-vpn[Configure the firewalld service on the WireGuard server].
+endif::[]
+
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/assembly_setting-up-a-wireguard-vpn_configuring-and-managing-networking#proc_configuring-firewalld-on-a-wireguard-server-by-using-the-command-line_assembly_setting-up-a-wireguard-vpn[Configure the firewalld service on the WireGuard server]
+endif::[]
+

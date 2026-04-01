@@ -1,0 +1,136 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="introduction-to-networkmanager-reapply-method_{context}"]
+= Introduction to NetworkManager `reapply()` method
+
+[role="_abstract"]
+NetworkManager uses profiles to manage device connection settings, which can be created, modified, or deleted through the D-Bus API. When a profile is changed, D-Bus clones the settings. To apply these changes, you must reactivate the connection's settings or use the `reapply()` method.
+
+The `reapply()` method has the following features:
+
+. Updating modified connection settings without deactivation or restart of a network interface.
+. Removing pending changes from the modified connection settings. As `NetworkManager` does not revert the manual changes, you can reconfigure the device and revert external or manual parameters.
+. Creating different modified connection settings than that of the existing connection settings.
+
+Also, `reapply()` method supports the following attributes:
+
+* `bridge.ageing-time`
+
+* `bridge.forward-delay`
+
+* `bridge.group-address`
+
+* `bridge.group-forward-mask`
+
+* `bridge.hello-time`
+
+* `bridge.max-age`
+
+* `bridge.multicast-hash-max`
+
+* `bridge.multicast-last-member-count`
+
+* `bridge.multicast-last-member-interval`
+
+* `bridge.multicast-membership-interval`
+
+* `bridge.multicast-querier`
+
+* `bridge.multicast-querier-interval`
+
+* `bridge.multicast-query-interval`
+
+* `bridge.multicast-query-response-interval`
+
+* `bridge.multicast-query-use-ifaddr`
+
+* `bridge.multicast-router`
+
+* `bridge.multicast-snooping`
+
+* `bridge.multicast-startup-query-count`
+
+* `bridge.multicast-startup-query-interval`
+
+* `bridge.priority`
+
+* `bridge.stp`
+
+* `bridge.VLAN-filtering`
+
+* `bridge.VLAN-protocol`
+
+* `bridge.VLANs`
+
+* `802-3-ethernet.accept-all-mac-addresses`
+
+* `802-3-ethernet.cloned-mac-address`
+
+* `IPv4.addresses`
+
+* `IPv4.dhcp-client-id`
+
+* `IPv4.dhcp-iaid`
+
+* `IPv4.dhcp-timeout`
+
+* `IPv4.DNS`
+
+* `IPv4.DNS-priority`
+
+* `IPv4.DNS-search`
+
+* `IPv4.gateway`
+
+* `IPv4.ignore-auto-DNS`
+
+* `IPv4.ignore-auto-routes`
+
+* `IPv4.may-fail`
+
+* `IPv4.method`
+
+* `IPv4.never-default`
+
+* `IPv4.route-table`
+
+* `IPv4.routes`
+
+* `IPv4.routing-rules`
+
+* `IPv6.addr-gen-mode`
+
+* `IPv6.addresses`
+
+* `IPv6.dhcp-duid`
+
+* `IPv6.dhcp-iaid`
+
+* `IPv6.dhcp-timeout`
+
+* `IPv6.DNS`
+
+* `IPv6.DNS-priority`
+
+* `IPv6.DNS-search`
+
+* `IPv6.gateway`
+
+* `IPv6.ignore-auto-DNS`
+
+* `IPv6.may-fail`
+
+* `IPv6.method`
+
+* `IPv6.never-default`
+
+* `IPv6.ra-timeout`
+
+* `IPv6.route-metric`
+
+* `IPv6.route-table`
+
+* `IPv6.routes`
+
+* `IPv6.routing-rules`
+

@@ -1,0 +1,22 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="con_how-wireguard-uses-tunnel-ip-addresses-public-keys-and-remote-endpoints_{context}"]
+= How WireGuard uses tunnel IP addresses, public keys, and remote endpoints
+
+[role="_abstract"]
+WireGuard's design tightly couples network routing with cryptographic identity, creating a `Cryptokey Routing Table`. This system enables the protocol to function as both a routing mechanism for outgoing traffic and an access control list for incoming packets, ensuring that only authenticated and authorized traffic is processed.
+
+When WireGuard sends a network packet to a peer:
+
+. WireGuard reads the destination IP from the packet and compares it to the list of allowed IP addresses in the local configuration. If the peer is not found, WireGuard drops the packet.
+
+. If the peer is valid, WireGuard encrypts the packet using the peer's public key.
+
+. The sending host looks up the most recent Internet IP address of the host and sends the encrypted packet to it.
+
+When WireGuard receives a packet:
+
+. WireGuard decrypts the packet using the private key of the remote host.
+
+. WireGuard reads the internal source address from the packet and looks up whether the IP is configured in the list of allowed IP addresses in the settings for the peer on the local host. If the source IP is on the allowlist, WireGuard accepts the packet. If the IP address is not on the list, WireGuard drops the packet.
+

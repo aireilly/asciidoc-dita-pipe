@@ -1,0 +1,45 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="temporarily-setting-log-levels-at-run-time-using-nmcli_{context}"]
+= Temporarily setting log levels at run time using `nmcli`
+
+[role="_abstract"]
+You can change the log level at run time using `nmcli`.
+
+
+.Procedure
+
+. Optional: Display the current logging settings:
++
+[literal,subs="+quotes"]
+....
+# **nmcli general logging**
+  LEVEL  DOMAINS
+  INFO   PLATFORM,RFKILL,ETHER,WIFI,BT,MB,DHCP4,DHCP6,PPP,WIFI_SCAN,IP4,IP6,A
+UTOIP4,DNS,VPN,SHARING,SUPPLICANT,AGENTS,SETTINGS,SUSPEND,CORE,DEVICE,OLPC,
+WIMAX,INFINIBAND,FIREWALL,ADSL,BOND,VLAN,BRIDGE,DBUS_PROPS,TEAM,CONCHECK,DC
+B,DISPATCH
+....
+
+. To modify the logging level and domains, use the following options:
+** To set the log level for all domains to the same `LEVEL`, enter:
++
+[literal,subs="+quotes"]
+----
+# **nmcli general logging level _LEVEL_ domains _ALL_**
+----
+
+** To change the level for specific domains, enter:
++
+[literal,subs="+quotes"]
+----
+# **nmcli general logging level _LEVEL_ domains _DOMAINS_**
+----
+Note that updating the logging level using this command disables logging for all the other domains.
+
+** To change the level of specific domains and preserve the level of all other domains, enter:
++
+[literal,subs="+quotes"]
+----
+# **nmcli general logging level KEEP domains _DOMAIN:LEVEL_,_DOMAIN:LEVEL_**
+----

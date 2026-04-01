@@ -1,0 +1,32 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-09-18
+:_mod-docs-content-type: ASSEMBLY
+
+ifdef::context[:parent-context-of-manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication: {context}]
+
+ifndef::context[]
+[id="manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication"]
+endif::[]
+ifdef::context[]
+[id="manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication_{context}"]
+endif::[]
+= Manually configuring an IPsec host-to-site VPN with certificate-based authentication
+
+:context: manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication
+
+[role="_abstract"]
+A host-to-site VPN establishes a secure, encrypted connection between an individual remote computer and a private network, allowing them to be seamlessly linked across an insecure public network, such as the internet.
+
+A host-to-site VPN is ideal for remote employees who need to access resources on their company's internal network from their computer as if they were physically in the office.
+
+For authentication, using digital certificates managed by a Certificate Authority (CA) offers a highly secure and scalable solution. Each connecting host and the gateway presents a certificate signed by a trusted CA. This method provides strong, verifiable authentication and simplifies user management. Access can be granted or revoked centrally at the CA, and Libreswan enforces this by checking each certificate against a certificate revocation list (CRL), denying access if a certificate appears on the list.
+
+
+include::modules/networking/proc_setting-up-an-ipsec-gateway-manually.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings-application.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication[:context: {parent-context-of-manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication}]
+ifndef::parent-context-of-manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication[:!context:]
+

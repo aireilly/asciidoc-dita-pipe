@@ -1,0 +1,27 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-getting-started-with-multipath-tcp: {context}]
+
+[id="getting-started-with-multipath-tcp_{context}"]
+= Getting started with Multipath TCP
+
+:context: getting-started-with-multipath-tcp
+
+[role="_abstract"]
+Multipath TCP (MPTCP) is an extension to the original TCP protocol (single-path). MPTCP enables a transport connection to operate across multiple paths simultaneously, and brings network connection redundancy to user endpoint devices.
+
+
+include::modules/networking/con_understanding-mptcp.adoc[leveloffset=+1]
+
+include::modules/networking/proc_preparing-rhel-to-enable-mptcp-support.adoc[leveloffset=+1]
+
+include::modules/networking/proc_using-iproute2-to-temporarily-configure-and-enable-multiple-paths-for-mptcp-applications.adoc[leveloffset=+1]
+
+include::modules/networking/proc_permanently-configuring-multiple-paths-for-mptcp-applications.adoc[leveloffset=+1]
+
+include::modules/networking/proc_monitoring-mptcp-sub-flows.adoc[leveloffset=+1]
+
+include::modules/networking/proc_disabling-multipath-tcp-in-the-kernel.adoc[leveloffset=+1]
+
+ifdef::parent-context-of-getting-started-with-multipath-tcp[:context: {parent-context-of-getting-started-with-multipath-tcp}]
+ifndef::parent-context-of-getting-started-with-multipath-tcp[:!context:]
+

@@ -1,0 +1,34 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="con_using-the-libnmstate-library-in-a-python-application_{context}"]
+= Using the libnmstate library in a Python application
+
+[role="_abstract"]
+The `libnmstate` Python library enables developers to use Nmstate in their own application.
+
+To use the library, import it in your source code:
+
+[subs="+quotes"]
+....
+import libnmstate
+....
+
+Note that you must install the `nmstate` and `python3-libnmstate` packages to use this library.
+
+
+.Querying the network state by using the libnmstate library
+====
+The following Python code imports the `libnmstate` library and displays the available network interfaces and their state:
+
+[source,python]
+....
+import libnmstate
+from libnmstate.schema import Interface
+
+net_state = libnmstate.show()
+for iface_state in net_state[Interface.KEY]:
+    print(iface_state[Interface.NAME] + ": "
+          + iface_state[Interface.STATE])
+....
+====
+

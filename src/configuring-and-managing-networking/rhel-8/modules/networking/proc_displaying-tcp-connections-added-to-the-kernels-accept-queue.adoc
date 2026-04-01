@@ -1,0 +1,33 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="displaying-tcp-connections-added-to-the-kernels-accept-queue_{context}"]
+= Displaying TCP connections added to the Kernel's accept queue
+
+[role="_abstract"]
+By using the `tcpaccept` utility, you can monitor newly accepted connections by tracing the kernel's `accept()` function.
+
+After the kernel receives the `ACK` packet in a TCP 3-way handshake, the kernel moves the connection from the `SYN` queue to the `accept` queue after the connection's state changes to `ESTABLISHED`. Therefore, only successful TCP connections are visible in this queue.
+
+The `tcpaccept` utility uses eBPF features to display all connections the kernel adds to the `accept` queue. The utility is lightweight because it traces the `accept()` function of the kernel instead of capturing packets and filtering them. For example, use `tcpaccept` for general troubleshooting to display new connections the server has accepted.
+
+
+.Procedure
+
+. Enter the following command to start the tracing the kernel `accept` queue:
++
+[subs="+quotes"]
+....
+# */usr/share/bcc/tools/tcpaccept*
+PID   COMM      IP RADDR         RPORT  LADDR    LPORT
+843   sshd      4  192.0.2.17    50598  192.0.2.1  22
+1107  ns-slapd  4  198.51.100.6  38772  192.0.2.1  389
+1107  ns-slapd  4  203.0.113.85  38774  192.0.2.1  389
+...
+....
++
+Each time the kernel accepts a connection, `tcpaccept` displays the details of the connections.
+
+. Press kbd:[Ctrl]+kbd:[C] to stop the tracing process.
+

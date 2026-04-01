@@ -1,0 +1,69 @@
+:_mod-docs-content-type: PROCEDURE
+
+[[sec-Creating_and_configuring_the_ipvlan_device_using_iproute2]]
+[id="creating-and-configuring-the-ipvlan-device-using-iproute2_{context}"]
+= Creating and configuring the IPVLAN device using iproute2
+
+[role="_abstract"]
+This procedure shows how to set up the IPVLAN device using `iproute2`.
+
+.Procedure
+
+. To create an IPVLAN device, enter the following command:
++
+[literal,subs="+quotes"]
+....
+# **ip link add link _<real_nic_device>_ name _<ipvlan_device>_ type ipvlan mode l2**
+....
++
+Note that network interface controller (NIC) is a hardware component which connects a computer to a network.
+
+. To assign an `IPv4` or `IPv6` address to the interface, enter the following command:
++
+[literal,subs="+quotes"]
+....
+# **ip addr add dev _<ipvlan_device>_ _<ip_address/subnet_mask_prefix>_**
+....
+. In case of configuring an IPVLAN device in *L3 mode* or *L3S mode*, make the following setups:
++
+.. Configure the neighbor setup for the remote peer on the remote host:
++
+[literal,subs="+quotes"]
+....
+# **ip neigh add dev _<peer_device>_ _<ipvlan_device_IP_address>_ lladdr _<mac_address>_**
+....
++
+where _MAC_address_ is the MAC address of the real NIC on which an IPVLAN device is based on.
++
+.. Configure an IPVLAN device for *L3 mode* with the following command:
++
+[literal,subs="+quotes"]
+....
+# **ip route add dev __<real_nic_device>__ __<peer_ip_address/32>__**
+....
++
+For *L3S mode*:
++
+[literal,subs="+quotes"]
+....
+# **ip route add dev _<real_nic_device>_ _<peer_ip_address>/32_**
+....
++
+where IP-address represents the address of the remote peer.
+
+. To set an IPVLAN device active, enter the following command:
++
+[literal,subs="+quotes"]
+....
+# **ip link set dev _<ipvlan_device>_ up**
+....
+
+. To check if the IPVLAN device is active, execute the following command on the remote host:
++
+[literal,subs="+quotes"]
+....
+# **ping _<IP_address>_**
+....
++
+where the _IP_address_ uses the IP address of the IPVLAN device.
+

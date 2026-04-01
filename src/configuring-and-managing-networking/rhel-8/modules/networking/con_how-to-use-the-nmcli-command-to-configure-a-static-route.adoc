@@ -1,0 +1,50 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="how-to-use-the-nmcli-command-to-configure-a-static-route_{context}"]
+= How to use the `nmcli` utility to configure a static route
+
+[role="_abstract"]
+You can use the `nmcli` utility to configure a static route on the command line. 
+
+Use following syntax:
+
+[literal,subs="+quotes"]
+....
+$ **nmcli connection modify _connection_name_ ipv4.routes "_ip_[/_prefix_] [_next_hop_] [_metric_] [_attribute_=_value_] [_attribute_=_value_] ..."**
+....
+
+
+The command supports the following route attributes:
+
+* `cwnd=__n__`: Sets the congestion window (CWND) size, defined in the number of packets.
+* `lock-cwnd=true|false`: Defines whether or not the kernel can update the CWND value.
+* `lock-mtu=true|false`: Defines whether or not the kernel can update the MTU to path MTU discovery.
+* `lock-window=true|false`: Defines whether or not the kernel can update the maximum window size for TCP packets.
+* `mtu=_<mtu_value>_`: Sets the maximum transfer unit (MTU) to use along the path to the destination.
+* `onlink=true|false`: Defines whether the next hop is directly attached to this link even if it does not match any interface prefix.
+* `scope=_<scope>_`: For an IPv4 route, this attribute sets the scope of the destinations covered by the route prefix. Set the value as an integer (0-255).
+* `src=_<source_address>_`: Sets the source address to prefer when sending traffic to the destinations covered by the route prefix.
+* `table=_<table_id>_`: Sets the ID of the table the route should be added to. If you omit this parameter, NetworkManager uses the `main` table.
+* `tos=_<type_of_service_key>_`: Sets the type of service (TOS) key. Set the value as an integer (0-255).
+* `type=_<route_type>_`: Sets the route type. NetworkManager supports the `unicast`, `local`, `blackhole`, `unreachable`, `prohibit`, and `throw` route types. The default is `unicast`.
+* `window=_<window_size>_`: Sets the maximal window size for TCP to advertise to these destinations, measured in bytes.
+
+[IMPORTANT]
+====
+If you use the `ipv4.routes` option without a preceding `+` sign, `nmcli` overrides all current settings of this parameter.
+
+* To create an additional route, enter:
++
+[literal,subs="+quotes"]
+....
+$ *nmcli connection modify _connection_name_ +ipv4.routes "_<route>_"*
+....
+
+* To remove a specific route, enter:
++
+[literal,subs="+quotes"]
+....
+$ *nmcli connection modify _connection_name_ -ipv4.routes "_<route>_"*
+....
+====
+

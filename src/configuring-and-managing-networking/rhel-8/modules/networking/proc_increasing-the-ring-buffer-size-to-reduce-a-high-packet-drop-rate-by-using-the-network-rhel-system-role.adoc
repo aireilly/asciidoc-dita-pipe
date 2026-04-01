@@ -1,0 +1,101 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+[id="proc_increasing-the-ring-buffer-size-to-reduce-a-high-packet-drop-rate-using-the-network-rhel-system-role_{context}"]
+= Increasing the ring buffer size to reduce a high packet drop rate by using the `network` {RHELSystemRoles}
+
+[role="_abstract"]
+Increase the size of an Ethernet device's ring buffers if the packet drop rate causes applications to report a loss of data, timeouts, or other issues.
+
+Ring buffers are circular buffers where an overflow overwrites existing data. The network card assigns a transmit (TX) and receive (RX) ring buffer. Receive ring buffers are shared between the device driver and the network interface controller (NIC). Data can move from NIC to the kernel through either hardware interrupts or software interrupts, also called SoftIRQs.
+
+The kernel uses the RX ring buffer to store incoming packets until the device driver can process them. The device driver drains the RX ring, typically by using SoftIRQs, which puts the incoming packets into a kernel data structure called an `sk_buff` or `skb` to begin its journey through the kernel and up to the application that owns the relevant socket.
+
+The kernel uses the TX ring buffer to hold outgoing packets which should be sent to the network. These ring buffers reside at the bottom of the stack and are a crucial point at which packet drop can occur, which in turn will adversely affect network performance.
+
+You configure ring buffer settings in the NetworkManager connection profiles. By using Ansible and the `network` RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.
+
+[WARNING]
+====
+You cannot use the `network` RHEL system role to update only specific values in an existing connection profile. The role ensures that a connection profile exactly matches the settings in a playbook. If a connection profile with the same name already exists, the role applies the settings from the playbook and resets all other settings in the profile to their defaults. To prevent resetting values, always specify the whole configuration of the network connection profile in the playbook, including the settings that you do not want to change.
+====
+
+
+.Prerequisites
+
+include::common-content/snip_common-prerequisites.adoc[]
+// The following are prerequisites that are specific for this task:
+* You know the maximum ring buffer sizes that the device supports.
+
+
+.Procedure
+
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Ethernet connection profile with dynamic IP address setting and increased ring buffer sizes
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: enp1s0
+            type: ethernet
+            autoconnect: yes
+            ip:
+              dhcp4: yes
+              auto6: yes
+            *ethtool:*
+              *ring:*
+                *rx: 4096*
+                *tx: 4096*
+            state: up
+....
++
+The settings specified in the example playbook include the following:
++
+`rx: _<value>_`:: Sets the maximum number of received ring buffer entries.
+`tx: _<value>_`:: Sets the maximum number of transmitted ring buffer entries.
+
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.network/README.md` file on the control node.
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook ~/playbook.yml*
+....
+
+
+.Verification
+
+* Display the maximum ring buffer sizes:
++
+[literal,subs="+quotes"]
+....
+# *ansible managed-node-01.example.com -m command -a 'ethtool -g enp1s0'*
+managed-node-01.example.com | CHANGED | rc=0 >>
+...
+Current hardware settings:
+RX:             4096
+RX Mini:        0
+RX Jumbo:       0
+TX:             4096
+....
+

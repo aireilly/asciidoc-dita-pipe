@@ -1,0 +1,144 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+[id="configuring-a-static-ethernet-connection-with-802-1x-network-authentication-by-using-the-network-rhel-system-role_{context}"]
+= Configuring a static Ethernet connection with 802.1X network authentication by using the `network` {RHELSystemRoles}
+
+[role="_abstract"]
+By using the `network` RHEL system role, you can automate setting up Network Access Control (NAC) on remote hosts. You can define authentication details for clients in a playbook to ensure only authorized clients can access the network.
+
+You can use an Ansible playbook to copy a private key, a certificate, and the CA certificate to the client, and then use the `network` RHEL system role to configure a connection profile with 802.1X network authentication.
+
+
+.Prerequisites
+
+include::common-content/snip_common-prerequisites.adoc[]
+// The following are prerequisites that are specific for this task:
+* The network supports 802.1X network authentication.
+* The managed nodes use NetworkManager.
+* The following files required for the TLS authentication exist on the control node:
+** The client key is stored in the `/srv/data/client.key` file.
+** The client certificate is stored in the `/srv/data/client.crt` file.
+** The Certificate Authority (CA) certificate is stored in the `/srv/data/ca.crt` file.
+
+
+.Procedure
+
+. Store your sensitive variables in an encrypted file:
+
+.. Create the vault:
++
+[subs="+quotes"]
+....
+$ *ansible-vault create ~/vault.yml*
+New Vault password: _<vault_password>_
+Confirm New Vault password: _<vault_password>_
+....
+
+.. After the `ansible-vault create` command opens an editor, enter the sensitive data in the `_<key>_: _<value>_` format:
++
+[source,ini,subs="+quotes"]
+....
+pwd: _<password>_
+....
+
+.. Save the changes, and close the editor. Ansible encrypts the data in the vault.
+
+
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configure an Ethernet connection with 802.1X authentication
+  hosts: managed-node-01.example.com
+  vars_files:
+    - ~/vault.yml
+  tasks:
+    - name: Copy client key for 802.1X authentication
+      ansible.builtin.copy:
+        src: "/srv/data/client.key"
+        dest: "/etc/pki/tls/private/client.key"
+        mode: 0600
+
+    - name: Copy client certificate for 802.1X authentication
+      ansible.builtin.copy:
+        src: "/srv/data/client.crt"
+        dest: "/etc/pki/tls/certs/client.crt"
+
+    - name: Copy CA certificate for 802.1X authentication
+      ansible.builtin.copy:
+        src: "/srv/data/ca.crt"
+        dest: "/etc/pki/ca-trust/source/anchors/ca.crt"
+
+    - name: Ethernet connection profile with static IP address settings and 802.1X
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: enp1s0
+            type: ethernet
+            autoconnect: yes
+            ip:
+              address:
+                - 192.0.2.1/24
+                - 2001:db8:1::1/64
+              gateway4: 192.0.2.254
+              gateway6: 2001:db8:1::fffe
+              dns:
+                - 192.0.2.200
+                - 2001:db8:1::ffbb
+              dns_search:
+                - example.com
+            ieee802_1x:
+              identity: _<user_name>_
+              eap: tls
+              private_key: "/etc/pki/tls/private/client.key"
+              private_key_password: "{{ pwd }}"
+              client_cert: "/etc/pki/tls/certs/client.crt"
+              ca_cert: "/etc/pki/ca-trust/source/anchors/ca.crt"
+              domain_suffix_match: example.com
+            state: up
+....
++
+The settings specified in the example playbook include the following:
++
+`ieee802_1x`:: This variable contains the 802.1X-related settings.
+`eap: tls`:: Configures the profile to use the certificate-based `TLS` authentication method for the Extensible Authentication Protocol (EAP).
+
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.network/README.md` file on the control node.
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --ask-vault-pass --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --ask-vault-pass ~/playbook.yml*
+....
+
+
+.Verification
+
+* Access resources on the network that require network authentication.
+
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::system-roles-ansible[]
+* xref:ansible-vault_automating-system-administration-by-using-rhel-system-roles[Ansible vault]
+endif::[]
+ifndef::system-roles-ansible[]
+* link:https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/{ProductNumberLink}/html/automating_system_administration_by_using_rhel_system_roles/ansible-vault_automating-system-administration-by-using-rhel-system-roles[Ansible vault]
+endif::[]
+

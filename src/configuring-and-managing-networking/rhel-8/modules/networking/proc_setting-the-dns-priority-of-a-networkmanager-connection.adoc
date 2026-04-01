@@ -1,0 +1,56 @@
+:_mod-docs-content-type: PROCEDURE
+[id="setting-the-dns-priority-of-a-networkmanager-connection_{context}"]
+
+= Setting the DNS priority of a NetworkManager connection
+
+[role="_abstract"]
+If you require a specific order of DNS servers you can set priority values in connection profiles. NetworkManager uses these values to order the servers when the service creates or updates the `/etc/resolv.conf` file.
+
+Note that setting DNS priorities makes only sense if you have multiple connections with different DNS servers configured. If you have only one connection with multiple DNS servers configured, manually set the DNS servers in the preferred order in the connection profile.
+
+
+.Prerequisites
+
+* The system has multiple NetworkManager connections configured.
+* The system either has no `dns` parameter set in the `/etc/NetworkManager/NetworkManager.conf` file or the parameter is set to `default`.
+
+
+.Procedure
+
+. Optional: Display the available connections:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection show*
+NAME           UUID                                  TYPE      DEVICE
+Example_con_1  d17ee488-4665-4de2-b28a-48befab0cd43  ethernet  enp1s0
+Example_con_2  916e4f67-7145-3ffa-9f7b-e7cada8f6bf7  ethernet  enp7s0
+...
+....
+
+. Set the `ipv4.dns-priority` and `ipv6.dns-priority` parameters. For example, to set both parameters to `10`, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify _<connection_name>_ ipv4.dns-priority 10 ipv6.dns-priority 10*
+....
+
+. Optional: Repeat the previous step for other connections.
+
+. Re-activate the connection you updated:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up _<connection_name>_*
+....
+
+
+.Verification
+
+* Display the contents of the `/etc/resolv.conf` file to verify that the DNS server order is correct:
++
+[literal,subs="+quotes"]
+....
+# *cat /etc/resolv.conf*
+....
+

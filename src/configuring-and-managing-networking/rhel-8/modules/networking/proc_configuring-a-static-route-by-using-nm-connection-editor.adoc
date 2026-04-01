@@ -1,0 +1,84 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="configuring-a-static-route-by-using-nm-connection-editor_{context}"]
+= Configuring a static route by using nm-connection-editor
+
+[role="_abstract"]
+You can use the `nm-connection-editor` application to add a static route to the configuration of a network connection.
+
+The procedure below configures the following routes:
+
+* An IPv4 route to the remote `198.51.100.0/24` network. The corresponding gateway with the IP address `192.0.2.10` is reachable through the `example` connection.
+* An IPv6 route to the remote `2001:db8:2::/64` network. The corresponding gateway with the IP address `2001:db8:1::10` is reachable through the `example` connection.
+
+
+.Prerequisites
+
+* The network is configured.
+* This host is in the same IP subnet as the gateways.
+
+
+.Procedure
+
+. Open a terminal, and enter `nm-connection-editor`:
++
+[literal,subs="+quotes"]
+----
+$ *nm-connection-editor*
+----
+
+. Select the `example` connection profile, and click the gear wheel icon to edit the existing connection.
+
+. On the `IPv4 Settings` tab:
+
+.. Click the btn:[Routes] button.
+
+.. Click the btn:[Add] button and enter the address, netmask, gateway, and optionally a metric value.
++
+image::IPv4-static-route-in-nm-connection-editor.png["Static IPv4 address settings in `nm-connection-editor`"]
+
+.. Click btn:[OK].
+
+. On the `IPv6 Settings` tab:
+
+.. Click the btn:[Routes] button.
+
+.. Click the btn:[Add] button and enter the address, netmask, gateway, and optionally a metric value.
++
+image::IPv6-static-route-in-nm-connection-editor.png["Static IPv4 address settings in `nm-connection-editor`"]
+
+.. Click btn:[OK].
+
+. Click btn:[Save].
+
+. Restart the network connection for changes to take effect. For example, to restart the `example` connection using the command line:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection up __example__**
+----
+
+
+.Verification
+
+. Display the IPv4 routes:
++
+[literal,subs="+quotes"]
+....
+# **ip -4 route**
+...
+__198.51.100.0/24__ via __192.0.2.10__ dev __enp1s0__
+....
+
+. Display the IPv6 routes:
++
+[literal,subs="+quotes"]
+....
+# **ip -6 route**
+...
+__2001:db8:2::/64__ via __2001:db8:1::10__ dev __enp1s0__ metric __1024__ pref __medium__
+....
+
+

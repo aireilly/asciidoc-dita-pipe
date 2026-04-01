@@ -1,0 +1,227 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-the-network-rhel-system-role_{context}"]
+= Routing traffic from a specific subnet to a different default gateway by using the `network` RHEL system role
+
+[role="_abstract"]
+You can use policy-based routing to configure a different default gateway for traffic from certain subnets. By using the `network` RHEL system role, you can automate the creation of the connection profiles, including routing tables and rules.
+
+For example, you can configure RHEL as a router that, by default, routes all traffic to internet provider A using the default route. However, traffic received from the internal workstations subnet is routed to provider B. By using Ansible and the `network` RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.
+
+This procedure assumes the following network topology:
+
+image::policy-based-routing.png["Example topology used for policy-based routing."]
+
+
+.Prerequisites
+
+include::common-content/snip_common-prerequisites.adoc[]
+// The following are prerequisites specific for this task:
+* The managed nodes use NetworkManager and the `firewalld` service.
+* The managed nodes you want to configure has four network interfaces:
+** The `enp7s0` interface is connected to the network of provider A. The gateway IP in the provider's network is `198.51.100.2`, and the network uses a `/30` network mask.
+** The `enp1s0` interface is connected to the network of provider B. The gateway IP in the provider's network is `192.0.2.2`, and the network uses a `/30` network mask.
+** The `enp8s0` interface is connected to the `10.0.0.0/24` subnet with internal workstations.
+** The `enp9s0` interface is connected to the `203.0.113.0/24` subnet with the company's servers.
+* Hosts in the internal workstations subnet use `10.0.0.1` as the default gateway. In the procedure, you assign this IP address to the `enp8s0` network interface of the router.
+* Hosts in the server subnet use `203.0.113.1` as the default gateway. In the procedure, you assign this IP address to the `enp9s0` network interface of the router.
+
+
+.Procedure
+
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configuring policy-based routing
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Routing traffic from a specific subnet to a different default gateway
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: Provider-A
+            interface_name: enp7s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 198.51.100.1/30
+              gateway4: 198.51.100.2
+              dns:
+                - 198.51.100.200
+            state: up
+            zone: external
+
+          - name: Provider-B
+            interface_name: enp1s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 192.0.2.1/30
+              route:
+                - network: 0.0.0.0
+                  prefix: 0
+                  gateway: 192.0.2.2
+                  table: 5000
+            state: up
+            zone: external
+
+          - name: Internal-Workstations
+            interface_name: enp8s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 10.0.0.1/24
+              route:
+                - network: 10.0.0.0
+                  prefix: 24
+                  table: 5000
+              routing_rule:
+                - priority: 5
+                  from: 10.0.0.0/24
+                  table: 5000
+            state: up
+            zone: trusted
+
+          - name: Servers
+            interface_name: enp9s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 203.0.113.1/24
+            state: up
+            zone: trusted
+....
+The settings specified in the example playbook include the following:
++
+`table: _<value>_`:: Assigns the route from the same list entry as the `table` variable to the specified routing table.
+`routing_rule: _<list>_`:: Defines the priority of the specified routing rule and from a connection profile to which routing table the rule is assigned.
+`zone: _<zone_name>_`:: Assigns the network interface from a connection profile to the specified `firewalld` zone.
+
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.network/README.md` file on the control node.
+
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook ~/playbook.yml*
+....
+
+
+.Verification
+
+. On a RHEL host in the internal workstation subnet:
+
+.. Install the `traceroute` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# **{PackageManagerCommand} install traceroute**
+....
+.. Use the `traceroute` utility to display the route to a host on the internet:
++
+[literal,subs="+quotes"]
+....
+# **traceroute redhat.com**
+traceroute to redhat.com (209.132.183.105), 30 hops max, 60 byte packets
+ 1  10.0.0.1 (10.0.0.1)     0.337 ms  0.260 ms  0.223 ms
+ 2  192.0.2.2 (192.0.2.2)   0.884 ms  1.066 ms  1.248 ms
+ ...
+....
++
+The output of the command displays that the router sends packets over `192.0.2.1`, which is the network of provider B.
+
+
+. On a RHEL host in the server subnet:
+
+.. Install the `traceroute` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# **{PackageManagerCommand} install traceroute**
+....
+.. Use the `traceroute` utility to display the route to a host on the internet:
++
+[literal,subs="+quotes"]
+....
+# **traceroute redhat.com**
+traceroute to redhat.com (209.132.183.105), 30 hops max, 60 byte packets
+ 1  203.0.113.1 (203.0.113.1)    2.179 ms  2.073 ms  1.944 ms
+ 2  198.51.100.2 (198.51.100.2)  1.868 ms  1.798 ms  1.549 ms
+ ...
+....
++
+The output of the command displays that the router sends packets over `198.51.100.2`, which is the network of provider A.
+
+
+. On the RHEL router that you configured using the {RHELSystemRoles}:
+
+.. Display the rule list:
++
+[literal,subs="+quotes"]
+....
+# **ip rule list**
+0:      from all lookup local
+*5*:    *from 10.0.0.0/24 lookup 5000*
+32766:  from all lookup main
+32767:  from all lookup default
+....
++
+By default, RHEL contains rules for the tables `local`, `main`, and `default`.
+
+.. Display the routes in table `5000`:
++
+[literal,subs="+quotes"]
+....
+# **ip route list table 5000**
+0.0.0.0/0 via 192.0.2.2 dev enp1s0 proto static metric 100
+10.0.0.0/24 dev enp8s0 proto static scope link src 192.0.2.1 metric 102
+....
+
+.. Display the interfaces and firewall zones:
++
+[literal,subs="+quotes"]
+....
+# **firewall-cmd --get-active-zones**
+external
+  interfaces: enp1s0 enp7s0
+trusted
+  interfaces: enp8s0 enp9s0
+....
+
+.. Verify that the `external` zone has masquerading enabled:
++
+[literal,subs="+quotes"]
+....
+# **firewall-cmd --info-zone=external**
+external (active)
+  target: default
+  icmp-block-inversion: no
+  interfaces: enp1s0 enp7s0
+  sources:
+  services: ssh
+  ports:
+  protocols:
+  *masquerade: yes*
+  ...
+....
+

@@ -1,0 +1,47 @@
+ifdef::context[:parent-context-of-assembly_managing-wifi-connections: {context}]
+
+:_mod-docs-content-type: ASSEMBLY
+
+ifndef::context[]
+[id="assembly_managing-wifi-connections"]
+endif::[]
+ifdef::context[]
+[id="assembly_managing-wifi-connections_{context}"]
+endif::[]
+= Managing wifi connections
+
+:context: assembly_managing-wifi-connections
+
+[role="_abstract"]
+If your host contains a wifi adapter, you can connect it to a wifi network.
+
+* Use the `nmcli` utility to configure connections by using the command line.
+* Use the `nmtui` application to configure connections in a text-based user interface.
+* Use the GNOME system menu to quickly connect to wifi networks that do not require any configuration.
+* Use the `GNOME Settings` application to configure connections by using the GNOME application.
+* Use the `nm-connection-editor` application to configure connections in a graphical user interface.
+* Use the `network` {RHELSystemRoles} to automate the configuration of connections on one or multiple hosts.
+
+
+include::modules/networking/ref_supported-wifi-security-types.adoc[leveloffset=+1]
+
+include::modules/networking/proc_connecting-to-a-wifi-network-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_connecting-to-a-wifi-network-by-using-the-gnome-system-menu.adoc[leveloffset=+1]
+
+include::modules/networking/proc_connecting-to-a-wifi-network-by-using-gnome-settings.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-wifi-connection-by-using-nmtui.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-wifi-connection-by-using-nm-connection-editor.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-wifi-connection-with-802-1x-network-authentication-in-an-existing-profile-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-wifi-connection-with-802-1x-network-authentication-by-using-the-network-rhel-system-role.adoc[leveloffset=+1]
+
+include::modules/networking/proc_manually-setting-the-wireless-regulatory-domain.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-assembly_managing-wifi-connections[:context: {parent-context-of-assembly_managing-wifi-connections}]
+ifndef::parent-context-of-assembly_managing-wifi-connections[:!context:]
+

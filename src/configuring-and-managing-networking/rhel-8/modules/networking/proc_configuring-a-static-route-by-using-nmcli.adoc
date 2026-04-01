@@ -1,0 +1,70 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-a-static-route-by-using-nmcli_{context}"]
+= Configuring a static route by using `nmcli`
+
+[role="_abstract"]
+You can add a static route to an existing NetworkManager connection profile using the `nmcli connection modify` command.
+
+The procedure below configures the following routes:
+
+* An IPv4 route to the remote `198.51.100.0/24` network. The corresponding gateway with the IP address `192.0.2.10` is reachable through the `LAN` connection profile.
+* An IPv6 route to the remote `2001:db8:2::/64` network. The corresponding gateway with the IP address `2001:db8:1::10` is reachable through the `LAN` connection profile.
+
+
+.Prerequisites
+
+* The `LAN` connection profile exists and it configures this host to be in the same IP subnet as the gateways.
+
+
+.Procedure
+
+. Add the static IPv4 route to the `LAN` connection profile:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify LAN +ipv4.routes "198.51.100.0/24 192.0.2.10"*
+....
++
+To set multiple routes in one step, pass the individual routes comma-separated to the command:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify _<connection_profile>_ +ipv4.routes "_<remote_network_1>_/_<subnet_mask_1>_ _<gateway_1>_, _<remote_network_n>_/_<subnet_mask_n>_ _<gateway_n>_, ..."*
+....
+
+. Add the static IPv6 route to the `LAN` connection profile:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify LAN +ipv6.routes "2001:db8:2::/64 2001:db8:1::10"**
+....
+
+. Re-activate the connection:
++
+[literal,subs="+quotes"]
+----
+# *nmcli connection up LAN*
+----
+
+
+.Verification
+
+. Display the IPv4 routes:
++
+[literal,subs="+quotes"]
+....
+# *ip -4 route*
+...
+198.51.100.0/24 via 192.0.2.10 dev enp1s0
+....
+
+. Display the IPv6 routes:
++
+[literal,subs="+quotes"]
+....
+# *ip -6 route*
+...
+2001:db8:2::/64 via 2001:db8:1::10 dev enp1s0 metric 1024 pref medium
+....
+

@@ -1,0 +1,60 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_permanently-configuring-a-network-device-to-accept-all-traffic-using-nmcli_{context}"]
+= Permanently configuring a network device to accept all traffic using `nmcli`
+
+[role="_abstract"]
+You can use the `nmcli` utility to permanently configure a network device to accept all traffic regardless of the MAC addresses.
+
+
+.Procedure
+
+. Optional: Display the network interfaces to identify the one for which you want to receive all traffic:
++
+[literal,subs="+quotes"]
+....
+# **ip address show**
+1: enp1s0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 1000
+    link/ether 98:fa:9b:a4:34:09 brd ff:ff:ff:ff:ff:ff
+...
+....
++
+You can create a new connection, if you do not have any.
+
+. Modify the network device to enable or disable this property.
+
+** To enable the `ethernet.accept-all-mac-addresses` mode for `enp1s0`:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify _enp1s0_ ethernet.accept-all-mac-addresses _yes_**
+....
+
+** To disable the `accept-all-mac-addresses` mode for `enp1s0`:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify _enp1s0_ ethernet.accept-all-mac-addresses _no_**
+....
+
+. Apply the changes, reactivate the connection:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up _enp1s0_**
+....
+
+
+.Verification
+
+* Verify that the `ethernet.accept-all-mac-addresses` mode is enabled:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection show _enp1s0_**
+...
+802-3-ethernet.accept-all-mac-addresses:1     *(true)*
+....
++
+The `802-3-ethernet.accept-all-mac-addresses: true` indicates that the mode is enabled.
+

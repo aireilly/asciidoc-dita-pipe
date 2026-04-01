@@ -1,0 +1,43 @@
+:_mod-docs-content-type: PROCEDURE
+[id="setting-a-networkmanager-wide-default-dns-server-priority-value_{context}"]
+
+= Setting a NetworkManager-wide default DNS server priority value
+
+[role="_abstract"]
+You can override NetworkManager's system-wide DNS server priority default values to set custom defaults for IPv4 and IPv6 DNS servers.
+
+The default values are as follows:
+
+* `50` for VPN connections
+
+* `100` for other connections
+
+
+.Procedure
+
+. Edit the `/etc/NetworkManager/NetworkManager.conf` file:
+
+.. Add the `[connection]` section, if it does not exist:
++
+[source]
+....
+[connection]
+....
+
+.. Add the custom default values to the `[connection]` section. For example, to set the new default for both IPv4 and IPv6 to `200`, add:
++
+[source]
+....
+ipv4.dns-priority=200
+ipv6.dns-priority=200
+....
++
+You can set the parameters to a value between `-2147483647` and `2147483647`. Note that setting the parameters to `0` enables the built-in defaults (`50` for VPN connections and `100` for other connections).
+
+. Reload the `NetworkManager` service:
++
+[literal,subs="+quotes"]
+....
+# *systemctl reload NetworkManager*
+....
+

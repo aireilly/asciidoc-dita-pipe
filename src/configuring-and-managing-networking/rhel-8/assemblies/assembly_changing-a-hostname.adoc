@@ -1,0 +1,26 @@
+ifdef::context[:parent-context-of-assembly_changing-a-hostname: {context}]
+
+:_mod-docs-content-type: ASSEMBLY
+
+ifndef::context[]
+[id="assembly_changing-a-hostname"]
+endif::[]
+ifdef::context[]
+[id="assembly_changing-a-hostname_{context}"]
+endif::[]
+= Changing a hostname
+
+:context: assembly_changing-a-hostname
+
+[role="_abstract"]
+The hostname of a system is the name on the system itself. You can set the name when you install RHEL, and you can change it afterwards.
+
+include::modules/networking/proc_changing-a-hostname-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_changing-a-hostname-using-hostnamectl.adoc[leveloffset=+1]
+
+
+
+ifdef::parent-context-of-assembly_changing-a-hostname[:context: {parent-context-of-assembly_changing-a-hostname}]
+ifndef::parent-context-of-assembly_changing-a-hostname[:!context:]
+

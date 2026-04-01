@@ -1,0 +1,211 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+[id="preparing-rhel-to-enable-mptcp-support_{context}"]
+= Preparing RHEL to enable MPTCP support
+
+[role="_abstract"]
+By default the MPTCP support is disabled in {ProductShortName}. Enable MPTCP so that applications that support this feature can use it. Additionally, you have to configure user space applications to force use MPTCP sockets if those applications have TCP sockets by default.
+
+ifeval::[{ProductNumber} == 8]
+You can use the `sysctl` utility to enable MPTCP support and prepare {ProductShortName} for enabling MPTCP for applications system-wide using a `SystemTap` script.
+endif::[]
+
+.Prerequisites
+
+The following packages are installed:
+
+ifeval::[{ProductNumber} == 8]
+* `systemtap`
+* `iperf3`
+endif::[]
+
+ifeval::[{ProductNumber} >= 9]
+* `iperf3`
+* `mptcpd`
+* `systemtap`
+endif::[]
+
+
+.Procedure
+
+. Enable MPTCP sockets in the kernel:
++
+[literal,subs="+quotes"]
+----
+# **echo "net.mptcp.enabled=1" > /etc/sysctl.d/90-enable-MPTCP.conf**
+# **sysctl -p /etc/sysctl.d/90-enable-MPTCP.conf**
+----
+
+ifeval::[{ProductNumber} == 8]
+. Verify that MPTCP is enabled in the kernel:
++
+[literal,subs="+quotes"]
+----
+# **sysctl -a | grep mptcp.enabled**
+net.mptcp.enabled = 1
+----
+
+. Create a `mptcp-app.stap` file with the following content:
++
+[source,c]
+----
+#!/usr/bin/env stap
+
+%{
+#include <linux/in.h>
+#include <linux/ip.h>
+%}
+
+/* RSI contains 'type' and RDX contains 'protocol'.
+ */
+
+function mptcpify () %{
+    if (CONTEXT->kregs->si == SOCK_STREAM &&
+        (CONTEXT->kregs->dx == IPPROTO_TCP ||
+         CONTEXT->kregs->dx == 0)) {
+                CONTEXT->kregs->dx = IPPROTO_MPTCP;
+                STAP_RETVALUE = 1;
+    } else {
+           STAP_RETVALUE = 0;
+    }
+%}
+
+probe kernel.function("__sys_socket") {
+        if (mptcpify() == 1) {
+                printf("command %16s mptcpified\n", execname());
+        }
+}
+----
+
+. Force user space applications to create MPTCP sockets instead of TCP ones:
++
+[literal,subs="+quotes"]
+....
+# **stap -vg mptcp-app.stap**
+....
++
+Note: This operation affects all TCP sockets which are started after the command. The applications will continue using TCP sockets after you interrupt the command above with kbd:[Ctrl+C]. 
+
+. Alternatively, to allow MPTCP usage to only specific application, you can modify the `mptcp-app.stap` file with the following content:
++
+[source,c]
+----
+#!/usr/bin/env stap
+
+%{
+#include <linux/in.h>
+#include <linux/ip.h>
+%}
+
+/* according to [1], RSI contains 'type' and RDX
+ * contains 'protocol'.
+ * [1] https://github.com/torvalds/linux/blob/master/arch/x86/entry/entry_64.S#L79
+ */
+
+function mptcpify () %{
+	if (CONTEXT->kregs->si == SOCK_STREAM &&
+	    (CONTEXT->kregs->dx == IPPROTO_TCP ||
+	     CONTEXT->kregs->dx == 0)) {
+		CONTEXT->kregs->dx = IPPROTO_MPTCP;
+		STAP_RETVALUE = 1;
+	} else {
+		STAP_RETVALUE = 0;
+	}
+%}
+
+probe kernel.function("__sys_socket") {
+	cur_proc = execname()
+	if ((cur_proc == @1) && (mptcpify() == 1)) {
+		printf("command %16s mptcpified\n", cur_proc);
+	}
+}
+----
+
+. In case of alternative choice, assuming, you want to force the `iperf3` tool to use MPTCP instead of TCP. To do so, enter the following command: 
++
+[literal,subs="+quotes"]
+....
+# **stap -vg mptcp-app.stap iperf3**
+....
+
+. After the `mptcp-app.stap` script installs the kernel probe, the following warnings appear in the kernel `dmesg` output
++
+[literal,subs="+quotes"]
+----
+# **dmesg**
+...
+[ 1752.694072] Kprobes globally unoptimized
+[ 1752.730147] stap_1ade3b3356f3e68765322e26dec00c3d_1476: module_layout: kernel tainted.
+[ 1752.732162] Disabling lock debugging due to kernel taint
+[ 1752.733468] stap_1ade3b3356f3e68765322e26dec00c3d_1476: loading out-of-tree module taints kernel.
+[ 1752.737219] stap_1ade3b3356f3e68765322e26dec00c3d_1476: module verification failed: signature and/or required key missing - tainting kernel
+[ 1752.737219] stap_1ade3b3356f3e68765322e26dec00c3d_1476 (mptcp-app.stap): systemtap: 4.5/0.185, base: ffffffffc0550000, memory: 224data/32text/57ctx/65638net/367alloc kb, probes: 1
+----
+
+. Start the `iperf3` server:
++
+[literal,subs="+quotes"]
+----
+# **iperf3 -s**
+
+Server listening on 5201
+----
+
+. Connect the client to the server:
++
+[literal,subs="+quotes"]
+....
+# **iperf3 -c 127.0.0.1 -t 3**
+....
+endif::[]
+
+ifeval::[{ProductNumber} >= 9]
+. Start the `iperf3` server, and force it to create MPTCP sockets instead of TCP sockets:
++
+[literal,subs="+quotes"]
+----
+# **mptcpize run iperf3 -s**
+
+Server listening on 5201
+----
+
+. Connect the client to the server, and force it to create MPTCP sockets instead of TCP sockets:
++
+[literal,subs="+quotes"]
+....
+# **mptcpize iperf3 -c 127.0.0.1 -t 3**
+....
+endif::[]
+
+. After the connection is established, verify the `ss` output to see the subflow-specific status:
++
+[literal,subs="+quotes"]
+----
+# **ss -nti '( dport :5201 )'**
+
+State Recv-Q Send-Q Local Address:Port Peer Address:Port Process
+ESTAB 0      0      127.0.0.1:41842    127.0.0.1:5201
+cubic wscale:7,7 rto:205 rtt:4.455/8.878 ato:40 mss:21888 pmtu:65535 rcvmss:536 advmss:65483 cwnd:10 bytes_sent:141 bytes_acked:142 bytes_received:4 segs_out:8 segs_in:7 data_segs_out:3 data_segs_in:3 send 393050505bps lastsnd:2813 lastrcv:2772 lastack:2772 pacing_rate 785946640bps delivery_rate 10944000000bps delivered:4 busy:41ms rcv_space:43690 rcv_ssthresh:43690 minrtt:0.008 tcp-ulp-mptcp flags:Mmec token:0000(id:0)/2ff053ec(id:0) seq:3e2cbea12d7673d4 sfseq:3 ssnoff:ad3d00f4 maplen:2
+----
+
+. Verify MPTCP counters:
++
+[literal,subs="+quotes"]
+----
+# *nstat MPTcp**
+
+#kernel
+MPTcpExtMPCapableSYNRX          2                  0.0
+MPTcpExtMPCapableSYNTX          2                  0.0
+MPTcpExtMPCapableSYNACKRX       2                  0.0
+MPTcpExtMPCapableACKRX          2                  0.0
+----
+
+
+ifeval::[{ProductNumber} == 8]
+[role="_additional-resources"]
+.Additional resources
+* link:https://access.redhat.com/solutions/9907[How can I download or install debuginfo packages for RHEL systems? (Red Hat Knowledgebase)]
+endif::[]
+

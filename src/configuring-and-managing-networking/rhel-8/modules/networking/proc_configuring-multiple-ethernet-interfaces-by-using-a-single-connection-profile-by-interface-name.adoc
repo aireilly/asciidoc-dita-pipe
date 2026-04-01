@@ -1,0 +1,59 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-multiple-ethernet-interfaces-by-using-a-single-connection-profile-by-interface-name_{context}"]
+= Configuring multiple Ethernet interfaces by using a single connection profile by interface name
+
+[role="_abstract"]
+NetworkManager supports using wildcards for interface names in connection profiles. This lets you create a single profile for multiple Ethernet interfaces, which is useful when a host roams between Ethernet networks with dynamic IP address assignment.
+
+
+.Prerequisites
+
+* Multiple physical or virtual Ethernet devices exist in the server's configuration.
+* A DHCP server is available in the network.
+* No connection profile exists on the host.
+
+
+.Procedure
+
+. Add a connection profile that applies to all interface names starting with `enp`:
++ 
+[literal,subs="+quotes"]
+....
+# **nmcli connection add con-name "Wired connection 1" connection.multi-connect multiple match.interface-name enp* type ethernet**
+....
+
+
+.Verification
+
+. Display all settings of the single connection profile: 
++ 
+[literal,subs="+quotes"]
+....
+# *nmcli connection show "Wired connection 1"*
+connection.id:                      Wired connection 1
+...
+connection.multi-connect:           3 (multiple)
+match.interface-name:               `enp*`
+...
+....
++
+`3` indicates that the interface can be active multiple times at a particular moment. The connection profile uses all devices that match the pattern in the `match.interface-name` parameter and, therefore, the connection profiles have the same Universally Unique Identifier (UUID).
+
+. Display the status of the connections:
++ 
+[literal,subs="+quotes"]
+....
+# *nmcli connection show*
+NAME                UUID                                  TYPE      DEVICE
+...
+Wired connection 1  6f22402e-c0cc-49cf-b702-eaf0cd5ea7d1  ethernet  enp7s0
+Wired connection 1  6f22402e-c0cc-49cf-b702-eaf0cd5ea7d1  ethernet  enp8s0
+Wired connection 1  6f22402e-c0cc-49cf-b702-eaf0cd5ea7d1  ethernet  enp9s0
+....
+
+[role="_additional-resources"]
+.Additional resources
+ifndef::networking-title[]
+* link:https://access.redhat.com/solutions/3068421[NetworkManager duplicates a connection after restart of NetworkManager service (Red Hat Knowledgebase)]
+endif::[]

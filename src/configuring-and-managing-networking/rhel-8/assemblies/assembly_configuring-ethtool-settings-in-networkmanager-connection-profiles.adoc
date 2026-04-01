@@ -1,0 +1,51 @@
+ifdef::context[:parent-context-of-configuring-ethtool-settings-in-networkmanager-connection-profiles: {context}]
+
+:_mod-docs-content-type: ASSEMBLY
+
+ifndef::context[]
+[id="configuring-ethtool-settings-in-networkmanager-connection-profiles"]
+endif::[]
+ifdef::context[]
+[id="configuring-ethtool-settings-in-networkmanager-connection-profiles_{context}"]
+endif::[]
+= Configuring `ethtool` settings in NetworkManager connection profiles
+
+:context: configuring-ethtool-settings-in-networkmanager-connection-profiles
+
+[role="_abstract"]
+NetworkManager can configure certain network driver and hardware settings persistently. Compared to using the `ethtool` utility to manage these settings, this has the benefit of not losing the settings after a reboot.
+
+You can set the following `ethtool` settings in NetworkManager connection profiles:
+
+Offload features:: Network interface controllers can use the TCP offload engine (TOE) to offload processing certain operations to the network controller. This improves the network throughput.
+Interrupt coalesce settings:: By using interrupt coalescing, the system collects network packets and generates a single interrupt for multiple packets. This increases the amount of data sent to the kernel with one hardware interrupt, which reduces the interrupt load, and maximizes the throughput.
+Ring buffers:: These buffers store incoming and outgoing network packets. You can  increase the ring buffer sizes to reduce a high packet drop rate.
+
+ifeval::[{ProductNumber} == 9]
+Channel settings:: A network interface manages its associated number of channels along with hardware settings and network drivers. All devices associated with a network interface communicate with each other through interrupt requests (IRQ). Each device queue holds pending IRQ and communicates with each other over a data line known as channel. Types of queues are associated with specific channel types. These channel types include:
+* `rx` for receiving queues
+* `tx` for transmit queues
+* `other` for link interrupts or single root input/output virtualization (SR-IOV) coordination
+* `combined` for hardware capacity-based multipurpose channels
+endif::[]
+
+include::modules/networking/proc_configuring-an-ethtool-offload-feature-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ethtool-offload-feature-by-using-the-network-rhel-system-role.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ethtool-coalesce-settings-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ethtool-coalesce-settings-by-using-the-network-rhel-system-role.adoc[leveloffset=+1]
+
+include::modules/networking/proc_increasing-the-ring-buffer-size-to-reduce-a-high-packet-drop-rate-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_increasing-the-ring-buffer-size-to-reduce-a-high-packet-drop-rate-by-using-the-network-rhel-system-role.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} == 9]
+include::modules/networking/proc_configuring-an-ethtool-channels-settings-by-using-nmcli.adoc[leveloffset=+1]
+endif::[]
+
+
+ifdef::parent-context-of-configuring-ethtool-settings-in-networkmanager-connection-profiles[:context: {parent-context-of-configuring-ethtool-settings-in-networkmanager-connection-profiles}]
+ifndef::parent-context-of-configuring-ethtool-settings-in-networkmanager-connection-profiles[:!context:]
+

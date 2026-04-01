@@ -1,0 +1,39 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses: {context}]
+
+ifndef::context[]
+[id="assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses"]
+endif::[]
+ifdef::context[]
+[id="assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses_{context}"]
+endif::[]
+
+= Configuring network devices to accept traffic from all MAC addresses
+
+:context: assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses
+
+[role="_abstract"]
+Network devices usually intercept and read packets that their controller is programmed to receive. You can configure the network devices to accept traffic from all MAC addresses in a virtual switch or at the port group level.
+
+You can use this network mode to:
+
+* Diagnose network connectivity issues
+
+* Monitor network activity for security reasons
+
+* Intercept private data-in-transit or intrusion in the network
+
+You can enable this mode for any kind of network device, except `InfiniBand`.
+
+
+include::modules/networking/proc_temporarily-configuring-a-network-device-to-accept-all-traffic.adoc[leveloffset=+1]
+
+include::modules/networking/proc_permanently-configuring-a-network-device-to-accept-all-traffic-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_permanently-configuring-a-network-device-to-accept-all-traffic-using-nmstatectl.adoc[leveloffset=+1]
+
+
+
+ifdef::parent-context-of-assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses[:context: {parent-context-of-assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses}]
+ifndef::parent-context-of-assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses[:!context:]
+

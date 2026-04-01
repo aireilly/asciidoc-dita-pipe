@@ -1,0 +1,35 @@
+:_mod-docs-content-type: REFERENCE
+
+[id="ref_supported-wifi-security-types_{context}"]
+= Supported wifi security types
+
+[role="_abstract"]
+Depending on the security type a wifi network supports, you can transmit data more or less securely.
+
+[WARNING]
+====
+Do not connect to wifi networks that do not use encryption or which support only the insecure WEP or WPA standards.
+====
+
+{ProductShortName}{nbsp}{ProductNumber} supports the following wifi security types:
+
+* `None`: Encryption is disabled, and data is transferred in plain text over the network.
+
+* `Enhanced Open`: With opportunistic wireless encryption (OWE), devices negotiate unique pairwise master keys (PMK) to encrypt connections in wireless networks without authentication.
+
+ifeval::[{ProductNumber} == 8]
+* `WEP 40/128-bit Key (Hex or ASCII)`: The Wired Equivalent Privacy (WEP) protocol in this mode uses pre-shared keys only in hex or ASCII format. WEP is deprecated and will be removed in RHEL 9.1.
+
+* `WEP 128-bit Passphrase`. The WEP protocol in this mode uses an MD5 hash of the passphrase to derive a WEP key. WEP is deprecated and will be removed in RHEL 9.1.
+
+* `Dynamic WEP (802.1x)`: A combination of 802.1X and EAP that uses the WEP protocol with dynamic keys. WEP is deprecated and will be removed in RHEL 9.1.
+endif::[]
+
+* `LEAP`: The Lightweight Extensible Authentication Protocol, which was developed by Cisco, is a proprietary version of the extensible authentication protocol (EAP).
+
+* `WPA & WPA2 Personal`: In personal mode, the Wi-Fi Protected Access (WPA) and Wi-Fi Protected Access 2 (WPA2) authentication methods use a pre-shared key.
+
+* `WPA & WPA2 Enterprise`: In enterprise mode, WPA and WPA2 use the EAP framework and authenticate users to a remote authentication dial-in user service (RADIUS) server.
+
+* `WPA3 Personal`: Wi-Fi Protected Access 3 (WPA3) Personal uses simultaneous authentication of equals (SAE) instead of pre-shared keys (PSK) to prevent dictionary attacks. WPA3 uses perfect forward secrecy (PFS).
+

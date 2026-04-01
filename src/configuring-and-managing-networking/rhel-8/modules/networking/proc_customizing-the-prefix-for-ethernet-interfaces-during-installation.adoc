@@ -1,0 +1,63 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_customizing-the-prefix-for-ethernet-interfaces-during-installation_{context}"]
+= Customizing the prefix for Ethernet interfaces during installation
+
+[role="_abstract"]
+If you do not want to use the default device-naming policy for Ethernet interfaces, you can set a custom device prefix during the {ProductName} ({ProductShortName}) installation.
+
+[IMPORTANT]
+====
+{RH} supports systems with customized Ethernet prefixes only if you set the prefix during the {ProductShortName} installation. Using the `prefixdevname` utility on already deployed systems is not supported.
+====
+
+If you set a device prefix during the installation, the `udev` service uses the `_<prefix><index>_` format for Ethernet interfaces after the installation. For example, if you set the prefix `net`, the service assigns the names `net0`, `net1`, and so on to the Ethernet interfaces.
+
+The `udev` service appends the index to the custom prefix, and preserves the index values of known Ethernet interfaces. If you add an interface, `udev` assigns an index value that is one greater than the previously-assigned index value to the new interface.
+
+
+
+.Prerequisites
+
+* The prefix consists of ASCII characters.
+* The prefix is an alphanumeric string.
+* The prefix is shorter than 16 characters.
+* The prefix does not conflict with any other well-known network interface prefix, such as `eth`, `eno`, `ens`, and `em`.
+
+
+.Procedure
+
+. Boot the {RHEL} installation media.
+
+. In the boot manager, follow these steps:
+
+.. Select the `Install {RHEL} _<version>_` entry.
+
+.. Press kbd:[Tab] to edit the entry.
+
+.. Append `net.ifnames.prefix=_<prefix>_` to the kernel options.
+
+.. Press kbd:[Enter] to start the installation program.
+
+. Install {ProductName}.
+
+
+.Verification
+
+* To verify the interface names, display the network interfaces:
++
+[literal,subs="+quotes"]
+....
+# *ip link show*
+...
+2: net0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+
+* link:https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/{ProductNumberLink}/html/interactively_installing_rhel_from_installation_media/index[Interactively installing RHEL from installation media]
+

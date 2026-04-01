@@ -1,0 +1,114 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-nested-vlans-using-nmcli-commands_{context}"]
+= Configuring nested VLANs by using `nmcli`
+
+[role="_abstract"]
+802.1ad is a protocol used for Virtual Local Area Network (VLAN) tagging. It is also known as Q-in-Q tagging. You can use this technology to create multiple VLAN tags within a single Ethernet frame.
+
+Benefits of multiple VLAN tags within a single Ethernet frame:
+
+* Increased network scalability by creating multiple isolated network segments within a VLAN. This enables you to segment and organize large networks into smaller, manageable units.
+* Improved traffic management by isolating and controlling different types of network traffic. This can improve the network performance and reduce network congestion.
+* Efficient resource utilization by enabling the creation of smaller, more targeted network segments.
+* Enhanced security by isolating network traffic and reducing the risk of unauthorized access to sensitive data.
+
+.Prerequisites
+
+* The interface you plan to use as a parent to the virtual VLAN interface supports VLAN tags.
+
+* If you configure the VLAN on top of a bond interface:
+** The ports of the bond are up.
+** The bond is not configured with the `fail_over_mac=follow` option. A VLAN virtual device cannot change its MAC address to match the parent's new MAC address. In such a case, the traffic would still be sent with the incorrect source MAC address.
+** The bond is usually not expected to get IP addresses from a DHCP server or IPv6 auto-configuration. Ensure it by setting the `ipv4.method=disable` and `ipv6.method=ignore` options while creating the bond. Otherwise, if DHCP or IPv6 auto-configuration fails after some time, the interface might be brought down.
+
+* The switch, the host is connected to, is configured to support VLAN tags. For details, see the documentation of your switch.
+
+.Procedure
+
+. Display the physical network devices:
++
+[literal,subs="+quotes"]
+....
+# *nmcli device status*
+DEVICE   TYPE      STATE         CONNECTION
+enp1s0  ethernet  connected      enp1s0     
+... 
+....
+
+
+. Create the base VLAN interface. For example, to create a base VLAN interface named `vlan10` that uses `enp1s0` as its parent interface and that tags packets with VLAN ID `10`, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection add type vlan con-name vlan10 dev enp1s0 vlan.id 10*
+....
++
+Note that the VLAN must be within the range from `0` to `4094`.
+
+
+. By default, the VLAN connection inherits the maximum transmission unit (MTU) from the parent interface. Optionally, set a different MTU value:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify vlan10 ethernet.mtu 2000*
+....
+
+
+. Create the nested VLAN interface on top of the base VLAN interface:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection add type vlan con-name vlan10.20 dev enp1s0.10 id 20 vlan.protocol 802.1ad*
+....
++
+This command creates a new VLAN connection with a name of `vlan10.20` and a VLAN ID of `20` on the parent VLAN connection `vlan10`. The `dev` option specifies the parent network device. In this case it is `enp1s0.10`. The `vlan.protocol` option specifies the VLAN encapsulation protocol. In this case it is `802.1ad` (Q-in-Q).
+
+. Configure the IPv4 settings of the nested VLAN interface:
++
+** To use DHCP, no action is required.
+
+** To set a static IPv4 address, network mask, default gateway, and DNS server to the `vlan10.20` connection, enter: 
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify vlan10.20 ipv4.method manual ipv4.addresses 192.0.2.1/24 ipv4.gateway 192.0.2.254 ipv4.dns 192.0.2.200*
+....
+
+. Configure the IPv6 settings of the nested VLAN interface:
++
+** To use stateless address autoconfiguration (SLAAC), no action is required.
+
+** To set a static IPv6 address, network mask, default gateway, and DNS server to the vlan10 connection, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify bridge0 ipv6.addresses '2001:db8:1::1/64' ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffd' ipv6.dns-search 'example.com' ipv6.method manual*
+....
+
+. Activate the profile:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up vlan10.20*
+....
+
+
+.Verification
+
+* Verify the configuration of the nested VLAN interface:
++
+[literal,subs="+quotes"]
+....
+# *ip -d addr show enp1s0.10.20*
+10: enp1s0.10.20@enp1s0.10: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 52:54:00:d2:74:3e brd ff:ff:ff:ff:ff:ff promiscuity 0 minmtu 0 maxmtu 65535 
+    vlan protocol 802.1ad id 20 <REORDER_HDR> numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 65536 tso_max_segs 65535 gro_max_size 65536 
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute enp1s0.10.20
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global noprefixroute 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ce3b:84c5:9ef8:d0e6/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+....
+

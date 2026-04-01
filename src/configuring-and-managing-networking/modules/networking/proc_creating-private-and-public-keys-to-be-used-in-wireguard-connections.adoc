@@ -1,0 +1,61 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_creating-private-and-public-keys-to-be-used-in-wireguard-connections_{context}"]
+= Creating private and public keys to be used in WireGuard connections
+
+[role="_abstract"]
+WireGuard uses base64-encoded private and public keys to authenticate hosts to each other. Therefore, you must create the keys on each host that participates in the WireGuard VPN.
+
+[IMPORTANT]
+====
+For secure connections, create different keys for each host, and ensure that you only share the public key with the remote WireGuard host. Do not use the example keys used in this documentation.
+====
+
+If you plan to use the RHEL web console to create a WireGuard VPN connection, you can, alternatively, generate the public and private key pairs in the web console.
+
+
+.Procedure
+
+. Install the `wireguard-tools` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# *{PackageManagerCommand} install wireguard-tools*
+....
+
+. Create a private key and a corresponding public key for the host:
++
+[literal,subs="+quotes"]
+....
+# *wg genkey | tee /etc/wireguard/$HOSTNAME.private.key | wg pubkey > /etc/wireguard/$HOSTNAME.public.key*
+....
++
+You will need the content of the key files, but not the files themselves. However, Red Hat recommends keeping the files in case that you need to remember the keys in future.
+
+. Set secure permissions on the key files:
++
+[literal,subs="+quotes"]
+....
+# *chmod 600 /etc/wireguard/$HOSTNAME.private.key /etc/wireguard/$HOSTNAME.public.key*
+....
+
+. Display the private key:
++
+[literal,subs="+quotes"]
+....
+# *cat /etc/wireguard/$HOSTNAME.private.key*
+YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg=
+....
++
+You will need the private key to configure the WireGuard connection on the local host. Do not share the private key.
+
+. Display the public key:
++
+[literal,subs="+quotes"]
+....
+# *cat /etc/wireguard/$HOSTNAME.public.key*
+UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+....
++
+You will need the public key to configure the WireGuard connection on the remote host.
+

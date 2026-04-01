@@ -1,0 +1,102 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+[id="proc_configuring-an-ethtool-offload-feature-by-using-the-network-rhel-system-role_{context}"]
+= Configuring an `ethtool` offload feature by using the `network` {RHELSystemRoles}
+
+[role="_abstract"]
+You can use the `network` RHEL system role to automate configuring TCP offload engine (TOE) to offload processing certain operations to the network controller. TOE improves the network throughput.
+
+[WARNING]
+====
+You cannot use the `network` RHEL system role to update only specific values in an existing connection profile. The role ensures that a connection profile exactly matches the settings in a playbook. If a connection profile with the same name already exists, the role applies the settings from the playbook and resets all other settings in the profile to their defaults. To prevent resetting values, always specify the whole configuration of the network connection profile in the playbook, including the settings that you do not want to change.
+====
+
+
+.Prerequisites
+
+include::common-content/snip_common-prerequisites.adoc[]
+// The following are prerequisites that are specific for this task:
+// none
+
+
+.Procedure
+
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Ethernet connection profile with dynamic IP address settings and offload features
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: enp1s0
+            type: ethernet
+            autoconnect: yes
+            ip:
+              dhcp4: yes
+              auto6: yes
+            *ethtool:*
+              *features:*
+                *gro: no*
+                *gso: yes*
+                *tx_sctp_segmentation: no*
+            state: up
+....
++
+The settings specified in the example playbook include the following:
++
+`gro: no`:: Disables Generic receive offload (GRO).
+`gso: yes`:: Enables Generic segmentation offload (GSO).
+`tx_sctp_segmentation: no`:: Disables TX stream control transmission protocol (SCTP) segmentation.
+
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.network/README.md` file on the control node.
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook ~/playbook.yml*
+....
+
+
+.Verification
+
+* Query the Ansible facts of the managed node and verify the offload settings:
++
+[literal,subs="+quotes"]
+....
+# *ansible managed-node-01.example.com -m ansible.builtin.setup*
+...
+        "ansible_enp1s0": {
+            "active": true,
+            "device": "enp1s0",
+	    "features": {
+	        ...
+		"rx_gro_hw": "off,
+	        ...
+		"tx_gso_list": "on,
+	        ...
+		"tx_sctp_segmentation": "off",
+		...
+            }
+...
+....
+

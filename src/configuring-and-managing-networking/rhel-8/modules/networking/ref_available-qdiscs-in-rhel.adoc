@@ -1,0 +1,47 @@
+:_mod-docs-content-type: REFERENCE
+
+[id="available-qdiscs-in-rhel_{context}"]
+= Available `qdiscs` in RHEL
+
+[role="_abstract"]
+Each `qdisc` addresses unique networking-related issues. You can use any of them to shape network traffic based on your networking requirements.
+
+These `qdiscs` are available in RHEL:
+
+.Available schedulers in RHEL
+[options="header"]
+|====
+|`qdisc` name|Included in|Offload support
+ifeval::[{ProductNumber} == 8]
+|Asynchronous Transfer Mode (ATM)|`kernel-modules-extra`|
+endif::[]
+|Credit-Based Shaper|`kernel-modules-extra`|Yes
+|CHOose and Keep for responsive flows, CHOose and Kill for unresponsive flows (CHOKE)|`kernel-modules-extra`|
+|Controlled Delay (CoDel)|`kernel-core`|
+|Enhanced Transmission Selection (ETS)|`kernel-modules-extra`|Yes
+|Fair Queue (FQ)|`kernel-core`|
+|Fair Queuing Controlled Delay  (FQ_CODel)|`kernel-core`|
+|Generalized Random Early Detection (GRED)|`kernel-modules-extra`|
+|Hierarchical Fair Service Curve (HSFC)|`kernel-core`|
+|Heavy-Hitter Filter (HHF)|`kernel-core`|
+|Hierarchy Token Bucket (HTB)|`kernel-core`|Yes
+|INGRESS|`kernel-core`|Yes
+|Multi Queue Priority (MQPRIO)|`kernel-modules-extra`|Yes
+|Multiqueue (MULTIQ)|`kernel-modules-extra`|Yes
+|Network Emulator (NETEM)|`kernel-modules-extra`|
+|Proportional Integral-controller Enhanced (PIE)|`kernel-core`|
+|PLUG|`kernel-core`|
+|Quick Fair Queueing (QFQ)|`kernel-modules-extra`|
+|Random Early Detection (RED)|`kernel-modules-extra`|Yes
+|Stochastic Fair Blue (SFB)|`kernel-modules-extra`|
+|Stochastic Fairness Queueing (SFQ)|`kernel-core`|
+|Token Bucket Filter (TBF)|`kernel-core`|Yes
+| Trivial Link Equalizer (TEQL)|`kernel-modules-extra`|
+
+|====
+
+[IMPORTANT]
+====
+The `qdisc` offload requires hardware and driver support on NIC.
+====
+

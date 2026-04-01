@@ -1,0 +1,97 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+[id="configuring-a-network-bond-by-using-nm-connection-editor_{context}"]
+= Configuring a network bond by using nm-connection-editor
+
+[role="_abstract"]
+If you use {ProductName} with a graphical interface, you can configure network bonds using the `nm-connection-editor` application.
+
+Note that `nm-connection-editor` can add only new ports to a bond. To use an existing connection profile as a port, create the bond by using the `nmcli` utility as described in xref:configuring-a-network-bond-by-using-nmcli_configuring-network-bonding[Configuring a network bond by using nmcli].
+
+
+.Prerequisites
+
+* Two or more physical or virtual network devices are installed on the server.
+* To use Ethernet devices as ports of the bond, the physical or virtual Ethernet devices must be installed on the server.
+* To use team, bond, or VLAN devices as ports of the bond, ensure that these devices are not already configured.
+
+
+.Procedure
+
+. Open a terminal, and enter `nm-connection-editor`:
++
+[literal,subs="+quotes"]
+....
+$ *nm-connection-editor*
+....
+
+. Click the btn:[+] button to add a new connection.
+
+. Select the *Bond* connection type, and click btn:[Create].
+
+. On the *Bond* tab:
+
+.. Optional: Set the name of the bond interface in the *Interface name* field.
+
+.. Click the btn:[Add] button to add a network interface as a port to the bond.
+
+... Select the connection type of the interface. For example, select *Ethernet* for a wired connection.
+
+... Optional: Set a connection name for the port.
+
+... If you create a connection profile for an Ethernet device, open the *Ethernet* tab, and select in the *Device* field the network interface you want to add as a port to the bond. If you selected a different device type, configure it accordingly. Note that you can only use Ethernet interfaces in a bond that are not configured.
+
+... Click btn:[Save].
+
+.. Repeat the previous step for each interface you want to add to the bond:
++
+image::add-nic-to-bond-in-nm-connection-editor.png["Interfaces attached to a bond"]
+
+.. Optional: Set other options, such as the Media Independent Interface (MII) monitoring interval.
+
+. Configure the IP address settings on both the *IPv4 Settings* and *IPv6 Settings* tabs:
+
+** If you plan to use this bridge device as a port of other devices, set the *Method* field to *Disabled*.
+
+** To use DHCP, leave the *Method* field at its default, *Automatic (DHCP)*.
+
+** To use static IP settings, set the *Method* field to *Manual* and fill the fields accordingly:
++
+image::bond-IP-settings-nm-connection-editor.png["IP address settings in `nm-connection-editor`"]
+
+. Click btn:[Save].
+
+. Close `nm-connection-editor`.
+
+
+.Verification
+
+. Temporarily remove the network cable from one of the network devices and check if the other device in the bond is handling the traffic.
++
+Note that there is no method to properly test link failure events using software utilities. Tools that deactivate connections, such as `nmcli`, show only the bonding driver's ability to handle port configuration changes and not actual link failure events.
+
+. Display the status of the bond:
++
+[literal,subs="+quotes"]
+....
+# **cat /proc/net/bonding/__bond0__**
+....
+
+
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting[Configuring NetworkManager to avoid using a specific profile to provide a default gateway]
+* xref:configuring-a-network-team-by-using-nm-connection-editor_configuring-network-teaming[Configuring a network team by using nm-connection-editor]
+* xref:configuring-a-network-bridge-by-using-nm-connection-editor_configuring-a-network-bridge[Configuring a network bridge by using nm-connection-editor]
+* xref:configuring-vlan-tagging-by-using-nm-connection-editor_configuring-vlan-tagging[Configuring VLAN tagging by using nm-connection-editor]
+endif::[]
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/managing-the-default-gateway-setting_configuring-and-managing-networking#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway[Configuring NetworkManager to avoid using a specific profile to provide a default gateway]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-teaming_configuring-and-managing-networking#configuring-a-network-team-by-using-nm-connection-editor_configuring-network-teaming[Configuring a network team by using nm-connection-editor]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-a-network-bridge_configuring-and-managing-networking#configuring-a-network-bridge-by-using-nm-connection-editor_configuring-a-network-bridge[Configuring a network bridge by using nm-connection-editor]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-vlan-tagging_configuring-and-managing-networking#configuring-vlan-tagging-by-using-nm-connection-editor_configuring-vlan-tagging[Configuring VLAN tagging by using nm-connection-editor]
+endif::[]
+

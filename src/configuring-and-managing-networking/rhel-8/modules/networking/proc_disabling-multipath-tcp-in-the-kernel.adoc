@@ -1,0 +1,31 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="disabling-multipath-tcp-in-the-kernel_{context}"]
+= Disabling Multipath TCP in the kernel
+
+[role="_abstract"]
+If you do not require MPTCP, you can explicitly disable the MPTCP option in the kernel.
+
+
+.Procedure
+
+* Disable the `mptcp.enabled` option.
++
+[literal,subs="+quotes"]
+----
+# **echo "net.mptcp.enabled=0" > /etc/sysctl.d/90-enable-MPTCP.conf**
+# **sysctl -p /etc/sysctl.d/90-enable-MPTCP.conf**
+----
+
+
+.Verification
+
+* Verify whether the `mptcp.enabled` is disabled in the kernel.
+
++
+[literal,subs="+quotes"]
+----
+# **sysctl -a | grep mptcp.enabled**
+net.mptcp.enabled = 0
+----
+

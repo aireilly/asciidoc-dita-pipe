@@ -1,0 +1,208 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-07-10
+:_mod-docs-content-type: PROCEDURE
+
+[id="setting-up-an-ipsec-gateway-manually_{context}"]
+= Setting up an IPsec gateway manually
+
+[role="_abstract"]
+You must configure the Libreswan IPsec gateway properly to enable secure remote access. Libreswan reads the server certificate, private key, and CA certificate from a Network Security Services (NSS) database.
+
+The following example permits authenticated clients to access the internal 192.0.2.0/24 subnet and dynamically assigns an IP address from a virtual IP pool to each client. To maintain security, the gateway verifies that client certificates are issued by the same trusted CA and automatically uses a certificate revocation list (CRL) to ensure access is denied for any revoked certificates.
+
+
+.Prerequisites
+
+* The Public Key Cryptography Standards #12 (PKCS #12) file `~/file.p12` exists on the gateway with the following contents:
+** The private key of the server
+** The server certificate
+** The CA certificate
+** If required, intermediate certificates
+
++
+For details about creating a private key and certificate signing request (CSR), as well as about requesting a certificate from a CA, see your CA's documentation.
+
+* The server certificate contains the following fields:
+** Extended Key Usage (EKU) is set to `TLS Web Server Authentication`.
+** Common Name (CN) or Subject Alternative Name (SAN) is set to the fully-qualified domain name (FQDN) of the gateway.
+** X509v3 CRL distribution points contains URLs to Certificate Revocation Lists (CRLs).
+
+* A return route for VPN client traffic is configured on the internal network, pointing to the VPN gateway.
+
+
+.Procedure
+
+. If Libreswan is not yet installed:
+
+.. Install the `libreswan` package:
++
+[literal,subs="+quotes"]
+....
+# *dnf install libreswan*
+....
+
+.. Initialize the Network Security Services (NSS) database:
++
+[literal,subs="+quotes"]
+....
+# *ipsec initnss*
+....
++
+The command creates the database in the `/var/lib/ipsec/nss/` directory.
+
+.. Enable and start the `ipsec` service:
++
+[subs="+quotes"]
+....
+# *systemctl enable --now ipsec*
+....
+
+.. Open the IPsec ports and protocols in the firewall:
++
+[subs="+quotes"]
+....
+# *firewall-cmd --permanent --add-service="ipsec"*
+# *firewall-cmd --reload*
+....
+
+. Import the PKCS #12 file into the NSS database:
++
+[subs="+quotes"]
+....
+# *ipsec import ~/file.p12*
+Enter password for PKCS12 file: _<password>_
+pk12util: PKCS12 IMPORT SUCCESSFUL
+correcting trust bits for Example-CA
+....
+
+. Display the nicknames of the server and CA certificates:
++
+[subs="+quotes"]
+....
+# *certutil -L -d  /var/lib/ipsec/nss/*
+Certificate Nickname     Trust Attributes
+                         SSL,S/MIME,JAR/XPI
+
+vpn-gateway              u,u,u
+Example-CA               CT,,
+...
+....
++
+You need this information for the configuration file.
+
+. Create a `.conf` file for the connection in the `/etc/ipsec.d/` directory. For example, create the `/etc/ipsec.d/host-to-site.conf` file with the following settings:
+
+.. Add a `config setup` section to enable CRL checks:
++
+[source,bash,subs="+quotes"]
+----
+config setup
+    crl-strict=yes
+    crlcheckinterval=1h
+----
++
+The settings specified in the example include the following:
++
+`crl-strict=yes`:: Enables CRL checks. Authenticating clients are rejected if no CRL is available in the NSS database.
+`crlcheckinterval=1h`:: Re-fetches the CRL from the URL specified in the server's certificate after the specified period.
+
+.. Add a section for the gateway:
++
+[source,bash,subs="+quotes"]
+----
+conn _<connection_name>_
+    # General setup and authentication type
+    auto=start
+    ikev2=insist
+    authby=rsasig
+
+    # VPN gateway settings
+    left=%defaultroute
+    leftid=%fromcert
+    leftcert="_<server_certificate_nickname>_"
+    leftrsasigkey=%cert
+    leftsendcert=always
+    leftsubnet=192.0.2.0/24
+    rekey=no
+    mobike=yes
+    narrowing=yes
+
+    # Client-related settings
+    right=%any
+    rightid=%fromcert
+    rightrsasigkey=%cert
+    rightaddresspool=198.51.100.129-198.51.100.254
+    rightmodecfgclient=yes
+    modecfgclient=yes
+    modecfgdns=192.0.2.5
+    modecfgdomains="example.com"
+
+    # Dead Peer Detection
+    dpddelay=30
+    dpdtimeout=120
+    dpdaction=clear
+----
++
+The settings specified in the example include the following:
++
+`ikev2=insist`:: Defines the modern IKEv2 protocol as the only allowed protocol without fallback to IKEv1.
+`left=%defaultroute`:: Dynamically sets the IP address of the default route interface when the `ipsec` service starts. Alternatively, you can set the `left` parameter to the IP address or the FQDN of the host.
+`leftid=%fromcert` and `rightid=%fromcert`:: Configures Libreswan to retrieve the identity from the distinguished name (DN) field of the certificate.
+`leftcert="_<server_certificate_nickname>_"`:: Sets the nickname of the server's certificate used in the NSS database.
+`leftrsasigkey=%cert` and `rightrsasigkey=%cert`:: Configures Libreswan to use the RSA public key embedded in the certificate.
+`leftsendcert=always`:: Instructs the gateway to always send the certificate, so that clients can validate it against the CA certificate.
+`leftsubnet=_<subnets>_`:: Specifies the subnets connected to the gateway that clients can access through the tunnel.
+`mobike=yes`:: Enables clients to seamlessly roam among networks.
+`rightaddresspool=_<ip_range>_`:: Specifies from which range the gateway can assign IP addresses to the clients.
+`modecfgclient=yes`:: Enables clients to receive the DNS server IP set in the `modecfgdns` parameter and the DNS search domain set in `modecfgdomains`.
+
++
+For details about all parameters used in the example, see the `ipsec.conf(5)` man page on your system.
+
+. Enable packet forwarding:
++
+[subs="+quotes"]
+....
+# *echo "net.ipv4.ip_forward=1" > /etc/sysctl.d/95-IPv4-forwarding.conf*
+# *sysctl -p /etc/sysctl.d/95-IPv4-forwarding.conf*
+....
+
+. Restart the `ipsec` service:
++
+[subs="+quotes"]
+....
+# *systemctl restart ipsec*
+....
++
+If you use `auto=start` in the configuration file, the connection is automatically activated. With other methods, additional steps are required to activate the connection. For details, see the `ipsec.conf(5)` man page on your system.
+
+
+.Verification
+
+. xref:configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication[Configure a client and connect to the VPN gateway].
+
+. Check if the service loaded the CRL and added the entries to the NSS database:
++
+[subs="+quotes"]
+....
+# *ipsec auto --listcrls*
+000
+000 List of CRLs:
+000
+000 issuer: CN=Example-CA
+000 revoked certs: 1
+000 updates: this Tue Jul 15 10:22:36 2025
+000          next Sun Jan 11 10:22:36 2026
+000
+000 List of CRL fetch requests:
+000
+000 Jul 15 15:13:56 2025, trials: 1
+000        issuer:  'CN=Example-CA'
+000        distPts: 'https://ca.example.com/crl.pem'
+....
+
+
+.Next steps
+
+* If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see xref:assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn[Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel].
+

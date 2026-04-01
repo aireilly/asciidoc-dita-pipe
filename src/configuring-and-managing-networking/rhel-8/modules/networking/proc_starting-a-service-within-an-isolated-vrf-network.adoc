@@ -1,0 +1,100 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_starting-a-service-within-an-isolated-vrf-network_{context}"]
+= Starting a service within an isolated VRF network
+
+[role="_abstract"]
+You can configure a service, such as the Apache HTTP Server, to start within an isolated virtual routing and forwarding (VRF) network.
+
+[IMPORTANT]
+====
+Services can only bind to local IP addresses that are in the same VRF network.
+====
+
+
+
+.Prerequisites
+
+* You configured the `vrf0` device.
+* You configured Apache HTTP Server to listen only on the IP address that is assigned to the interface associated with the `vrf0` device.
+
+
+
+.Procedure
+
+. Display the content of the `httpd` systemd service:
++
+[literal,subs="+quotes"]
+....
+# **systemctl cat httpd**
+...
+[Service]
+ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND
+...
+....
++
+You require the content of the `ExecStart` parameter in a later step to run the same command within the isolated VRF network.
+
+. Create the `/etc/systemd/system/httpd.service.d/` directory:
++
+[literal,subs="+quotes"]
+....
+# **mkdir /etc/systemd/system/httpd.service.d/**
+....
+
+. Create the `/etc/systemd/system/httpd.service.d/override.conf` file with the following content:
++
+[source,subs="+quotes"]
+....
+[Service]
+ExecStart=
+ExecStart=/usr/sbin/ip vrf exec __vrf0__ /usr/sbin/httpd $OPTIONS -DFOREGROUND
+....
++
+To override the `ExecStart` parameter, you first need to unset it and then set it to the new value as shown.
+
+. Reload systemd.
++
+[literal,subs="+quotes"]
+....
+# **systemctl daemon-reload**
+....
+
+. Restart the `httpd` service.
++
+[literal,subs="+quotes"]
+....
+# **systemctl restart httpd**
+....
+
+
+
+
+.Verification
+
+. Display the process IDs (PID) of `httpd` processes:
++
+[literal,subs="+quotes"]
+....
+# **pidof -c httpd**
+1904 ...
+....
+
+. Display the VRF association for the PIDs, for example:
++
+[literal,subs="+quotes"]
+....
+# **ip vrf identify 1904**
+vrf0
+....
+
+. Display all PIDs associated with the `vrf0` device:
++
+[literal,subs="+quotes"]
+....
+# *ip vrf pids vrf0*
+1904  httpd
+...
+....
+
+

@@ -1,0 +1,142 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="using-dnsmasq-in-networkmanager-to-send-dns-requests-for-a-specific-domain-to-a-selected-dns-server_{context}"]
+
+= Using dnsmasq in NetworkManager to send DNS requests for a specific domain to a selected DNS server
+
+[role="_abstract"]
+On hosts with multiple network interfaces and where one DNS server cannot resolve all domains, you can configure RHEL to send DNS requests for a specific domain to a selected DNS server.
+
+You can configure NetworkManager to start an instance of `dnsmasq`. This DNS caching server then listens on port `53` on the `loopback` device. Consequently, this service is only reachable from the local system and not from the network.
+
+With this configuration, NetworkManager adds the `nameserver 127.0.0.1` entry to the `/etc/resolv.conf` file, and `dnsmasq` dynamically routes DNS requests to the corresponding DNS servers specified in the NetworkManager connection profiles.
+
+
+.Prerequisites
+
+* The system has multiple NetworkManager connections configured.
+
+* A DNS server and search domain are configured for the connection that is responsible for resolving a specific domain.
++
+For example, to ensure that the DNS server specified in a VPN connection resolves queries for the `example.com` domain, the following settings must be available:
++
+** A DNS server that can resolve `example.com`. A DHCP server can provide this information dynamically or you set the `ipv4.dns` and `ipv6.dns` parameters in the VPN connection profile.
+** A search domain set to `example.com`. A DHCP server can provide this information dynamically or you set the `ipv4.dns-search` and `ipv6.dns-search` parameters in the VPN connection profile.
+
+* The `dnsmasq` service is not running or configured to listen on a different interface than `localhost`.
+
+
+.Procedure
+
+. Install the `dnsmasq` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# *{PackageManagerCommand} install dnsmasq*
+....
+
+. Edit the `/etc/NetworkManager/NetworkManager.conf` file, and set the following entry in the `[main]` section:
++
+[source,subs="+quotes"]
+....
+dns=dnsmasq
+....
+
+. Reload the `NetworkManager` service:
++
+[literal,subs="+quotes"]
+....
+# *systemctl reload NetworkManager*
+....
+
+
+.Verification
+
+. Search in the `systemd` journal of the `NetworkManager` unit for which domains the service uses a different DNS server:
++
+[literal,subs="+quotes"]
+....
+# *journalctl -xeu NetworkManager*
+...
+Jun 02 13:30:17 <client_hostname>_ dnsmasq[5298]: using nameserver 198.51.100.7#53 for domain example.com
+...
+....
+
+. Use the `tcpdump` packet sniffer to verify the correct route of DNS requests:
+
+.. Install the `tcpdump` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# *{PackageManagerCommand} install tcpdump*
+....
+
+.. On one terminal, start `tcpdump` to capture DNS traffic on all interfaces:
++
+[literal,subs="+quotes"]
+....
+# *tcpdump -i any port 53*
+....
+
+.. On a different terminal, resolve host names for a domain for which an exception exists and another domain, for example:
++
+[literal,subs="+quotes"]
+....
+# *host -t A _www.example.com_*
+# *host -t A _www.redhat.com_*
+....
+
+.. Verify in the `tcpdump` output that {ProductName} sends only DNS queries for the `example.com` domain to the designated DNS server and through the corresponding interface:
++
+ifeval::[{ProductNumber} >= 9]
+[literal,subs="+quotes"]
+....
+...
+13:52:42.234533 tun0   Out IP _server_.43534 > _198.51.100.7_.domain: 50121+ A? www.example.com. (33)
+...
+13:52:57.753235 enp1s0 Out IP _server_.40864 > _192.0.2.1_.domain: 6906+ A? www.redhat.com. (33)
+...
+....
+endif::[]
+ifeval::[{ProductNumber} == 8]
+[literal,subs="+quotes"]
+....
+...
+13:52:42.234533 IP _server_.43534 > _198.51.100.7_.domain: 50121+ [1au] A? www.example.com. (33)
+...
+13:52:57.753235 IP _server_.40864 > _192.0.2.1_.domain: 6906+ A? www.redhat.com. (33)
+...
+....
+endif::[]
++
+{ProductName} sends the DNS query for `www.example.com` to the DNS server on `198.51.100.7` and the query for `www.redhat.com` to `192.0.2.1`.
+
+
+.Troubleshooting
+
+. Verify that the `nameserver` entry in the `/etc/resolv.conf` file refers to `127.0.0.1`:
++
+[literal,subs="+quotes"]
+....
+# *cat /etc/resolv.conf*
+nameserver 127.0.0.1
+....
++
+If the entry is missing, check the `dns` parameter in the `/etc/NetworkManager/NetworkManager.conf` file.
+
+. Verify that the `dnsmasq` service listens on port `53` on the `loopback` device:
++
+[literal,subs="+quotes"]
+....
+# *ss -tulpn | grep "127.0.0.1:53"*
+udp  UNCONN 0  0    127.0.0.1:53   0.0.0.0:*    users:(("dnsmasq",pid=7340,fd=18))
+tcp  LISTEN 0  32   127.0.0.1:53   0.0.0.0:*    users:(("dnsmasq",pid=7340,fd=19))
+....
++
+If the service does not listen on `127.0.0.1:53`, check the journal entries of the `NetworkManager` unit:
++
+[literal,subs="+quotes"]
+....
+# *journalctl -u NetworkManager*
+....
+

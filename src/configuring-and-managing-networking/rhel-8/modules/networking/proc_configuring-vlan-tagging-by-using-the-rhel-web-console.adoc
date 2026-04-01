@@ -1,0 +1,65 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-vlan-tagging-by-using-the-rhel-web-console_{context}"]
+= Configuring VLAN tagging by using the RHEL web console
+
+[role="_abstract"]
+You can configure VLAN tagging if you prefer to manage network settings using a web browser-based interface in the RHEL web console.
+
+
+.Prerequisites
+
+* The interface you plan to use as a parent to the virtual VLAN interface supports VLAN tags.
+
+* If you configure the VLAN on top of a bond interface:
+** The ports of the bond are up.
+** The bond is not configured with the `fail_over_mac=follow` option. A VLAN virtual device cannot change its MAC address to match the parent's new MAC address. In such a case, the traffic would still be sent with the incorrect source MAC address.
+** The bond is usually not expected to get IP addresses from a DHCP server or IPv6 auto-configuration. Ensure it by disabling the IPv4 and IPv6 protocol creating the bond. Otherwise, if DHCP or IPv6 auto-configuration fails after some time, the interface might be brought down.
+
+* The switch, the host is connected to, is configured to support VLAN tags. For details, see the documentation of your switch.
+
+include::common-content/snip_web-console-prerequisites.adoc[]
+
+.Procedure
+
+include::common-content/snip_web-console-log-in-step.adoc[]
+
+. Select the `Networking` tab in the navigation on the left side of the screen.
+
+. Click btn:[Add VLAN] in the `Interfaces` section.
+
+. Select the parent device.
+
+. Enter the VLAN ID.
+
+. Enter the name of the VLAN device or keep the automatically-generated name.
++
+image::vlan-settings.png["The VLAN settings dialog in the RHEL web console"]
+
+. Click btn:[Apply].
+
+. By default, the VLAN device uses a dynamic IP address. If you want to set a static IP address:
+
+.. Click the name of the VLAN device in the `Interfaces` section.
+
+.. Click `Edit` next to the protocol you want to configure.
+
+.. Select `Manual` next to `Addresses`, and enter the IP address, prefix, and default gateway.
+
+.. In the `DNS` section, click the btn:[+] button, and enter the IP address of the DNS server. Repeat this step to set multiple DNS servers.
+
+.. In the `DNS search domains` section, click the btn:[+] button, and enter the search domain.
+
+.. If the interface requires static routes, configure them in the `Routes` section.
++
+image::bond-team-bridge-vlan.ipv4.png["The IPv4 settings in the RHEL web console"]
+
+.. Click btn:[Apply]
+
+
+.Verification
+
+* Select the `Networking` tab in the navigation on the left side of the screen, and check if there is incoming and outgoing traffic on the interface:
++
+image::vlan-verify.png["VLAN interface statistics"]
+

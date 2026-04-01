@@ -1,0 +1,37 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="setting-the-default-gateway-on-an-existing-connection-when-using-the-legacy-network-scripts_{context}"]
+= Setting the default gateway on an existing connection when using the legacy network scripts
+
+[role="_abstract"]
+In most situations, administrators set the default gateway when they create a connection. However, you can also set or update the default gateway setting on a previously created connection when you use the legacy network scripts.
+
+
+.Prerequisites
+
+* The `NetworkManager` package is not installed, or the `NetworkManager` service is disabled.
+* The `network-scripts` package is installed.
+
+
+.Procedure
+
+. Set the `GATEWAY` parameter in the `/etc/sysconfig/network-scripts/ifcfg-enp1s0` file to `192.0.2.1`:
++
+[source]
+....
+GATEWAY=192.0.2.1
+....
+
+. Add the `default` entry in the `/etc/sysconfig/network-scripts/route-enp0s1` file:
++
+[source]
+....
+default via 192.0.2.1
+....
+
+. Restart the network:
++
+[literal,subs="+quotes"]
+....
+# **systemctl restart network**
+....

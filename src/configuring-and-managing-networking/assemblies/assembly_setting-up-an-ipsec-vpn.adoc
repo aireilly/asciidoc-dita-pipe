@@ -1,0 +1,69 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-09-18
+:_mod-docs-content-type: ASSEMBLY
+
+ifdef::context[:parent-context-of-setting-up-an-ipsec-vpn: {context}]
+
+ifndef::context[]
+[id="setting-up-an-ipsec-vpn"]
+endif::[]
+ifdef::context[]
+[id="setting-up-an-ipsec-vpn_{context}"]
+endif::[]
+= Setting up an IPsec VPN
+
+:context: setting-up-an-ipsec-vpn
+
+[role="_abstract"]
+Configure and manage a secure Virtual Private Network (VPN) by using the Libreswan implementation of the IPsec protocol suite to create encrypted tunnels for secure data transmission over the internet.
+
+IPsec tunnels ensure the confidentiality and integrity of data in transit. Common use cases include connecting branch offices to headquarters or providing remote users with secure access to a corporate network.
+
+RHEL provides different options to configure Libreswan:
+
+* Manually edit the Libreswan configuration files for granular control over advanced options.
+* Use the `vpn` RHEL system role to automate the process of creating Libreswan VPN configurations.
+* Use Nmstate to configure a Libreswan connection through a declarative API.
+
+Libreswan does not use terms such as "client" and "server". Instead, IPsec refers to endpoints as "left" and "right". This design often enables you to use the same configuration on both hosts because Libreswan dynamically determines which role to adopt. As a convention, administrators typically use "left" for the local host and "right" for the remote host.
+
+[NOTE]
+====
+Libreswan is the only supported VPN technology in RHEL.
+====
+
+IPsec relies on standardized protocols, such as Internet Key Exchange (IKE), to ensure that different systems can communicate effectively. However, in practice, minor differences in how vendors implement these standards can lead to compatibility problems. If you encounter such interoperability issues when connecting Libreswan to a third-party IPsec peer, contact link:https://access.redhat.com/support/[Red Hat Support].
+
+
+include::rhel-8/modules/networking/con_components-in-an-ipsec-vpn.adoc[leveloffset=+1]
+
+include::rhel-8/modules/networking/ref_libreswan-authentication-methods.adoc[leveloffset=+1]
+
+include::modules/networking/proc_manually-configuring-an-ipsec-host-to-host-vpn-with-raw-rsa-key-authentication.adoc[leveloffset=+1]
+
+include::modules/networking/proc_manually-configuring-an-ipsec-site-to-site-vpn-with-raw-rsa-key-authentication.adoc[leveloffset=+1]
+
+include::assembly_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication.adoc[leveloffset=+1]
+
+include::modules/networking/proc_manually-configuring-an-ipsec-mesh-vpn-with-certificate-based-authentication.adoc[leveloffset=+1]
+
+include::modules/networking/proc_protecting-the-ipsec-nss-database-with-a-password.adoc[leveloffset=+1]
+
+include::modules/networking/proc_using-ipsec-on-a-system-with-fips-mode-enabled.adoc[leveloffset=+1]
+
+include::rhel-8/modules/networking/proc_configuring-tcp-fallback-for-an-ipsec-vpn-connection.adoc[leveloffset=+1]
+
+include::rhel-8/modules/networking/proc_enabling-legacy-ciphers-and-algorithms-in-libreswan.adoc[leveloffset=+1]
+
+include::rhel-8/modules/networking/proc_assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel.adoc[leveloffset=+1]
+
+include::rhel-8/assemblies/assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.adoc[leveloffset=+1]
+
+include::assembly_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl.adoc[leveloffset=+1]
+
+include::rhel-8/assemblies/assembly_troubleshooting-ipsec-configurations.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-setting-up-an-ipsec-vpn[:context: {parent-context-of-setting-up-an-ipsec-vpn}]
+ifndef::parent-context-of-setting-up-an-ipsec-vpn[:!context:]
+

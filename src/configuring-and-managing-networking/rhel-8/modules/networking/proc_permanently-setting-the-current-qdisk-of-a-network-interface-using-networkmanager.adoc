@@ -1,0 +1,52 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_permanently-setting-the-current-qdisc-of-a-network-interface-using-networkmanager_{context}"]
+= Permanently setting the current qdisc of a network interface using NetworkManager
+
+[role="_abstract"]
+Changing the current `qdisc` can optimize how the kernel handles packets as they pass through a network interface. If you identified the optimal `qdisc` for your scenario, set it permanently in the NetworkManager connection profile.
+
+
+.Procedure
+
+. Optional: View the current `qdisc`:
++
+[literal,subs="+quotes"]
+----
+# **tc qdisc show dev _enp0s1_**
+  qdisc fq_codel 0: root refcnt 2
+----
+
+. Update the current `qdisc`:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify _enp0s1_ tc.qdiscs 'root pfifo_fast'**
+....
+
+. Optional: To add another `qdisc` over the existing `qdisc`, use the `+tc.qdisc` option:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify _enp0s1_ +tc.qdisc 'ingress handle ffff:'**
+....
+
+. Activate the changes:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up _enp0s1_**
+....
+
+
+.Verification
+
+* View current `qdisc` the network interface:
++
+[literal,subs="+quotes"]
+....
+# **tc qdisc show dev _enp0s1_**
+qdisc _pfifo_fast_ 8001: root refcnt 2 bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+qdisc ingress ffff: parent ffff:fff1 ----------------
+....
+

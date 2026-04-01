@@ -1,0 +1,40 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_setting-the-default-gateway-on-an-existing-connection-by-using-nmstatectl_{context}"]
+= Setting the default gateway on an existing connection by using `nmstatectl`
+
+[role="_abstract"]
+You can use the declarative Nmstate API to set or update the default gateway in a connection. Nmstate ensures that the result matches the configuration file or rolls back the changes.
+
+
+.Prerequisites
+
+* At least one static IP address must be configured on the connection on which the default gateway will be set.
+* The `enp1s0` interface is configured, and the IP address of the default gateway is within the subnet of the IP configuration of this interface.
+* The `nmstate` package is installed.
+
+
+.Procedure
+
+. Create a YAML file, for example `~/set-default-gateway.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.0.2.1
+    next-hop-interface: enp1s0
+....
++
+These settings define `192.0.2.1` as the default gateway, and the default gateway is reachable through the `enp1s0` interface.
+
+. Apply the settings to the system:
++
+[literal,subs="+quotes"]
+....
+# *nmstatectl apply ~/set-default-gateway.yml*
+....
+
+

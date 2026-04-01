@@ -1,0 +1,306 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-freeradius-to-authenticate-network-clients-securely-using-eap_{context}"]
+= Configuring FreeRADIUS to authenticate network clients securely by using EAP
+
+[role="_abstract"]
+FreeRADIUS supports different methods of the Extensible authentication protocol (EAP). However, for a supported and secure scenario, use EAP-TTLS (tunneled transport layer security).
+
+With EAP-TTLS, the clients use a secure TLS connection as the outer authentication protocol to set up the tunnel. The inner authentication then uses LDAP to authenticate to Identity Management. To use EAP-TTLS, you need a TLS server certificate.
+
+[NOTE]
+====
+The default FreeRADIUS configuration files serve as documentation and describe all parameters and directives. If you want to disable certain features, comment them out instead of removing the corresponding parts in the configuration files. This enables you to preserve the structure of the configuration files and the included documentation.
+====
+
+
+.Prerequisites
+
+* You installed the `freeradius` and `freeradius-ldap` packages.
+
+* The configuration files in the `/etc/raddb/` directory are unchanged and as provided by the `freeradius` packages.
+
+* The host is enrolled in a {RHEL} Identity Management (IdM) domain.
+
+
+
+.Procedure
+
+. Create a private key and request a certificate from IdM:
++
+[literal,subs="+quotes"]
+....
+# *ipa-getcert request -w -k /etc/pki/tls/private/radius.key -f /etc/pki/tls/certs/radius.pem -o "root:radiusd" -m 640 -O "root:radiusd" -M 640 -T caIPAserviceCert -C 'systemctl restart radiusd.service' -N _freeradius.idm.example.com_ -D _freeradius.idm.example.com_ -K radius/_freeradius.idm.example.com_*
+....
++
+The `certmonger` service stores the private key in the `/etc/pki/tls/private/radius.key` file and the certificate in the `/etc/pki/tls/certs/radius.pem` file, and it sets secure permissions. Additionally, `certmonger` will monitor the certificate, renew it before it expires, and restart the `radiusd` service after the certificate was renewed.
+
+. Verify that the CA successfully issued the certificate:
++
+[subs="+quotes"]
+....
+# *ipa-getcert list -f /etc/pki/tls/certs/radius.pem*
+...
+Number of certificates and requests being tracked: 1.
+Request ID '20240918142211':
+        status: MONITORING
+        stuck: no
+        key pair storage: type=FILE,location='/etc/pki/tls/private/radius.key'
+        certificate: type=FILE,location='/etc/pki/tls/certs/radius.crt'
+        ...
+....
+
+. Create the `/etc/raddb/certs/dh` file with Diffie-Hellman (DH) parameters. For example, to create a DH file with a 2048 bits prime, enter:
++
+[literal,subs="+quotes"]
+....
+# *openssl dhparam -out /etc/raddb/certs/dh 2048*
+....
++
+For security reasons, do not use a DH file with less than a 2048 bits prime. Depending on the number of bits, the creation of the file can take several minutes.
+
+
+. Edit the `/etc/raddb/mods-available/eap` file:
+
+.. Configure the TLS-related settings in the `tls-config tls-common` directive:
++
+[source,subs="+quotes"]
+....
+eap {
+    ...
+    tls-config tls-common {
+        ...
+	private_key_file = /etc/pki/tls/private/radius.key
+	certificate_file = /etc/pki/tls/certs/radius.pem
+	ca_file = /etc/ipa/ca.crt
+        ...
+    }
+}
+....
+
+.. Set the `default_eap_type` parameter in the `eap` directive to `ttls`:
++
+[source,subs="+quotes"]
+....
+eap {
+    ...
+    default_eap_type = ttls
+    ...
+}
+....
+
+.. Comment out the `md5` directives to disable the insecure EAP-MD5 authentication method:
++
+[source,subs="+quotes"]
+....
+eap {
+    ...
+    # md5 {
+    # }
+    ...
+}
+....
++
+Note that, in the default configuration file, other insecure EAP authentication methods are commented out by default.
+
+. Edit the `/etc/raddb/sites-available/default` file, and comment out all authentication methods other than `eap`:
++
+[source,subs="+quotes"]
+....
+authenticate {
+    ...
+    # Auth-Type PAP {
+    #     pap
+    # }
+
+    # Auth-Type CHAP {
+    #     chap
+    # }
+
+    # Auth-Type MS-CHAP {
+    #     mschap
+    # }
+
+    # mschap
+
+    # digest
+    ...
+}
+....
++
+This leaves only EAP enabled for the outer authentication and disables plain-text authentication methods.
+
+. Edit the `/etc/raddb/sites-available/inner-tunnel` file, and make the following changes:
+
+.. Comment out the `-ldap` entry and add the `ldap` module configuration to the `authorize` directive:
++
+[source,subs="+quotes"]
+....
+authorize {
+    ...
+
+    #-ldap
+    ldap
+    if ((ok || updated) && User-Password) {
+        update {
+            control:Auth-Type := ldap
+        }
+    }
+
+    ...
+}
+....
+
+.. Uncomment the LDAP authentication type in the `authenticate` directive:
++
+[source,subs="+quotes"]
+....
+authenticate {
+    Auth-Type LDAP {
+        ldap
+    }
+}
+....
+
+. Enable the `ldap` module:
++
+[literal,subs="+quotes"]
+....
+# *ln -s /etc/raddb/mods-available/ldap /etc/raddb/mods-enabled/ldap*
+....
+
+. Edit the `/etc/raddb/mods-available/ldap` file, and make the following changes:
+
+.. In the `ldap` directive, set the IdM LDAP server URL and the base distinguished name (DN):
++
+[source,subs="+quotes"]
+....
+ldap {
+    ...
+    server = 'ldaps://__idm_server.idm.example.com__'
+    base_dn = 'cn=users,cn=accounts,__dc=idm,dc=example,dc=com__'
+    ...
+}
+....
++
+Specify the `ldaps` protocol in the server URL to use TLS-encrypted connections between the FreeRADIUS host and the IdM server.
+
+.. In the `ldap` directive, enable TLS certificate validation of the IdM LDAP server:
++
+[source,subs="+quotes"]
+....
+tls {
+    ...
+        require_cert = 'demand'
+    ...
+}
+....
+
+. Edit the `/etc/raddb/clients.conf` file:
+
+.. Set a secure password in the `localhost` and `localhost_ipv6` client directives:
++
+[source,subs="+quotes"]
+....
+client localhost {
+    ipaddr = 127.0.0.1
+    ...
+    secret = __localhost_client_password__
+    ...
+}
+
+client localhost_ipv6 {
+    ipv6addr = ::1
+    secret = __localhost_client_password__
+}
+....
+
+.. Add a client directive for the network authenticator:
++
+[source,subs="+quotes"]
+....
+client __hostapd.example.org__ {
+    ipaddr = __192.0.2.2/32__
+    secret = __hostapd_client_password__
+}
+....
+
+.. Optional: If other hosts should also be able to access the FreeRADIUS service, add client directives for them as well, for example:
++
+[source,subs="+quotes"]
+....
+client __<hostname_or_description>__ {
+    ipaddr = __<IP_address_or_range>__
+    secret = __<client_password>__
+}
+....
++
+The `ipaddr` parameter accepts IPv4 and IPv6 addresses, and you can use the optional classless inter-domain routing (CIDR) notation to specify ranges. However, you can set only one value in this parameter. For example, to grant access to both an IPv4 and IPv6 address, you must add two client directives.
++
+Use a descriptive name for the client directive, such as a hostname or a word that describes where the IP range is used.
+
+. Verify the configuration files:
++
+[,subs="+quotes"]
+....
+# *radiusd -XC*
+...
+Configuration appears to be OK
+....
+
+. Open the RADIUS ports in the `firewalld` service:
++
+[literal,subs="+quotes"]
+....
+# *firewall-cmd --permanent --add-service=radius*
+# *firewall-cmd --reload*
+....
+
+. Enable and start the `radiusd` service:
++
+[literal,subs="+quotes"]
+....
+# *systemctl enable --now radiusd*
+....
+
+
+
+.Verification
+
+** xref:proc_testing-eap-ttls-authentication-against-a-freeradius-server-or-authenticator_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend[Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator]
+
+
+.Troubleshooting
+
+* If the `radiusd` service fails to start, verify that you can resolve the IdM server host name:
++
+[literal,subs="+quotes"]
+....
+# *host -v idm_server.idm.example.com*
+....
+
+* For other problems, run `radiusd` in debug mode:
+
+.. Stop the `radiusd` service:
++
+[literal,subs="+quotes"]
+....
+# *systemctl stop radiusd*
+....
+
+.. Start the service in debug mode:
++
+[literal,subs="+quotes"]
+....
+# *radiusd -X*
+...
+Ready to process requests
+....
+
+.. Perform authentication tests on the FreeRADIUS host, as referenced in the `Verification` section.
+
+
+.Next steps
+
+* Disable no longer required authentication methods and other features you do not use.
+

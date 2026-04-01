@@ -1,0 +1,30 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="upstream-switch-configuration-depending-on-the-bonding-modes_{context}"]
+= Upstream switch configuration depending on the bonding modes
+
+[role="_abstract"]
+Depending on the bonding mode you want to use, you must configure the ports on the switch.
+
+[cols="2,3",options="header"]
+|===
+| Bonding mode | Configuration on the switch
+| `0` - `balance-rr` | Requires static EtherChannel enabled, not Link Aggregation Control Protocol (LACP)-negotiated.
+| `1` - `active-backup` | No configuration required on the switch.
+| `2` - `balance-xor` | Requires static EtherChannel enabled, not LACP-negotiated.
+| `3` - `broadcast` | Requires static EtherChannel enabled, not LACP-negotiated.
+| `4` - `802.3ad` | Requires LACP-negotiated EtherChannel enabled.
+| `5` - `balance-tlb` | No configuration required on the switch.
+| `6` - `balance-alb` | No configuration required on the switch.
+ifeval::[{ProductNumber} >= 9]
+| `balance-slb` | No configuration required on the switch.
+endif::[]
+|===
+
+For details on how to configure your switch, see the documentation of the switch.
+
+[IMPORTANT]
+====
+Certain network bonding features, such as the fail-over mechanism, do not support direct cable connections without a network switch. For further details, see the Red Hat Knowledgebase solution link:https://access.redhat.com/solutions/202583[Is bonding supported with direct connection using crossover cables].
+====
+

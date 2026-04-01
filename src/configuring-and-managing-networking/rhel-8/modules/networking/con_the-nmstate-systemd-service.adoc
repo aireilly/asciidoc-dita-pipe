@@ -1,0 +1,27 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="the-nmstate-systemd-service_{context}"]
+= The `nmstate` systemd service
+
+[role="_abstract"]
+With the `nmstate` package installed, you can automatically apply new network settings when the system boots by configuring the `nmstate` systemd service.
+
+The `nmstate` service is a `oneshot` systemd service. Consequently, systemd executes it only when the system boots and when you manually restart the service.
+
+[NOTE]
+====
+By default, the `nmstate` service is disabled. Use the `systemctl enable nmstate` command to enable it. Afterwards, `systemd` executes this service each time when the system starts.
+====
+
+To use this service, store `*.yml` files with Nmstate instructions in the `/etc/nmstate/` directory. The `nmstate` service then automatically applies the files on the next reboot or when you manually restart the service. By default, after Nmstate successfully applies a file, it renames the file's `.yml` suffix to `.applied` to prevent the service from processing the same file again.
+
+You can configure the `nmstate` service in the `/etc/nmstate/nmstate.conf` file. For example, to preserve the original `*.yml` file after it was applied and to create only a copy with the `.applied` suffix, add the following lines to `/etc/nmstate/nmstate.conf`:
+
+[source]
+----
+[service]
+keep_state_file_after_apply = false
+----
+
+For further details and other configuration options, see the `nmstate.service(8)` man page on your system.
+

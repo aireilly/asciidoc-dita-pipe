@@ -1,0 +1,149 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-rhel-as-a-wpa2-or-wpa3-personal-access-point_{context}"]
+= Configuring RHEL as a WPA2 or WPA3 Personal access point
+
+[role="_abstract"]
+On a host with a wifi device, you can use NetworkManager to configure this host as an access point. Wireless clients can use a pre-shared key (PSK) to connect to the access point and use services on the RHEL host and in the network.
+
+When you configure an access point, NetworkManager automatically:
+
+* Configures the `dnsmasq` service to provide DHCP and DNS services for clients
+* Enables IP forwarding
+* Adds `nftables` firewall rules to masquerade traffic from the wifi device and configures IP forwarding
+
+
+.Prerequisites
+
+* The wifi device supports running in access point mode.
+* The wifi device is not in use.
+* The host has internet access.
+
+
+.Procedure
+
+. List the wifi devices to identify the one that should provide the access point:
++
+[literal,subs="+quotes"]
+....
+# **nmcli device status | grep wifi**
+__wlp0s20f3__    wifi   disconnected    --
+....
+
+. Verify that the device supports the access point mode:
++
+[literal,subs="+quotes"]
+....
+# **nmcli -f WIFI-PROPERTIES.AP device show __wlp0s20f3__**
+WIFI-PROPERTIES.AP:     yes
+....
++
+To use a wifi device as an access point, the device must support this feature.
+
+. Install the `dnsmasq` and `NetworkManager-wifi` packages:
++
+[literal,subs="+quotes,attributes"]
+....
+# **{PackageManagerCommand} install dnsmasq NetworkManager-wifi**
+....
++
+NetworkManager uses the `dnsmasq` service to provide DHCP and DNS services to clients of the access point.
+
+. Create the initial access point configuration:
++
+[literal,subs="+quotes"]
+....
+# **nmcli device wifi hotspot ifname __wlp0s20f3__ con-name __Example-Hotspot__ ssid __Example-Hotspot__ password "__password__"**
+....
++
+This command creates a connection profile for an access point on the `wlp0s20f3` device that provides WPA2 and WPA3 Personal authentication. The name of the wireless network, the Service Set Identifier (SSID), is `Example-Hotspot` and uses the pre-shared key `password`.
+
+. Optional: Configure the access point to support only WPA3:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify __Example-Hotspot__ 802-11-wireless-security.key-mgmt sae**
+....
+
+. By default, NetworkManager uses the IP address `10.42.0.1` for the wifi device and assigns IP addresses from the remaining `10.42.0.0/24` subnet to clients. To configure a different subnet and IP address, enter:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify __Example-Hotspot__ ipv4.addresses __192.0.2.254/24__**
+....
++
+The IP address you set, in this case `192.0.2.254`, is the one that NetworkManager assigns to the wifi device. Clients will use this IP address as default gateway and DNS server.
+
+. Activate the connection profile:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up __Example-Hotspot__**
+....
+
+
+.Verification
+
+. On the server:
+
+.. Verify that NetworkManager started the `dnsmasq` service and that the service listens on port 67 (DHCP) and 53 (DNS):
++
+[literal,subs="+quotes"]
+....
+# **ss -tulpn | grep -E ":53|:67"**
+udp   UNCONN 0  0   __10.42.0.1__:53    0.0.0.0:*    users:(("dnsmasq",pid=__55905__,fd=__6__))
+udp   UNCONN 0  0     0.0.0.0:67    0.0.0.0:*    users:(("dnsmasq",pid=__55905__,fd=__4__))
+tcp   LISTEN 0  32  __10.42.0.1__:53    0.0.0.0:*    users:(("dnsmasq",pid=__55905__,fd=__7__))
+....
+
+.. Display the `nftables` rule set to ensure that NetworkManager enabled forwarding and masquerading for traffic from the `10.42.0.0/24` subnet:
++
+[literal,subs="+quotes"]
+....
+# **nft list ruleset**
+table ip nm-shared-wlp0s20f3 {
+    chain nat_postrouting {
+        type nat hook postrouting priority srcnat; policy accept;
+        ip saddr __10.42.0.0/24__ ip daddr != __10.42.0.0/24__ masquerade
+    }
+
+    chain filter_forward {
+        type filter hook forward priority filter; policy accept;
+        ip daddr __10.42.0.0/24__ oifname "__wlp0s20f3__" ct state { established, related } accept
+        ip saddr __10.42.0.0/24__ iifname "__wlp0s20f3__" accept
+        iifname "__wlp0s20f3__" oifname "__wlp0s20f3__" accept
+        iifname "__wlp0s20f3__" reject
+        oifname "__wlp0s20f3__" reject
+    }
+}
+....
+
+. On a client with a wifi adapter:
+
+.. Display the list of available networks:
++
+[literal,subs="+quotes"]
+....
+# **nmcli device wifi**
+IN-USE  BSSID              SSID             MODE   CHAN  RATE      SIGNAL  BARS  SECURITY
+        __00:53:00:88:29:04__  __Example-Hotspot__  Infra  __11__    __130__ Mbit/s  __62__      ▂▄▆_  __WPA3__
+...
+....
+
+.. Connect to the `Example-Hotspot` wireless network.
+ifdef::networking-title[]
+See xref:assembly_managing-wifi-connections_configuring-and-managing-networking[Managing Wi-Fi connections].
+endif::[]
+ifndef::networking-title[]
+See link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/assembly_managing-wifi-connections_configuring-and-managing-networking[Managing Wi-Fi connections].
+endif::[]
+
+
+.. Ping a host on the remote network or the internet to verify that the connection works:
++
+[literal,subs="+quotes"]
+....
+# **ping -c 3 www.redhat.com**
+....
+
+

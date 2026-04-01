@@ -1,0 +1,14 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-09-18
+:_mod-docs-content-type: CONCEPT
+
+[id="components-in-an-ipsec-vpn_{context}"]
+= Components in an IPsec VPN
+
+[role="_abstract"]
+Before setting up an IPsec VPN, it is important to understand its main components: Internet Key Exchange (IKE) for authentication and negotiation, and IPsec for data encryption and transport.
+
+IKE is the protocol two endpoints use to authenticate each other and negotiate connection rules, including encryption algorithms. Libreswan implements IKE in a daemon called `pluto`.
+
+IPsec is the part of the protocol that actually encrypts and transports data according to the policy agreed upon during the IKE negotiation. The Linux kernel implements the IPsec protocol suite.
+

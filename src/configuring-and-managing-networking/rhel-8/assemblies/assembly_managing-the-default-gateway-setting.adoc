@@ -1,0 +1,38 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-managing-the-default-gateway-setting: {context}]
+
+[id="managing-the-default-gateway-setting_{context}"]
+= Managing the default gateway setting
+
+:context: managing-the-default-gateway-setting
+
+[role="_abstract"]
+The default gateway is a router that forwards network packets when no other route matches the destination of a packet. In a local network, the default gateway is typically the host that is one hop closer to the internet.
+
+
+include::modules/networking/proc_setting-the-default-gateway-on-an-existing-connection-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_setting-the-default-gateway-on-an-existing-connection-by-using-the-nmcli-interactive-mode.adoc[leveloffset=+1]
+
+include::modules/networking/proc_setting-the-default-gateway-on-an-existing-connection-by-using-nm-connection-editor.adoc[leveloffset=+1]
+
+include::modules/networking/proc_setting-the-default-gateway-on-an-existing-connection-by-using-control-center.adoc[leveloffset=+1]
+
+include::modules/networking/proc_setting-the-default-gateway-on-an-existing-connection-by-using-nmstatectl.adoc[leveloffset=+1]
+
+include::modules/networking/proc_setting-the-default-gateway-on-an-existing-connection-by-using-the-network-rhel-system-role.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} == 8]
+include::modules/networking/proc_setting-the-default-gateway-on-an-existing-connection-when-using-the-legacy-network-scripts.adoc[leveloffset=+1]
+endif::[]
+
+include::modules/networking/con_how-networkmanager-manages-multiple-default-gateways.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway.adoc[leveloffset=+1]
+
+include::modules/networking/proc_fixing-unexpected-routing-behavior-due-to-multiple-default-gateways.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-managing-the-default-gateway-setting[:context: {parent-context-of-managing-the-default-gateway-setting}]
+ifndef::parent-context-of-managing-the-default-gateway-setting[:!context:]
+

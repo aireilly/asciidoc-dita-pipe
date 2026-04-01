@@ -1,0 +1,81 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_mirroring-a-network-interface-by-using-nmcli_{context}"]
+= Mirroring a network interface by using `nmcli`
+
+[role="_abstract"]
+Network administrators can use port mirroring to replicate inbound and outbound network traffic being communicated from one network device to another. Mirroring traffic of an interface can be helpful in the following situations:
+
+* To debug networking issues and tune the network flow
+* To inspect and analyze the network traffic
+* To detect an intrusion
+
+
+.Prerequisites
+
+* A network interface to mirror the network traffic to.
+
+.Procedure
+
+. Add a network connection profile that you want to mirror the network traffic from:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection add type ethernet ifname _enp1s0_ con-name _enp1s0_ autoconnect _no_**
+....
+
+. Attach a `qdisc` of type `prio`  to `enp1s0` for the egress (outgoing) traffic with the `10:` handle:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify _enp1s0_ +tc.qdisc "root prio handle 10:"**
+....
++
+The `qdisc` set to `prio` attached without children allows attaching filters.
+
+. Add a `qdisc` for the ingress traffic, with the `ffff:` handle:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify _enp1s0_ +tc.qdisc "ingress handle ffff:"**
+....
+
+. Add the following filters to match packets on the ingress and egress `qdiscs`, and to mirror them to `enp7s0`:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify _enp1s0_ +tc.tfilter "parent ffff: matchall action mirred egress mirror dev _enp7s0_"**
+
+# **nmcli connection modify _enp1s0_ +tc.tfilter "parent 10: matchall action mirred egress mirror dev _enp7s0_"**
+....
++
+The `matchall` filter matches all packets, and the `mirred` action redirects packets to destination.
+
+. Activate the connection:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up _enp1s0_**
+....
+
+.Verification
+
+. Install the `tcpdump` utility:
++
+[literal,subs="+quotes,attributes"]
+....
+# **{PackageManagerCommand} install tcpdump**
+....
+
+. Display the traffic mirrored on the target device (`enp7s0`):
++
+[literal,subs="+quotes"]
+....
+# **tcpdump -i _enp7s0_**
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+* link:https://access.redhat.com/solutions/8787[How to capture network packets using `tcpdump` (Red Hat Knowledgebase)]
+

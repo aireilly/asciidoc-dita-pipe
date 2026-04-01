@@ -1,0 +1,50 @@
+:_mod-docs-content-type: PROCEDURE
+[id="proc_temporarily-configuring-a-network-device-to-accept-all-traffic_{context}"]
+= Temporarily configuring a device to accept all traffic
+
+[role="_abstract"]
+You can use the `ip` utility to temporarily configure a network device to accept all traffic regardless of the MAC addresses.
+
+
+.Procedure
+
+. Optional: Display the network interfaces to identify the one for which you want to receive all traffic:
++
+[literal,subs="+quotes"]
+....
+# **ip address show**
+1: enp1s0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 1000
+    link/ether 98:fa:9b:a4:34:09 brd ff:ff:ff:ff:ff:ff
+...
+....
+
+. Modify the device to enable or disable this property:
+
+** To enable the `accept-all-mac-addresses` mode for `enp1s0`:
++
+[literal,subs="+quotes"]
+....
+# **ip link set _enp1s0_ promisc _on_**
+....
+
+** To disable the `accept-all-mac-addresses` mode for `enp1s0`:
++
+[literal,subs="+quotes"]
+....
+# **ip link set _enp1s0_ promisc _off_**
+....
+
+
+.Verification
+
+* Verify that the `accept-all-mac-addresses` mode is enabled:
++
+[literal,subs="+quotes"]
+....
+# **ip link show _enp1s0_**
+1: enp1s0: <NO-CARRIER,BROADCAST,MULTICAST,*PROMISC*,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 1000
+    link/ether 98:fa:9b:a4:34:09 brd ff:ff:ff:ff:ff:ff
+....
++
+The `PROMISC` flag in the device description indicates that the mode is enabled.
+

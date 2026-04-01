@@ -1,0 +1,86 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_setting-up-the-bridge-on-the-authenticator_{context}"]
+= Setting up the bridge on the authenticator
+
+[role="_abstract"]
+A network bridge is a link-layer device that forwards traffic between hosts and networks based on a table of MAC addresses. If you set up RHEL as an 802.1X authenticator, add both the interfaces on which to perform authentication and the LAN interface to the bridge.
+
+
+.Prerequisites
+
+* The server has multiple Ethernet interfaces.
+
+
+.Procedure
+
+. If the bridge interface does not exist, create it:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection add type bridge con-name br0 ifname br0**
+....
+
+. Assign the Ethernet interfaces to the bridge:
++
+[literal,subs="+quotes,attributes"]
+....
+# **nmcli connection add type ethernet {NM_port}-type bridge con-name br0-port1 ifname enp1s0 {NM_controller} br0**
+# **nmcli connection add type ethernet {NM_port}-type bridge con-name br0-port2 ifname enp7s0 {NM_controller} br0**
+# **nmcli connection add type ethernet {NM_port}-type bridge con-name br0-port3 ifname enp8s0 {NM_controller} br0**
+# **nmcli connection add type ethernet {NM_port}-type bridge con-name br0-port4 ifname enp9s0 {NM_controller} br0**
+....
+
+. Enable the bridge to forward extensible authentication protocol over LAN (EAPOL) packets:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify br0 group-forward-mask 8**
+....
+
+. Disable the Spanning Tree Protocol (STP) on the bridge device:
++
+[subs="+quotes"]
+....
+# *nmcli connection modify br0 stp off"
+....
+
+. Configure the connection to automatically activate the ports:
++
+[literal,subs="+quotes,attributes"]
+....
+# **nmcli connection modify br0 connection.autoconnect-{NM_ports} 1**
+....
+
+. Activate the connection:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up br0**
+....
+
+
+
+.Verification
+
+. Display the link status of Ethernet devices that are ports of a specific bridge:
++
+[literal,subs="+quotes"]
+....
+# **ip link show master br0**
+3: enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel master br0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:62:61:0e brd ff:ff:ff:ff:ff:ff
+...
+....
+
+. Verify if forwarding of EAPOL packets is enabled on the `br0` device:
++
+[literal,subs="+quotes"]
+....
+# **cat /sys/class/net/br0/bridge/group_fwd_mask**
+0x8
+....
++
+If the command returns `0x8`, forwarding is enabled.
+
+

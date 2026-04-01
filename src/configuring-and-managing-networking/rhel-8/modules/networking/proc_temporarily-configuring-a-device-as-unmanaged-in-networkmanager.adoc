@@ -1,0 +1,43 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="temporarily-configuring-a-device-as-unmanaged-in-networkmanager_{context}"]
+= Temporarily configuring a device as unmanaged in NetworkManager
+
+[role="_abstract"]
+You can temporarily configure devices as `unmanaged`, for example, for testing purposes. This change persists a reload and restart of the `NetworkManager` systemd service, but not a system reboot.
+
+
+.Procedure
+
+. Optional: Display the list of devices to identify the device you want to set as `unmanaged`:
++
+[subs="+quotes"]
+....
+# *nmcli device status*
+DEVICE  TYPE      STATE         CONNECTION
+enp1s0  ethernet  disconnected  --
+...
+....
+
+. Set the `enp1s0` device to the `unmanaged` state:
++
+[subs="+quotes"]
+....
+# *nmcli device set enp1s0 managed no*
+....
+
+
+.Verification
+
+* Display the list of devices:
++
+[subs="+quotes"]
+....
+# *nmcli device status*
+DEVICE  TYPE      STATE      CONNECTION
+enp1s0  ethernet  *unmanaged*  --
+...
+....
++
+The `unmanaged` state next to the `enp1s0` device indicates that NetworkManager does not manage this device.
+

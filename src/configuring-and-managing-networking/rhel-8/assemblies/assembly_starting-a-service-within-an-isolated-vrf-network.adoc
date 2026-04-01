@@ -1,0 +1,26 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-assembly_starting-a-service-within-an-isolated-vrf-network: {context}]
+
+ifndef::context[]
+[id="assembly_starting-a-service-within-an-isolated-vrf-network"]
+endif::[]
+ifdef::context[]
+[id="assembly_starting-a-service-within-an-isolated-vrf-network_{context}"]
+endif::[]
+= Starting a service within an isolated VRF network
+
+:context: assembly_starting-a-service-within-an-isolated-vrf-network
+
+[role="_abstract"]
+With virtual routing and forwarding (VRF), you can create isolated networks with a routing table that is different to the main routing table of the operating system. You can then start services and applications so that they have only access to the network defined in that routing table.
+
+
+include::modules/networking/proc_configuring-a-vrf-device.adoc[leveloffset=+1]
+
+include::modules/networking/proc_starting-a-service-within-an-isolated-vrf-network.adoc[leveloffset=+1]
+
+
+
+ifdef::parent-context-of-assembly_starting-a-service-within-an-isolated-vrf-network[:context: {parent-context-of-assembly_starting-a-service-within-an-isolated-vrf-network}]
+ifndef::parent-context-of-assembly_starting-a-service-within-an-isolated-vrf-network[:!context:]
+

@@ -1,0 +1,30 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+[id="tracing-tcp-retransmissions_{context}"]
+= Tracing TCP retransmissions
+
+[role="_abstract"]
+The `tcpretrans` utility displays details about TCP retransmissions, such as the local and remote IP address and port number, as well as the TCP state at the time of the retransmissions.
+
+The utility uses eBPF features and, therefore, has a very low overhead.
+
+
+.Procedure
+
+. Use the following command to start displaying TCP retransmission details:
++
+[subs="+quotes"]
+....
+# */usr/share/bcc/tools/tcpretrans*
+TIME     PID  IP LADDR:LPORT   T> RADDR:RPORT         STATE
+00:23:02 0    4  192.0.2.1:22  R> 198.51.100.0:26788  ESTABLISHED
+00:23:02 0    4  192.0.2.1:22  R> 198.51.100.0:26788  ESTABLISHED
+00:45:43 0    4  192.0.2.1:22  R> 198.51.100.0:17634  ESTABLISHED
+...
+....
++
+Each time the kernel calls the TCP retransmit function, `tcpretrans` displays the details of the connection.
+
+. Press kbd:[Ctrl]+kbd:[C] to stop the tracing process.
+

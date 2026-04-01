@@ -1,0 +1,148 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-a-macsec-connection-using-nmstatectl_{context}"]
+= Configuring a MACsec connection by using `nmstatectl`
+
+[role="_abstract"]
+You can use the declarative Nmstate API to configure Ethernet interfaces to use MACsec. Nmstate ensures that the result matches the configuration file or rolls back the changes.
+
+
+.Prerequisites
+
+* A physical or virtual Ethernet Network Interface Controller (NIC) exists in the server configuration.
+* The `nmstate` package is installed.
+
+
+.Procedure
+
+. On the first host on which you configure MACsec, create the connectivity association key (CAK) and connectivity-association key name (CKN) for the pre-shared key:
+
+.. Create a 16-byte hexadecimal CAK:
++
+[literal,subs="+quotes"]
+----
+# *dd if=/dev/urandom count=16 bs=1 2> /dev/null | hexdump -e '1/2 "%04x"'*
+50b71a8ef0bd5751ea76de6d6c98c03a
+----
+.. Create a 32-byte hexadecimal CKN:
++
+[literal,subs="+quotes"]
+----
+# *dd if=/dev/urandom count=32 bs=1 2> /dev/null | hexdump -e '1/2 "%04x"'*
+f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550
+----
+
+
+. On both hosts that you want to connect over a MACsec connection, complete the following steps:
+.. Create a YAML file, for example `create-macsec-connection.yml`, with the following settings:
++
+[literal,subs="+quotes"]
+----
+---
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-interface: macsec0
+    next-hop-address: 192.0.2.2
+    table-id: 254
+  - destination: 192.0.2.2/32
+    next-hop-interface: macsec0
+    next-hop-address: 0.0.0.0
+    table-id: 254
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb
+interfaces:
+- name: macsec0
+  type: macsec
+  state: up
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 32
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+  macsec:
+    encrypt: true
+    base-iface: enp0s1
+    mka-cak: 50b71a8ef0bd5751ea76de6d6c98c03a
+    mka-ckn: f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550
+    port: 0
+    validation: strict
+    send-sci: true
+----
+
+.. Use the CAK and CKN generated in the previous step in the `mka-cak` and `mka-ckn` parameters. The values must be the same on every host in the MACsec-protected network.
+
+.. Optional: In the same YAML configuration file, you can also configure the following settings:
+
+* A static IPv4 address - `192.0.2.1` with the `/32` subnet mask
+* A static IPv6 address - `2001:db8:1::1` with the `/64` subnet mask
+* An IPv4 default gateway - `192.0.2.2`
+* An IPv4 DNS server - `192.0.2.200`
+* An IPv6 DNS server - `2001:db8:1::ffbb`
+* A DNS search domain - `example.com`
+
+
+. Apply the settings to the system:
++
+[literal,subs="+quotes"]
+----
+# *nmstatectl apply create-macsec-connection.yml*
+----
+
+
+.Verification
+
+. Display the current state in YAML format:
++
+[literal,subs="+quotes"]
+----
+# *nmstatectl show macsec0*
+----
+
+
+. Verify that the traffic is encrypted:
++
+[literal,subs="+quotes"]
+----
+# *tcpdump -nn -i enp0s1*
+----
+
+
+. Optional: Display the unencrypted traffic:
++
+[literal,subs="+quotes"]
+----
+# *tcpdump -nn -i macsec0*
+----
+
+
+. Display MACsec statistics:
++
+[literal,subs="+quotes"]
+----
+# *ip macsec show*
+----
+
+
+. Display individual counters for each type of protection: integrity-only (encrypt off) and encryption (encrypt on)
++
+[literal,subs="+quotes"]
+----
+# *ip -s macsec show*
+----
+
+
+[role="_additional-resources"]
+.Additional resources
+* link:https://developers.redhat.com/blog/2016/10/14/macsec-a-different-solution-to-encrypt-network-traffic[MACsec: a different solution to encrypt network traffic]
+

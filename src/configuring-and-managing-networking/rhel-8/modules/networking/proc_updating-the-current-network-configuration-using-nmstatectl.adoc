@@ -1,0 +1,45 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_updating-the-current-network-configuration-using-nmstatectl_{context}"]
+= Updating the current network configuration by using `nmstatectl`
+
+[role="_abstract"]
+You can use the `nmstatectl` utility to store the current network configuration of one or all interfaces in a file.
+
+You can then use this file to:
+
+* Modify the configuration and apply it to the same system.
+* Copy the file to a different host and configure the host with the same or modified settings.
+
+For example, you can export the settings of the `enp1s0` interface to a file, modify the configuration, and apply the settings to the host.
+
+
+.Prerequisites
+
+* The `nmstate` package is installed.
+
+
+.Procedure
+
+. Export the settings of the `enp1s0` interface to the `~/network-config.yml` file:
++
+[literal,subs="+quotes"]
+....
+# **nmstatectl show __enp1s0__ > __~/network-config.yml__**
+....
++
+This command stores the configuration of `enp1s0` in YAML format. To store the output in JSON format, pass the `--json` option to the command.
++
+If you do not specify an interface name, `nmstatectl` exports the configuration of all interfaces.
+
+. Modify the `~/network-config.yml` file using a text editor to update the configuration.
+
+. Apply the settings from the `~/network-config.yml` file:
++
+[literal,subs="+quotes"]
+....
+# **nmstatectl apply __~/network-config.yml__**
+....
++
+If you exported the settings in JSON format, pass the `--json` option to the command.
+

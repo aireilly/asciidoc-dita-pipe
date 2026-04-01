@@ -1,0 +1,82 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="creating-static-routes-configuration-files-in-key-value-format-when-using-the-legacy-network-scripts_{context}"]
+= Creating static routes configuration files in key-value format when using the legacy network scripts
+
+[role="_abstract"]
+The legacy network scripts support setting statics routes in key-value format.
+
+The procedure below configures an IPv4 route to the remote `198.51.100.0/24` network. The corresponding gateway with the IP address `192.0.2.10` is reachable through the `enp1s0` interface.
+
+[NOTE]
+====
+The legacy network scripts support the key-value format only for static IPv4 routes. For IPv6 routes, use the `ip`-command format. See
+ifdef::networking-title[]
+xref:creating-static-routes-configuration-files-in-ip-command-format-when-using-the-legacy-network-scripts_configuring-static-routes[Creating static routes configuration files in ip-command format when using the legacy network scripts].
+endif::[]
+ifndef::networking-title[]
+link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-static-routes_configuring-and-managing-networking#creating-static-routes-configuration-files-in-ip-command-format-when-using-the-legacy-network-scripts_configuring-static-routes[Creating static routes configuration files in ip-command format when using the legacy network scripts]
+endif::[]
+====
+
+
+.Prerequisites
+* The gateways for the static route must be directly reachable on the interface.
+* The `NetworkManager` package is not installed, or the `NetworkManager` service is disabled.
+* The `network-scripts` package is installed.
+* The `network` service is enabled.
+
+
+.Procedure
+
+. Add the static IPv4 route to the `/etc/sysconfig/network-scripts/route-enp0s1` file:
++
+[source,subs="+quotes"]
+....
+ADDRESS0=__198.51.100.0__
+NETMASK0=__255.255.255.0__
+GATEWAY0=__192.0.2.10__
+....
++
+* The `ADDRESS0` variable defines the network of the first routing entry.
+* The `NETMASK0` variable defines the netmask of the first routing entry.
+* The `GATEWAY0` variable defines the IP address of the gateway to the remote network or host for the first routing entry.
++
+If you add multiple static routes, increase the number in the variable names. Note that the variables for each route must be numbered sequentially. For example, `ADDRESS0`, `ADDRESS1`, `ADDRESS3`, and so on.
+
+. Restart the network:
++
+[literal,subs="+quotes"]
+....
+# **systemctl restart network**
+....
+
+
+.Verification
+
+* Display the IPv4 routes:
++
+[literal,subs="+quotes"]
+....
+# **ip -4 route** 
+...
+__198.51.100.0/24__ via __192.0.2.10__ dev __enp1s0__
+....
+
+
+.Troubleshooting
+
+* Display the journal entries of the `network` unit:
++
+[literal,subs="+quotes"]
+....
+# **journalctl  -u network**
+....
++
+The following are possible error messages and their causes:
++
+** `Error: Nexthop has invalid gateway`: You specified an IPv4 gateway address in the `route-__enp1s0__` file that is not in the same subnet as this router.
+** `RTNETLINK answers: No route to host`: You specified an IPv6 gateway address in the `route6-__enp1s0__` file that is not in the same subnet as this router.
+** `Error: Invalid prefix for given prefix length`: You specified the remote network in the `route-__enp1s0__` file by using an IP address within the remote network rather than the network address.
+
+

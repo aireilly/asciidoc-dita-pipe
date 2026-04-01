@@ -1,0 +1,83 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-802-1x-network-authentication-on-an-existing-ethernet-connection-by-using-nmcli_{context}"]
+= Configuring 802.1X network authentication on an existing Ethernet connection by using `nmcli`
+
+[role="_abstract"]
+You can use the `nmcli` utility to configure an Ethernet connection with 802.1X network authentication on the command line.
+
+
+
+.Prerequisites
+
+* The network supports 802.1X network authentication.
+* The Ethernet connection profile exists in NetworkManager and has a valid IP configuration.
+* The following files required for TLS authentication exist on the client:
+** The client key stored is in the `/etc/pki/tls/private/client.key` file, and the file is owned and only readable by the `root` user.
+** The client certificate is stored in the `/etc/pki/tls/certs/client.crt` file.
+** The Certificate Authority (CA) certificate is stored in the `/etc/pki/tls/certs/ca.crt` file.
+* The `wpa_supplicant` package is installed.
+
+
+
+.Procedure
+
+. Set the Extensible Authentication Protocol (EAP) to `tls` and the paths to the client certificate and key file:
++
+[subs="+quotes"]
+....
+# *nmcli connection modify _enp1s0_ 802-1x.eap tls 802-1x.client-cert /etc/pki/tls/certs/client.crt 802-1x.private-key /etc/pki/tls/private/client.key*
+....
++
+Note that you must set the `802-1x.eap`, `802-1x.client-cert`, and `802-1x.private-key` parameters in a single command.
+
+. Set the path to the CA certificate:
++
+[subs="+quotes"]
+....
+# *nmcli connection modify _enp1s0_ 802-1x.ca-cert /etc/pki/tls/certs/ca.crt*
+....
+
+. Set the identity of the user used in the certificate:
++
+[subs="+quotes"]
+....
+# *nmcli connection modify _enp1s0_ 802-1x.identity _user@example.com_*
+....
+
+. Optional: Store the password in the configuration:
++
+[subs="+quotes"]
+....
+# *nmcli connection modify _enp1s0_ 802-1x.private-key-password _password_*
+....
++
+[IMPORTANT]
+====
+By default, NetworkManager stores the password in clear text in the connection profile on the disk, but the file is readable only by the `root` user. However, clear text passwords in a configuration file can be a security risk.
+
+To increase the security, set the `802-1x.password-flags` parameter to `agent-owned`. With this setting, on servers with the GNOME desktop environment or the `nm-applet` running, NetworkManager retrieves the password from these services, after you unlock the keyring. In other cases, NetworkManager prompts for the password.
+====
+
+. Activate the connection profile:
++
+[subs="+quotes"]
+....
+# *nmcli connection up _enp1s0_*
+....
+
+
+.Verification
+
+* Access resources on the network that require network authentication.
+
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:configuring-an-ethernet-connection_configuring-and-managing-networking[Configuring an Ethernet connection]
+endif::[]
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-an-ethernet-connection_configuring-and-managing-networking[Configuring an Ethernet connection]
+endif::[]
+

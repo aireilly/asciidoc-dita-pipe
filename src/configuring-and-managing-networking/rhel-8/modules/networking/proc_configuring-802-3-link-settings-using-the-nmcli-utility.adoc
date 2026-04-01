@@ -1,0 +1,63 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="proc_configuring-802-3-link-settings-using-the-nmcli-utility_{context}"]
+= Configuring 802.3 link settings using the `nmcli` utility
+
+[role="_abstract"]
+To configure the 802.3 link settings of an Ethernet connection, modify the following configuration parameters:
+
+* `802-3-ethernet.auto-negotiate`
+* `802-3-ethernet.speed`
+* `802-3-ethernet.duplex` 
+
+.Procedure
+
+. Display the current settings of the connection:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection show _Example-connection_*
+...
+802-3-ethernet.speed:  0
+802-3-ethernet.duplex: --
+802-3-ethernet.auto-negotiate: no
+...
+....
++
+You can use these values if you need to reset the parameters in case of any problems.
+
+. Set the speed and duplex link settings:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify _Example-connection_ 802-3-ethernet.auto-negotiate _yes_ 802-3-ethernet.speed _10000_ 802-3-ethernet.duplex _full_*
+....
++
+This command enables auto-negotiation and sets the speed of the connection to `10000` Mbit full duplex.
+
+. Reactivate the connection:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up _Example-connection_*
+....
+
+.Verification
+
+* Use the `ethtool` utility to verify the values of Ethernet interface `enp1s0`:
++
+[literal,subs="+quotes"]
+....
+# *ethtool _enp1s0_*
+
+Settings for enp1s0:
+...
+Speed: 10000 Mb/s
+Duplex: Full
+Auto-negotiation: on
+...
+Link detected: yes
+....
+

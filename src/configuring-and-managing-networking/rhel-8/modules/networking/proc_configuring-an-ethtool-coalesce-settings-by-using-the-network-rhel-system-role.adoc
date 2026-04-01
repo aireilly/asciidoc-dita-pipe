@@ -1,0 +1,91 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-an-ethtool-coalesce-settings-by-using-the-network-rhel-system-role_{context}"]
+= Configuring an `ethtool` coalesce settings by using the `network` {RHELSystemRoles}
+
+[role="_abstract"]
+Interrupt coalescing collects network packets and generates a single interrupt for multiple packets. This reduces interrupt load and maximizes throughput. You can automate the configuration of these settings in the NetworkManager connection profile by using the `network` RHEL system role.
+
+[WARNING]
+====
+You cannot use the `network` RHEL system role to update only specific values in an existing connection profile. The role ensures that a connection profile exactly matches the settings in a playbook. If a connection profile with the same name already exists, the role applies the settings from the playbook and resets all other settings in the profile to their defaults. To prevent resetting values, always specify the whole configuration of the network connection profile in the playbook, including the settings that you do not want to change.
+====
+
+
+.Prerequisites
+
+include::common-content/snip_common-prerequisites.adoc[]
+// The following are prerequisites that are specific for this task
+// none
+
+
+.Procedure
+
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Ethernet connection profile with dynamic IP address settings and coalesce settings
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: enp1s0
+            type: ethernet
+            autoconnect: yes
+            ip:
+              dhcp4: yes
+              auto6: yes
+            *ethtool:*
+              *coalesce:*
+                *rx_frames: 128*
+                *tx_frames: 128*
+            state: up
+....
++
+The settings specified in the example playbook include the following:
++
+`rx_frames: _<value>_`:: Sets the number of RX frames.
+`gso: _<value>_`:: Sets the number of TX frames.
+
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.network/README.md` file on the control node.
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook ~/playbook.yml*
+....
+
+
+.Verification
+
+* Display the current offload features of the network device:
++
+[literal,subs="+quotes"]
+....
+# *ansible managed-node-01.example.com -m command -a 'ethtool -c enp1s0'*
+managed-node-01.example.com | CHANGED | rc=0 >>
+...
+rx-frames:	128
+...
+tx-frames:	128
+...
+....
+

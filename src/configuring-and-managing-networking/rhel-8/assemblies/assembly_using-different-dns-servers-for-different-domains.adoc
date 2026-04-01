@@ -1,0 +1,28 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-using-different-dns-servers-for-different-domains: {context}]
+
+[id="using-different-dns-servers-for-different-domains_{context}"]
+= Using different DNS servers for different domains
+
+:context: using-different-dns-servers-for-different-domains
+
+[role="_abstract"]
+By default, {ProductName} ({ProductShortName}) sends all DNS requests to the first DNS server specified in the `/etc/resolv.conf` file. If this server does not reply, {ProductShortName} tries the next server in this file until it finds a working one. In environments where one DNS server cannot resolve all domains, administrators can configure {ProductShortName} to send DNS requests for a specific domain to a selected DNS server.
+
+For example, you connect a server to a Virtual Private Network (VPN), and hosts in the VPN use the `example.com` domain. In this case, you can configure {ProductShortName} to process DNS queries in the following way:
+
+* Send only DNS requests for `example.com` to the DNS server in the VPN network.
+* Send all other requests to the DNS server that is configured in the connection profile with the default gateway.
+
+
+include::modules/networking/proc_using-dnsmasq-in-networkmanager-to-send-dns-requests-for-a-specific-domain-to-a-selected-dns-server.adoc[leveloffset=+1]
+
+include::modules/networking/proc_using-systemd-resolved-in-networkmanager-to-send-dns-requests-for-a-specific-domain-to-a-selected-dns-server.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} == 9]
+include::modules/networking/proc_routing-dns-traffic-through-a-certain-interface.adoc[leveloffset=+1]
+endif::[]
+
+ifdef::parent-context-of-using-different-dns-servers-for-different-domains[:context: {parent-context-of-using-different-dns-servers-for-different-domains}]
+ifndef::parent-context-of-using-different-dns-servers-for-different-domains[:!context:]
+

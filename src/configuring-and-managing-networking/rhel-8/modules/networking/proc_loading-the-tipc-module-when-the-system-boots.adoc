@@ -1,0 +1,38 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="loading-the-tipc-module-when-the-system-boots_{context}"]
+= Loading the tipc module when the system boots
+
+[role="_abstract"]
+Before you can use the TIPC protocol, you must load the `tipc` kernel module. You can configure {ProductName} to automatically load this kernel module automatically when the system boots.
+
+
+.Procedure
+
+. Create the `/etc/modules-load.d/tipc.conf` file with the following content:
++
+[source]
+....
+tipc
+....
+
+. Restart the `systemd-modules-load` service to load the module without rebooting the system:
++
+[literal,subs="+quotes"]
+....
+# **systemctl start systemd-modules-load**
+....
+
+
+.Verification
+
+* Use the following command to verify that RHEL loaded the `tipc` module:
++
+[literal,subs="+quotes"]
+....
+# **lsmod | grep tipc**
+tipc    __311296__  0
+....
++
+If the command shows no entry for the `tipc` module, RHEL failed to load it.
+

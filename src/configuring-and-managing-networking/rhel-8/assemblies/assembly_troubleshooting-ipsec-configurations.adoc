@@ -1,0 +1,40 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-09-18
+:_mod-docs-content-type: ASSEMBLY
+
+ifdef::context[:parent-context-of-troubleshooting-ipsec-configurations: {context}]
+
+ifndef::context[]
+[id="troubleshooting-ipsec-configurations"]
+endif::[]
+ifdef::context[]
+[id="troubleshooting-ipsec-configurations_{context}"]
+endif::[]
+= Troubleshooting IPsec configurations
+
+:context: troubleshooting-ipsec-configurations
+
+[role="_abstract"]
+Diagnosing IPsec configuration failures can be challenging, because issues can be caused by mismatched settings, firewall rules, and kernel-level errors. The following information provides a systematic approach to resolving common problems with IPsec VPN connections.
+
+
+include::modules/networking/ref_basic-connection-issues.adoc[leveloffset=+1]
+
+include::modules/networking/ref_firewall-related-problems.adoc[leveloffset=+1]
+
+include::modules/networking/ref_mismatched-configurations.adoc[leveloffset=+1]
+
+include::modules/networking/ref_mtu-issues.adoc[leveloffset=+1]
+
+include::modules/networking/ref_nat-conflicts.adoc[leveloffset=+1]
+
+include::modules/networking/ref_kernel-level-ipsec-issues.adoc[leveloffset=+1]
+
+include::modules/networking/ref_kernel-ipsec-subsystem-bugs.adoc[leveloffset=+1]
+
+include::modules/networking/ref_displaying-libreswan-logs.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-troubleshooting-ipsec-configurations[:context: {parent-context-of-troubleshooting-ipsec-configurations}]
+ifndef::parent-context-of-troubleshooting-ipsec-configurations[:!context:]
+

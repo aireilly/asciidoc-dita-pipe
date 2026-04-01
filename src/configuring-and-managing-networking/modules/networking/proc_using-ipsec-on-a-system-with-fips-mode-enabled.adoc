@@ -1,0 +1,33 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-07-09
+:_mod-docs-content-type: REFERENCE
+
+[id="using-ipsec-on-a-system-with-fips-mode-enabled"]
+= Using IPsec on a system with FIPS mode enabled
+
+[role="_abstract"]
+RHEL in Federal Information Processing Standard (FIPS) mode exclusively uses validated cryptographic modules, automatically disabling legacy protocols and ciphers. Enabling FIPS mode is often a requirement for federal compliance and enhances system security.
+
+The Libreswan IPsec implementation provided by RHEL is fully FIPS-compliant. When the system is in FIPS mode, Libreswan automatically uses the certified cryptographic modules without requiring any additional configuration, regardless of whether Libreswan is installed on a new FIPS-enabled system or when FIPS mode is activated on a system with an existing Libreswan VPN.
+
+If FIPS mode is enabled, you can confirm that Libreswan is running in FIPS mode:
+
+[subs="+quotes"]
+....
+# *ipsec whack --fipsstatus*
+000 FIPS mode enabled
+....
+
+To list the allowed algorithms and ciphers in Libreswan in FIPS mode, enter:
+
+[subs="+quotes"]
+....
+# *ipsec pluto --selftest 2>&1*
+...
+000 FIPS Encryption algorithms:
+000   AES_CCM_16  {256,192,*128} IKEv1:  ESP  IKEv2:  ESP  FIPS   aes_ccm, aes_ccm_c
+000   AES_CCM_12  {256,192,*128} IKEv1:  ESP  IKEv2:  ESP  FIPS   aes_ccm_b
+000   AES_CCM_8   {256,192,*128} IKEv1:  ESP  IKEv2:  ESP  FIPS   aes_ccm_a
+000 ...
+....
+

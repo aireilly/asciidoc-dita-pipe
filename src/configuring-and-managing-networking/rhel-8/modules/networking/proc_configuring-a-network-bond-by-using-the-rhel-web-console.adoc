@@ -1,0 +1,91 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-network-bond-by-using-the-rhel-web-console_{context}"]
+= Configuring a network bond by using the RHEL web console
+
+[role="_abstract"]
+Use the RHEL web console to configure a network bond if you prefer to manage network settings using a web browser-based interface.
+
+
+.Prerequisites
+
+* Two or more physical or virtual network devices are installed on the server.
+
+* To use Ethernet devices as members of the bond, the physical or virtual Ethernet devices must be installed on the server.
+
+* To use team, bridge, or VLAN devices as members of the bond, create them in advance as described in: 
+
+ifdef::networking-title[]
+** xref:proc_configuring-a-network-team-by-using-the-rhel-web-console_configuring-network-teaming[Configuring a network team by using the RHEL web console]
+** xref:proc_configuring-a-network-bridge-by-using-the-rhel-web-console_configuring-a-network-bridge[Configuring a network bridge by using the RHEL web console]
+** xref:proc_configuring-vlan-tagging-by-using-the-rhel-web-console_configuring-vlan-tagging[Configuring VLAN tagging by using the RHEL web console]
+endif::[]
+
+ifndef::networking-title[]
+** link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-teaming_configuring-and-managing-networking#proc_configuring-a-network-team-by-using-the-rhel-web-console_configuring-network-teaming[Configuring a network team by using the RHEL web console]
+** link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-a-network-bridge_configuring-and-managing-networking#proc_configuring-a-network-bridge-by-using-the-rhel-web-console_configuring-a-network-bridge[Configuring a network bridge by using the RHEL web console]
+** link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-vlan-tagging_configuring-and-managing-networking#proc_configuring-vlan-tagging-by-using-the-rhel-web-console_configuring-vlan-tagging[Configuring VLAN tagging by using the RHEL web console]
+endif::[]
+
+include::common-content/snip_web-console-prerequisites.adoc[]
+
+.Procedure
+
+include::common-content/snip_web-console-log-in-step.adoc[]
+
+. Select the *Networking* tab in the navigation on the left side of the screen.
+
+. Click btn:[Add bond] in the *Interfaces* section.
+
+. Enter the name of the bond device you want to create.
+
+. Select the interfaces that should be members of the bond.
+
+. Select the mode of the bond.
++
+If you select *Active backup*, the web console shows the additional field *Primary* in which you can select the preferred active device.
+
+. Set the link monitoring mode. For example, when you use the *Adaptive load balancing* mode, set it to `ARP`.
+
+. Optional: Adjust the monitoring interval, link up delay, and link down delay settings. Typically, you only change the defaults for troubleshooting purposes.
++
+image::bond-settings.png["The bond settings dialog in the RHEL web console"]
+
+. Click btn:[Apply].
+
+. By default, the bond uses a dynamic IP address. If you want to set a static IP address:
+
+.. Click the name of the bond in the *Interfaces* section.
+
+.. Click *Edit* next to the protocol you want to configure.
+
+.. Select *Manual* next to *Addresses*, and enter the IP address, prefix, and default gateway.
+
+.. In the *DNS* section, click the btn:[+] button, and enter the IP address of the DNS server. Repeat this step to set multiple DNS servers.
+
+.. In the *DNS search domains* section, click the btn:[+] button, and enter the search domain. 
+
+.. If the interface requires static routes, configure them in the *Routes* section.
++
+image::bond-team-bridge-vlan.ipv4.png["The IPv4 settings in the RHEL web console"]
+
+.. Click btn:[Apply]
+
+
+.Verification
+
+. Select the *Networking* tab in the navigation on the left side of the screen, and check if there is incoming and outgoing traffic on the interface:
++
+image::bond-verify.png["Bond interface statistics"]
+
+. Temporarily remove the network cable from one of the network devices and check if the other device in the bond is handling the traffic.
++
+Note that there is no method to properly test link failure events using software utilities. Tools that deactivate connections, such as the web console, show only the bonding driver's ability to handle member configuration changes and not actual link failure events.
+
+. Display the status of the bond:
++
+[literal,subs="+quotes"]
+....
+# *cat /proc/net/bonding/bond0*
+....
+

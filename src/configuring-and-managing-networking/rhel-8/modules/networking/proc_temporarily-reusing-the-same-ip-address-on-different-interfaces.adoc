@@ -1,0 +1,97 @@
+:_mod-docs-content-type: PROCEDURE
+[id="temporarily-reusing-the-same-ip-address-on-different-interfaces_{context}"]
+= Temporarily reusing the same IP address on different interfaces
+
+[role="_abstract"]
+You can use the virtual routing and forwarding (VRF) feature to temporarily use the same IP address on different interfaces in one server. Use this procedure only for testing purposes, because the configuration is temporary and lost after you reboot the system.
+
+[IMPORTANT]
+====
+To enable remote peers to contact both VRF interfaces while reusing the same IP address, the network interfaces must belong to different broadcasting domains. A broadcast domain in a network is a set of nodes which receive broadcast traffic sent by any of them. In most configurations, all nodes connected to the same switch belong to the same broadcasting domain.
+====
+
+
+.Prerequisites
+
+* You are logged in as the `root` user.
+
+* The network interfaces are not configured.
+
+
+.Procedure
+
+. Create and configure the first VRF device:
+
+.. Create the VRF device and assign it to a routing table. For example, to create a VRF device named `blue` that is assigned to the `1001` routing table:
++
+[literal,subs="+quotes"]
+----
+# **ip link add dev blue type vrf table 1001**
+----
+
+.. Enable the `blue` device:
++
+[literal,subs="+quotes"]
+----
+# **ip link set dev blue up**
+----
+
+.. Assign a network device to the VRF device. For example, to add the `enp1s0` Ethernet device to the `blue` VRF device:
++
+[literal,subs="+quotes"]
+----
+# **ip link set dev enp1s0 master blue**
+----
+
+.. Enable the `enp1s0` device:
++
+[literal,subs="+quotes"]
+----
+# **ip link set dev enp1s0 up**
+----
+
+.. Assign an IP address and subnet mask to the `enp1s0` device. For example, to set it to `192.0.2.1/24`:
++
+[literal,subs="+quotes"]
+----
+# **ip addr add dev enp1s0 192.0.2.1/24**
+----
+
+. Create and configure the next VRF device:
+
+.. Create the VRF device and assign it to a routing table. For example, to create a VRF device named `red` that is assigned to the `1002` routing table:
++
+[literal,subs="+quotes"]
+----
+# **ip link add dev red type vrf table 1002**
+----
+
+.. Enable the `red` device:
++
+[literal,subs="+quotes"]
+----
+# **ip link set dev red up**
+----
+
+.. Assign a network device to the VRF device. For example, to add the `enp7s0` Ethernet device to the `red` VRF device:
++
+[literal,subs="+quotes"]
+----
+# **ip link set dev enp7s0 master red**
+----
+
+.. Enable the `enp7s0` device:
++
+[literal,subs="+quotes"]
+----
+# **ip link set dev enp7s0 up**
+----
+
+.. Assign the same IP address and subnet mask to the `enp7s0` device as you used for `enp1s0` in the `blue` VRF domain:
++
+[literal,subs="+quotes"]
+----
+# **ip addr add dev enp7s0 192.0.2.1/24**
+----
+
+. Optional: Create further VRF devices as described above.

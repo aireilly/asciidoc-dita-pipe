@@ -1,0 +1,116 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-vrf-device_{context}"]
+= Configuring a VRF device
+
+[role="_abstract"]
+To use virtual routing and forwarding (VRF), you create a VRF device and attach a physical or virtual network interface and routing information to it.
+
+[WARNING]
+====
+To prevent that you lock yourself out yourself out remotely, perform this procedure on the local console or remotely over a network interface that you do not want to assign to the VRF device.
+====
+
+
+
+.Prerequisites
+
+* You are logged in locally or using a network interface that is different to the one you want to assign to the VRF device.
+
+
+
+.Procedure
+
+. Create the `vrf0` connection with a same-named virtual device, and attach it to routing table `1000`:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection add type vrf ifname __vrf0__ con-name __vrf0__ table __1000__ ipv4.method disabled ipv6.method disabled**
+....
+
+. Add the `enp1s0` device to the `vrf0` connection, and configure the IP settings:
++
+[literal,subs="+quotes,attributes"]
+....
+# **nmcli connection add type ethernet con-name __enp1s0__ ifname __enp1s0__ {NM_controller} __vrf0__ ipv4.method __manual__ ipv4.address __192.0.2.1/24__ ipv4.gateway __192.0.2.254__**
+....
++
+This command creates the `enp1s0` connection as a port of the `vrf0` connection. Due to this configuration, the routing information are automatically assigned to the routing table `1000` that is associated with the `vrf0` device.
+
+. If you require static routes in the isolated network:
+
+.. Add the static routes:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify __enp1s0__ +ipv4.routes "__198.51.100.0/24__ __192.0.2.2__"**
+....
++
+This adds a route to the `198.51.100.0/24` network that uses `192.0.2.2` as the router.
+
+.. Activate the connection:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up __enp1s0__**
+....
+
+
+
+.Verification
+
+. Display the IP settings of the device that is associated with `vrf0`:
++
+[literal,subs="+quotes"]
+....
+# **ip -br addr show vrf __vrf0__**
+__enp1s0__    UP    __192.0.2.1/24__
+....
+
+. Display the VRF devices and their associated routing table:
++
+[literal,subs="+quotes"]
+....
+# **ip vrf show**
+Name              Table
+-----------------------
+__vrf0__              __1000__
+....
+
+. Display the main routing table:
++
+[literal,subs="+quotes"]
+....
+# **ip route show**
+default via __203.0.113.0/24__ dev __enp7s0__ proto static metric 100
+....
++
+The main routing table does not mention any routes associated with the device `enp1s0` device or the `192.0.2.1/24` subnet.
+
+. Display the routing table `1000`:
++
+[literal,subs="+quotes"]
+....
+# **ip route show table __1000__**
+default via __192.0.2.254__ dev __enp1s0__ proto static metric 101
+broadcast __192.0.2.0__ dev __enp1s0__ proto kernel scope link src __192.0.2.1__
+__192.0.2.0__/24 dev __enp1s0__ proto kernel scope link src __192.0.2.1__ metric 101
+local __192.0.2.1__ dev __enp1s0__ proto kernel scope host src __192.0.2.1__
+broadcast __192.0.2.255__ dev __enp1s0__ proto kernel scope link src __192.0.2.1__
+__198.51.100.0/24__ via __192.0.2.2__ dev __enp1s0__ proto static metric 101
+....
++
+The `default` entry indicates that services that use this routing table, use `192.0.2.254` as their default gateway and not the default gateway in the main routing table.
+
+. Execute the `traceroute` utility in the network associated with `vrf0` to verify that the utility uses the route from table `1000`:
++
+[literal,subs="+quotes"]
+....
+# **ip vrf exec __vrf0__ traceroute __203.0.113.1__**
+traceroute to __203.0.113.1__ (__203.0.113.1__), 30 hops max, 60 byte packets
+ 1  __192.0.2.254__ (__192.0.2.254__)  0.516 ms  0.459 ms  0.430 ms
+...
+....
++
+The first hop is the default gateway that is assigned to the routing table `1000` and not the default gateway from the system's main routing table.
+

@@ -1,0 +1,30 @@
+:_mod-docs-content-type: ASSEMBLY
+
+ifdef::context[:parent-context-of-assembly_managing-the-mptcpd-service: {context}]
+
+
+ifndef::context[]
+[id="assembly_managing-the-mptcpd-service"]
+endif::[]
+ifdef::context[]
+[id="assembly_managing-the-mptcpd-service_{context}"]
+endif::[]
+= Managing the mptcpd service
+
+:context: assembly_managing-the-mptcpd-service
+
+[role="_abstract"]
+This section describes the basic management of the `mptcpd` service. The `mptcpd` package provides the `mptcpize` tool, which switches on the `mptcp` protocol in the `TCP` environment.
+
+include::modules/networking/proc_configuring-mptcpd.adoc[leveloffset=+1]
+
+include::modules/networking/proc_managing-applications-with-mptcpize-tool.adoc[leveloffset=+1]
+
+include::modules/networking/proc_enabling-mptcp-sockets-for-a-services-using-the-mptcpize-utility.adoc[leveloffset=+1]
+
+////
+Restore the context to what it was before this assembly.
+////
+ifdef::parent-context-of-assembly_managing-the-mptcpd-service[:context: {parent-context-of-assembly_managing-the-mptcpd-service}]
+ifndef::parent-context-of-assembly_managing-the-mptcpd-service[:!context:]
+

@@ -1,0 +1,16 @@
+:_newdoc-version: 2.18.3
+:_template-generated: 2024-08-05
+:_mod-docs-content-type: SNIPPET
+
+// Logging-in step for the RHEL web console (Cockpit) procedures
+
+ifdef::cockpit-title[]
+. Log in to the {ProductShortName}{nbsp}{ProductNumber} web console.
++
+For details, see xref:logging-in-to-the-web-console_getting-started-with-the-rhel-{ProductNumber}-web-console[Logging in to the web console].
+endif::[]
+ifndef::cockpit-title[]
+. Log in to the {ProductShortName}{nbsp}{ProductNumber} web console.
++
+For details, see link:https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/{ProductNumberLink}/html/managing_systems_using_the_rhel_{ProductNumber}_web_console/getting-started-with-the-rhel-{ProductNumber}-web-console_system-management-using-the-rhel-{ProductNumber}-web-console#logging-in-to-the-web-console_getting-started-with-the-rhel-{ProductNumber}-web-console[Logging in to the web console].
+endif::[]

@@ -1,0 +1,53 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="con_how-networkmanager-manages-multiple-default-gateways_{context}"]
+= How NetworkManager manages multiple default gateways
+
+[role="_abstract"]
+In certain situations, for example for fallback reasons, you set multiple default gateways on a host. However, to avoid asynchronous routing issues, each default gateway of the same protocol requires a separate metric value.
+
+Note that RHEL only uses the connection to the default gateway that has the lowest metric set.
+
+You can set the metric for both the IPv4 and IPv6 gateway of a connection using the following command:
+
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify _<connection_name>_ ipv4.route-metric <value> ipv6.route-metric <value>*
+....
+
+[IMPORTANT]
+====
+Do not set the same metric value for the same protocol in multiple connection profiles to avoid routing issues.
+====
+
+If you set a default gateway without a metric value, NetworkManager automatically sets the metric value based on the interface type. For that, NetworkManager assigns the default value of this network type to the first connection that is activated, and sets an incremented value to each other connection of the same type in the order they are activated. For example, if two Ethernet connections with a default gateway exist, NetworkManager sets a metric of `100` on the route to the default gateway of the connection that you activate first. For the second connection, NetworkManager sets `101`.
+
+The following is an overview of frequently-used network types and their default metrics:
+// The values can be found in the source code: https://github.com/NetworkManager/NetworkManager/blob/main/src/core/devices/nm-device.c
+
+[cols="1,1",options="header"]
+|===
+| Connection type | Default metric value
+| VPN | 50
+| Ethernet | 100
+| MACsec | 125
+| InfiniBand | 150
+| Bond | 300
+| Team | 350
+| VLAN | 400
+| Bridge | 425
+| TUN | 450
+| Wi-Fi | 600
+| IP tunnel | 675
+|===
+
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:configuring-policy-based-routing-to-define-alternative-routes_configuring-and-managing-networking[Configuring policy-based routing to define alternative routes]
+endif::[]
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-policy-based-routing-to-define-alternative-routes_configuring-and-managing-networking[Configuring policy-based routing to define alternative routes]
+endif::[]
+

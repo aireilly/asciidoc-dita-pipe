@@ -1,0 +1,25 @@
+:_mod-docs-content-type: ASSEMBLY
+:parent-context-of-reusing-the-same-ip-address-on-different-interfaces: {context}
+
+[id="reusing-the-same-ip-address-on-different-interfaces_{context}"]
+= Reusing the same IP address on different interfaces
+
+:context: reusing-the-same-ip-address-on-different-interfaces
+
+[role="_abstract"]
+With Virtual routing and forwarding (VRF), administrators can use multiple routing tables simultaneously on the same host. For that, VRF partitions a network at layer 3. This enables the administrator to isolate traffic using separate and independent route tables per VRF domain. This technique is similar to virtual LANs (VLAN), which partitions a network at layer 2, where the operating system uses different VLAN tags to isolate traffic sharing the same physical medium.
+
+One benefit of VRF over partitioning on layer 2 is that routing scales better considering the number of peers involved.
+
+Red Hat Enterprise Linux uses a virtual [systemitem]`vrt` device for each VRF domain and adds routes to a VRF domain by adding existing network devices to a VRF device. Addresses and routes previously attached to the original device will be moved inside the VRF domain.
+
+Note that each VRF domain is isolated from each other.
+
+
+include::modules/networking/proc_permanently-reusing-the-same-ip-address-on-different-interfaces.adoc[leveloffset=+1]
+
+include::modules/networking/proc_temporarily-reusing-the-same-ip-address-on-different-interfaces.adoc[leveloffset=+1]
+
+
+:context: {parent-context-of-reusing-the-same-ip-address-on-different-interfaces}
+

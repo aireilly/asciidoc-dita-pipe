@@ -1,0 +1,27 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-07-22
+:_mod-docs-content-type: REFERENCE
+
+[id="displaying-libreswan-logs"]
+= Displaying Libreswan logs
+
+[role="_abstract"]
+Display Libreswan logs to diagnose and troubleshoot IPsec service events and issues. Access the journal for the `ipsec` service to gain insights into connection status and potential problems.
+
+To display the journal, enter:
+
+[subs="+quotes"]
+....
+# *journalctl -xeu ipsec*
+....
+
+If the default logging level does not provide enough details, enable comprehensive debug logging by adding the following settings to the `config setup` section in the `/etc/ipsec.conf` file:
+
+[source,bash]
+----
+plutodebug=all
+logfile=/var/log/pluto.log
+----
+
+Because debug logging can produce many entries, redirecting the messages to a dedicated log file can prevent the `journald` and `systemd` services from rate-limiting the messages.
+

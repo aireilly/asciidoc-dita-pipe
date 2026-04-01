@@ -1,0 +1,37 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_{context}"]
+= Configuring NetworkManager to avoid using a specific profile to provide a default gateway
+
+[role="_abstract"]
+In connection profiles that are not connected to the default gateway, you can configure that NetworkManager never uses this profile to provide the default gateway.
+
+
+.Prerequisites
+
+* The NetworkManager connection profile for the connection that is not connected to the default gateway exists.
+
+
+.Procedure
+
+. If the connection uses a dynamic IP configuration, configure that NetworkManager does not use this connection as the default connection for the corresponding IP type, meaning that NetworkManager will never assign the default route to it:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify _<connection_name>_ ipv4.never-default yes ipv6.never-default yes*
+....
++
+Note that setting `ipv4.never-default` and `ipv6.never-default` to `yes`, automatically removes the default gateway's IP address for the corresponding protocol from the connection profile.
+
+. Activate the connection:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up _<connection_name>_*
+....
+
+
+.Verification
+
+* Use the `ip -4 route` and `ip -6 route` commands to verify that RHEL does not use the network interface for the default route for the IPv4 and IPv6 protocol.
+

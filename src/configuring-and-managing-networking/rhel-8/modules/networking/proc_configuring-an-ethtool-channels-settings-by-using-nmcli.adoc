@@ -1,0 +1,66 @@
+:_newdoc-version: 2.15.1
+:_template-generated: 2024-01-18
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-an-ethtool-channels-settings-by-using-nmcli_{context}"]
+= Configuring an `ethtool` channels settings by using `nmcli`
+
+[role="_abstract"]
+The `ethtool` utility handles IRQ based communication with associated devices to manage related channels settings in connection profiles. Use the `nmcli` utility to configure `ethtool` settings in NetworkManager
+ connection profiles.
+
+
+.Procedure
+. Display the channels associated with a network device:
++
+[subs="+quotes"]
+----
+# **ethtool --show-channels _enp1s0_**
+Channel parameters for _enp1s0_:
+Pre-set maximums:
+RX:		4
+TX:		3
+Other:	   10
+Combined:  63
+
+Current hardware settings:
+RX:   	 1
+TX:   	 1
+Other:   1
+Combined:  1
+----
+
+. Update the channel settings of a network interface:
++
+[subs="+quotes"]
+----
+# **nmcli connection modify _enp1s0_ ethtool.channels-rx _4_ ethtool.channels-tx _3_ ethtools.channels-other _9_ ethtool.channels-combined _50_**
+----
+
+. Reactivate the network profile:
++
+[subs="+quotes"]
+----
+# **nmcli connection up _enp1s0_**
+----
+
+.Verification
+* Check the updated channel settings associated with the network device:
++
+[subs="+quotes"]
+---- 
+# **ethtool --show-channels _enp1s0_**
+Channel parameters for _enp1s0_:
+Pre-set maximums:
+RX:		4
+TX:		3
+Other:	  10
+Combined: 63
+
+Current hardware settings:
+RX:   	 4
+TX:   	 3
+Other:   9
+Combined:  50
+----
+

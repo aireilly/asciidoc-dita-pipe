@@ -1,0 +1,81 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="creating-a-tipc-network_{context}"]
+= Creating a TIPC network
+
+[role="_abstract"]
+To create a TIPC network, perform this procedure on each host that should join the TIPC network.
+
+[IMPORTANT]
+====
+The commands configure the TIPC network only temporarily. To permanently configure TIPC on a node, use the commands of this procedure in a script, and configure RHEL to execute that script when the system boots.
+====
+
+
+
+.Prerequisites
+
+* The `tipc` module has been loaded. For details,
+ifdef::networking-title[]
+see xref:loading-the-tipc-module-when-the-system-boots_getting-started-with-tipc[Loading the tipc module when the system boots]
+endif::[]
+ifndef::networking-title[]
+link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/getting-started-with-tipc_configuring-and-managing-networking#creating-a-tipc-network_getting-started-with-tipc[Loading the tipc module when the system boots]
+endif::[]
+
+
+.Procedure
+
+. Optional: Set a unique node identity, such as a UUID or the node's host name:
++
+[literal,subs="+quotes"]
+....
+# **tipc node set identity __host_name__**
+....
++
+The identity can be any unique string consisting of a maximum 16 letters and numbers.
++
+You cannot set or change an identity after this step.
+
+. Add a bearer. For example, to use Ethernet as media and `enp0s1` device as physical bearer device, enter:
++
+[literal,subs="+quotes"]
+....
+# **tipc bearer enable media __eth__ device __enp1s0__**
+....
+
+. Optional: For redundancy and better performance, attach further bearers using the command from the previous step. You can configure up to three bearers, but not more than two on the same media.
+
+. Repeat all previous steps on each node that should join the TIPC network.
+
+
+
+.Verification
+
+. Display the link status for cluster members:
++
+[literal,subs="+quotes"]
+....
+# **tipc link list**
+broadcast-link: up
+5254006b74be:enp1s0-525400df55d1:enp1s0: up
+....
++
+This output indicates that the link between bearer `enp1s0` on node `5254006b74be` and bearer `enp1s0` on node `525400df55d1` is `up`.
+
+. Display the TIPC publishing table:
++
+[literal,subs="+quotes"]
+....
+# **tipc nametable show**
+Type       Lower      Upper      Scope    Port       Node
+0          1795222054 1795222054 cluster  0          5254006b74be
+0          3741353223 3741353223 cluster  0          525400df55d1
+1          1          1          node     2399405586 5254006b74be
+2          3741353223 3741353223 node     0          5254006b74be
+....
++
+* The two entries with service type `0` indicate that two nodes are members of this cluster.
+* The entry with service type `1` represents the built-in topology service tracking service.
+* The entry with service type `2` displays the link as seen from the issuing node. The range limit `3741353223` represents the peer endpoint's address (a unique 32-bit hash value based on the node identity) in decimal format.
+

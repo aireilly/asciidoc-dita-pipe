@@ -1,0 +1,113 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-08-04
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-nmstatectl-with-a-pci-address_{context}"]
+= Configuring an Ethernet connection with a dynamic IP address by using `nmstatectl` with a PCI address
+
+[role="_abstract"]
+You can use the declarative Nmstate API to configure an Ethernet connection with DHCP and IPv6 stateless address autoconfiguration (SLAAC) and assign the configuration to a device based on its PCI address. Nmstate ensures that the result matches the configuration file or rolls back the changes.
+
+
+.Prerequisites
+
+* A physical Ethernet device exists in the server's configuration.
+* A DHCP server and SLAAC are available in the network.
+* The managed hosts use NetworkManager to configure the network.
+* You know the PCI address of the device. You can display the PCI address by using the `ethtool -i _<interface_name>_ | grep bus-info` command.
+* The `nmstate` package is installed.
+
+
+.Procedure
+
+. Create a YAML file, for example `~/create-ethernet-profile.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+interfaces:
+- name: _<profile_name>_
+  type: ethernet
+  state: up
+  identifier: pci-address
+  pci-address: 0000:00:14.3
+  ipv4:
+    enabled: true
+    auto-dns: true
+    auto-gateway: true
+    auto-routes: true
+    dhcp: true
+  ipv6:
+    enabled: true
+    auto-dns: true
+    auto-gateway: true
+    auto-routes: true
+    autoconf: true
+    dhcp: true
+....
++
+These settings define an Ethernet connection profile for the device with the ID `0000:00:14.3`. The connection retrieves IPv4 addresses, IPv6 addresses, default gateway, routes, DNS servers, and search domains from a DHCP server and IPv6 stateless address autoconfiguration (SLAAC).
+
+. Apply the settings to the system:
++
+[subs="+quotes"]
+....
+# *nmstatectl apply ~/create-ethernet-profile.yml*
+....
+
+
+.Verification
+
+. Display the current state in YAML format:
++
+[subs="+quotes"]
+....
+# *nmstatectl show _<interface_name>_*
+....
+
+. Display the IP settings of the NIC:
++
+[subs="+quotes"]
+....
+# *ip address show _<interface_name>_*
+2: __<interface_name>__: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:17:b8:b6 brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute _<interface_name>_
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::fffe/64 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+....
+
+. Display the IPv4 default gateway:
++
+[subs="+quotes"]
+....
+# *ip route show default*
+default via 192.0.2.254 dev _<interface_name>_ proto static metric 102
+....
+
+. Display the IPv6 default gateway:
++
+[subs="+quotes"]
+....
+# *ip -6 route show default*
+default via 2001:db8:1::fffe dev _<interface_name>_ proto static metric 102 pref medium
+....
+
+. Display the DNS settings:
++
+[subs="+quotes"]
+....
+# *cat /etc/resolv.conf*
+search example.com
+nameserver 192.0.2.200
+nameserver 2001:db8:1::ffbb
+....
+
+. Use the `ping` utility to verify that this host can send packets to other hosts:
++
+[subs="+quotes"]
+....
+# *ping _<host-name-or-IP-address>_*
+....
+

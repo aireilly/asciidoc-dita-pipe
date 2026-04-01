@@ -1,0 +1,55 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_creating-a-networkmanager-dispatcher-script-that-runs-dhclient-exit-hooks_{context}"]
+= Creating a NetworkManager dispatcher script that runs dhclient exit hooks
+
+[role="_abstract"]
+When a DHCP server assigns or updates an IPv4 address, NetworkManager can run a dispatcher script stored in the `/etc/dhcp/dhclient-exit-hooks.d/` directory. This dispatcher script can then, for example, run `dhclient` exit hooks.
+
+.Prerequisites
+
+* The `dhclient` exit hooks are stored in the `/etc/dhcp/dhclient-exit-hooks.d/` directory.
+
+.Procedure
+
+. Create the `/etc/NetworkManager/dispatcher.d/12-dhclient-down` file with the following content:
++
+[source,bash]
+....
+#!/bin/bash
+# Run dhclient.exit-hooks.d scripts
+
+if [ -n "$DHCP4_DHCP_LEASE_TIME" ] ; then
+  if [ "$2" = "dhcp4-change" ] || [ "$2" = "up" ] ; then
+    if [ -d /etc/dhcp/dhclient-exit-hooks.d ] ; then
+      for f in /etc/dhcp/dhclient-exit-hooks.d/*.sh ; do
+        if [ -x "${f}" ]; then
+          . "${f}"
+        fi
+      done
+    fi
+  fi
+fi
+....
+
+. Set the `root` user as owner of the file:
++
+[literal,subs="+quotes"]
+....
+# *chown root:root __/etc/NetworkManager/dispatcher.d/12-dhclient-down__*
+....
+
+. Set the permissions so that only the root user can execute it:
++
+[literal,subs="+quotes"]
+....
+# **chmod 0700 __/etc/NetworkManager/dispatcher.d/12-dhclient-down__**
+....
+
+. Restore the SELinux context:
++
+[literal,subs="+quotes"]
+....
+# **restorecon __/etc/NetworkManager/dispatcher.d/12-dhclient-down__**
+....
+

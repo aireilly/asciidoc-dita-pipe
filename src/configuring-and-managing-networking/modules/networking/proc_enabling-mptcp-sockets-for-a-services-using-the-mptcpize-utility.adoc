@@ -1,0 +1,43 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_enabling-mptcp-sockets-for-a-services-using-the-mptcpize-utility_{context}"]
+= Enabling MPTCP sockets for a service by using the mptcpize utility
+
+[role="_abstract"]
+The following set of commands instruct you how to manage services using the `mptcpize` tool. You can enable or disable the `mptcp` socket for a service.
+
+Assuming, you need to manage `mptcp` socket for the `nginx` service. You can achieve this goal by following the procedure below.
+
+.Prerequisites
+
+* The `mptcpd` package is installed 
+* The `nginx` package is installed
+
+.Procedure
+
+. Enable `MPTCP` sockets for a service:
++
+[literal,subs="+quotes"]
+----
+
+# *mptcpize enable nginx*
+
+----
+
+. Disable the `MPTCP` sockets for a service:
++
+[literal,subs="+quotes"]
+----
+
+# *mptcpize disable nginx*
+
+----
+
+. Restart the service to make the changes to take effect:
++
+[literal,subs="+quotes"]
+----
+
+# *systemctl restart nginx*
+
+----

@@ -1,0 +1,29 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="con_the-concept-of-networkmanager-dispatcher-scripts_{context}"]
+= The concept of NetworkManager dispatcher scripts
+
+[role="_abstract"]
+The `NetworkManager-dispatcher` service executes user-provided scripts in alphabetical order when network events happen. These scripts are typically shell scripts, but can be any executable script or application. You can use dispatcher scripts, for example, to adjust network-related settings that you cannot manage with NetworkManager.
+
+You can store dispatcher scripts in the following directories:
+
+* `/etc/NetworkManager/dispatcher.d/`: The general location for dispatcher scripts the `root` user can edit.
+* `/usr/lib/NetworkManager/dispatcher.d/`: For pre-deployed immutable dispatcher scripts.
+
+For security reasons, the `NetworkManager-dispatcher` service executes scripts only if the following conditions met:
+
+* The script is owned by the `root` user.
+* The script is only readable and writable by `root`.
+* The `setuid` bit is not set on the script.
+
+The `NetworkManager-dispatcher` service runs each script with two arguments:
+
+. The interface name of the device the operation happened on.
+
+. The action, such as `up`, when the interface has been activated.
+
+The `Dispatcher scripts` section in the `NetworkManager(8)` man page provides an overview of actions and environment variables you can use in scripts.
+
+The `NetworkManager-dispatcher` service runs one script at a time, but asynchronously from the main NetworkManager process. Note that, if a script is queued, the service will always run it, even if a later event makes it obsolete. However, the `NetworkManager-dispatcher` service runs scripts that are symbolic links referring to files in `/etc/NetworkManager/dispatcher.d/no-wait.d/` immediately, without waiting for the termination of previous scripts, and in parallel.
+

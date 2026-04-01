@@ -1,0 +1,55 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_changing-a-hostname-using-nmcli_{context}"]
+= Changing a hostname by using `nmcli`
+
+[role="_abstract"]
+You can use the `nmcli` utility to update the system hostname. Note that other utilities might use a different term, such as static or persistent hostname.
+
+
+.Procedure
+
+. Optional: Display the current hostname setting:
++
+[subs="+quotes"]
+....
+# *nmcli general hostname*
+_old-hostname.example.com_
+....
+
+. Set the new hostname:
++
+[subs="+quotes"]
+....
+# *nmcli general hostname _new-hostname.example.com_*
+....
+
+. NetworkManager automatically restarts the `systemd-hostnamed` to activate the new name. For the changes to take effect, reboot the host:
++
+[subs="+quotes"]
+....
+# *reboot*
+....
++
+Alternatively, if you know which services use the hostname:
+
+.. Restart all services that only read the hostname when the service starts:
++
+[subs="+quotes"]
+....
+# *systemctl restart _<service_name>_*
+....
+
+.. Active shell users must re-login for the changes to take effect.
+
+
+.Verification
+
+* Display the hostname:
++
+[subs="+quotes"]
+....
+# *nmcli general hostname*
+_new-hostname.example.com_
+....
+

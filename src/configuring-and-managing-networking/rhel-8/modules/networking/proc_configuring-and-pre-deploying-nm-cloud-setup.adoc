@@ -1,0 +1,84 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-and-pre-deploying-nm-cloud-setup_{context}"]
+= Configuring and pre-deploying nm-cloud-setup
+
+[role="_abstract"]
+To enable and configure network interfaces in public clouds, run `nm-cloud-setup` as a timer and service.
+
+[NOTE]
+====
+On {RHEL} On Demand and AWS golden images, `nm-cloud-setup` is already enabled and no action is required.
+====
+
+.Prerequisites
+
+* A network connection exists.
+* The connection uses DHCP. 
++
+By default, NetworkManager creates a connection profile which uses DHCP. If no profile was created because you set the `no-auto-default` parameter in `/etc/NetworkManager/NetworkManager.conf`, create this initial connection manually. 
+
+.Procedure
+
+. Install the `nm-cloud-setup` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# **{PackageManagerCommand} install NetworkManager-cloud-setup**
+....
+
+. Create and run the snap-in file for the `nm-cloud-setup` service:
+
+.. Use the following command to start editing the snap-in file:
++
+[literal,subs="+quotes"]
+....
+# **systemctl edit nm-cloud-setup.service**
+....
++
+It is important to either start the service explicitly or reboot the system to make configuration settings effective.
++
+.. Use the `systemd` snap-in file to configure the cloud provider in `nm-cloud-setup`. For example, to use Amazon EC2, enter:
++    
+[source]
+....
+[Service]
+Environment=NM_CLOUD_SETUP_EC2=yes
+....
++
+You can set the following environment variables to enable the cloud provide you use:
++
+* `NM_CLOUD_SETUP_ALIYUN` for Alibaba Cloud (Aliyun)
+* `NM_CLOUD_SETUP_AZURE` for Microsoft Azure
+* `NM_CLOUD_SETUP_EC2` for Amazon EC2 (AWS)
+* `NM_CLOUD_SETUP_GCP` for Google Cloud
+ifeval::[{ProductNumber} >= 9]
+* `NM_CLOUD_SETUP_OCI` for Oracle Cloud Infrastructure (OCI)
+endif::[]
+
+.. Save the file and quit the editor.
+
+. Reload the `systemd` configuration:
++
+[literal,subs="+quotes"]
+....
+# **systemctl daemon-reload**
+....
+
+. Enable and start the `nm-cloud-setup` service:
++
+[literal,subs="+quotes"]
+....
+# **systemctl enable --now nm-cloud-setup.service**
+....
+
+. Enable and start the `nm-cloud-setup` timer:
++
+[literal,subs="+quotes"]
+....
+# **systemctl enable --now nm-cloud-setup.timer**
+....
+
+[role="_additional-resources"]
+.Additional resources
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-an-ethernet-connection_configuring-and-managing-networking[Configuring an Ethernet connection]

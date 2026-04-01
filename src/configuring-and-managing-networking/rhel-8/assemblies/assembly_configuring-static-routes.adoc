@@ -1,0 +1,47 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-configuring-static-routes: {context}]
+
+[id="configuring-static-routes_{context}"]
+= Configuring a static route
+
+:context: configuring-static-routes
+
+[role="_abstract"]
+Routing directs traffic between mutually-connected networks. In larger environments, administrators configure services so that routers dynamically learn about each other. In smaller ones, administrators often configure static routes to ensure traffic can reach its destination.
+
+You need static routes to achieve a functioning communication among multiple networks if all of these conditions apply:
+
+* The traffic has to pass multiple networks.
+* The exclusive traffic flow through the default gateways is not sufficient.
+
+The xref:ref_example-of-a-network-that-requires-static-routes_configuring-static-routes[Example of a network that requires static routes] section describes scenarios and how the traffic flows between different networks when you do not configure static routes.
+
+
+include::modules/networking/ref_example-of-a-network-that-requires-static-routes.adoc[leveloffset=+1]
+
+include::modules/networking/con_how-to-use-the-nmcli-command-to-configure-a-static-route.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-static-route-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-static-route-by-using-nmtui.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-static-route-by-using-control-center.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-static-route-by-using-nm-connection-editor.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-static-route-by-using-the-nmcli-interactive-mode.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-static-route-by-using-nmstatectl.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-static-route-by-using-the-network-rhel-system-role.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} == 8]
+include::modules/networking/proc_creating-static-routes-configuration-files-in-key-value-format-when-using-the-legacy-network-scripts.adoc[leveloffset=+1]
+
+include::modules/networking/proc_creating-static-routes-configuration-files-in-ip-command-format-when-using-the-legacy-network-scripts.adoc[leveloffset=+1]
+endif::[]
+
+
+ifdef::parent-context-of-configuring-static-routes[:context: {parent-context-of-configuring-static-routes}]
+ifndef::parent-context-of-configuring-static-routes[:!context:]
+

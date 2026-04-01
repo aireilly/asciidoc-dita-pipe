@@ -1,0 +1,163 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="using-systemd-resolved-in-networkmanager-to-send-dns-requests-for-a-specific-domain-to-a-selected-dns-server_{context}"]
+
+= Using systemd-resolved in NetworkManager to send DNS requests for a specific domain to a selected DNS server
+
+[role="_abstract"]
+On hosts with multiple network interfaces and where one DNS server cannot resolve all domains, you can configure RHEL to send DNS requests for a specific domain to a selected DNS server.
+
+You can configure NetworkManager to start an instance of `systemd-resolved`. This DNS stub resolver then listens on port `53` on IP address `127.0.0.53`. Consequently, this stub resolver is only reachable from the local system and not from the network.
+
+With this configuration, NetworkManager adds the `nameserver 127.0.0.53` entry to the `/etc/resolv.conf` file, and `systemd-resolved` dynamically routes DNS requests to the corresponding DNS servers specified in the NetworkManager connection profiles.
+
+[IMPORTANT]
+====
+The `systemd-resolved` service is provided as a Technology Preview only. Technology Preview features are not supported with Red Hat production Service Level Agreements (SLAs), might not be functionally complete, and Red Hat does not recommend using them for production. These previews provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
+
+See link:https://access.redhat.com/support/offerings/techpreview[Technology Preview Features Support Scope] on the Red Hat Customer Portal for information about the support scope for Technology Preview features.
+
+For a supported solution, see xref:using-dnsmasq-in-networkmanager-to-send-dns-requests-for-a-specific-domain-to-a-selected-dns-server_using-different-dns-servers-for-different-domains[Using dnsmasq in NetworkManager to send DNS requests for a specific domain to a selected DNS server].
+====
+
+
+.Prerequisites
+
+* The system has multiple NetworkManager connections configured.
+
+* A DNS server and search domain are configured for the connection that is responsible for resolving a specific domain.
++
+For example, to ensure that the DNS server specified in a VPN connection resolves queries for the `example.com` domain, the following settings must be available:
++
+** A DNS server that can resolve `example.com`. A DHCP server can provide this information dynamically or you set the `ipv4.dns` and `ipv6.dns` parameters in the VPN connection profile.
+** A search domain set to `example.com`. A DHCP server can provide this information dynamically or you set the `ipv4.dns-search` and `ipv6.dns-search` parameters in the VPN connection profile.
+
+
+.Procedure
+
+. Install the `systemd-resolved` package:
++
+[subs="+quotes"]
+....
+# *dnf install systemd-resolved*
+....
+
+. Enable and start the `systemd-resolved` service:
++
+[literal,subs="+quotes"]
+....
+# *systemctl --now enable systemd-resolved*
+....
+
+. Edit the `/etc/NetworkManager/NetworkManager.conf` file, and set the following entry in the `[main]` section:
++
+[source,subs="+quotes"]
+....
+dns=systemd-resolved
+....
+
+. Reload the `NetworkManager` service:
++
+[literal,subs="+quotes"]
+....
+# *systemctl reload NetworkManager*
+....
+
+
+.Verification
+
+. Display the DNS servers `systemd-resolved` uses and for which domains the service uses a different DNS server:
++
+[literal,subs="+quotes"]
+....
+# *resolvectl*
+...
+Link 2 (_enp1s0_)
+    Current Scopes: DNS
+         Protocols: +DefaultRoute ...
+Current DNS Server: _192.0.2.1_
+       DNS Servers: _192.0.2.1_
+
+Link 3 (_tun0_)
+    Current Scopes: DNS
+         Protocols: -DefaultRoute ...
+Current DNS Server: _198.51.100.7_
+       DNS Servers: _198.51.100.7_ _203.0.113.19_
+        DNS Domain: _example.com_
+....
++
+The output confirms that `systemd-resolved` uses different DNS servers for the `example.com` domain.
+
+. Use the `tcpdump` packet sniffer to verify the correct route of DNS requests:
+
+.. Install the `tcpdump` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# *{PackageManagerCommand} install tcpdump*
+....
+
+.. On one terminal, start `tcpdump` to capture DNS traffic on all interfaces:
++
+[literal,subs="+quotes"]
+....
+# *tcpdump -i any port 53*
+....
+
+.. On a different terminal, resolve host names for a domain for which an exception exists and another domain, for example:
++
+[literal,subs="+quotes"]
+....
+# *host -t A _www.example.com_*
+# *host -t A _www.redhat.com_*
+....
+
+.. Verify in the `tcpdump` output that {ProductName} sends only DNS queries for the `example.com` domain to the designated DNS server and through the corresponding interface:
++
+ifeval::[{ProductNumber} >= 9]
+[literal,subs="+quotes"]
+....
+...
+13:52:42.234533 tun0   Out IP _server_.43534 > _198.51.100.7_.domain: 50121+ A? www.example.com. (33)
+...
+13:52:57.753235 enp1s0 Out IP _server_.40864 > _192.0.2.1_.domain: 6906+ A? www.redhat.com. (33)
+...
+....
+endif::[]
+ifeval::[{ProductNumber} == 8]
+[literal,subs="+quotes"]
+....
+...
+13:52:42.234533 IP _server_.43534 > _198.51.100.7_.domain: 50121+ [1au] A? www.example.com. (33)
+...
+13:52:57.753235 IP _server_.40864 > _192.0.2.1_.domain: 6906+ A? www.redhat.com. (33)
+...
+....
+endif::[]
++
+{ProductName} sends the DNS query for `www.example.com` to the DNS server on `198.51.100.7` and the query for `www.redhat.com` to `192.0.2.1`.
+
+
+.Troubleshooting
+
+. Verify that the `nameserver` entry in the `/etc/resolv.conf` file refers to `127.0.0.53`:
++
+[literal,subs="+quotes"]
+....
+# *cat /etc/resolv.conf*
+nameserver 127.0.0.53
+....
++
+If the entry is missing, check the `dns` parameter in the `/etc/NetworkManager/NetworkManager.conf` file.
+
+. Verify that the `systemd-resolved` service listens on port `53` on the local IP address `127.0.0.53`:
++
+[literal,subs="+quotes"]
+....
+# *ss -tulpn | grep "127.0.0.53"*
+udp  UNCONN 0  0      127.0.0.53%lo:53   0.0.0.0:*    users:(("systemd-resolve",pid=1050,fd=12))
+tcp  LISTEN 0  4096   127.0.0.53%lo:53   0.0.0.0:*    users:(("systemd-resolve",pid=1050,fd=13))
+....
++
+If the service does not listen on `127.0.0.53:53`, check if the `systemd-resolved` service is running.
+

@@ -1,0 +1,69 @@
+:_mod-docs-content-type: PROCEDURE
+
+// Don't reuse this module if you are searching for a procedure how to configure an Ethernet connection.
+// This module contains a reduced procedure and is part of a specific user story!
+// included in assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain.adoc
+
+
+[id="proc_configuring-the-ethernet-interface-on-the-hosts_{context}"]
+= Configuring the Ethernet interface on the hosts
+
+To connect a RHEL VM host to the Ethernet, create a network connection profile, configure the IP settings, and activate the profile.
+
+Run this procedure on both RHEL hosts, and adjust the IP address configuration accordingly.
+
+
+[role="_abstract"]
+.Prerequisites
+
+* The host is connected to the Ethernet.
+
+
+.Procedure
+
+. Add a new Ethernet connection profile to NetworkManager:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection add con-name __Example__ ifname __enp1s0__ type ethernet**
+....
+
+. Configure the IPv4 settings:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify __Example__ ipv4.addresses __198.51.100.2/24__ ipv4.method manual ipv4.gateway __198.51.100.254__ ipv4.dns __198.51.100.200__ ipv4.dns-search __example.com__**
+....
++
+Skip this step if the network uses DHCP.
+
+. Activate the `Example` connection:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up __Example__**
+....
+
+
+
+.Verification
+
+. Display the status of the devices and connections:
++
+[literal,subs="+quotes"]
+....
+# **nmcli device status**
+DEVICE      TYPE      STATE      CONNECTION
+enp1s0      ethernet  connected  __Example__
+....
+
+. Ping a host in a remote network to verify the IP settings:
++
+[literal,subs="+quotes"]
+....
+# **ping __RHEL-host-B.example.com__**
+....
++
+Note that you cannot ping the other VM host before you have configured the network on that host as well.
+
+

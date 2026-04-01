@@ -1,0 +1,39 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-configuring-a-network-bridge: {context}]
+
+[id="configuring-a-network-bridge_{context}"]
+= Configuring a network bridge
+
+:context: configuring-a-network-bridge
+
+[role="_abstract"]
+A network bridge is a link-layer device that forwards traffic between networks by using a MAC address table. For example, you can use a software bridge to connect virtual machines to the same network as the host.
+
+A bridge requires a network device in each network the bridge should connect. When you configure a bridge, the bridge is called [literal]`controller` and the devices it uses [literal]`ports`.
+
+You can create bridges on different types of devices, such as:
+
+* Physical and virtual Ethernet devices
+* Network bonds
+* Network teams
+* VLAN devices
+
+Due to the IEEE 802.11 standard which specifies the use of 3-address frames in Wi-Fi for the efficient use of airtime, you cannot configure a bridge over Wi-Fi networks operating in Ad-Hoc or Infrastructure modes.
+
+
+include::modules/networking/proc_configuring-a-network-bridge-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-bridge-by-using-the-rhel-web-console.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-bridge-by-using-nmtui.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-bridge-by-using-nm-connection-editor.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-bridge-by-using-nmstatectl.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-bridge-by-using-the-network-rhel-system-role.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-configuring-a-network-bridge[:context: {parent-context-of-configuring-a-network-bridge}]
+ifndef::parent-context-of-configuring-a-network-bridge[:!context:]
+

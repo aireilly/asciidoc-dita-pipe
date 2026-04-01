@@ -1,0 +1,107 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="permanently-configuring-a-device-as-unmanaged-in-networkmanager_{context}"]
+= Permanently configuring a device as unmanaged in NetworkManager
+
+[role="_abstract"]
+You can configure devices as `unmanaged` based on several criteria, such as the interface name or MAC address. If you use a device section in the configuration to set a device as unmanaged, NetworkManager does not manage the device until you start using it in a connection profile.
+
+
+.Procedure
+
+. Optional: Display the list of devices to identify the device or MAC address you want to set as `unmanaged`:
++
+[subs="+quotes"]
+....
+# *ip link show*
+...
+2: enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:74:79:56 brd ff:ff:ff:ff:ff:ff
+...
+....
+
+. Create a `*.conf` file in the `/etc/NetworkManager/conf.d/` directory, for example, `/etc/NetworkManager/conf.d/99-unmanaged-devices.conf`.
+
+. For each device you want to configure as unmanaged, add a section with a unique name to the file.
++
+[IMPORTANT]
+====
+The section name must begin with `device-`.
+====
+
+** To configure a specific interface as unmanaged, add:
++
+[source]
+....
+[device-enp1s0-unmanaged]
+match-device=interface-name:enp1s0
+managed=0
+....
+
+** To configure a device with a specific MAC address as unmanaged, add:
++
+[source]
+....
+[device-mac525400747956-unmanaged]
+match-device=mac:52:54:00:74:79:56
+managed=0
+....
+
+** To configure all devices of a specific type as unmanaged, add:
++
+[source]
+....
+[device-ethernet-unmanaged]
+match-device=type:ethernet
+managed=0
+....
+
+** To set multiple devices as unmanaged, separate the entries in the `unmanaged-devices` parameter with a semicolon, for example:
++
+[source]
+....
+[device-multiple-devices-unmanaged]
+match-device=interface-name:enp1s0;interface-name:enp7s0
+managed=0
+....
++
+Alternatively, you can add separate sections for each device in this file or create additional `*.conf` files in the `/etc/NetworkManager/conf.d/` directory.
+
+. Restart the host system:
++
+[subs="+quotes"]
+....
+# *reboot*
+....
+
+
+.Verification
+
+* Display the list of devices:
++
+[subs="+quotes"]
+....
+# *nmcli device status*
+DEVICE  TYPE      STATE      CONNECTION
+enp1s0  ethernet  *unmanaged*  --
+...
+....
++
+The `unmanaged` state next to the `enp1s0` device indicates that NetworkManager does not manage this device.
+
+
+.Troubleshooting
+* If the output of the `nmcli device status` command does not list the device as `unmanaged`, display the NetworkManager configuration:
++
+[subs="+quotes"]
+....
+# *NetworkManager --print-config*
+...
+[device-enp1s0-unmanaged]
+match-device=interface-name:enp1s0
+managed=0
+...
+....
++
+If the output does not match the settings that you configured, ensure that no configuration file with a higher priority overrides your settings. For details on how NetworkManager merges multiple configuration files, see the `NetworkManager.conf(5)` man page on your system.
+

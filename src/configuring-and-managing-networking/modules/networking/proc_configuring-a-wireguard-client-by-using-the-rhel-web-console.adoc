@@ -1,0 +1,129 @@
+:_newdoc-version: 2.17.0
+:_template-generated: 2024-03-12
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-a-wireguard-client-by-using-the-rhel-web-console_{context}"]
+= Configuring a WireGuard client by using the RHEL web console
+
+[role="_abstract"]
+You can configure a WireGuard client by using the browser-based RHEL web console. Use this method to let NetworkManager manage the WireGuard connection.
+
+
+.Prerequisites
+* You are logged in to the RHEL web console.
+
+* You know the following information:
+
+** The static tunnel IP addresses and subnet masks of both the server and client
+** The public key of the server
+
+
+.Procedure
+
+. Select the *Networking* tab in the navigation on the left side of the screen.
+
+. Click *Add VPN* in the *Interfaces* section.
+
+. If the `wireguard-tools` and `systemd-resolved` packages are not already installed, the web console displays a corresponding notification. Click *Install* to install these packages.
+
+. Enter the name of the WireGuard device that you want to create.
+
+. Configure the key pair of this host:
+
+** If you want use the keys that the web console has created:
+
+... Keep the pre-selected *Generated* option in the *Private key* area.
+
+... Note the *Public key* value. You require this information when you configure the client.
+
+** If you want to use an existing private key:
+
+... Select *Paste existing key* in the *Private key* area.
+
+... Paste the private key into the text field. The web console automatically calculates the corresponding public key.
+
+. Preserve the `0` value in the *Listen port* field.
+
+. Set the tunnel IPv4 address and subnet mask of the client.
++
+To also set an IPv6 address, you must edit the connection after you have created it.
+
+. Add a peer configuration for the server that you want to allow to communicate with this client:
+
+.. Click *Add peer*.
+
+.. Enter the public key of the server.
+
+.. Set the *Endpoint* field to the hostname or IP address and the port of the server, for example `server.example.com:51820`. The client uses this information to establish the connection.
+
+.. Set the *Allowed IPs* field to the tunnel IP addresses of the clients that are allowed to send data to this server. For example, set the field to one of the following:
++
+* The tunnel IP addresses of the server to allow only the server to communicate with this client. The value in the screen capture below configures this scenario.
+* `0.0.0.0/0` to allow any remote IPv4 address to communicate with this client. Use this setting to route all traffic through the tunnel and use the WireGuard server as default gateway.
+
++
+image::wireguard-client-settings.png["WireGuard client settings"]
+
+. Click *Add* to create the WireGuard connection.
+
+. If you want to also set a tunnel IPv6 address:
+
+.. Click on the WireGuard connection's name in the *Interfaces* section.
+
+.. Click *Edit* next to *IPv6*.
+
+.. Set the *Addresses* field to `Manual`, and enter the tunnel IPv6 address and prefix of the client.
+
+.. Click *Save*.
+
+. If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see xref:assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn[Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel].
+
+
+.Verification
+
+. Ping the IP addresses of the server:
++
+[literal,subs="+quotes"]
+....
+# *ping 192.0.2.1*
+....
++
+WireGuard establishes the connection when you try to send traffic through the tunnel.
+
+. Display the interface configuration of the `wg0` device:
++
+[literal,subs="+quotes"]
+....
+# *wg show wg0*
+interface: wg0
+  public key: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  private key: (hidden)
+  listening port: 45513
+
+peer: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  endpoint: server.example.com:51820
+  allowed ips: 192.0.2.1/32, 2001:db8:1::1/128
+  latest handshake: 1 minute, 41 seconds ago
+  transfer: 824 B received, 1.01 KiB sent
+  persistent keepalive: every 20 seconds
+....
++
+To display the private key in the output, use the `WG_HIDE_KEYS=never wg show wg0` command.
++
+Note that the output has only the `latest handshake` and `transfer` entries if you have already sent traffic through the VPN tunnel.
+
+. Display the IP configuration of the `wg0` device:
++
+[literal,subs="+quotes"]
+....
+# *ip address show wg0*
+10: wg0: <POINTOPOINT,NOARP,UP,LOWERUP> mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.2/24 brd 192.0.2.255 scope global noprefixroute wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::2/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::73d9:6f51:ea6f:863e/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+....
+

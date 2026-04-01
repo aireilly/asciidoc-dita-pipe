@@ -1,0 +1,154 @@
+:_newdoc-version: 2.16.0
+:_template-generated: 2024-03-01
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-nmstatectl_{context}"]
+= Configuring a client to connect to an IPsec VPN gateway by using `nmstatectl`
+
+[role="_abstract"]
+To access resources on a remote private network, users must first configure an IPsec VPN connection. By using Nmstate, you can create the connection with an existing Libreswan IPsec gateway by using a declarative API.
+
+[NOTE]
+====
+In general, the choice of which host is named _left_ and _right_ is arbitrary. However, NetworkManager always uses the term _left_ for the local host and _right_ for the remote host.
+====
+
+
+.Prerequisites
+* The remote gateway runs Libreswan IPsec and is prepared for a xref:manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication_setting-up-an-ipsec-vpn[host-to-site] connection with certificate-based authentication.
++
+Due to the design of the `NetworkManager-libreswan` plugin, Nmstate cannot communicate with other peers that also use this plugin for the same connection.
+
+* The PKCS#12 file `~/file.p12` exists on the client with the following contents:
+** The private key of the user
+** The user certificate
+** The CA certificate
+** If required, intermediate certificates
+
++
+For details about creating a private key and certificate signing request (CSR), as well as about requesting a certificate from a CA, see your CA's documentation.
+
+* The Extended Key Usage (EKU) in the certificate is set to `TLS Web Client Authentication`.
+
+
+.Procedure
+
+. If Libreswan is not yet installed:
+
+.. Install the required packages:
++
+[subs="+quotes"]
+....
+# *dnf install nmstate libreswan NetworkManager-libreswan*
+....
+
+.. Restart the NetworkManager service:
++
+[subs="+quotes"]
+....
+# *systemctl restart NetworkManager*
+....
+
+.. Initialize the Network Security Services (NSS) database:
++
+[literal,subs="+quotes"]
+....
+# *ipsec initnss*
+....
++
+The command creates the database in the `/var/lib/ipsec/nss/` directory.
+
+.. Open the IPsec ports and protocols in the firewall:
++
+[subs="+quotes"]
+....
+# *firewall-cmd --permanent --add-service="ipsec"*
+# *firewall-cmd --reload*
+....
+
+. Import the PKCS #12 file into the NSS database:
++
+[subs="+quotes"]
+....
+# *ipsec import ~/file.p12*
+Enter password for PKCS12 file: _<password>_
+pk12util: PKCS12 IMPORT SUCCESSFUL
+correcting trust bits for Example-CA
+....
+
+. Display the nicknames of the user and CA certificates:
++
+[subs="+quotes"]
+....
+# *certutil -L -d  /var/lib/ipsec/nss/*
+Certificate Nickname     Trust Attributes
+                         SSL,S/MIME,JAR/XPI
+
+user                     u,u,u
+Example-CA               CT,,
+...
+....
++
+You require this information in the Nmstate YAML file.
+
+. Create a YAML file, for example, `~/ipsec-host-to-site-cert-auth.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+----
+---
+interfaces:
+- name: '_<connection_name>_'
+  type: ipsec
+  libreswan:
+    ikev2: insist
+
+    left: _<ip_address_or_fqdn_of_left_peer>_
+    leftid: '%fromcert'
+    leftcert: _<user_certificate_nickname>_
+
+    right: _<ip_address_or_fqdn_of_right_peer>_
+    rightid: '%fromcert'
+    rightsubnet: 192.0.2.0/24
+----
++
+The settings specified in the example include the following:
++
+`ikev2: insist`:: Defines the modern IKEv2 protocol as the only allowed protocol without fallback to IKEv1. This setting is mandatory in a host-to-site configuration with Nmstate.
+
+`left=_<ip_address_or_fqdn_of_left_peer>_` and `right=_<ip_address_or_fqdn_of_right_peer>_`:: Defines the IP address or DNS name of the peers.
+
+`leftid=%fromcert` and `rightid=%fromcert`:: Configures Libreswan to retrieve the identity from the distinguished name (DN) field of the certificate.
+
+`leftcert="_<server_certificate_nickname>_"`:: Sets the nickname of the server's certificate used in the NSS database.
+
+`rightsubnet: _<subnet>_`:: Defines the subnet in classless inter-domain routing (CIDR) format that is connected to the gateway.
+
+. Apply the settings to the system:
++
+[subs="+quotes"]
+....
+# *nmstatectl apply ~/ipsec-host-to-site-cert-auth.yml*
+....
+
+
+.Verification
+
+* Establish a connection to a host in the remote network or ping it.
+
+
+.Troubleshooting
+
+* To display the actual configuration NetworkManager passes to Libreswan, enter:
++
+[subs="+quotes"]
+....
+# *nmcli connection export _<connection_name>_*
+....
++
+The output can help to identify deviating settings, such as IDs and keys, when you compare them with the Libreswan configuration on the remote host.
+
+
+.Next steps
+
+* If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see xref:assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn[Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel].
+

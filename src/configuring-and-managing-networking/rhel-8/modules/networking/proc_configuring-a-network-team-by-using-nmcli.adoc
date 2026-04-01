@@ -1,0 +1,206 @@
+:_mod-docs-content-type: PROCEDURE
+[id="configuring-a-network-team-by-using-nmcli_{context}"]
+= Configuring a NIC team by using `nmcli`
+
+[role="_abstract"]
+To configure a network interface controller (NIC) team on the command line, use the `nmcli` utility.
+
+[IMPORTANT]
+====
+ifeval::[{ProductNumber} == 8]
+NIC teaming is deprecated in {RHEL} 9. If you plan to upgrade your server to a future version of RHEL, consider using the kernel bonding driver as an alternative. For details, see
+endif::[]
+ifeval::[{ProductNumber} == 9]
+NIC teaming is deprecated in {RHEL9}. Consider using the network bonding driver as an alternative. For details, see
+endif::[]
+ifdef::networking-title[]
+xref:configuring-network-bonding_configuring-and-managing-networking[Configuring a network bond].
+endif::[]
+ifndef::networking-title[]
+link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-bonding_configuring-and-managing-networking[Configuring a network bond].
+endif::[]
+====
+
+
+
+.Prerequisites
+
+* The `teamd` and `NetworkManager-team` packages are installed.
+
+* Two or more physical or virtual network devices are installed on the server.
+
+* To use Ethernet devices as ports of the team, the physical or virtual Ethernet devices must be installed on the server and connected to a switch.
+
+* To use bond, bridge, or VLAN devices as ports of the team, you can either create these devices while you create the team or you can create them in advance as described in:
+ifdef::networking-title[]
+** xref:configuring-a-network-bond-by-using-nmcli_configuring-network-bonding[Configuring a network bond by using nmcli]
+** xref:configuring-a-network-bridge-by-using-nmcli_configuring-a-network-bridge[Configuring a network bridge by using nmcli]
+** xref:configuring-vlan-tagging-by-using-nmcli_configuring-vlan-tagging[Configuring VLAN tagging by using nmcli]
+endif::[]
+
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-bonding_configuring-and-managing-networking#configuring-a-network-bond-using-nmcli-commands_configuring-network-bonding[Configuring a network bond by using nmcli commands]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-a-network-bridge_configuring-and-managing-networking#configuring-a-network-bridge-by-using-nmcli_configuring-a-network-bridge[Configuring a network bridge by using nmcli]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-vlan-tagging_configuring-and-managing-networking#configuring-vlan-tagging-by-using-nmcli_configuring-vlan-tagging[Configuring VLAN tagging by using nmcli]
+endif::[]
+
+
+.Procedure
+
+. Create a team interface:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection add type team con-name __team0__ ifname __team0__ team.runner __activebackup__**
+----
++
+This command creates a NIC team named `team0` that uses the `activebackup` runner.
+
+. Optional: Set a link watcher. For example, to set the `ethtool` link watcher in the `team0` connection profile:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection modify team0 team.link-watchers "name=__ethtool__"**
+----
++
+Link watchers support different parameters. To set parameters for a link watcher, specify them space-separated in the `name` property. Note that the name property must be surrounded by quotation marks. For example, to use the `ethtool` link watcher and set its `delay-up` parameter to `2500` milliseconds (2.5 seconds):
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection modify team0 team.link-watchers "name=__ethtool__ delay-up=__2500__"**
+----
++
+To set multiple link watchers and each of them with specific parameters, the link watchers must be separated by a comma. The following example sets the `ethtool` link watcher with the `delay-up` parameter and the `arp_ping` link watcher with the `source-host` and `target-host` parameter:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection modify team0 team.link-watchers "name=__ethtool__ delay-up=__2__, name=__arp_ping__ source-host=__192.0.2.1__ target-host=__192.0.2.2__"**
+----
+
+. Display the network interfaces, and note the names of the interfaces you want to add to the team:
++
+[literal,subs="+quotes"]
+----
+# **nmcli device status**
+DEVICE  TYPE      STATE         CONNECTION
+enp7s0  ethernet  disconnected  --
+enp8s0  ethernet  disconnected  --
+bond0   bond      connected  bond0
+bond1   bond      connected  bond1
+...
+----
++
+In this example:
++
+* `enp7s0` and `enp8s0` are not configured. To use these devices as ports, add connection profiles in the next step. Note that you can only use Ethernet interfaces in a team that are not assigned to any connection.
+* `bond0` and `bond1` have existing connection profiles. To use these devices as ports, modify their profiles in the next step.
+
+. Assign the port interfaces to the team:
+
+.. If the interfaces you want to assign to the team are not configured, create new connection profiles for them:
++
+[literal,subs="+quotes,attributes"]
+----
+# **nmcli connection add type ethernet {NM_port}-type team con-name team0-port1 ifname enp7s0 {NM_controller} team0**
+# **nmcli connection add type ethernet {NM_port}--type team con-name team0-port2 ifname enp8s0 {NM_controller} team0**
+----
++
+These commands create profiles for `enp7s0` and `enp8s0`, and add them to the `team0` connection.
+
+.. To assign an existing connection profile to the team:
+
+... Set the `{NM_controller}` parameter of these connections to `team0`:
++
+[literal,subs="+quotes,attributes"]
+----
+# **nmcli connection modify __bond0__ {NM_controller} team0**
+# **nmcli connection modify __bond1__ {NM_controller} team0**
+----
++
+These commands assign the existing connection profiles named `bond0` and `bond1` to the `team0` connection.
+
+... Reactivate the connections:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up __bond0__**
+# **nmcli connection up __bond1__**
+....
+
+. Configure the IPv4 settings:
+
+** To set a static IPv4 address, network mask, default gateway, and DNS server to the `team0` connection, enter:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection modify team0 ipv4.addresses '__192.0.2.1/24__' ipv4.gateway '__192.0.2.254__' ipv4.dns '__192.0.2.253__' ipv4.dns-search '__example.com__' ipv4.method manual**
+----
+
+** To use DHCP, no action is required.
+
+** If you plan to use this team device as a port of other devices, no action is required.
+
+
+. Configure the IPv6 settings:
+
+** To set a static IPv6 address, network mask, default gateway, and DNS server to the `team0` connection, enter:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection modify team0 ipv6.addresses '__2001:db8:1::1/64__' ipv6.gateway '__2001:db8:1::fffe__' ipv6.dns '__2001:db8:1::fffd__' ipv6.dns-search '__example.com__' ipv6.method manual**
+----
+
+** If you plan to use this team device as a port of other devices, no action is required.
+
+** To use stateless address autoconfiguration (SLAAC), no action is required.
+
+. Activate the connection:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection up team0**
+----
+
+
+.Verification
+
+* Display the status of the team:
++
+[literal,subs="+quotes"]
+----
+# **teamdctl team0 state**
+setup:
+  runner: activebackup
+ports:
+  enp7s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+  enp8s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+runner:
+  active port: enp7s0
+----
++
+In this example, both ports are up.
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting[Configuring NetworkManager to avoid using a specific profile to provide a default gateway]
+endif::[]
+* xref:understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming[Understanding the teamd service, runners, and link-watchers]
+
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/managing-the-default-gateway-setting_configuring-and-managing-networking#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway[Configuring NetworkManager to avoid using a specific profile to provide a default gateway]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-teaming_configuring-and-managing-networking#understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming[Understanding the teamd service, runners, and link-watchers]
+endif::[]
+

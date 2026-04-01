@@ -1,0 +1,118 @@
+:_newdoc-version: 2.17.0
+:_template-generated: 2024-03-11
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-a-wireguard-server-by-using-the-rhel-web-console_{context}"]
+= Configuring a WireGuard server by using the RHEL web console
+
+[role="_abstract"]
+You can configure a WireGuard server by using the browser-based RHEL web console. Use this method to let NetworkManager manage the WireGuard connection.
+
+
+.Prerequisites
+* You are logged in to the RHEL web console.
+
+* You know the following information:
+
+** The static tunnel IP addresses and subnet masks of both the server and client
+** The public key of the client
+
+
+.Procedure
+
+. Select the *Networking* tab in the navigation on the left side of the screen.
+
+. Click *Add VPN* in the *Interfaces* section.
+
+. If the `wireguard-tools` and `systemd-resolved` packages are not already installed, the web console displays a corresponding notification. Click *Install* to install these packages.
+
+. Enter the name of the WireGuard device that you want to create.
+
+. Configure the key pair of this host:
+
+** If you want use the keys that the web console has created:
+
+... Keep the pre-selected *Generated* option in the *Private key* area.
+
+... Note the *Public key* value. You require this information when you configure the client.
+
+** If you want to use an existing private key:
+
+... Select *Paste existing key* in the *Private key* area.
+
+... Paste the private key into the text field. The web console automatically calculates the corresponding public key.
+
+. Set a listen port number, such as `51820`, for incoming WireGuard connections.
++
+Always set a fixed port number on hosts that receive incoming WireGuard connections. If you do not set a port, WireGuard uses a random free port each time you activate the interface.
+
+. Set the tunnel IPv4 address and subnet mask of the server.
++
+To also set an IPv6 address, you must edit the connection after you have created it.
+
+. Add peer configurations for each client that you want to allow to communicate with this server:
+
+.. Click *Add peer*.
+
+.. Enter the public key of the client.
+
+.. Leave the *Endpoint* field empty.
+
+.. Set the *Allowed IPs* field to the tunnel IP addresses of the clients that are allowed to send data to this server.
+
++
+image::wireguard-server-settings.png["WireGuard server settings"]
+
+. Click *Add* to create the WireGuard connection.
+
+. If you want to also set a tunnel IPv6 address:
+
+.. Click on the WireGuard connection's name in the *Interfaces* section.
+
+.. Click *edit* next to *IPv6*.
+
+.. Set the *Addresses* field to `Manual`, and enter the tunnel IPv6 address and prefix of the server.
+
+.. Click *Save*.
+
+. If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see xref:assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn[Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel].
+
+
+.Verification
+
+. Display the interface configuration of the `wg0` device:
++
+[literal,subs="+quotes"]
+....
+# *wg show wg0*
+interface: wg0
+  public key: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  private key: (hidden)
+  listening port: 51820
+
+peer: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  allowed ips: 192.0.2.2/32, 2001:db8:1::2/128
+....
++
+To display the private key in the output, use the `WG_HIDE_KEYS=never wg show wg0` command.
+
+. Display the IP configuration of the `wg0` device:
++
+[literal,subs="+quotes"]
+....
+# *ip address show wg0*
+20: wg0: <POINTOPOINT,NOARP,UP,LOWERUP> mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::3ef:8863:1ce2:844/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+....
+
+
+
+.Next steps
+* xref:configuring-firewalld-on-a-wireguard-server-by-using-the-rhel-web-console_{context}[Configure the firewalld service on the WireGuard server].
+

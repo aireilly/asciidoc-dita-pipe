@@ -1,0 +1,75 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-wifi-connection-with-802-1x-network-authentication-in-an-existing-profile-by-using-nmcli_{context}"]
+= Configuring a wifi connection with 802.1X network authentication in an existing profile by using `nmcli`
+
+[role="_abstract"]
+You can use the `nmcli` utility to configure a client to authenticate itself to a network.
+
+For example, you can configure Protected Extensible Authentication Protocol (PEAP) authentication with Microsoft Challenge-Handshake Authentication Protocol version 2 (MSCHAPv2) in an existing NetworkManager wifi profile.
+
+
+.Prerequisites
+
+* The network must have 802.1X network authentication.
+* The wifi connection profile exists in NetworkManager and has a valid IP configuration.
+* If the client is required to verify the certificate of the authenticator, the Certificate Authority (CA) certificate must be stored in the `/etc/pki/ca-trust/source/anchors/` directory.
+* The `wpa_supplicant` package is installed.
+
+.Procedure
+
+. Set the wifi security mode to `wpa-eap`, the Extensible Authentication Protocol (EAP) to `peap`, the inner authentication protocol to `mschapv2`, and the user name:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify __wlp1s0__ wireless-security.key-mgmt wpa-eap 802-1x.eap peap 802-1x.phase2-auth mschapv2 802-1x.identity __user_name__**
+....
++
+Note that you must set the `wireless-security.key-mgmt`, `802-1x.eap`, `802-1x.phase2-auth`, and `802-1x.identity` parameters in a single command.
+
+. Optional: Store the password in the configuration:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify __wlp1s0__ 802-1x.password __password__**
+....
++
+[IMPORTANT]
+====
+By default, NetworkManager stores the password in plain text in the `/etc/sysconfig/network-scripts/keys-__connection_name__` file, which is readable only by the `root` user. However, plain text passwords in a configuration file can be a security risk.
+
+To increase the security, set the `802-1x.password-flags` parameter to `agent-owned`. With this setting, on servers with the GNOME desktop environment or the `nm-applet` running, NetworkManager retrieves the password from these services, after you unlock the keyring first. In other cases, NetworkManager prompts for the password.
+====
+
+. If the client needs to verify the certificate of the authenticator, set the `802-1x.ca-cert` parameter in the connection profile to the path of the CA certificate:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify __wlp1s0__ 802-1x.ca-cert __/etc/pki/ca-trust/source/anchors/ca.crt__**
+....
++
+[NOTE]
+====
+For security reasons, clients should validate the certificate of the authenticator.
+====
+
+. Activate the connection profile:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up __wlp1s0__**
+....
+
+.Verification
+
+* Access resources on the network that require network authentication.
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:assembly_managing-wifi-connections_configuring-and-managing-networking[Managing wifi connections]
+endif::[]
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/assembly_managing-wifi-connections_configuring-and-managing-networking[Managing wifi connections]
+endif::[]
+

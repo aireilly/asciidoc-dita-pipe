@@ -1,0 +1,77 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="configuring-a-static-route-by-using-control-center_{context}"]
+= Configuring a static route by using control-center
+
+[role="_abstract"]
+You can use `control-center` in GNOME to add a static route to the configuration of a network connection.
+
+The procedure below configures the following routes:
+
+* An IPv4 route to the remote `198.51.100.0/24` network. The corresponding gateway has the IP address `192.0.2.10`.
+* An IPv6 route to the remote `2001:db8:2::/64` network. The corresponding gateway has the IP address `2001:db8:1::10`.
+
+
+.Prerequisites
+
+* The network is configured.
+* This host is in the same IP subnet as the gateways.
+* The network configuration of the connection is opened in the `control-center` application.
+ifdef::networking-title[]
+See xref:configuring-an-ethernet-connection-by-using-nm-connection-editor_configuring-an-ethernet-connection[Configuring an Ethernet connection by using nm-connection-editor].
+endif::[]
+ifndef::networking-title[]
+link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-an-ethernet-connection_configuring-and-managing-networking#configuring-an-ethernet-connection-by-using-nm-connection-editor_configuring-an-ethernet-connection[Configuring an Ethernet connection by using nm-connection-editor]
+endif::[]
+
+
+.Procedure
+
+. On the `IPv4` tab:
+
+.. Optional: Disable automatic routes by clicking the btn:[On] button in the `Routes` section of the `IPv4` tab to use only static routes. If automatic routes are enabled, {RHEL} uses static routes and routes received from a DHCP server.
+
+.. Enter the address, netmask, gateway, and optionally a metric value of the IPv4 route:
++
+image::IPv4-static-route-in-control-center.png["Static IPv4 address settings in `control-center`"]
+
+. On the `IPv6` tab:
+
+.. Optional: Disable automatic routes by clicking the btn:[On] button in the `Routes` section of the `IPv4` tab to use only static routes.
+
+.. Enter the address, netmask, gateway, and optionally a metric value of the IPv6 route:
++
+image::IPv6-static-route-in-control-center.png["Static IPv6 address settings in `control-center`"]
+
+. Click btn:[Apply].
+
+. Back in the `Network` window, disable and re-enable the connection by switching the button for the connection to btn:[Off] and back to btn:[On] for changes to take effect.
++
+[WARNING]
+====
+Restarting the connection briefly disrupts connectivity on that interface.
+====
+
+
+.Verification
+
+. Display the IPv4 routes:
++
+[literal,subs="+quotes"]
+....
+# **ip -4 route**
+...
+__198.51.100.0/24__ via __192.0.2.10__ dev __enp1s0__
+....
+
+. Display the IPv6 routes:
++
+[literal,subs="+quotes"]
+....
+# **ip -6 route**
+...
+__2001:db8:2::/64__ via __2001:db8:1::10__ dev __enp1s0__ metric __1024__ pref __medium__
+....
+

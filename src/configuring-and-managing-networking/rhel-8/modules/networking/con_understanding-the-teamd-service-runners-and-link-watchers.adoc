@@ -1,0 +1,50 @@
+:_mod-docs-content-type: CONCEPT
+
+// Module included in the following assemblies:
+//
+// <List assemblies here, each on a new line>
+
+// This module can be included from assemblies using the following include statement:
+// include::<path>/con_understanding-the-teamd-service-runners-and-link-watchers.adoc[leveloffset=+1]
+
+// The file name and the ID are based on the module title. For example:
+// * file name: con_my-concept-module-a.adoc
+// * ID: [id='con_my-concept-module-a_{context}']
+// * Title: = My concept module A
+//
+// The ID is used as an anchor for linking to the module. Avoid changing
+// it after the module has been published to ensure existing links are not
+// broken.
+//
+// The `context` attribute enables module reuse. Every module's ID includes
+// {context}, which ensures that the module has a unique ID even if it is
+// reused multiple times in a guide.
+//
+// In the title, include nouns that are used in the body text. This helps
+// readers and search engines find information quickly.
+// Do not start the title with a verb. See also _Wording of headings_
+// in _The IBM Style Guide_.
+[id="understanding-the-teamd-service-runners-and-link-watchers_{context}"]
+= Understanding the teamd service, runners, and link-watchers
+
+[role="_abstract"]
+The team service, `teamd`, controls one instance of the team driver. This instance of the driver adds instances of a hardware device driver to form a team of network interfaces. The team driver presents a network interface, for example `team0`, to the kernel.
+
+The `teamd` service implements the common logic to all methods of teaming. Those functions are unique to the different load sharing and backup methods, such as round-robin, and implemented by separate units of code referred to as `runners`. Administrators specify runners in JavaScript Object Notation (JSON) format, and the JSON code is compiled into an instance of `teamd` when the instance is created. Alternatively, when using `NetworkManager`, you can set the runner in the `team.runner` parameter, and `NetworkManager` auto-creates the corresponding JSON code.
+
+The following runners are available:
+
+* `broadcast`: Transmits data over all ports.
+* `roundrobin`: Transmits data over all ports in turn.
+* `activebackup`: Transmits data over one port while the others are kept as a backup.
+* `loadbalance`: Transmits data over all ports with active Tx load balancing and Berkeley Packet Filter (BPF)-based Tx port selectors.
+* `random`: Transmits data on a randomly selected port.
+* `lacp`: Implements the 802.3ad Link Aggregation Control Protocol (LACP).
+
+The `teamd` services use a link watcher to monitor the state of subordinate devices. The following link-watchers are available:
+
+* `ethtool`: The `libteam` library uses the `ethtool` utility to watch for link state changes. This is the default link-watcher.
+* `arp_ping`: The `libteam` library uses the `arp_ping` utility to monitor the presence of a far-end hardware address using Address Resolution Protocol (ARP).
+* `nsna_ping`: On IPv6 connections, the `libteam` library uses the Neighbor Advertisement and Neighbor Solicitation features from the IPv6 Neighbor Discovery protocol to monitor the presence of a neighbor's interface.
+
+Each runner can use any link watcher, with the exception of `lacp`. This runner can only use the `ethtool` link watcher.

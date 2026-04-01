@@ -1,0 +1,57 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_migrating-networkmanager-profiles-from-ifcfg-to-keyfile-format_{context}"]
+= Migrating NetworkManager profiles from ifcfg to keyfile format
+
+[role="_abstract"]
+ifeval::[{ProductNumber} == 8]
+If you use connection profiles in `ifcfg` format, you can convert them to the keyfile format to have all profiles in the preferred format and in one location.
+endif::[]
+ifeval::[{ProductNumber} >= 9]
+If you still use connection profiles in the deprecated `ifcfg` format, you can convert them to the keyfile format.
+endif::[]
+
+[NOTE]
+====
+If an `ifcfg` file contains the `NM_CONTROLLED=no` setting, NetworkManager does not control this profile and, consequently, the migration process ignores it.
+====
+
+
+.Prerequisites
+
+* You have connection profiles in `ifcfg` format in the `/etc/sysconfig/network-scripts/` directory.
+* If the connection profiles contain a `DEVICE` variable that is set to a custom device name, such as `provider` or `lan`, you created a xref:configuring-user-defined-network-interface-names-by-using-systemd-link-files_consistent-network-interface-device-naming[systemd link file] or a xref:configuring-user-defined-network-interface-names-by-using-udev-rules_consistent-network-interface-device-naming[udev rule] for each of the custom device names.
+
+
+
+.Procedure
+
+* Migrate the connection profiles:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection migrate*
+Connection 'enp1s0' (43ed18ab-f0c4-4934-af3d-2b3333948e45) successfully migrated.
+Connection 'enp2s0' (883333e8-1b87-4947-8ceb-1f8812a80a9b) successfully migrated.
+...
+....
+
+
+.Verification
+
+* Optionally, you can verify that you successfully migrated all your connection profiles:
++
+[literal,subs="+quotes"]
+....
+# *nmcli _-f TYPE,FILENAME,NAME_ connection*
+TYPE      FILENAME                                                           NAME
+ethernet  /etc/NetworkManager/system-connections/enp1s0.nmconnection         enp1s0
+ethernet  /etc/NetworkManager/system-connections/enp2s0.nmconnection         enp2s0
+...
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+* xref:how-the-udev-device-manager-renames-network-interfaces_consistent-network-interface-device-naming[How the udev device manager renames network interfaces]
+

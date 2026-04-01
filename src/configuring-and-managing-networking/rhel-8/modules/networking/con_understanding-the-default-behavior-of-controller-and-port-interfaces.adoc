@@ -1,0 +1,24 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="understanding-the-default-behavior-of-controller-and-port-interfaces_{context}"]
+= Understanding the default behavior of controller and port interfaces
+
+[role="_abstract"]
+Understanding the default behavior of NetworkManager when managing bond port interfaces helps you to troubleshoot problems more effectively.
+
+Default behavior:
+
+* Starting the controller interface does not automatically start the port interfaces.
+
+* Starting a port interface always starts the controller interface.
+
+* Stopping the controller interface also stops the port interface.
+
+* A controller without ports can start static IP connections.
+
+* A controller without ports waits for ports when starting DHCP connections.
+
+* A controller with a DHCP connection waiting for ports completes when you add a port with a carrier.
+
+* A controller with a DHCP connection waiting for ports continues waiting when you add a port without a carrier.
+

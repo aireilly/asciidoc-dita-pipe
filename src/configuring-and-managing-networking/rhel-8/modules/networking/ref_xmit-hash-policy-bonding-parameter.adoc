@@ -1,0 +1,70 @@
+:_mod-docs-content-type: REFERENCE
+
+[id="ref_xmit-hash-policy-bonding-parameter_{context}"]
+= The xmit_hash_policy bonding parameter
+
+[role="_abstract"]
+The `xmit_hash_policy` load balancing parameter selects the transmit hash policy for a node selection in the `balance-xor`, `802.3ad`, `balance-alb`, and `balance-tlb` modes. It is only applicable to mode 5 and 6 if the `tlb_dynamic_lb` parameter is 0.
+
+The possible values of `tlb_dynamic_lb` are `layer2`, `layer2+3`, `layer3+4`, `encap2+3`, `encap3+4`, and `vlan+srcmac`.
+
+Refer the table for details:
+
+[cols="1,1,1,1,1,1,1"]
+|===
+| **Policy or Network layers**
+| **Layer2**
+| **Layer2+3**
+| **Layer3+4**
+| **encap2+3**
+| **encap3+4**
+| **VLAN+srcmac**
+
+| **Uses**
+| XOR of source and destination MAC addresses and Ethernet protocol type
+| XOR of source and destination MAC addresses and IP addresses
+| XOR of source and destination ports and IP addresses
+| XOR of source and destination MAC addresses and IP addresses inside a supported tunnel, for example, Virtual Extensible LAN (VXLAN). This mode relies on `skb_flow_dissect()` function to obtain the header fields
+| XOR of source and destination ports and IP addresses inside a supported tunnel, for example, VXLAN. This mode relies on `skb_flow_dissect()` function to obtain the header fields
+| XOR of VLAN ID and source MAC vendor and source MAC device
+
+| **Placement of traffic**
+| All traffic to a particular network peer on the same underlying network interface
+| All traffic to a particular IP address on the same underlying network interface
+| All traffic to a particular IP address and port on the same underlying network interface
+|
+|
+|
+
+| **Primary choice**
+| If network traffic is between this system and multiple other systems in the same broadcast domain
+| If network traffic between this system and multiple other systems goes through a default gateway
+| If network traffic between this system and another system uses the same IP addresses but goes through multiple ports
+| The encapsulated traffic is between the source system and multiple other systems using multiple IP addresses
+| The encapsulated traffic is between the source system and other systems using multiple port numbers
+| If the bond carries network traffic, from multiple containers or virtual machines (VM), that expose their MAC address directly to the external network such as the bridge network, and you cannot configure a switch for Mode 2 or Mode 4
+
+| **Secondary choice**
+| If network traffic is mostly between this system and multiple other systems behind a default gateway
+| If network traffic is mostly between this system and another system
+| 
+| 
+| 
+| 
+
+| **Compliant**
+| 802.3ad
+| 802.3ad
+| Not 802.3ad
+|
+|
+|
+
+| **Default policy**
+| This is the default policy if no configuration is provided
+| For non-IP traffic, the formula is the same as for the `layer2` transmit policy
+| For non-IP traffic, the formula is the same as for the `layer2` transmit policy
+|
+|
+|
+|===

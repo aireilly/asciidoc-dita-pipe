@@ -1,0 +1,192 @@
+:_newdoc-version: 2.16.0
+:_template-generated: 2024-03-01
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-an-ipsec-host-to-host-vpn-with-raw-rsa-key-authentication-by-using-nmstatectl_{context}"]
+= Configuring an IPsec host-to-host VPN with raw RSA key authentication by using `nmstatectl`
+
+[role="_abstract"]
+You can use the declarative Nmstate API to configure a host-to-host VPN between two devices to communicate safely over an insecure network. Nmstate ensures that the result matches the configuration file or rolls back the changes.
+
+For authentication, RSA keys are more secure than pre-shared keys (PSKs) because their asymmetric encryption eliminates the risk of a shared secret. Using RSA keys also simplifies deployment by avoiding the need for a certificate authority (CA), while still providing strong peer-to-peer authentication.
+
+[NOTE]
+====
+In general, the choice of which host is named _left_ and _right_ is arbitrary. However, NetworkManager always uses the term _left_ for the local host and _right_ for the remote host.
+====
+
+
+.Prerequisites
+* The remote peer runs Libreswan IPsec and is prepared for a xref:manually-configuring-an-ipsec-host-to-host-vpn-with-raw-rsa-key-authentication_setting-up-an-ipsec-vpn[host-to-host] connection.
++
+Due to the design of the `NetworkManager-libreswan` plugin, Nmstate cannot communicate with other peers that also use this plugin for the same connection.
+
+
+.Procedure
+
+. If Libreswan is not yet installed, perform the following steps:
+
+.. Install the required packages:
++
+[subs="+quotes"]
+....
+# *dnf install nmstate libreswan NetworkManager-libreswan*
+....
+
+.. Restart the NetworkManager service:
++
+[subs="+quotes"]
+....
+# *systemctl restart NetworkManager*
+....
+
+.. Initialize the Network Security Services (NSS) database:
++
+[literal,subs="+quotes"]
+....
+# *ipsec initnss*
+....
++
+The command creates the database in the `/var/lib/ipsec/nss/` directory.
+
+.. Open the IPsec ports and protocols in the firewall:
++
+[subs="+quotes"]
+....
+# *firewall-cmd --permanent --add-service="ipsec"*
+# *firewall-cmd --reload*
+....
+
+. Create an RSA key pair:
++
+[subs="+quotes"]
+....
+# *ipsec newhostkey*
+....
++
+The `ipsec` utility stores the key pair in the NSS database.
+
+. Display the Certificate Key Attribute ID (CKAID) on both the left and right peers:
++
+[subs="+quotes"]
+....
+# *ipsec showhostkey --list*
+< 1> RSA keyid: _<key_id>_ ckaid: _<ckaid>_
+....
++
+You require the CKAIDs of both peers in the next steps.
+
+. Display the public keys:
+
+.. On the left peer, enter:
++
+[subs="+quotes"]
+....
+# *ipsec showhostkey --left --ckaid _<ckaid_of_left_peer>_*
+        # rsakey AwEAAdKCx
+        leftrsasigkey=0sAwEAAdKCxpc9db48cehzQiQD...
+....
+
+.. On the right peer, enter:
++
+[subs="+quotes"]
+....
+# *ipsec showhostkey --right --ckaid _<ckaid_of_right_peer>_*
+        # rsakey AwEAAcNWC
+        rightrsasigkey=0sAwEAAcNWCzZO+PR1j8WbO8X...
+....
+
++
+The commands display the public keys with the corresponding parameters that you must use in the configuration file.
+
+. Create a YAML file, for example `~/ipsec-host-to-host-rsa-auth.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+----
+---
+interfaces:
+- name: '_<connection_name>_'
+  type: ipsec
+  libreswan:
+    ikev2: insist
+
+    left: _<ip_address_or_fqdn_of_left_peer>_
+    leftid: peer_b
+    leftrsasigkey: _<public_key_of_left_peer>_
+    leftmodecfgclient: false
+
+    right: _<ip_address_or_fqdn_of_right_peer>_
+    rightid: peer_a
+    rightrsasigkey: _<public_key_of_right_peer>_
+    rightsubnet: _<ip_address_of_right_peer>_/32
+----
++
+The settings specified in the example include the following:
++
+`ikev2: insist`:: Defines the modern IKEv2 protocol as the only allowed protocol without fallback to IKEv1. This setting is mandatory in a host-to-host configuration with Nmstate.
+
+`left=_<ip_address_or_fqdn_of_left_peer>_` and `right=_<ip_address_or_fqdn_of_right_peer>_`:: Defines the IP address or DNS name of the peers.
+
+`leftid=_<id>_` and `rightid=_<id>_`:: Defines how each peer is identified during the Internet Key Exchange (IKE) negotiation process. This can be an IP address or a literal string. Note that NetworkManager interprets all values other than IP addresses as a literal string and internally adds a leading `@` sign. This requires that the Libreswan peer also uses literal strings as IDs or authentication fails.
+
+`leftrsasigkey=_<public_key>_` and `rightrsasigkey=_<public_key>_`:: Specifies the public key of the peers. Use the values displayed by the `ipsec showhostkey` command in a previous step.
+
+`leftmodecfgclient: false`:: Disables dynamic configuration on this host. This setting is mandatory in a host-to-host configuration with Nmstate.
+
+`rightsubnet: _<ip_address_of_right_peer>_/32`:: Defines that the host can only access this peer. This setting is mandatory in a host-to-host configuration with Nmstate.
+
+
+. Apply the settings to the system:
++
+[subs="+quotes"]
+....
+# *nmstatectl apply ~/ipsec-host-to-host-rsa-auth.yml*
+....
+
+
+.Verification
+
+* Display the IPsec status:
++
+[subs="+quotes"]
+....
+# *ipsec status*
+....
++
+If the connection is successfully established, the output contains lines as follows:
+
+** Phase 1 of an Internet Key Exchange version 2 (IKEv2) negotiation has been successfully completed:
++
+[source,txt,subs="+quotes"]
+----
+000 #1: "_<connection_name>_":500 STATE_V2_ESTABLISHED_IKE_SA (established IKE SA); REKEY in 27935s; REPLACE in 28610s; newest; idle;
+----
++
+The Security Association (SA) is now ready to negotiate the actual data encryption tunnels, known as child SAs or Phase 2 SAs.
+
+** A child SA has been established:
++
+[source,txt,subs="+quotes"]
+----
+000 #2: "_<connection_name>_":500 STATE_V2_ESTABLISHED_CHILD_SA (established Child SA); REKEY in 27671s; REPLACE in 28610s; IKE SA #1; idle;
+----
++
+This is the actual tunnel that your data traffic flows through.
+
+
+.Troubleshooting
+
+* To display the actual configuration NetworkManager passes to Libreswan, enter:
++
+[subs="+quotes"]
+....
+# *nmcli connection export _<connection_name>_*
+....
++
+The output can help to identify deviating settings, such as IDs and keys, when you compare them with the Libreswan configuration on the remote host.
+
+
+.Next steps
+
+* If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see xref:assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn[Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel].
+

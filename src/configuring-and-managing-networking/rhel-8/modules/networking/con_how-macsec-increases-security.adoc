@@ -1,0 +1,41 @@
+:_newdoc-version: 2.18.3
+:_template-generated: 2024-10-05
+
+:_mod-docs-content-type: CONCEPT
+
+[id="how-macsec-increases-security_{context}"]
+= How MACsec increases security
+
+[role="_abstract"]
+Media Access Control security (MACsec) is a layer-2 protocol that encrypts and authenticates all LAN traffic. It uses a pre-shared key to establish connections. To change this key, you must update the NetworkManager configuration on all hosts that use MACsec.
+
+MACsec secures different traffic types over the Ethernet links, including:
+
+* Dynamic host configuration protocol (DHCP)
+* address resolution protocol (ARP)
+* IPv4 and IPv6 traffic
+* Any traffic over IP such as TCP or UDP
+
+A MACsec connection uses an Ethernet device, such as an Ethernet network card, VLAN, or tunnel device, as a parent. You can either set an IP configuration only on the MACsec device to communicate with other hosts only by using the encrypted connection, or you can also set an IP configuration on the parent device. In the latter case, you can use the parent device to communicate with other hosts using an unencrypted connection and the MACsec device for encrypted connections.
+
+MACsec does not require any special hardware. For example, you can use any switch, except if you want to encrypt traffic only between a host and a switch. In this scenario, the switch must also support MACsec.
+
+In other words, you can configure MACsec for two common scenarios:
+
+* Host-to-host
+* Host-to-switch and switch-to-other-hosts
+
+[IMPORTANT]
+====
+You can use MACsec only between hosts being in the same physical or virtual LAN.
+====
+
+Using the MACsec security standard for securing communication at the link layer, also known as layer 2 of the Open Systems Interconnection (OSI) model provides the following notable benefits:
+
+* Encryption at layer 2 eliminates the need for encrypting individual services at layer 7. This reduces the overhead associated with managing a large number of certificates for each endpoint on each host.
+* Point-to-point security between directly connected network devices such as routers and switches.
+* No changes needed for applications and higher-layer protocols.
+
+[role="_additional-resources"]
+.Additional resources
+* link:https://developers.redhat.com/blog/2016/10/14/macsec-a-different-solution-to-encrypt-network-traffic[MACsec: a different solution to encrypt network traffic]

@@ -1,0 +1,31 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="displaying-the-network-throughput-by-ip-address-and-port_{context}"]
+= Displaying the network throughput by IP address and port
+
+[role="_abstract"]
+The `tcptop` utility displays TCP traffic the host sends and receives in kilobytes. The report automatically refreshes and contains only active TCP connections. The utility uses eBPF features and, therefore, has only a very low overhead.
+
+
+
+.Procedure
+
+. To monitor the sent and received traffic, enter:
++
+[subs="+quotes"]
+....
+# */usr/share/bcc/tools/tcptop*
+13:46:29 loadavg: 0.10 0.03 0.01 1/215 3875
+
+PID    COMM         LADDR           RADDR              RX_KB   TX_KB
+3853   3853         192.0.2.1:22    192.0.2.165:41838  32     102626
+1285   sshd         192.0.2.1:22    192.0.2.45:39240   0           0
+...
+....
++
+The output of the command includes only active TCP connections. If the local or remote system closes a connection, the connection is no longer visible in the output.
+
+. Press kbd:[Ctrl]+kbd:[C] to stop the tracing process.
+

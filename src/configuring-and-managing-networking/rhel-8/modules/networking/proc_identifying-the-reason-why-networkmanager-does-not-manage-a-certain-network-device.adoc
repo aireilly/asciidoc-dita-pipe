@@ -1,0 +1,44 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-06-27
+:_mod-docs-content-type: PROCEDURE
+
+[id="identifying-the-reason-why-networkmanager-does-not-manage-a-certain-network-device_{context}"]
+= Identifying the reason why NetworkManager does not manage a certain network device
+
+[role="_abstract"]
+In addition to the status of each network device, NetworkManager also tracks the reason why the devices are in their current status. You can use this feature to identify why NetworkManager does not manage certain devices.
+
+
+.Procedure
+
+* Display the status and its reason of all network devices:
++
+[subs="+quotes"]
+....
+# *nmcli -f GENERAL.DEVICE,GENERAL.STATE,GENERAL.REASON device show*
+....
++
+If you pass a device name to the command, you can display the output only of the specified device.
++
+Example output:
++
+[source]
+....
+GENERAL.DEVICE:    enp1s0
+GENERAL.STATE:     10 (unmanaged)
+GENERAL.REASON:    75 (The device is unmanaged by explicit user decision (e.g. 'nmcli device set $DEV managed no'))
+
+GENERAL.DEVICE:    enp7s0
+GENERAL.STATE:     10 (unmanaged)
+GENERAL.REASON:    74 (The device is unmanaged by user decision in NetworkManager.conf ('unmanaged' in a [device*] section)
+
+GENERAL.DEVICE:    veth3
+GENERAL.STATE:     10 (unmanaged)
+GENERAL.REASON:    77 (The device is unmanaged via udev rule)
+....
++
+[NOTE]
+====
+Note that the command returns the status of all devices, regardless whether they are managed or unmanaged.
+====
+

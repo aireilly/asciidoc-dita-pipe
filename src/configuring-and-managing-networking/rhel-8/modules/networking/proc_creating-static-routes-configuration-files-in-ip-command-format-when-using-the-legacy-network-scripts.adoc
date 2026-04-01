@@ -1,0 +1,91 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="creating-static-routes-configuration-files-in-ip-command-format-when-using-the-legacy-network-scripts_{context}"]
+= Creating static routes configuration files in ip-command format when using the legacy network scripts
+
+[role="_abstract"]
+The legacy network scripts support setting statics routes. 
+
+The procedure below configures the following routes:
+
+* An IPv4 route to the remote `198.51.100.0/24` network. The corresponding gateway with the IP address `192.0.2.10` is reachable through the `enp1s0` interface.
+* An IPv6 route to the remote `2001:db8:2::/64` network. The corresponding gateway with the IP address `2001:db8:1::10` is reachable through the `enp1s0` interface.
+
+[IMPORTANT]
+====
+IP addresses of the gateways (next hop) must be in the same IP subnet as the host on which you configure the static routes.
+====
+
+The examples in this procedure use configuration entries in `ip`-command format.
+
+
+.Prerequisites
+
+* The gateways for the static route must be directly reachable on the interface.
+* The `NetworkManager` package is not installed, or the `NetworkManager` service is disabled.
+* The `network-scripts` package is installed.
+* The `network` service is enabled.
+
+
+.Procedure
+
+. Add the static IPv4 route to the `/etc/sysconfig/network-scripts/route-enp1s0` file:
++
+[source]
+....
+198.51.100.0/24 via 192.0.2.10 dev enp1s0
+....
++
+Always specify the network address of the remote network, such as `198.51.100.0`. Setting an IP address within the remote network, such as `198.51.100.1` causes that the network scripts fail to add this route.
+
+. Add the static IPv6 route to the `/etc/sysconfig/network-scripts/route6-enp1s0` file:
++
+[source]
+....
+2001:db8:2::/64 via 2001:db8:1::10 dev enp1s0
+....
+
+. Restart the `network` service:
++
+[literal,subs="+quotes"]
+....
+# **systemctl restart network**
+....
+
+
+.Verification
+
+. Display the IPv4 routes:
++
+[literal,subs="+quotes"]
+....
+# **ip -4 route** 
+...
+__198.51.100.0/24__ via __192.0.2.10__ dev __enp1s0__
+....
+
+. Display the IPv6 routes:
++
+[literal,subs="+quotes"]
+....
+# **ip -6 route**
+...
+__2001:db8:2::/64__ via __2001:db8:1::10__ dev __enp1s0__ metric __1024__ pref __medium__
+....
+
+
+.Troubleshooting
+
+* Display the journal entries of the `network` unit:
++
+[literal,subs="+quotes"]
+....
+# **journalctl  -u network**
+....
++
+The following are possible error messages and their causes:
++
+** `Error: Nexthop has invalid gateway`: You specified an IPv4 gateway address in the `route-__enp1s0__` file that is not in the same subnet as this router.
+** `RTNETLINK answers: No route to host`: You specified an IPv6 gateway address in the `route6-__enp1s0__` file that is not in the same subnet as this router.
+** `Error: Invalid prefix for given prefix length`: You specified the remote network in the `route-__enp1s0__` file by using an IP address within the remote network rather than the network address.
+

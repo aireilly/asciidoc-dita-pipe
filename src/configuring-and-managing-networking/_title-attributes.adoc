@@ -1,0 +1,21 @@
+// Show the table of contents
+:toc:
+
+// The name of the title
+:ProjectName: Configuring and managing networking
+
+// The subtitle of the title
+:Subtitle: Managing network interfaces and advanced networking features
+
+// The abstract of the title
+//:Abstract: The abstract is directly in docinfo.xml, because within an attribute, multiple paragraphs are not supported.
+
+// The name of the title for the purposes of {context}
+:ProjectNameID: configuring-and-managing-networking
+
+// The following are not required
+:ProjectVersion: 0.1
+
+// Product-specific
+:PRODUCT: Red{nbsp}Hat Enterprise{nbsp}Linux 9
+

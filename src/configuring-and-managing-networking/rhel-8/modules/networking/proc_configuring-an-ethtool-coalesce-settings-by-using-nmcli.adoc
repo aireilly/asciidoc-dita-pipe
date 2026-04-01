@@ -1,0 +1,43 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-an-ethtool-coalesce-settings-by-using-nmcli_{context}"]
+= Configuring an ethtool coalesce settings by using `nmcli`
+
+[role="_abstract"]
+You can use NetworkManager to set `ethtool` coalesce settings in connection profiles.
+
+
+.Procedure
+
+. For example, to set the maximum number of received packets to delay to `128` in the `enp1s0` connection profile, enter:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify __enp1s0__ ethtool.coalesce-rx-frames __128__**
+....
+
+. To remove a coalesce setting, set it to a null value. For example, to remove the `ethtool.coalesce-rx-frames` setting, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify _enp1s0_ ethtool.coalesce-rx-frames ""*
+....
+
+. To reactivate the network profile:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up __enp1s0__**
+....
+
+
+.Verification
+
+* Use the `ethtool -c` command to display the current offload features of a network device:
++
+[literal,subs="+quotes"]
+....
+# **ethtool -c __network_device__**
+....
+
+

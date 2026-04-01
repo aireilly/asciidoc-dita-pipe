@@ -1,0 +1,147 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-a-gre-tunnel-using-nmcli-to-encapsulate-layer-3-traffic-in-ipv4-packets_{context}"]
+= Configuring a GRE tunnel to encapsulate layer-3 traffic in IPv4 packets
+
+[role="_abstract"]
+A Generic Routing Encapsulation (GRE) tunnel encapsulates layer-3 traffic in IPv4 packets as described in link:https://tools.ietf.org/html/rfc2784[RFC 2784]. A GRE tunnel can encapsulate any layer 3 protocol with a valid Ethernet type.
+
+[IMPORTANT]
+====
+Data sent through a GRE tunnel is not encrypted. For security reasons, use the tunnel only for data that is already encrypted, for example, by other protocols, such as HTTPS.
+====
+
+For example, you can create a GRE tunnel between two RHEL routers to connect two internal subnets over the internet as shown in the following diagram:
+
+image::GRE-tunnel.png["Diagram of a GRE tunnel that connects two internal subnets over the internet"]
+
+
+
+.Prerequisites
+
+* Each RHEL router has a network interface that is connected to its local subnet.
+* Each RHEL router has a network interface that is connected to the internet.
+
+
+.Procedure
+
+. On the RHEL router in network A:
+
+.. Create a GRE tunnel interface named `gre1`:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection add type ip-tunnel ip-tunnel.mode gre con-name gre1 ifname gre1 remote 198.51.100.5 local 203.0.113.10*
+....
++
+The `remote` and `local` parameters set the public IP addresses of the remote and the local routers.
++
+[IMPORTANT]
+====
+The `gre0` device name is reserved. Use `gre1` or a different name for the device.
+====
+
+.. Set the IPv4 address to the `gre1` device:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify gre1 ipv4.addresses '10.0.1.1/30'*
+....
++
+Note that a `/30` subnet with two usable IP addresses is sufficient for the tunnel.
+
+.. Configure the `gre1` connection to use a manual IPv4 configuration:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify gre1 ipv4.method manual*
+....
+
+.. Add a static route that routes traffic to the `172.16.0.0/24` network to the tunnel IP on router B:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify gre1 +ipv4.routes "172.16.0.0/24 10.0.1.2"*
+....
+
+.. Enable the `gre1` connection.
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up gre1*
+....
+
+.. Enable packet forwarding:
++
+[literal,subs="+quotes"]
+....
+# *echo "net.ipv4.ip_forward=1" > /etc/sysctl.d/95-IPv4-forwarding.conf*
+# *sysctl -p /etc/sysctl.d/95-IPv4-forwarding.conf*
+....
+
+. On the RHEL router in network B:
+
+.. Create a GRE tunnel interface named `gre1`:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection add type ip-tunnel ip-tunnel.mode gre con-name gre1 ifname gre1 remote 203.0.113.10 local 198.51.100.5*
+....
++
+The `remote` and `local` parameters set the public IP addresses of the remote and the local routers.
+
+.. Set the IPv4 address to the `gre1` device:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify gre1 ipv4.addresses '10.0.1.2/30'*
+....
+
+.. Configure the `gre1` connection to use a manual IPv4 configuration:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify gre1 ipv4.method manual*
+....
+
+.. Add a static route that routes traffic to the `192.0.2.0/24` network to the tunnel IP on router A:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify gre1 +ipv4.routes "192.0.2.0/24 10.0.1.1"*
+....
+
+.. Enable the `gre1` connection.
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up gre1*
+....
+
+.. Enable packet forwarding:
++
+[literal,subs="+quotes"]
+....
+# *echo "net.ipv4.ip_forward=1" > /etc/sysctl.d/95-IPv4-forwarding.conf*
+# *sysctl -p /etc/sysctl.d/95-IPv4-forwarding.conf*
+....
+
+
+.Verification
+
+. From each RHEL router, ping the IP address of the internal interface of the other router:
+
+.. On Router A, ping `172.16.0.1`:
++
+[literal,subs="+quotes"]
+....
+# *ping 172.16.0.1*
+....
+
+.. On Router B, ping `192.0.2.1`:
++
+[literal,subs="+quotes"]
+....
+# *ping 192.0.2.1*
+....
+

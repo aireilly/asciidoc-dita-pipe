@@ -1,0 +1,33 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="inspecting-qdisc-of-a-network-interface-using-the-tc-utility_{context}"]
+
+= Inspecting qdiscs of a network interface using the tc utility
+
+[role="_abstract"]
+By default, {RHEL} systems use `fq_codel qdisc`. You can inspect the `qdisc` counters using the `tc` utility.
+
+
+.Procedure
+
+. Optional: View your current `qdisc`:
++
+[literal,subs="+quotes"]
+....
+# **tc qdisc show dev _enp0s1_**
+....
+
+. Inspect the current `qdisc` counters:
++
+[literal,subs="+quotes"]
+----
+# **tc -s qdisc show dev _enp0s1_**
+qdisc fq_codel 0: root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5.0ms interval 100.0ms memory_limit 32Mb ecn
+Sent 1008193 bytes 5559 pkt (dropped 233, overlimits 55 requeues 77)
+backlog 0b 0p requeues 0
+----
++
+* `dropped` - the number of times a packet is dropped because all queues are full
+* `overlimits` - the number of times the configured link capacity is filled
+* `sent` - the number of dequeues
+

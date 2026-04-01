@@ -1,0 +1,36 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-09-18
+:_mod-docs-content-type: REFERENCE
+
+[id="libreswan-authentication-methods_{context}"]
+= Libreswan authentication methods
+
+[role="_abstract"]
+Select the appropriate authentication method to establish a secure VPN connection based on your security needs and network environment.
+
+Libreswan supports the following authentication methods:
+
+Pre-Shared key::
++
+The Pre-Shared Key (PSK) method involves both endpoints by using the same secret to authenticate each other. PSKs offer simplicity and broad compatibility, making them suitable for small-scale deployments. However, managing PSKs is risky if the key is reused or not rotated frequently. For security, PSKs should consist of more than 64 random characters and must meet FIPS strength requirements if your host operates in FIPS mode.
+
+
+Raw RSA key::
++
+This method uses an RSA public and private key pair on each peer for mutual identification. Raw RSA keys provide stronger security than PSKs and are ideal for environments where a full certificate infrastructure is not required.
+
+
+X.509 certificates::
++
+This method uses X.509 certificates issued by a trusted Certificate Authority (CA). Each peer proves its identity by using its certificate and private key, which the other peer verifies against the trusted CA. While providing the highest level of security and scalability for large enterprises, this method is more complex as it requires deploying and maintaining a public key infrastructure (PKI).
+
+
+NULL authentication::
++
+This method provides only encryption with no authentication between peers. Because it does not verify the identity of the remote endpoint, NULL authentication is insecure and offers no protection against man-in-the-middle attacks.
+
+
+Protection against quantum computers::
++
+While not a standalone authentication method, Libreswan offers Post-quantum Pre-shared Keys (PPKs) to protect modern IKEv2 connections from future attacks by quantum computers. This feature is necessary because neither the older IKEv1 protocol nor standard IKEv2 is inherently quantum-resistant on its own. A PPK adds another layer of security on top of the primary authentication method, and its security relies on using a cryptographically strong key that has been distributed securely through an external communication channel.
+

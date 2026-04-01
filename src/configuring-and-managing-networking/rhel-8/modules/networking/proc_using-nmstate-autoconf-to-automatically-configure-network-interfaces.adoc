@@ -1,0 +1,126 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_using-nmstate-autoconf-to-automatically-configure-network-interfaces_{context}"]
+= Using nmstate-autoconf to automatically configure network interfaces
+
+[role="_abstract"]
+The `nmstate-autoconf` utility uses LLDP to identify the VLAN settings of interfaces connected to a switch to configure local devices.
+
+This procedure assumes the following scenario and that the switch broadcasts the VLAN settings using LLDP:
+
+* The `enp1s0` and `enp2s0` interfaces of the RHEL server are connected to switch ports that are configured with VLAN ID `100` and VLAN name `prod-net`.
+* The `enp3s0` interface of the RHEL server is connected to a switch port that is configured with VLAN ID `200` and VLAN name `mgmt-net`.
+
+The `nmstate-autoconf` utility then uses this information to create the following interfaces on the server:
+
+* `bond100` - A bond interface with `enp1s0` and `enp2s0` as ports.
+* `prod-net` - A VLAN interface on top of `bond100` with VLAN ID `100`.
+* `mgmt-net` - A VLAN interface on top of `enp3s0` with VLAN ID `200`
+
+If you connect multiple network interfaces to different switch ports for which LLDP broadcasts the same VLAN ID, `nmstate-autoconf` creates a bond with these interfaces and, additionally, configures the common VLAN ID on top of it.
+
+
+
+.Prerequisites
+
+* The `nmstate` package is installed.
+* LLDP is enabled on the network switch.
+* The Ethernet interfaces are up.
+
+
+
+.Procedure
+
+. Enable LLDP on the Ethernet interfaces:
+
+.. Create a YAML file, for example `~/enable-lldp.yml`, with the following content:
++
+[source,yaml]
+....
+interfaces:
+  - name: enp1s0
+    type: ethernet
+    lldp:
+      enabled: true
+  - name: enp2s0
+    type: ethernet
+    lldp:
+      enabled: true
+  - name: enp3s0
+    type: ethernet
+    lldp:
+      enabled: true
+....
+
+.. Apply the settings to the system:
++
+[literal,subs="+quotes"]
+....
+# **nmstatectl apply ~/enable-lldp.yml**
+....
+
+. Configure the network interfaces using LLDP:
+
+.. Optional, start a dry-run to display and verify the YAML configuration that `nmstate-autoconf` generates:
++
+[literal,subs="+quotes"]
+....
+# **nmstate-autoconf -d __enp1s0__,__enp2s0__,__enp3s0__**
+---
+interfaces:
+- name: prod-net
+  type: vlan
+  state: up
+  vlan:
+    base-iface: bond100
+    id: 100
+- name: mgmt-net
+  type: vlan
+  state: up
+  vlan:
+    base-iface: enp3s0
+    id: 200
+- name: bond100
+  type: bond
+  state: up
+  link-aggregation:
+    mode: balance-rr
+    port:
+    - enp1s0
+    - enp2s0
+....
+
+.. Use `nmstate-autoconf` to generate the configuration based on information received from LLDP, and apply the settings to the system:
++
+[literal,subs="+quotes"]
+....
+# **nmstate-autoconf __enp1s0__,__enp2s0__,__enp3s0__**
+....
+
+
+
+.Verification
+
+* Display the settings of the individual interfaces:
++
+[literal,subs="+quotes"]
+....
+# **nmstatectl show __<interface_name>__**
+....
+
+
+
+.Next steps
+
+* If there is no DHCP server in your network that provides the IP settings to the interfaces, configure them manually. For details, see:
++
+ifdef::networking-title[]
+** xref:configuring-an-ethernet-connection_configuring-and-managing-networking[Configuring an Ethernet connection]
+** xref:configuring-network-bonding_configuring-and-managing-networking[Configuring a network bond]
+endif::[]
++
+ifndef::networking-title[]
+** link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-an-ethernet-connection_configuring-and-managing-networking[Configuring an Ethernet connection]
+** link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-bonding_configuring-and-managing-networking[Configuring a network bond]
+endif::[]
+

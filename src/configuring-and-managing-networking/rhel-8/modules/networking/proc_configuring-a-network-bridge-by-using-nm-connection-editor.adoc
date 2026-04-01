@@ -1,0 +1,113 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-a-network-bridge-by-using-nm-connection-editor_{context}"]
+= Configuring a network bridge by using nm-connection-editor
+
+[role="_abstract"]
+If you use {ProductName} with a graphical interface, you can configure network bridges using the `nm-connection-editor` application.
+
+Note that `nm-connection-editor` can add only new ports to a bridge. To use an existing connection profile as a port, create the bridge using the `nmcli` utility as described in xref:configuring-a-network-bridge-by-using-nmcli_configuring-a-network-bridge[Configuring a network bridge by using nmcli].
+
+
+.Prerequisites
+
+* Two or more physical or virtual network devices are installed on the server.
+
+* To use Ethernet devices as ports of the bridge, the physical or virtual Ethernet devices must be installed on the server.
+
+* To use team, bond, or VLAN devices as ports of the bridge, ensure that these devices are not already configured.
+
+
+.Procedure
+
+. Open a terminal, and enter `nm-connection-editor`:
++
+[literal,subs="+quotes"]
+----
+$ *nm-connection-editor*
+----
+
+. Click the btn:[+] button to add a new connection.
+
+. Select the *Bridge* connection type, and click btn:[Create].
+
+. On the *Bridge* tab:
+
+.. Optional: Set the name of the bridge interface in the *Interface name* field.
+
+.. Click the btn:[Add] button to create a new connection profile for a network interface and add the profile as a port to the bridge.
+
+... Select the connection type of the interface. For example, select *Ethernet* for a wired connection.
+
+... Optional: Set a connection name for the port device.
+
+... If you create a connection profile for an Ethernet device, open the *Ethernet* tab, and select in the *Device* field the network interface you want to add as a port to the bridge. If you selected a different device type, configure it accordingly.
+
+... Click btn:[Save].
+
+.. Repeat the previous step for each interface you want to add to the bridge.
++
+image::add-nic-to-bridge-in-nm-connection-editor.png["Interfaces attached to a bridge"]
+
+. Optional: Configure further bridge settings, such as Spanning Tree Protocol (STP) options.
+
+. Configure the IP address settings on both the *IPv4 Settings* and *IPv6 Settings* tabs:
+
+** If you plan to use this bridge device as a port of other devices, set the *Method* field to *Disabled*.
+
+** To use DHCP, leave the *Method* field at its default, *Automatic (DHCP)*.
+
+** To use static IP settings, set the *Method* field to *Manual* and fill the fields accordingly:
++
+image::bridge-IP-settings-nm-connection-editor.png["IP address settings in `nm-connection-editor`"]
+
+. Click btn:[Save].
+
+. Close `nm-connection-editor`.
+
+
+.Verification
+
+* Use the `ip` utility to display the link status of Ethernet devices that are ports of a specific bridge.
++
+[literal,subs="+quotes"]
+....
+# **ip link show master __bridge0__**
+3: enp7s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel master bridge0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:62:61:0e brd ff:ff:ff:ff:ff:ff
+4: enp8s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel master bridge0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:9e:f1:ce brd ff:ff:ff:ff:ff:ff
+....
+
+* Use the `bridge` utility to display the status of Ethernet devices that are ports in any bridge device:
++
+[literal,subs="+quotes"]
+....
+# **bridge link show**
+3: enp7s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master bridge0 state forwarding priority 32 cost 100
+4: enp8s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master bridge0 state listening priority 32 cost 100
+5: enp9s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master bridge1 state forwarding priority 32 cost 100
+6: enp11s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master bridge1 state blocking priority 32 cost 100
+...
+....
++
+To display the status for a specific Ethernet device, use the `bridge link show dev __ethernet_device_name__` command.
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:configuring-a-network-bond-by-using-nm-connection-editor_configuring-network-bonding[Configuring a network bond by using nm-connection-editor]
+* xref:configuring-a-network-team-by-using-nm-connection-editor_configuring-network-teaming[Configuring a network team by using nm-connection-editor]
+* xref:configuring-vlan-tagging-by-using-nm-connection-editor_configuring-vlan-tagging[Configuring VLAN tagging by using nm-connection-editor]
+* xref:proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting[Configuring NetworkManager to avoid using a specific profile to provide a default gateway]
+endif::[]
+
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-bonding_configuring-and-managing-networking#configuring-a-network-bond-by-using-nm-connection-editor_configuring-network-bonding[Configuring a network bond by using nm-connection-editor]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-teaming_configuring-and-managing-networking#configuring-a-network-team-by-using-nm-connection-editor_configuring-network-teaming[Configuring a network team by using nm-connection-editor]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-vlan-tagging_configuring-and-managing-networking#configuring-vlan-tagging-by-using-nm-connection-editor_configuring-vlan-tagging[Configuring VLAN tagging by using nm-connection-editor]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/managing-the-default-gateway-setting_configuring-and-managing-networking#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway[Configuring NetworkManager to avoid using a specific profile to provide a default gateway]
+endif::[]
+
+* link:https://access.redhat.com/solutions/5314671[How to configure a bridge with VLAN information? (Red Hat Knowledgebase)]
+

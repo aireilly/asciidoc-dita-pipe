@@ -1,0 +1,30 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system: {context}]
+
+ifndef::context[]
+[id="authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system"]
+endif::[]
+ifdef::context[]
+[id="authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system_{context}"]
+endif::[]
+= Authenticating a RHEL client to the network by using the 802.1X standard with a certificate stored on the file system
+
+:context: authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system
+
+[role="_abstract"]
+Port-based Network Access Control (NAC), based on the IEEE 802.1X standard, protects a network from unauthorized clients. If the network uses Extensible Authentication Protocol Transport Layer Security (EAP-TLS), you require a certificate to authenticate the client.
+
+
+include::modules/networking/proc_configuring-802-1x-network-authentication-on-an-existing-ethernet-connection-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-static-ethernet-connection-with-802-1x-network-authentication-by-using-nmstatectl.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-static-ethernet-connection-with-802-1x-network-authentication-by-using-the-network-rhel-system-role.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} == 9]
+include::modules/networking/proc_configuring-a-wifi-connection-with-802-1x-network-authentication-by-using-the-network-rhel-system-role.adoc[leveloffset=+1]
+endif::[]
+
+ifdef::parent-context-of-authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system[:context: {parent-context-of-authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system}]
+ifndef::parent-context-of-authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system[:!context:]
+

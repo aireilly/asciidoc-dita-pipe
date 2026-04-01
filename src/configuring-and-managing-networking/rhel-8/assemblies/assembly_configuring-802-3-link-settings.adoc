@@ -1,0 +1,23 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-configuring-802-3-link-settings: {context}]
+
+[id="configuring-802-3-link-settings_{context}"]
+= Configuring 802.3 link settings
+
+:context: configuring-802-3-link-settings
+
+[role="_abstract"]
+By using the auto-negotiation protocol, you have optimal performance of data transfer over the Ethernet.
+
+Auto-negotiation is a feature of the IEEE 802.3u Fast Ethernet protocol. It targets the device ports to provide an optimal performance of speed, duplex mode, and flow control for information exchange over a link.
+
+[NOTE]
+====
+To utilize maximum performance of auto-negotiation, use the same configuration on both sides of a link.
+====
+
+include::modules/networking/proc_configuring-802-3-link-settings-using-the-nmcli-utility.adoc[leveloffset=+1]
+
+ifdef::parent-context-of-configuring-802-3-link-settings[:context: {parent-context-of-configuring-802-3-link-settings}]
+ifndef::parent-context-of-configuring-802-3-link-settings[:!context:]
+

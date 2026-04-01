@@ -1,0 +1,72 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="updating-the-default-qdisc_{context}"]
+= Updating the default qdisc
+
+[role="_abstract"]
+If you observe networking packet losses with the current `qdisc`, you can change the `qdisc` based on your network-requirements.
+
+
+.Procedure
+
+. View the current default `qdisc`:
++
+[literal,subs="+quotes"]
+----
+# **sysctl -a | grep qdisc**
+net.core.default_qdisc = fq_codel
+----
+
+. View the `qdisc` of current Ethernet connection:
++
+[literal,subs="+quotes"]
+----
+# **tc -s qdisc show dev _enp0s1_**
+qdisc fq_codel 0: root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5.0ms interval 100.0ms memory_limit 32Mb ecn
+Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0)
+backlog 0b 0p requeues 0
+maxpacket 0 drop_overlimit 0 new_flow_count 0 ecn_mark 0
+new_flows_len 0 old_flows_len 0
+----
+
+. Update the existing `qdisc`:
++
+[literal,subs="+quotes"]
+....
+# **sysctl -w net.core.default_qdisc=pfifo_fast**
+....
+
+. To apply the changes, reload the network driver:
++
+[literal,subs="+quotes"]
+....
+# **modprobe -r _NETWORKDRIVERNAME_**
+# **modprobe _NETWORKDRIVERNAME_**
+....
+
+. Start the network interface:
++
+[literal,subs="+quotes"]
+....
+# **ip link set _enp0s1_ up**
+....
+
+
+.Verification
+
+* View the `qdisc` of the Ethernet connection:
++
+[literal,subs="+quotes"]
+----
+# **tc -s qdisc show dev _enp0s1_**
+qdisc _pfifo_fast_ 0: root refcnt 2 bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+ Sent 373186 bytes 5333 pkt (dropped 0, overlimits 0 requeues 0)
+ backlog 0b 0p requeues 0
+....
+----
+
+
+[role="_additional-resources"]
+.Additional resources
+* link:https://access.redhat.com/solutions/2587[How to set `sysctl` variables on Red Hat Enterprise Linux (Red Hat Knowledgebase)]
+

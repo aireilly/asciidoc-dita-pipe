@@ -1,0 +1,67 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-configuring-an-ethernet-connection: {context}]
+
+[id="configuring-an-ethernet-connection_{context}"]
+= Configuring an Ethernet connection
+
+:context: configuring-an-ethernet-connection
+
+[role="_abstract"]
+NetworkManager creates a connection profile for each Ethernet adapter that is installed in a host. By default, this profile uses DHCP for both IPv4 and IPv6 connections.
+
+Modify this automatically-created profile or add a new one in the following cases:
+
+* The network requires custom settings, such as a static IP address configuration.
+* You require multiple profiles because the host roams among different networks.
+
+{RHEL} provides administrators different options to configure Ethernet connections. For example:
+
+* Use `nmcli` to configure connections on the command line.
+* Use `nmtui` to configure connections in a text-based user interface.
+* Use the GNOME Settings menu or `nm-connection-editor` application to configure connections in a graphical interface.
+* Use `nmstatectl` to configure connections through the `nmstate` API.
+* Use {RHELSystemRoles}s to automate the configuration of connections on one or multiple hosts.
+
+[NOTE]
+====
+If you want to manually configure Ethernet connections on hosts running in the Microsoft Azure cloud, disable the `cloud-init` service or configure it to ignore the network settings retrieved from the cloud environment. Otherwise, `cloud-init` will override on the next reboot the network settings that you have manually configured.
+====
+
+
+include::modules/networking/proc_configuring-an-ethernet-connection-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ethernet-connection-by-using-the-nmcli-interactive-editor.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ethernet-connection-by-using-nmtui.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ethernet-connection-by-using-control-center.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ethernet-connection-by-using-nm-connection-editor.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ethernet-connection-with-a-static-ip-address-by-using-nmstatectl-with-an-interface-name.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} >= 9]
+include::modules/networking/proc_configuring-an-ethernet-connection-with-a-static-ip-address-by-using-nmstatectl-with-a-pci-address.adoc[leveloffset=+1]
+endif::[]
+
+include::modules/networking/proc_configuring-an-ethernet-connection-with-a-static-ip-address-by-using-the-network-rhel-system-role-with-an-interface-name.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ethernet-connection-with-a-static-ip-address-by-using-the-network-rhel-system-role-with-a-device-path.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-nmstatectl-with-an-interface-name.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} >= 9]
+include::modules/networking/proc_configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-nmstatectl-with-a-pci-address.adoc[leveloffset=+1]
+endif::[]
+
+include::modules/networking/proc_configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-the-network-rhel-system-role-with-an-interface-name.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-the-network-rhel-system-role-with-a-device-path.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-multiple-ethernet-interfaces-by-using-a-single-connection-profile-by-interface-name.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-single-connection-profile-for-multiple-ethernet-interfaces-using-pci-ids.adoc[leveloffset=+1]
+
+ifdef::parent-context-of-configuring-an-ethernet-connection[:context: {parent-context-of-configuring-an-ethernet-connection}]
+ifndef::parent-context-of-configuring-an-ethernet-connection[:!context:]
+

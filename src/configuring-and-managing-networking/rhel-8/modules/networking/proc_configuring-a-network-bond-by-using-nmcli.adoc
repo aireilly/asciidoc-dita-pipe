@@ -1,0 +1,184 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-a-network-bond-by-using-nmcli_{context}"]
+= Configuring a network bond by using `nmcli`
+
+[role="_abstract"]
+To configure a network bond on the command line, use the `nmcli` utility.
+
+
+.Prerequisites
+
+* Two or more physical or virtual network devices are installed on the server.
+
+ifeval::[{ProductNumber} == 9]
+* The host runs on {RHEL} 9.4 or later. This version introduced the `port-type`, `controller`, `connection.autoconnect-ports` options used in this procedure. Previous RHEL versions instead use `slave-type`, `master`, and `connection.autoconnect-slaves`.
+endif::[]
+
+* To use Ethernet devices as ports of the bond, the physical or virtual Ethernet devices must be installed on the server.
+
+* To use team, bridge, or VLAN devices as ports of the bond, you can either create these devices while you create the bond or you can create them in advance as described in:
+
+ifdef::networking-title[]
+** xref:configuring-a-network-team-by-using-nmcli_configuring-network-teaming[Configuring a network team by using nmcli]
+** xref:configuring-a-network-bridge-by-using-nmcli_configuring-a-network-bridge[Configuring a network bridge by using nmcli]
+** xref:configuring-vlan-tagging-by-using-nmcli_configuring-vlan-tagging[Configuring VLAN tagging by using nmcli]
+
+endif::[]
+
+ifndef::networking-title[]
+** link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-teaming_configuring-and-managing-networking#configuring-a-network-team-by-using-nmcli_configuring-network-teaming[Configuring a network team by using nmcli]
+** link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-a-network-bridge_configuring-and-managing-networking#configuring-a-network-bridge-by-using-nmcli_configuring-a-network-bridge[Configuring a network bridge by using nmcli]
+** link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-vlan-tagging_configuring-and-managing-networking#configuring-vlan-tagging-by-using-nmcli_configuring-vlan-tagging[Configuring VLAN tagging by using nmcli]
+endif::[]
+
+
+.Procedure
+
+. Create a bond interface:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection add type bond con-name bond0 ifname bond0 bond.options "mode=active-backup"*
+....
++
+This command creates a bond named `bond0` that uses the `active-backup` mode.
++
+To additionally set a Media Independent Interface (MII) monitoring interval, add the `miimon=interval` option to the `bond.options` property, for example:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection add type bond con-name bond0 ifname bond0 bond.options "mode=active-backup,miimon=1000"*
+....
+
+. Display the network interfaces, and note names of interfaces you plan to add to the bond:
++
+[literal,subs="+quotes"]
+....
+# *nmcli device status*
+DEVICE   TYPE      STATE         CONNECTION
+enp7s0   ethernet  disconnected  --
+enp8s0   ethernet  disconnected  --
+bridge0  bridge    connected     bridge0
+bridge1  bridge    connected     bridge1
+...
+....
++
+In this example:
++
+* `enp7s0` and `enp8s0` are not configured. To use these devices as ports, add connection profiles in the next step.
+* `bridge0` and `bridge1` have existing connection profiles. To use these devices as ports, modify their profiles in the next step.
+
+. Assign interfaces to the bond:
+
+.. If the interfaces you want to assign to the bond are not configured, create new connection profiles for them:
++
+[literal,subs="+quotes,attributes"]
+----
+# *nmcli connection add type ethernet {NM_port}-type bond con-name bond0-port1 ifname enp7s0 {NM_controller} bond0*
+# *nmcli connection add type ethernet {NM_port}-type bond con-name bond0-port2 ifname enp8s0 {NM_controller} bond0*
+----
++
+These commands create profiles for `enp7s0` and `enp8s0`, and add them to the `bond0` connection.
+
+.. To assign an existing connection profile to the bond:
+
+... Set the `{NM_controller}` parameter of these connections to `bond0`:
++
+[literal,subs="+quotes,attributes"]
+----
+# *nmcli connection modify bridge0 {NM_controller} bond0*
+# *nmcli connection modify bridge1 {NM_controller} bond0*
+----
++
+These commands assign the existing connection profiles named `bridge0` and `bridge1` to the `bond0` connection.
+
+... Reactivate the connections:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up bridge0*
+# *nmcli connection up bridge1*
+....
+
+. Configure the IPv4 settings:
+
+** To set a static IPv4 address, network mask, default gateway, and DNS server to the `bond0` connection, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify bond0 ipv4.addresses '192.0.2.1/24' ipv4.gateway '192.0.2.254' ipv4.dns '192.0.2.253' ipv4.dns-search 'example.com' ipv4.method manual*
+....
+
+** To use DHCP, no action is required.
+
+** If you plan to use this bond device as a port of other devices, no action is required.
+
+. Configure the IPv6 settings:
+
+** To set a static IPv6 address, network mask, default gateway, and DNS server to the `bond0` connection, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify bond0 ipv6.addresses '2001:db8:1::1/64' ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffd' ipv6.dns-search 'example.com' ipv6.method manual*
+....
+
+** To use stateless address autoconfiguration (SLAAC), no action is required.
+
+** If you plan to use this bond device as a port of other devices, no action is required.
+
+. Optional: If you want to set any parameters on the bond ports, use the following command:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify bond0-port1 bond-port._<parameter>_ _<value>_*
+....
+
+. Activate the connection:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up bond0*
+....
+
+. Verify that the ports are connected, and the `CONNECTION` column displays the port's connection name:
++
+[literal,subs="+quotes"]
+....
+# *nmcli device*
+DEVICE   TYPE      STATE      CONNECTION
+...
+enp7s0   ethernet  connected  bond0-port1
+enp8s0   ethernet  connected  bond0-port2
+....
++
+When you activate any port of the connection, NetworkManager also activates the bond, but not the other ports of it. You can configure that {RHEL} enables all ports automatically when the bond is enabled:
+
+.. Enable the `connection.autoconnect-{NM_ports}` parameter of the bond's connection:
++
+[literal,subs="+quotes,attributes"]
+----
+# *nmcli connection modify bond0 connection.autoconnect-{NM_ports} 1*
+----
+
+.. Reactivate the bridge:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up bond0*
+....
+
+
+.Verification
+
+. Temporarily remove the network cable from one of the network devices and check if the other device in the bond is handling the traffic. 
++
+Note that there is no method to properly test link failure events using software utilities. Tools that deactivate connections, such as `nmcli`, show only the bonding driver's ability to handle port configuration changes and not actual link failure events.
+
+. Display the status of the bond:
++
+[literal,subs="+quotes"]
+....
+# *cat /proc/net/bonding/bond0*
+....
+

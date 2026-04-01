@@ -1,0 +1,34 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role: {context}]
+
+ifndef::context[]
+[id="assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role"]
+endif::[]
+ifdef::context[]
+[id="assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role_{context}"]
+endif::[]
+= Configuring IPsec VPN connections by using {RHELSystemRoles}s
+
+:context: assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role
+
+[role="_abstract"]
+Configure IPsec VPN connections to establish encrypted tunnels over untrusted networks and ensure the integrity of data in transit. By using the RHEL system roles, you can automate the setup for use cases, such as connecting branch offices to headquarters.
+
+[NOTE]
+====
+The `vpn` RHEL system role can only create VPN configurations that use pre-shared keys (PSKs) or certificates to authenticate peers to each other.
+====
+
+
+include::modules/security/configuring-an-ipsec-host-to-host-vpn-with-psk-authentication-by-using-the-vpn-rhel-system-role.adoc[leveloffset=+1]
+
+include::modules/security/configuring-an-ipsec-host-to-host-vpn-with-psk-authentication-and-separate-data-and-control-planes-by-using-the-vpn-rhel-system-role.adoc[leveloffset=+1]
+
+include::modules/security/configuring-an-ipsec-site-to-site-vpn-with-psk-authentication-by-using-the-vpn-rhel-system-role.adoc[leveloffset=+1]
+
+include::modules/security/configuring-an-ipsec-mesh-vpn-with-certificate-based-authentication-by-using-the-vpn-rhel-system-role.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role[:context: {parent-context-of-assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role}]
+ifndef::parent-context-of-assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role[:!context:]
+

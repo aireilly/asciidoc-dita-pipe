@@ -1,0 +1,174 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-a-gretap-tunnel-to-transfer-ethernet-frames-over-ipv4_{context}"]
+= Configuring a GRETAP tunnel to transfer Ethernet frames over IPv4
+
+[role="_abstract"]
+A Generic Routing Encapsulation Terminal Access Point (GRETAP) tunnel operates on OSI level 2 and encapsulates Ethernet traffic in IPv4 packets as described in link:https://tools.ietf.org/html/rfc2784[RFC 2784].
+
+[IMPORTANT]
+====
+Data sent through a GRETAP tunnel is not encrypted. For security reasons, establish the tunnel over a VPN or a different encrypted connection.
+====
+
+For example, you can create a GRETAP tunnel between two RHEL routers to connect two networks using a bridge as shown in the following diagram:
+
+image::GRETAP-tunnel.png["Diagram of a GRETAP tunnel to connect two networks by using a bridge"]
+
+
+
+.Prerequisites
+
+* Each RHEL router has a network interface that is connected to its local network, and the interface has no IP configuration assigned.
+* Each RHEL router has a network interface that is connected to the internet.
+
+
+.Procedure
+
+. On the RHEL router in network A:
+
+.. Create a bridge interface named `bridge0`:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection add type bridge con-name bridge0 ifname bridge0*
+....
+
+.. Configure the IP settings of the bridge:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify bridge0 ipv4.addresses '192.0.2.1/24'*
+# *nmcli connection modify bridge0 ipv4.method manual*
+....
+
+.. Add a new connection profile for the interface that is connected to local network to the bridge:
++
+[literal,subs="+quotes,attributes"]
+....
+# *nmcli connection add type ethernet {NM_port}-type bridge con-name bridge0-port1 ifname enp1s0 {NM_controller} bridge0*
+....
+
+.. Add a new connection profile for the GRETAP tunnel interface to the bridge:
++
+[literal,subs="+quotes,attributes"]
+....
+# *nmcli connection add type ip-tunnel ip-tunnel.mode gretap {NM_port}-type bridge con-name bridge0-port2 ifname gretap1 remote 198.51.100.5 local 203.0.113.10 {NM_controller} bridge0*
+....
++
+The `remote` and `local` parameters set the public IP addresses of the remote and the local routers.
++
+[IMPORTANT]
+====
+The `gretap0` device name is reserved. Use `gretap1` or a different name for the device.
+====
+
+.. Optional: Disable the Spanning Tree Protocol (STP) if you do not need it:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify bridge0 bridge.stp no*
+....
++
+By default, STP is enabled and causes a delay before you can use the connection.
+
+.. Configure that activating the `bridge0` connection automatically activates the ports of the bridge:
++
+[literal,subs="+quotes,attributes"]
+....
+# *nmcli connection modify bridge0 connection.autoconnect-{NM_ports} 1*
+....
+
+.. Active the `bridge0` connection:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up bridge0*
+....
+
+. On the RHEL router in network B:
+
+.. Create a bridge interface named `bridge0`:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection add type bridge con-name bridge0 ifname bridge0*
+....
+
+.. Configure the IP settings of the bridge:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify bridge0 ipv4.addresses '192.0.2.2/24'*
+# *nmcli connection modify bridge0 ipv4.method manual*
+....
+
+.. Add a new connection profile for the interface that is connected to local network to the bridge:
++
+[literal,subs="+quotes,attributes"]
+....
+# *nmcli connection add type ethernet {NM_port}-type bridge con-name bridge0-port1 ifname enp1s0 {NM_controller} bridge0*
+....
+
+.. Add a new connection profile for the GRETAP tunnel interface to the bridge:
++
+[literal,subs="+quotes,attributes"]
+....
+# *nmcli connection add type ip-tunnel ip-tunnel.mode gretap {NM_port}-type bridge con-name bridge0-port2 ifname gretap1 remote 203.0.113.10 local 198.51.100.5 {NM_controller} bridge0*
+....
++
+The `remote` and `local` parameters set the public IP addresses of the remote and the local routers.
+
+.. Optional: Disable the Spanning Tree Protocol (STP) if you do not need it:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify bridge0 bridge.stp no*
+....
+
+.. Configure that activating the `bridge0` connection automatically activates the ports of the bridge:
++
+[literal,subs="+quotes,attributes"]
+....
+# *nmcli connection modify bridge0 connection.autoconnect-{NM_ports} 1*
+....
+
+.. Active the `bridge0` connection:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up bridge0*
+....
+
+
+.Verification
+
+. On both routers, verify that the `enp1s0` and `gretap1` connections are connected and that the `CONNECTION` column displays the connection name of the port:
++
+[literal,subs="+quotes"]
+....
+# *nmcli device*
+nmcli device
+DEVICE   TYPE      STATE      CONNECTION
+...
+bridge0  bridge    connected  bridge0
+enp1s0   ethernet  connected  bridge0-port1
+gretap1  iptunnel  connected  bridge0-port2
+....
+
+. From each RHEL router, ping the IP address of the internal interface of the other router:
+
+.. On Router A, ping `192.0.2.2`:
++
+[literal,subs="+quotes"]
+....
+# *ping 192.0.2.2*
+....
+
+.. On Router B, ping `192.0.2.1`:
++
+[literal,subs="+quotes"]
+....
+# *ping 192.0.2.1*
+....
+

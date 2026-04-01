@@ -1,0 +1,134 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-08-04
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-an-ethernet-connection-with-a-static-ip-address-by-using-nmstatectl-with-a-pci-address_{context}"]
+= Configuring an Ethernet connection with a static IP address by using `nmstatectl` with a PCI address
+
+[role="_abstract"]
+You can use the declarative Nmstate API to configure an Ethernet connection with static IP addresses, gateways, and DNS settings, and assign them to a device based on its PCI address. Nmstate ensures that the result matches the configuration file or rolls back the changes.
+
+
+.Prerequisites
+
+* A physical Ethernet Network Interface Controller (NIC) exists in the server's configuration.
+* You know the PCI address of the device. You can display the PCI address by using the `ethtool -i _<interface_name>_ | grep bus-info` command.
+* The `nmstate` package is installed.
+
+
+.Procedure
+
+. Create a YAML file, for example `~/create-ethernet-profile.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+interfaces:
+- name: _<profile_name>_
+  type: ethernet
+  state: up
+  identifier: pci-address
+  pci-address: 0000:00:14.3
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 24
+    dhcp: false
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+    autoconf: false
+    dhcp: false
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.0.2.254
+    next-hop-interface: _<profile_name>_
+  - destination: ::/0
+    next-hop-address: 2001:db8:1::fffe
+    next-hop-interface: _<profile_name>_
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb
+....
++
+These settings define an Ethernet connection profile for the device with the ID `0000:00:14.3` with the following settings:
++
+* A static IPv4 address - `192.0.2.1` with the `/24` subnet mask
+* A static IPv6 address - `2001:db8:1::1` with the `/64` subnet mask
+* An IPv4 default gateway - `192.0.2.254`
+* An IPv6 default gateway - `2001:db8:1::fffe`
+* An IPv4 DNS server - `192.0.2.200`
+* An IPv6 DNS server - `2001:db8:1::ffbb`
+* A DNS search domain - `example.com`
+
+. Apply the settings to the system:
++
+[subs="+quotes"]
+....
+# *nmstatectl apply ~/create-ethernet-profile.yml*
+....
+
+
+.Verification
+
+. Display the current state in YAML format:
++
+[subs="+quotes"]
+....
+# *nmstatectl show _<interface_name>_*
+....
+
+. Display the IP settings of the NIC:
++
+[subs="+quotes"]
+....
+# *ip address show _<interface_name>_*
+2: :__<interface_name>__ <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:17:b8:b6 brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute _<interface_name>_
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::fffe/64 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+....
+
+. Display the IPv4 default gateway:
++
+[subs="+quotes"]
+....
+# *ip route show default*
+default via 192.0.2.254 dev _<interface_name>_ proto static metric 102
+....
+
+. Display the IPv6 default gateway:
++
+[subs="+quotes"]
+....
+# *ip -6 route show default*
+default via 2001:db8:1::fffe dev _<interface_name>_ proto static metric 102 pref medium
+....
+
+. Display the DNS settings:
++
+[subs="+quotes"]
+....
+# *cat /etc/resolv.conf*
+search example.com
+nameserver 192.0.2.200
+nameserver 2001:db8:1::ffbb
+....
+
+. Use the `ping` utility to verify that this host can send packets to other hosts:
++
+[subs="+quotes"]
+....
+# *ping _<host-name-or-IP-address>_*
+....
+

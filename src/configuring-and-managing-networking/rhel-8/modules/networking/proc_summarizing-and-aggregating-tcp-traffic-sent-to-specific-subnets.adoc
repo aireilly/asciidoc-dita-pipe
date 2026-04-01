@@ -1,0 +1,45 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="summarizing-and-aggregating-tcp-traffic-sent-to-specific-subnets_{context}"]
+= Summarizing and aggregating TCP traffic sent to specific subnets
+
+[role="_abstract"]
+The `tcpsubnet` utility summarizes and aggregates IPv4 TCP traffic that the local host sends to subnets and displays the output on a fixed interval. The utility uses eBPF features to collect and summarize the data to reduce the overhead.
+
+By default, `tcpsubnet` summarizes traffic for the following subnets:
+
+* `127.0.0.1/32`
+* `10.0.0.0/8`
+* `172.16.0.0/12`
+* `192.0.2.0/24/16`
+* `0.0.0.0/0`
+
+Note that the last subnet (`0.0.0.0/0`) is a catch-all option. The `tcpsubnet` utility counts all traffic for subnets different from the first four in this catch-all entry.
+
+Follow the procedure to count the traffic for the `192.0.2.0/24` and `198.51.100.0/24` subnets. Traffic to other subnets will be tracked in the `0.0.0.0/0` catch-all subnet entry.
+
+
+.Procedure
+
+. Start monitoring the amount of traffic sent to the `192.0.2.0/24`, `198.51.100.0/24`, and other subnets:
++
+[subs="+quotes"]
+....
+# */usr/share/bcc/tools/tcpsubnet 192.0.2.0/24,198.51.100.0/24,0.0.0.0/0*
+Tracing... Output every 1 secs. Hit Ctrl-C to end
+[02/21/20 10:04:50]
+192.0.2.0/24           856
+198.51.100.0/24       7467
+[02/21/20 10:04:51]
+192.0.2.0/24          1200
+198.51.100.0/24       8763
+0.0.0.0/0              673
+...
+....
++
+This command displays the traffic in bytes for the specified subnets once per second.
+
+. Press kbd:[Ctrl]+kbd:[C] to stop the tracing process.
+

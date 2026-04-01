@@ -1,0 +1,38 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-07-16
+:_mod-docs-content-type: PROCEDURE
+
+[id="enabling-legacy-ciphers-and-algorithms-in-libreswan_{context}"]
+= Enabling legacy ciphers and algorithms in Libreswan
+
+[role="_abstract"]
+Enable legacy ciphers and algorithms in Libreswan for backward compatibility with other IPsec peers. This overrides the RHEL system-wide cryptographic policies which, by default, enforce strong encryption ciphers and algorithms for IPsec and Internet Key Exchange (IKE).
+
+The RHEL system-wide cryptographic policies create a special connection called `%default`. This connection sets the default values for the `keyexchange`, `esp`, and `ike` parameters.
+
+
+.Prerequisites
+
+* Libreswan is installed.
+
+
+.Procedure
+
+. To override the defaults set by the RHEL system-wide cryptographic policies, add the `keyexchange`, `esp`, and `ike` parameters to your connection configuration and set them to the values you require. For example:
++
+[source,bash,subs="+quotes"]
+----
+conn _<connection_name>_
+    ikev2=no
+    ike=aes-sha2,aes-sha1;modp2048
+    esp=aes-sha2,aes-sha1
+    ...
+----
+
+. Restart the `ipsec` service:
++
+[subs="+quotes"]
+....
+# *systemctl restart ipsec*
+....
+

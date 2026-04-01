@@ -1,0 +1,22 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="understanding-the-role-of-imdsv2-and-nm-cloud-setup-in-the-rhel-ec2-instance_{context}"]
+= Understanding the role of IMDSv2 and nm-cloud-setup in the RHEL EC2 instance
+
+[role="_abstract"]
+
+The instance metadata service (IMDS) in Amazon EC2 allows you to manage permissions to access instance metadata of a running {ProductName} ({ProductShortName}) EC2 instance. The {ProductShortName} EC2 instance uses IMDS version 2 (IMDSv2), a session-oriented method. By using the `nm-cloud-setup` utility, administrators can reconfigure the network and automatically update the configuration of running {ProductShortName} EC2 instances. The `nm-cloud-setup` utility handles IMDSv2 API calls by using IMDSv2 tokens without any user intervention.
+
+* IMDS runs on a link-local address `169.254.169.254` for providing access to native applications on a {ProductShortName} EC2 instance.
+
+* After you have specified and configured IMDSv2 for each {ProductShortName} EC2 instance for applications and users, you can no longer access IMDSv1.
+
+* By using IMDSv2, the {ProductShortName} EC2 instance maintains metadata without using the IAM role while remaining accessible through the IAM role.
+
+* When the {ProductShortName} EC2 instance boots, the `nm-cloud-setup` utility automatically runs to fetch the EC2 instance API access token for using the {ProductShortName} EC2 instance API.
+
+[NOTE]
+====
+Use the IMDSv2 token as an HTTP header to check the details of the EC2 environment.
+====
+

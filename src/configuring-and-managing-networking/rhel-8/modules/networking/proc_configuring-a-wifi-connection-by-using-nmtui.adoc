@@ -1,0 +1,83 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-wifi-connection-by-using-nmtui_{context}"]
+= Configuring a wifi connection by using `nmtui`
+
+[role="_abstract"]
+The `nmtui` application provides a text-based user interface for NetworkManager. You can use `nmtui` to connect to a wifi network.
+
+[NOTE]
+====
+In `nmtui`:
+
+* Navigate by using the cursor keys.
+* Press a button by selecting it and hitting kbd:[Enter].
+* Select and clear checkboxes by using kbd:[Space].
+* To return to the previous screen, use kbd:[ESC].
+====
+
+
+.Procedure
+
+. Start `nmtui`:
++
+[literal,subs="+quotes"]
+....
+# *nmtui*
+....
+
+. Select `Edit a connection`, and press kbd:[Enter].
+
+. Press the `Add` button.
+
+. Select `Wi-Fi` from the list of network types, and press kbd:[Enter].
+
+. Optional: Enter a name for the NetworkManager profile to be created.
++
+On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.
+
+. Enter the name of the Wi-Fi network, the Service Set Identifier (SSID), into the `SSID` field.
+
+. Leave the `Mode` field set to its default, `Client`.
+
+. Select the `Security` field, press kbd:[Enter], and set the authentication type of the network from the list.
++
+Depending on the authentication type you have selected, `nmtui` displays different fields.
+
+. Fill the authentication type-related fields. 
+
+. If the Wi-Fi network requires static IP addresses:
+
+.. Press the `Automatic` button next to the protocol, and select `Manual` from the displayed list.
+
+.. Press the `Show` button next to the protocol you want to configure to display additional fields, and fill them.
+
+. Press the `OK` button to create and automatically activate the new connection.
++
+image::nmtui-wi-fi-dynamic-IP.png["Dynamic IP address settings in `nmtui`"]
+
+. Press the `Back` button to return to the main menu.
+
+. Select `Quit`, and press kbd:[Enter] to close the `nmtui` application.
+
+
+.Verification
+
+. Display the active connections:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection show --active*
+NAME    ID                                    TYPE  DEVICE
+Office  2501eb7e-7b16-4dc6-97ef-7cc460139a58  wifi  wlp0s20f3
+....
++
+If the output lists the wifi connection you have created, the connection is active.
+
+. Ping a hostname or IP address:
++
+[literal,subs="+quotes"]
+....
+# *ping -c 3 example.com*
+....
+

@@ -1,0 +1,125 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="using-iproute2-to-temporarily-configure-and-enable-multiple-paths-for-mptcp-applications_{context}"]
+= Using iproute2 to temporarily configure and enable multiple paths for MPTCP applications
+
+[role="_abstract"]
+Each MPTCP connection uses a single subflow similar to plain TCP. To get the MPTCP benefits, specify a higher limit for maximum number of subflows for each MPTCP connection. Then configure additional endpoints to create those subflows.
+
+[IMPORTANT]
+====
+The configuration in this procedure will not persist after rebooting your machine.
+====
+
+Note that MPTCP does not yet support mixed IPv6 and IPv4 endpoints for the same socket. Use endpoints belonging to the same address family.
+
+.Prerequisites
+
+ifeval::[{ProductNumber} >= 9]
+* The `mptcpd` package is installed
+endif::[]
+* The `iperf3` package is installed
+* Server network interface settings:
+** enp4s0:  `192.0.2.1/24`
+** enp1s0: `198.51.100.1/24`
+* Client network interface settings:
+** enp4s0f0:  `192.0.2.2/24`
+** enp4s0f1: `198.51.100.2/24`
+
+.Procedure
+
+. Configure the client to accept up to 1 additional remote address, as provided by the server:
++
+[literal,subs="+quotes"]
+....
+# **ip mptcp limits set add_addr_accepted __1__**
+....
+
+
+. Add IP address `198.51.100.1` as a new MPTCP endpoint on the server:
++
+[literal,subs="+quotes"]
+....
+# **ip mptcp endpoint add _198.51.100.1_ dev _enp1s0_ _signal_**
+....
++
+The `signal` option ensures that the `ADD_ADDR` packet is sent after the three-way-handshake.
+
+
+ifeval::[{ProductNumber} == 8]
+. Start the `iperf3` server:
++
+[literal,subs="+quotes"]
+----
+# **iperf3 -s**
+
+Server listening on 5201
+----
+
+
+. Connect the client to the server:
++
+[literal,subs="+quotes"]
+....
+# **iperf3 -c 192.0.2.1 -t 3**
+....
+endif::[]
+
+
+ifeval::[{ProductNumber} >= 9]
+. Start the `iperf3` server, and force it to create MPTCP sockets instead of TCP sockets:
++
+[literal,subs="+quotes"]
+----
+# **mptcpize run iperf3 -s**
+
+Server listening on 5201
+----
+
+
+. Connect the client to the server, and force it to create MPTCP sockets instead of TCP sockets:
++
+[literal,subs="+quotes"]
+....
+# **mptcpize iperf3 -c 192.0.2.1 -t 3**
+....
+endif::[]
+
+
+.Verification
+
+. Verify the connection is established:
++
+[literal,subs="+quotes"]
+....
+# **ss -nti '(  sport :5201 )'**
+....
+
+. Verify the connection and IP address limit:
++
+[literal,subs="+quotes"]
+....
+# **ip mptcp limit show**
+....
+
+. Verify the newly added endpoint:
++
+[literal,subs="+quotes"]
+....
+# **ip mptcp endpoint show**
+....
+
+. Verify MPTCP counters by using the `nstat MPTcp*` command on a server:
++
+[literal,subs="+quotes"]
+----
+# **nstat MPTcp***
+
+#kernel
+MPTcpExtMPCapableSYNRX          2                  0.0
+MPTcpExtMPCapableACKRX          2                  0.0
+MPTcpExtMPJoinSynRx             2                  0.0
+MPTcpExtMPJoinAckRx             2                  0.0
+MPTcpExtEchoAdd                 2                  0.0
+----
+

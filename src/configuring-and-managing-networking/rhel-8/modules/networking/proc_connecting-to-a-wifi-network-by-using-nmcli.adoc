@@ -1,0 +1,98 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_connecting-to-a-wifi-network-by-using-nmcli_{context}"]
+= Connecting to a wifi network by using `nmcli`
+
+[role="_abstract"]
+When you first use the `nmcli` utility to connect to a wifi network, it automatically creates a NetworkManager connection profile. You can then modify this profile to add specific settings, such as a static IP address.
+
+
+.Prerequisites
+
+* A wifi device is installed on the host. 
+* The wifi device is enabled. To verify, use the `nmcli radio` command.
+
+
+.Procedure
+
+. If the wifi radio has been disabled in NetworkManager, enable this feature:
++
+[subs="+quotes"]
+....
+# *nmcli radio wifi on*
+....
+
+. Optional: Display the available wifi networks:
++
+[subs="+quotes"]
+....
+# *nmcli device wifi list*
+IN-USE  BSSID              SSID          MODE   CHAN  RATE        SIGNAL  BARS  SECURITY  
+        00:53:00:2F:3B:08  Office        Infra  44    270 Mbit/s  57      ▂▄▆_  WPA2 WPA3 
+        00:53:00:15:03:BF  --            Infra  1     130 Mbit/s  48      ▂▄__  WPA2 WPA3 
+....
++
+The service set identifier (`SSID`) column contains the names of the networks. If the column shows `--`, the access point of this network does not broadcast an SSID.
+
+. Connect to the wifi network:
++
+[subs="+quotes"]
+....
+# *nmcli device wifi connect Office --ask*
+Password: *wifi-password*
+....
++
+If you prefer to set the password in the command instead of entering it interactively, use the `password _<wifi_password>_` option in the command instead of `--ask`:
++
+[subs="+quotes"]
+....
+# *nmcli device wifi connect Office password <wifi_password>*
+....
++
+Note that, if the network requires static IP addresses, NetworkManager fails to activate the connection at this point. You can configure the IP addresses in later steps.
+
+. If the network requires static IP addresses:
+
+.. Configure the IPv4 address settings, for example:
++
+[subs="+quotes"]
+....
+# *nmcli connection modify Office ipv4.method manual ipv4.addresses 192.0.2.1/24 ipv4.gateway 192.0.2.254 ipv4.dns 192.0.2.200 ipv4.dns-search example.com*
+....
+
+.. Configure the IPv6 address settings, for example:
++
+[subs="+quotes"]
+....
+# *nmcli connection modify Office ipv6.method manual ipv6.addresses 2001:db8:1::1/64 ipv6.gateway 2001:db8:1::fffe ipv6.dns 2001:db8:1::ffbb ipv6.dns-search example.com*
+....
+
+. Re-activate the connection:
++
+[subs="+quotes"]
+....
+# *nmcli connection up Office*
+....
+
+
+.Verification
+
+. Display the active connections:
++
+[subs="+quotes"]
+....
+# *nmcli connection show --active*
+NAME    ID                                    TYPE  DEVICE
+Office  2501eb7e-7b16-4dc6-97ef-7cc460139a58  wifi  wlp0s20f3
+....
++
+If the output lists the wifi connection you have created, the connection is active.
+
+. Ping a hostname or IP address:
++
+[subs="+quotes"]
+....
+# *ping -c 3 example.com*
+....
+
+ 

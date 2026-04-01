@@ -1,0 +1,37 @@
+:_mod-docs-content-type: PROCEDURE
+[id="replacing-etc-resolv-conf-with-a-symbolic-link-to-manually-configure-dns-settings_{context}"]
+
+= Replacing /etc/resolv.conf with a symbolic link to manually configure DNS settings
+
+[role="_abstract"]
+By default, NetworkManager manages DNS settings in the `/etc/resolv.conf` file, and you can configure the order of DNS servers. Alternatively, you can disable DNS processing in NetworkManager if you prefer to manually configure DNS settings in `/etc/resolv.conf`. For example, NetworkManager does not automatically update the DNS configuration if `/etc/resolv.conf` is a symbolic link. 
+
+
+.Prerequisites
+
+* The NetworkManager `rc-manager` configuration option is not set to `file`. To verify, use the `NetworkManager --print-config` command.
+
+
+.Procedure
+
+. Create a file, such as `/etc/resolv.conf.manually-configured`, and add the DNS configuration for your environment to it. Use the same parameters and syntax as in the original `/etc/resolv.conf`.
+
+. Remove the `/etc/resolv.conf` file:
++
+[literal,subs="+quotes"]
+....
+# **rm /etc/resolv.conf**
+....
+
+. Create a symbolic link named `/etc/resolv.conf` that refers to `/etc/resolv.conf.manually-configured`:
++
+[literal,subs="+quotes"]
+....
+# **ln -s /etc/resolv.conf.manually-configured /etc/resolv.conf**
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+* xref:configuring-the-order-of-dns-servers_configuring-and-managing-networking[Configuring the order of DNS servers using NetworkManager]
+

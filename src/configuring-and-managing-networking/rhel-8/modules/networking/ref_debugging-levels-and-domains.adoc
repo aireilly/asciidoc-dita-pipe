@@ -1,0 +1,22 @@
+:_mod-docs-content-type: REFERENCE
+
+[id="debugging-levels-and-domains_{context}"]
+= Debugging levels and domains
+
+[role="_abstract"]
+You can use the `levels` and `domains` parameters to manage the debugging for NetworkManager. The level defines the verbosity level, whereas the domains define the category of the messages to record the logs with given severity (`level`).
+
+[options="header"]
+[cols="25%,75%"]
+|====
+|Log levels|Description
+|`OFF`|Does not log any messages about NetworkManager
+|`ERR`|Logs only critical errors
+|`WARN`|Logs warnings that can reflect the operation
+|`INFO`|Logs various informational messages that are useful for tracking state and operations
+|`DEBUG`|Enables verbose logging for debugging purposes
+|`TRACE`|Enables more verbose logging than the `DEBUG` level
+|====
+
+Note that subsequent levels log all messages from earlier levels. For example, setting the log level to `INFO` also logs messages contained in the `ERR` and `WARN` log level.
+

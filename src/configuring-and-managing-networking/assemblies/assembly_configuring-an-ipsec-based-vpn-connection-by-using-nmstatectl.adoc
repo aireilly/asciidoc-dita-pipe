@@ -1,0 +1,38 @@
+:_newdoc-version: 2.16.0
+:_template-generated: 2024-03-01
+:_mod-docs-content-type: ASSEMBLY
+
+ifdef::context[:parent-context-of-configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl: {context}]
+
+
+ifndef::context[]
+[id="configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl"]
+endif::[]
+ifdef::context[]
+[id="configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl_{context}"]
+endif::[]
+= Configuring an IPsec based VPN connection by using nmstatectl
+
+:context: configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl
+
+[role="_abstract"]
+Configure IPsec VPN connections to establish encrypted tunnels over untrusted networks and ensure the integrity of data in transit. By using Nmstate, you can create IPsec VPN connections by using a declarative API.
+
+You can use the `nmstatectl` utility to configure Libreswan IPsec VPN connections through the Nmstate API. The `nmstatectl` utility is a command-line tool to manage host networking through the declarative Nmstate API. Instead of running multiple imperative commands to configure an interface, you define the expected state in a YAML file. Nmstate then takes this definition and applies it to the system. A key advantage of this approach is an atomic result. Nmstate ensures that the resulting configuration precisely matches your YAML definition. If any part of the configuration fails to apply, it automatically rolls back all changes and prevents the system from entering an incorrect or broken network state.
+
+[NOTE]
+====
+Due to the design of the `NetworkManager-libreswan` plugin, you can use `nmstatectl` only on one peer and must manually configure Libreswan on the other peer.
+====
+
+
+include::modules/networking/proc_configuring-an-ipsec-host-to-host-vpn-with-raw-rsa-key-authentication-by-using-nmstatectl.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-an-ipsec-site-to-site-vpn-with-raw-rsa-key-authentication-by-using-nmstatectl.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-nmstatectl.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl[:context: {parent-context-of-configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl}]
+ifndef::parent-context-of-configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl[:!context:]
+

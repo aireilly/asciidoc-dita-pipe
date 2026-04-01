@@ -1,0 +1,26 @@
+:_mod-docs-content-type: ASSEMBLY
+
+ifdef::context[:parent-context-of-configuring-networkmanager-to-ignore-certain-devices: {context}]
+
+[id="configuring-networkmanager-to-ignore-certain-devices_{context}"]
+= Configuring NetworkManager to ignore certain devices
+
+:context: configuring-networkmanager-to-ignore-certain-devices
+
+[role="_abstract"]
+By default, NetworkManager manages all devices except the ones described in the `/usr/lib/udev/rules.d/85-nm-unmanaged.rules` file. To ignore certain other devices, you can configure them in NetworkManager as `unmanaged`.
+
+
+include::modules/networking/proc_permanently-configuring-a-device-as-unmanaged-in-networkmanager.adoc[leveloffset=+1]
+
+include::modules/networking/proc_temporarily-configuring-a-device-as-unmanaged-in-networkmanager.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} >= 9]
+include::modules/networking/proc_identifying-the-reason-why-networkmanager-does-not-manage-a-certain-network-device.adoc[leveloffset=+1]
+endif::[]
+
+
+ifdef::parent-context-of-configuring-networkmanager-to-ignore-certain-devices[:context: {parent-context-of-configuring-networkmanager-to-ignore-certain-devices}]
+ifndef::parent-context-of-configuring-networkmanager-to-ignore-certain-devices[:!context:]
+
+

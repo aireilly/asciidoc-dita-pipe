@@ -1,0 +1,98 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_testing-eap-ttls-authentication-against-a-freeradius-server-or-authenticator_{context}"]
+= Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator
+
+[role="_abstract"]
+After you set up the FreeRADIUS server and the `hostapd` service, test if authentication by using extensible authentication protocol (EAP) over tunneled transport layer security (EAP-TTLS) works as expected.
+
+* After you set up the FreeRADIUS server
+* After you set up the `hostapd` service as an authenticator for 802.1X network authentication.
+
+The output of the test utilities used in this procedure provide additional information about the EAP communication and help you to debug problems.
+
+
+.Prerequisites
+
+* You set up the FreeRADIUS server.
+
+* You set up the `hostapd` service as an authenticator for 802.1X network authentication.
+
+* When you want to authenticate to:
+
+** A FreeRADIUS server:
+
+*** The `eapol_test` utility, provided by the `hostapd` package, is installed.
+*** The client, on which you run this procedure, has been authorized in the FreeRADIUS server's client databases.
+
+** An authenticator, the `wpa_supplicant` utility, provided by the same-named package, is installed.
+
+* You stored the certificate authority (CA) certificate in the `/etc/ipa/ca.cert` file.
+
+
+.Procedure
+
+. Optional: Create a user in Identity Management (IdM):
++
+[literal,subs="+quotes"]
+....
+# *ipa user-add --first "_Test_" --last "_User_" _idm_user_ --password*
+....
+
+. Create the `/etc/wpa_supplicant/wpa_supplicant-TTLS.conf` file with the following content:
++
+[source,subs="+quotes"]
+....
+ap_scan=0
+
+network={
+    eap=TTLS
+    eapol_flags=0
+    key_mgmt=IEEE8021X
+
+    # Anonymous identity (sent in unencrypted phase 1)
+    # Can be any string
+    anonymous_identity="__anonymous__"
+
+    # Inner authentication (sent in TLS-encrypted phase 2)
+    phase2="auth=__PAP__"
+    identity="__idm_user__"
+    password="__idm_user_password__"
+
+    # CA certificate to validate the RADIUS server's identity
+    ca_cert="__/etc/ipa/ca.crt__"
+}
+....
+
+. To authenticate to:
+
+** A FreeRADIUS server, enter:
++
+[literal,subs="+quotes"]
+....
+# **eapol_test -c __/etc/wpa_supplicant/wpa_supplicant-TTLS.conf__ -a __192.0.2.1__ -s __<client_password>__**
+...
+EAP: Status notification: remote certificate verification (param=success)
+...
+CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully
+...
+SUCCESS
+....
++
+The `-a` option defines the IP address of the FreeRADIUS server, and the `-s` option specifies the password for the host on which you run the command in the FreeRADIUS server's client configuration.
+
+** An authenticator, enter:
++
+[literal,subs="+quotes"]
+....
+# **wpa_supplicant -c __/etc/wpa_supplicant/wpa_supplicant-TTLS.conf__ -D wired -i enp0s31f6**
+...
+enp0s31f6: CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully
+...
+....
++
+The `-i` option specifies the network interface name on which `wpa_supplicant` sends out extended authentication protocol over LAN (EAPOL) packets.
++
+For more debugging information, pass the `-d` option to the command.
+
+

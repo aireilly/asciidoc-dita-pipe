@@ -1,0 +1,193 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_migrating-a-network-team-configuration-to-network-bond_{context}"]
+= Migrating a NIC team configuration to network bond
+
+[role="_abstract"]
+Network interface controller (NIC) teaming is deprecated in {RHEL9}. If you already have a working NIC team configured, for example because you upgraded from an earlier RHEL version, you can migrate the configuration to a network bond that is managed by NetworkManager.
+
+[IMPORTANT]
+====
+The `team2bond` utility only converts the team configuration to a bond. Afterwards, you must manually configure further settings of the bond, such as IP addresses and DNS configuration.
+====
+
+
+
+.Prerequisites
+
+* The `team-team0` NetworkManager connection profile is configured and manages the `team0` device.
+
+* The `teamd` package is installed.
+
+
+
+.Procedure
+
+. Optional: Display the IP configuration of the `team-team0` NetworkManager connection:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection show __team-team0__ | grep -E "^ip"**
+...
+ipv4.method:                            manual
+ipv4.dns:                               192.0.2.253
+ipv4.dns-search:                        example.com
+ipv4.addresses:                         192.0.2.1/24
+ipv4.gateway:                           192.0.2.254
+...
+ipv6.method:                            manual
+ipv6.dns:                               2001:db8:1::fffd
+ipv6.dns-search:                        example.com
+ipv6.addresses:                         2001:db8:1::1/64
+ipv6.gateway:                           2001:db8:1::fffe
+...
+....
+
+. Export the configuration of the `team0` device to a JSON file:
++
+[literal,subs="+quotes"]
+....
+# **teamdctl __team0__ config dump actual > __/tmp/team0.json__**
+....
+
+. Remove the NIC team. For example, if you configured the team in NetworkManager, remove the `team-team0` connection profile and the profiles of associated ports:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection delete __team-team0__**
+# **nmcli connection delete __team-team0-port1__**
+# **nmcli connection delete __team-team0-port2__**
+....
+
+. Run the `team2bond` utility in dry-run mode to display `nmcli` commands that set up a network bond with similar settings as the team device:
++
+[literal,subs="+quotes,attributes"]
+....
+# **team2bond --config=__/tmp/team0.json__ --rename=__bond0__**
+nmcli con add type bond ifname __bond0__ bond.options "__mode=active-backup,num_grat_arp=1,num_unsol_na=1,resend_igmp=1,miimon=100,miimon=100__"
+nmcli con add type ethernet ifname __enp7s0__ {NM_controller} __bond0__
+nmcli con add type ethernet ifname __enp8s0__ {NM_controller} __bond0__
+....
++
+The first command contains two `miimon` options because the team configuration file contained two `link_watch` entries. Note that this does not affect the creation of the bond.
++
+If you bound services to the device name of the team and want to avoid updating or breaking these services, omit the `--rename=bond0` option. In this case, `team2bond` uses the same interface name for the bond as for the team.
+
+. Verify that the options for the bond the `team2bond` utility suggested are correct.
+
+. Create the bond. You can execute the suggested `nmcli` commands or re-run the `team2bond` command with the `--exec-cmd` option:
++
+[literal,subs="+quotes,attributes"]
+....
+# **team2bond --config=__/tmp/team0.json__ --rename=__bond0__ --exec-cmd**
+Connection '**__bond-bond0__**' (__0241a531-0c72-4202-80df-73eadfc126b5__) successfully added.
+Connection '__bond-{NM_port}-enp7s0__' (__38489729-b624-4606-a784-1ccf01e2f6d6__) successfully added.
+Connection '__bond-{NM_port}-enp8s0__' (__de97ec06-7daa-4298-9a71-9d4c7909daa1__) successfully added.
+....
++
+You require the name of the bond connection profile (`bond-bond0`) in the next steps.
+
+. Set the IPv4 settings that were previously configured on `team-team0` to the `bond-bond0` connection:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection modify bond-bond0 ipv4.addresses '__192.0.2.1/24__'**
+# **nmcli connection modify bond-bond0 ipv4.gateway '__192.0.2.254__'**
+# **nmcli connection modify bond-bond0 ipv4.dns '__192.0.2.253__'**
+# **nmcli connection modify bond-bond0 ipv4.dns-search '__example.com__'**
+# **nmcli connection modify bond-bond0 ipv4.method __manual__**
+----
+
+. Set the IPv6 settings that were previously configured on `team-team0` to the `bond-bond0` connection:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection modify bond-bond0 ipv6.addresses '__2001:db8:1::1/64__'**
+# **nmcli connection modify bond-bond0 ipv6.gateway '__2001:db8:1::fffe__'**
+# **nmcli connection modify bond-bond0 ipv6.dns '__2001:db8:1::fffd__'**
+# **nmcli connection modify bond-bond0 ipv6.dns-search '__example.com__'**
+# **nmcli connection modify bond-bond0 ipv6.method __manual__**
+----
+
+. Activate the connection:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection up __bond-bond0__**
+----
+
+
+
+
+
+
+
+
+.Verification
+
+. Display the IP configuration of the `bond-bond0` NetworkManager connection:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection show __bond-bond0__ | grep -E "^ip"**
+...
+ipv4.method:                            manual
+ipv4.dns:                               192.0.2.253
+ipv4.dns-search:                        example.com
+ipv4.addresses:                         192.0.2.1/24
+ipv4.gateway:                           192.0.2.254
+...
+ipv6.method:                            manual
+ipv6.dns:                               2001:db8:1::fffd
+ipv6.dns-search:                        example.com
+ipv6.addresses:                         2001:db8:1::1/64
+ipv6.gateway:                           2001:db8:1::fffe
+...
+....
+
+. Display the status of the bond:
++
+[literal,subs="+quotes"]
+....
+# **cat /proc/net/bonding/bond0**
+Ethernet Channel Bonding Driver: v5.13.0-0.rc7.51.el9.x86_64
+
+Bonding Mode: fault-tolerance (active-backup)
+Primary Slave: None
+Currently Active Slave: enp7s0
+MII Status: up
+MII Polling Interval (ms): 100
+Up Delay (ms): 0
+Down Delay (ms): 0
+Peer Notification Delay (ms): 0
+
+Slave Interface: enp7s0
+MII Status: up
+Speed: Unknown
+Duplex: Unknown
+Link Failure Count: 0
+Permanent HW addr: 52:54:00:bf:b1:a9
+Slave queue ID: 0
+
+Slave Interface: enp8s0
+MII Status: up
+Speed: Unknown
+Duplex: Unknown
+Link Failure Count: 0
+Permanent HW addr: 52:54:00:04:36:0f
+Slave queue ID: 0
+....
++
+In this example, both ports are up.
+
+. To verify that bonding failover works:
+
+.. Temporarily remove the network cable from the host. Note that there is no method to properly test link failure events using the command line.
+
+.. Display the status of the bond:
++
+[literal,subs="+quotes"]
+....
+# **cat /proc/net/bonding/__bond0__**
+....
+

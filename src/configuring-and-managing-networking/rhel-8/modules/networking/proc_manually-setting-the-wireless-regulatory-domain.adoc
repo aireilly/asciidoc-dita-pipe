@@ -1,0 +1,68 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_manually-setting-the-wireless-regulatory-domain_{context}"]
+= Manually setting the wireless regulatory domain
+
+[role="_abstract"]
+On RHEL, a `udev` rule executes the `setregdomain` utility to set the wireless regulatory domain. The utility then provides this information to the kernel.
+
+By default, `setregdomain` attempts to determine the country code automatically. If this fails, the wireless regulatory domain setting might be wrong. To work around this problem, you can manually set the country code.
+
+[IMPORTANT]
+====
+Manually setting the regulatory domain disables the automatic detection. Therefore, if you later use the computer in a different country, the previously configured setting might no longer be correct. In this case, remove the `/etc/sysconfig/regdomain` file to switch back to automatic detection or use this procedure to manually update the regulatory domain setting again.
+====
+
+
+.Prerequisites
+
+* The driver of the wifi device supports changing the regulatory domain.
+
+
+.Procedure
+
+. Optional: Display the current regulatory domain settings:
++
+[literal,subs="+quotes"]
+....
+# *iw reg get*
+global
+country US: DFS-FCC
+...
+....
+
+. Create the `/etc/sysconfig/regdomain` file with the following content:
++
+[literal,subs="+quotes"]
+....
+*COUNTRY=_<country_code>_*
+....
++
+Set the `COUNTRY` variable to an ISO 3166-1 alpha2 country code, such as `DE` for Germany or `US` for the United States of America.
+
+. Set the regulatory domain:
++
+[literal,subs="+quotes"]
+....
+# *setregdomain*
+....
+
+
+.Verification
+
+* Display the regulatory domain settings:
++
+[literal,subs="+quotes"]
+....
+# *iw reg get*
+global
+country DE: DFS-ETSI
+...
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+
+* link:https://www.iso.org/iso-3166-country-codes.html[ISO 3166 Country Codes]
+

@@ -1,0 +1,38 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-assembly_understanding-the-ebpf-features-in-rhel-9: {context}]
+
+ifndef::context[]
+[id="assembly_understanding-the-ebpf-features-in-rhel-9"]
+endif::[]
+ifdef::context[]
+[id="assembly_understanding-the-ebpf-features-in-rhel-9_{context}"]
+endif::[]
+= Understanding the eBPF networking features in {ProductShortName} {ProductNumber}
+
+:context: assembly_understanding-the-ebpf-features-in-rhel-9
+
+///////////////////////////////////
+// This content is only for RHEL 9!
+// Other RHEL version have their own assembly/modules.
+///////////////////////////////////
+
+[role="_abstract"]
+The extended Berkeley Packet Filter (eBPF) is an in-kernel virtual machine that allows code execution in the kernel space. This code runs in a restricted sandbox environment with access only to a limited set of functions.
+
+In networking, you can use eBPF to complement or replace kernel packet processing. Depending on the hook you use, eBPF programs have, for example:
+
+* Read and write access to packet data and metadata
+* Can look up sockets and routes
+* Can set socket options
+* Can redirect packets
+
+
+include::modules/networking/ref_overview-of-networking-ebpf-features-in-rhel-9.adoc[leveloffset=+1]
+
+include::modules/networking/ref_overview-of-xdp-features-in-rhel-9-by-network-cards.adoc[leveloffset=+1]
+
+
+
+ifdef::parent-context-of-assembly_understanding-the-ebpf-features-in-rhel-9[:context: {parent-context-of-assembly_understanding-the-ebpf-features-in-rhel-9}]
+ifndef::parent-context-of-assembly_understanding-the-ebpf-features-in-rhel-9[:!context:]
+

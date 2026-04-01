@@ -1,0 +1,23 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="overview-of-queuing-disciplines_{context}"]
+= Overview of queuing disciplines
+
+[role="_abstract"]
+Queuing disciplines (`qdiscs`) help with queuing up and, later, scheduling of traffic transmission by a network interface.
+
+A `qdisc` has two operations;
+
+* enqueue requests so that a packet can be queued up for later transmission and
+
+* dequeue requests so that one of the queued-up packets can be chosen for immediate transmission.
+
+Every `qdisc` has a 16-bit hexadecimal identification number called a `handle`, with an attached colon, such as `1:` or `abcd:`. This number is called the `qdisc` major number. If a `qdisc` has classes, then the identifiers are formed as a pair of two numbers with the major number before the minor, `<major>:<minor>`, for example `abcd:1`. The numbering scheme for the minor numbers depends on the `qdisc` type.
+Sometimes the numbering is systematic, where the first-class has the ID `<major>:1`, the second one `<major>:2`, and so on. Some `qdiscs` allow the user to set class minor numbers arbitrarily when creating the class.
+
+Classful `qdiscs`:: Different types of `qdiscs` exist and help in the transfer of packets to and from a networking interface. You can configure `qdiscs` with root, parent, or child classes. The point where children can be attached are called classes. Classes in `qdisc` are flexible and can always contain either multiple children classes or a single child, `qdisc`. There is no prohibition against a class containing a classful `qdisc` itself, this facilitates complex traffic control scenarios.
++
+Classful `qdiscs` do not store any packets themselves. Instead, they enqueue and dequeue requests down to one of their children according to criteria specific to the `qdisc`. Eventually, this recursive packet passing ends up where the packets are stored (or picked up from in the case of dequeuing).
+
+Classless `qdiscs`:: Some `qdiscs` contain no child classes and they are called classless `qdiscs`. Classless `qdiscs` require less customization compared to classful `qdiscs`. It is usually enough to attach them to an interface.
+

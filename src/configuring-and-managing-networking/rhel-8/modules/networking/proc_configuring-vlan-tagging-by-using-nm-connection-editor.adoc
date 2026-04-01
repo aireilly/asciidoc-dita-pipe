@@ -1,0 +1,89 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="configuring-vlan-tagging-by-using-nm-connection-editor_{context}"]
+= Configuring VLAN tagging by using nm-connection-editor
+
+[role="_abstract"]
+You can configure Virtual Local Area Network (VLAN) tagging in a graphical interface using the `nm-connection-editor` application.
+
+
+.Prerequisites
+
+* The interface you plan to use as a parent to the virtual VLAN interface supports VLAN tags.
+
+* If you configure the VLAN on top of a bond interface:
+** The ports of the bond are up.
+** The bond is not configured with the `fail_over_mac=follow` option. A VLAN virtual device cannot change its MAC address to match the parent's new MAC address. In such a case, the traffic would still be
+sent with the incorrect source MAC address.
+
+* The switch, the host is connected to, is configured to support VLAN tags. For details, see the documentation of your switch.
+
+
+.Procedure
+
+. Open a terminal, and enter `nm-connection-editor`:
++
+[literal,subs="+quotes"]
+----
+$ *nm-connection-editor*
+----
+
+. Click the btn:[+] button to add a new connection.
+
+. Select the *VLAN* connection type, and click btn:[Create].
+
+. On the *VLAN* tab:
+
+.. Select the parent interface.
+
+.. Select the VLAN id. Note that the VLAN must be within the range from *0* to *4094*.
+
+.. By default, the VLAN connection inherits the maximum transmission unit (MTU) from the parent interface. Optionally, set a different MTU value.
+
+.. Optional: Set the name of the VLAN interface and further VLAN-specific options.
++
+image::vlan-settings-nm-connection-editor.png["Interfaces attached to a VLAN"]
+
+. Configure the IP address settings on both the *IPv4 Settings* and *IPv6 Settings* tabs:
+
+** If you plan to use this bridge device as a port of other devices, set the *Method* field to *Disabled*.
+
+** To use DHCP, leave the *Method* field at its default, *Automatic (DHCP)*.
+
+** To use static IP settings, set the *Method* field to *Manual* and fill the fields accordingly:
++
+image::vlan-IP-settings-nm-connection-editor.png["IP address settings in `nm-connection-editor`"]
+
+. Click btn:[Save].
+
+. Close `nm-connection-editor`.
+
+
+.Verification
+
+. Verify the settings:
++
+[literal,subs="+quotes"]
+----
+# **ip -d addr show _vlan10_**
+4: vlan10@enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 52:54:00:d5:e0:fb brd ff:ff:ff:ff:ff:ff promiscuity 0
+    vlan protocol 802.1Q id 10 <REORDER_HDR> numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute vlan10
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::8dd7:9030:6f8e:89e6/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+----
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting[Configuring NetworkManager to avoid using a specific profile to provide a default gateway]
+endif::[]
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/managing-the-default-gateway-setting_configuring-and-managing-networking#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway[Configuring NetworkManager to avoid using a specific profile to provide a default gateway]
+endif::[]

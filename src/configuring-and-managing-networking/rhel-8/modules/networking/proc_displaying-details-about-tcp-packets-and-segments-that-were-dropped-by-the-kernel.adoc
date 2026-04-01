@@ -1,0 +1,36 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="displaying-details-about-tcp-packets-and-segments-that-were-dropped-by-the-kernel_{context}"]
+= Displaying details about TCP packets and segments that were dropped by the kernel
+
+[role="_abstract"]
+The `tcpdrop` utility enables administrators to display details about TCP packets and segments that were dropped by the kernel. Use this utility to debug high rates of dropped packets that can cause the remote system to send timer-based retransmits.
+
+High rates of dropped packets and segments can impact the performance of a server. Instead of capturing and filtering packets, which is resource-intensive, the `tcpdrop` utility uses eBPF features to retrieve the information directly from the kernel.
+
+
+.Procedure
+
+. Enter the following command to start displaying details about dropped TCP packets and segments:
++
+[literal,subs="+quotes"]
+....
+# */usr/share/bcc/tools/tcpdrop*
+TIME     PID    IP SADDR:SPORT       > DADDR:DPORT   STATE (FLAGS)
+13:28:39 32253  4  192.0.2.85:51616  > 192.0.2.1:22  CLOSE_WAIT (FIN|ACK)
+	b'tcp_drop+0x1'
+	b'tcp_data_queue+0x2b9'
+	...
+
+13:28:39 1      4  192.0.2.85:51616  > 192.0.2.1:22   CLOSE (ACK)
+	b'tcp_drop+0x1'
+	b'tcp_rcv_state_process+0xe2'
+	...
+....
++
+Each time the kernel drops TCP packets and segments, `tcpdrop` displays the details of the connection, including the kernel stack trace that led to the dropped package.
+
+. Press kbd:[Ctrl]+kbd:[C] to stop the tracing process.
+

@@ -1,0 +1,48 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-08-07
+:_mod-docs-content-type: REFERENCE
+
+[id="kernel-level-ipsec-issues"]
+= Kernel-level IPsec issues
+
+[role="_abstract"]
+Troubleshoot kernel-level IPsec issues when a VPN tunnel appears established but no traffic flows. In this case, inspect the kernel's IPsec state to check if the tunnel policies and cryptographic keys were correctly installed.
+
+This process involves checking two components:
+
+* The Security Policy Database (SPD): The rule that instructs the kernel what traffic to encrypt.
+* The Security Association Database (SAD): The keys that instruct the kernel how to encrypt that traffic.
+
+First, check if the correct policy exists in the SPD:
+
+[subs="+quotes"]
+....
+# *ip xfrm policy*
+src 192.0.2.1/32 dst 10.0.0.0/8 
+	dir out priority 666 ptype main 
+	tmpl src 198.51.100.13 dst 203.0.113.22
+		proto esp reqid 16417 mode tunnel
+....
+
+The output should contain the policies matching your `leftsubnet` and `rightsubnet` parameters with both in and out directions. If you do not see a policy for your traffic, Libreswan failed to create the kernel rule, and traffic is not encrypted.
+
+If the policy exists, check if it has a corresponding set of keys in the SAD:
+
+[subs="+quotes"]
+....
+# *ip xfrm state*
+src 203.0.113.22 dst 198.51.100.13
+	proto esp spi 0xa78b3fdb reqid 16417 mode tunnel
+	auth-trunc hmac(sha1) 0x3763cd3b... 96
+	enc cbc(aes) 0xd9dba399...
+....
+
+[WARNING]
+====
+This command displays private cryptographic keys. Do not share this output, because attackers can use it to decrypt your VPN traffic.
+====
+
+If a policy exists but you see no corresponding state with the same `reqid`, it typically means the Internet Key Exchange (IKE) negotiation failed. The two VPN endpoints could not agree on a set of keys.
+
+For more detailed diagnostics, use the `-s` option with either of the commands. This option adds traffic counters, which can help you identify if the kernel processes packets by a specific rule.
+

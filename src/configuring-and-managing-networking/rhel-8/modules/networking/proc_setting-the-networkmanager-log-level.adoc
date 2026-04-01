@@ -1,0 +1,59 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="setting-the-networkmanager-log-level_{context}"]
+= Setting the NetworkManager log level
+
+[role="_abstract"]
+By default, all the log domains are set to record the `INFO` log level. Disable rate-limiting before collecting debug logs. With rate-limiting, `systemd-journald` drops messages if there are too many of them in a short time. This can occur when the log level is `TRACE`.
+
+This procedure disables rate-limiting and enables recording debug logs for the all (ALL) domains.
+
+
+.Procedure
+
+. To disable rate-limiting, edit the `/etc/systemd/journald.conf` file, uncomment the `RateLimitBurst` parameter in the `[Journal]` section, and set its value as `0`:
++
+[source]
+----
+RateLimitBurst=0
+----
+. Restart the `systemd-journald` service.
++
+[literal,subs="+quotes"]
+----
+# **systemctl restart systemd-journald**
+----
+
+. Create the `/etc/NetworkManager/conf.d/95-nm-debug.conf` file with the following content:
++
+[source]
+....
+[logging]
+domains=ALL:TRACE
+....
++
+The `domains` parameter can contain multiple comma-separated `domain:level` pairs.
+
+. Restart the NetworkManager service.
++
+[literal,subs="+quotes"]
+----
+# **systemctl restart NetworkManager**
+----
+
+
+.Verification
+
+* Query the `systemd` journal to display the journal entries of the `NetworkManager` unit:
++
+[literal,subs="+quotes"]
+....
+# **journalctl -u NetworkManager**
+...
+Jun 30 15:24:32 server NetworkManager[164187]: <debug> [1656595472.4939] active-connection[0x5565143c80a0]: update activation type from assume to managed
+Jun 30 15:24:32 server NetworkManager[164187]: <trace> [1656595472.4939] device[55b33c3bdb72840c] (enp1s0): sys-iface-state: assume -> managed
+Jun 30 15:24:32 server NetworkManager[164187]: <trace> [1656595472.4939] l3cfg[4281fdf43e356454,ifindex=3]: commit type register (type "update", source "device", existing a369f23014b9ede3) -> a369f23014b9ede3
+Jun 30 15:24:32 server NetworkManager[164187]: <info>  [1656595472.4940] manager: NetworkManager state is now CONNECTED_SITE
+...
+....
+

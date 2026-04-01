@@ -1,0 +1,64 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-wifi-connection-by-using-nm-connection-editor_{context}"]
+= Configuring a wifi connection by using nm-connection-editor
+
+[role="_abstract"]
+You can use the `nm-connection-editor` application to create a connection profile for a wireless network. In this application you can configure all wifi network authentication types that RHEL supports.
+
+By default, NetworkManager enables the auto-connect feature for connection profiles and automatically connects to a saved network if it is available.
+
+
+.Prerequisites
+
+* A wifi device is installed on the host.
+* The wifi device is enabled. To verify, use the `nmcli radio` command.
+
+
+.Procedure
+
+. Open a terminal and enter:
++
+[literal,subs="+quotes"]
+....
+# **nm-connection-editor**
+....
+
+. Click the btn:[+] button to add a new connection.
+
+. Select the `Wi-Fi` connection type, and click btn:[Create].
+
+. Optional: Set a name for the connection profile.
+
+. Optional: Configure the network profile on the `General` tab to not automatically connect.
++
+If you deactivate this feature, you must always manually connect to the network, for example, by using GNOME Settings or the GNOME system menu.
+
+. On the `Wi-Fi` tab, enter the service set identifier (SSID) in the `SSID` field.
+
+. On the `Wi-Fi Security` tab, select the authentication type for the network, such as `WPA3 Personal`, and enter the password.
++
+Depending on the selected security, the application shows additional fields. Fill them accordingly. For details, ask the administrator of the wifi network.
+
+. Configure IPv4 settings on the `IPv4` tab, and IPv6 settings on the `IPv6` tab.
+
+. Click `Save`.
+
+. Close the `Network Connections` window.
+
+
+.Verification
+
+. Open the system menu on the right side of the top bar, and verify that the wifi network is connected:
++
+image::gnome-wifi-connected.png["The connected wifi entry in the system menu"]
++
+If the network appears in the list, it is connected.
+
+. Ping a hostname or IP address:
++
+[literal,subs="+quotes"]
+....
+# **ping -c 3 __example.com__**
+....
+

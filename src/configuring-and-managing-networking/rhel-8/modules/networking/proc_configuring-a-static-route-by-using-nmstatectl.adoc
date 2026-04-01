@@ -1,0 +1,65 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-static-route-by-using-nmstatectl_{context}"]
+= Configuring a static route by using `nmstatectl`
+
+[role="_abstract"]
+You can use the declarative Nmstate API to configure a static route. Nmstate ensures that the result matches the configuration file or rolls back the changes.
+
+
+.Prerequisites
+
+* The `enp1s0` network interface is configured and is in the same IP subnet as the gateways.
+* The `nmstate` package is installed.
+
+
+.Procedure
+
+. Create a YAML file, for example `~/add-static-route-to-enp1s0.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+routes:
+  config:
+  - destination: 198.51.100.0/24
+    next-hop-address: 192.0.2.10
+    next-hop-interface: enp1s0
+  - destination: 2001:db8:2::/64
+    next-hop-address: 2001:db8:1::10
+    next-hop-interface: enp1s0
+....
++
+These settings define the following static routes:
++
+* An IPv4 route to the remote `198.51.100.0/24` network. The corresponding gateway with the IP address `192.0.2.10` is reachable through the `enp1s0` interface.
+* An IPv6 route to the remote `2001:db8:2::/64` network. The corresponding gateway with the IP address `2001:db8:1::10` is reachable through the `enp1s0` interface.
+
+. Apply the settings to the system:
++
+[literal,subs="+quotes"]
+....
+# *nmstatectl apply ~/add-static-route-to-enp1s0.yml*
+....
+
+
+.Verification
+
+. Display the IPv4 routes:
++
+[literal,subs="+quotes"]
+....
+# *ip -4 route*
+...
+198.51.100.0/24 via 192.0.2.10 dev enp1s0
+....
+
+. Display the IPv6 routes:
++
+[literal,subs="+quotes"]
+....
+# *ip -6 route*
+...
+2001:db8:2::/64 via 2001:db8:1::10 dev enp1s0 metric 1024 pref medium
+....
+

@@ -1,0 +1,23 @@
+ifdef::context[:parent-context-of-assembly_using-lldp-to-debug-network-configuration-problems: {context}]
+
+:_mod-docs-content-type: ASSEMBLY
+
+ifndef::context[]
+[id="assembly_using-lldp-to-debug-network-configuration-problems"]
+endif::[]
+ifdef::context[]
+[id="assembly_using-lldp-to-debug-network-configuration-problems_{context}"]
+endif::[]
+= Using LLDP to debug network configuration problems
+
+:context: assembly_using-lldp-to-debug-network-configuration-problems
+
+[role="_abstract"]
+You can use the Link Layer Discovery Protocol (LLDP) to debug network configuration problems in the topology. This means that, LLDP can report configuration inconsistencies with other hosts or routers and switches.
+
+include::modules/networking/proc_debugging-an-incorrect-vlan-configuration-using-lldp-information.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-assembly_using-lldp-to-debug-network-configuration-problems[:context: {parent-context-of-assembly_using-lldp-to-debug-network-configuration-problems}]
+ifndef::parent-context-of-assembly_using-lldp-to-debug-network-configuration-problems[:!context:]
+

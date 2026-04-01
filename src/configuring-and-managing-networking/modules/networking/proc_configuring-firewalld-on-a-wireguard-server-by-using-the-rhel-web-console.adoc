@@ -1,0 +1,64 @@
+:_newdoc-version: 2.17.0
+:_template-generated: 2024-03-11
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-firewalld-on-a-wireguard-server-by-using-the-rhel-web-console_{context}"]
+= Configuring `firewalld` on a WireGuard server by using the RHEL web console
+
+[role="_abstract"]
+Configure the `firewalld` service on the WireGuard server, allowing incoming connections from clients. If clients need to use the server as their default gateway and route all traffic through the tunnel, enable also masquerading.
+
+
+.Prerequisites
+
+* You are logged in to the RHEL web console.
+
+
+.Procedure
+
+. Select the *Networking* tab in the navigation on the left side of the screen.
+
+. Click *Edit rules and zones* in the *Firewall* section.
+
+. Click *Add services*.
+
+. Enter `wireguard` into the *Filter services* field.
+
+. Select the `wireguard` entry from the list.
++
+image::wireguard-server-firewalld.png["`firewalld` settings for a WireGuard server"]
+
+. Click *Add services*.
+
+. If clients should route all traffic through the tunnel and use the WireGuard server as the default gateway, enable masquerading for the `public` zone:
++
+[literal,subs="+quotes"]
+....
+# *firewall-cmd --permanent --zone=public --add-masquerade*
+# *firewall-cmd --reload*
+....
+Note that you cannot enable masquerading in `firewalld` zones in the web console.
+
+
+.Verification
+
+. Select the *Networking* tab in the navigation on the left side of the screen.
+
+. Click *Edit rules and zones* in the *Firewall* section.
+
+. The list contains an entry for the `wireguard` service and displays the UDP port that you configured in the WireGuard connection profile.
+
+. To verify that masquerading is enabled in the `public` zone of `firewalld`, enter:
++
+[literal,subs="+quotes"]
+....
+# *firewall-cmd --list-all --zone=public*
+public (active)
+  ...
+  services: ... wireguard
+  ports:
+  forward: yes
+  masquerade: yes
+  ...
+....
+

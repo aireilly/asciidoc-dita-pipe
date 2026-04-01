@@ -1,0 +1,56 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="how-networkmanager-orders-dns-servers-in-etc-resolv-conf_{context}"]
+= How NetworkManager orders DNS servers in `/etc/resolv.conf`
+
+[role="_abstract"]
+NetworkManager orders DNS servers in the `/etc/resolv.conf` file by applying a specific set of rules.
+
+The ordering depends on the following conditions:
+
+* If only one connection profile exists, NetworkManager uses the order of IPv4 and IPv6 DNS server specified in that connection.
+
+* If multiple connection profiles are activated, NetworkManager orders DNS servers based on a DNS priority value. If you set DNS priorities, the behavior of NetworkManager depends on the value set in the `dns` parameter. You can set this parameter in the `[main]` section in the `/etc/NetworkManager/NetworkManager.conf` file:
+
+** `dns=default` or if the `dns` parameter is not set:
++
+NetworkManager orders the DNS servers from different connections based on the `ipv4.dns-priority` and `ipv6.dns-priority` parameters in each connection.
++
+If you set no value or you set `ipv4.dns-priority` and `ipv6.dns-priority` to `0`, NetworkManager uses the global default value.
+
+
+** `dns=dnsmasq` or `dns=systemd-resolved`:
++
+When you use one of these settings, NetworkManager sets either `127.0.0.1` for `dnsmasq` or `127.0.0.53` as `nameserver` entry in the `/etc/resolv.conf` file.
++
+Both the `dnsmasq` and `systemd-resolved` services forward queries for the search domain set in a NetworkManager connection to the DNS server specified in that connection, and forwards queries to other domains to the connection with the default route. When multiple connections have the same search domain set, `dnsmasq` and `systemd-resolved` forward queries for this domain to the DNS server set in the connection with the lowest priority value.
+
+
+NetworkManager uses the following default values for connections:
+
+* `50` for VPN connections
+
+* `100` for other connections
+
+
+You can set both the global default and connection-specific `ipv4.dns-priority` and `ipv6.dns-priority` parameters to a value between `-2147483647` and `2147483647`.
+
+* A lower value has a higher priority.
+
+* Negative values have the special effect of excluding other configurations with a greater value. For example, if at least one connection with a negative priority value exists, NetworkManager uses only the DNS servers specified in the connection profile with the lowest priority.
+
+* If multiple connections have the same DNS priority, NetworkManager prioritizes the DNS in the following order:
+
+.. VPN connections
+
+.. Connection with an active default route. The active default route is the default route with the lowest metric.
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:using-different-dns-servers-for-different-domains_configuring-and-managing-networking[Using different DNS servers for different domains]
+endif::[]
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/using-different-dns-servers-for-different-domains_configuring-and-managing-networking[Using different DNS servers for different domains]
+endif::[]
+

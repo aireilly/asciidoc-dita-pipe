@@ -1,0 +1,135 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+[id="configuring-a-network-team-by-using-nm-connection-editor_{context}"]
+= Configuring a NIC team by using nm-connection-editor
+
+[role="_abstract"]
+If you use {ProductName} with a graphical interface, you can configure network interface controller (NIC) teams using the `nm-connection-editor` application.
+
+Note that `nm-connection-editor` can add only new ports to a team. To use an existing connection profile as a port, create the team using the `nmcli` utility as described in xref:configuring-a-network-team-by-using-nmcli_configuring-network-teaming[Configuring a NIC team by using nmcli].
+
+[IMPORTANT]
+====
+ifeval::[{ProductNumber} == 8]
+NIC teaming is deprecated in {RHEL} 9. If you plan to upgrade your server to a future version of RHEL, consider using the kernel bonding driver as an alternative. For details, see
+endif::[]
+ifeval::[{ProductNumber} == 9]
+NIC teaming is deprecated in {RHEL9}. Consider using the network bonding driver as an alternative. For details, see
+endif::[]
+ifdef::networking-title[]
+xref:configuring-network-bonding_configuring-and-managing-networking[Configuring a network bond].
+endif::[]
+ifndef::networking-title[]
+link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-bonding_configuring-and-managing-networking[Configuring a network bond].
+endif::[]
+====
+
+
+.Prerequisites
+
+* The `teamd` and `NetworkManager-team` packages are installed.
+* Two or more physical or virtual network devices are installed on the server.
+* To use Ethernet devices as ports of the team, the physical or virtual Ethernet devices must be installed on the server.
+* To use team, bond, or VLAN devices as ports of the team, ensure that these devices are not already configured.
+
+
+.Procedure
+
+. Open a terminal, and enter `nm-connection-editor`:
++
+[literal,subs="+quotes"]
+----
+$ *nm-connection-editor*
+----
+
+. Click the btn:[+] button to add a new connection.
+
+. Select the *Team* connection type, and click btn:[Create].
+
+. On the *Team* tab:
+
+.. Optional: Set the name of the team interface in the *Interface name* field.
+
+.. Click the btn:[Add] button to add a new connection profile for a network interface and add the profile as a port to the team.
+
+... Select the connection type of the interface. For example, select *Ethernet* for a wired connection.
+
+... Optional: Set a connection name for the port.
+
+... If you create a connection profile for an Ethernet device, open the *Ethernet* tab, and select in the *Device* field the network interface you want to add as a port to the team. If you selected a different device type, configure it accordingly. Note that you can only use Ethernet interfaces in a team that are not assigned to any connection.
+
+... Click btn:[Save].
+
+.. Repeat the previous step for each interface you want to add to the team.
++
+image::add-nic-to-team-in-nm-connection-editor.png["Interfaces attached to a team"]
+
+.. Click the btn:[Advanced] button to set advanced options to the team connection.
+
+... On the *Runner* tab, select the runner.
+
+... On the *Link Watcher* tab, set the link watcher and its optional settings.
+
+... Click btn:[OK].
+
+. Configure the IP address settings on both the *IPv4 Settings* and *IPv6 Settings* tabs:
+
+** If you plan to use this bridge device as a port of other devices, set the *Method* field to *Disabled*.
+
+** To use DHCP, leave the *Method* field at its default, *Automatic (DHCP)*.
+
+** To use static IP settings, set the *Method* field to *Manual* and fill the fields accordingly:
++
+image::team-IP-settings-nm-connection-editor.png["IP address settings in `nm-connection-editor`"]
+
+. Click btn:[Save].
+
+. Close `nm-connection-editor`.
+
+
+.Verification
+* Display the status of the team:
++
+[literal,subs="+quotes"]
+----
+# **teamdctl team0 state**
+setup:
+  runner: activebackup
+ports:
+  enp7s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+  enp8s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+runner:
+  active port: enp7s0
+----
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:configuring-a-network-bond-by-using-nm-connection-editor_configuring-network-bonding[Configuring a network bond by using nm-connection-editor]
+* xref:configuring-a-network-bridge-by-using-nm-connection-editor_configuring-a-network-bridge[Configuring a NIC team by using nm-connection-editor]
+* xref:configuring-vlan-tagging-by-using-nm-connection-editor_configuring-vlan-tagging[Configuring VLAN tagging by using nm-connection-editor]
+* xref:proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting[Configuring NetworkManager to avoid using a specific profile to provide a default gateway]
+* xref:understanding-the-teamd-service-runners-and-link-watchers_{context}[Understanding the teamd service, runners, and link-watchers]
+endif::[]
+
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-bonding_configuring-and-managing-networking#configuring-a-network-bond-by-using-nm-connection-editor_configuring-network-bonding[Configuring a network bond by using nm-connection-editor]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-a-network-bridge_configuring-and-managing-networking#configuring-a-network-bridge-by-using-nm-connection-editor_configuring-a-network-bridge[Configuring a network bridge by using nm-connection-editor]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-vlan-tagging_configuring-and-managing-networking#configuring-vlan-tagging-by-using-nm-connection-editor_configuring-vlan-tagging[Configuring VLAN tagging by using nm-connection-editor]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/managing-the-default-gateway-setting_configuring-and-managing-networking#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway[Configuring NetworkManager to avoid using a specific profile to provide a default gateway]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-teaming_configuring-and-managing-networking#understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming[Understanding the teamd service, runners, and link-watchers]
+endif::[]
+* link:https://access.redhat.com/solutions/3068421[NetworkManager duplicates a connection after restart of NetworkManager service (Red Hat Knowledgebase)]

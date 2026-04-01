@@ -1,0 +1,26 @@
+ifdef::context[:parent-context-of-configuring-networkmanager-dhcp-settings: {context}]
+
+:_mod-docs-content-type: ASSEMBLY
+
+ifndef::context[]
+[id="configuring-networkmanager-dhcp-settings"]
+endif::[]
+ifdef::context[]
+[id="configuring-networkmanager-dhcp-settings_{context}"]
+endif::[]
+= Configuring NetworkManager DHCP settings
+
+:context: configuring-networkmanager-dhcp-settings
+
+[role="_abstract"]
+NetworkManager provides different configuration options related to DHCP. For example, you can configure NetworkManager to use the built-in DHCP client (default) or an external client, and you can influence DHCP settings of individual profiles.
+
+
+include::modules/networking/proc_changing-the-dhcp-client-of-networkmanager.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-the-dhcp-behavior-of-a-networkmanager-connection.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-configuring-networkmanager-dhcp-settings[:context: {parent-context-of-configuring-networkmanager-dhcp-settings}]
+ifndef::parent-context-of-configuring-networkmanager-dhcp-settings[:!context:]
+

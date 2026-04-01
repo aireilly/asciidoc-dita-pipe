@@ -1,0 +1,146 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-an-ethernet-connection-with-a-static-ip-address-by-using-nmstatectl-with-an-interface-name_{context}"]
+= Configuring an Ethernet connection with a static IP address by using `nmstatectl` with an interface name
+
+[role="_abstract"]
+You can use the declarative Nmstate API to configure an Ethernet connection with static IP addresses, gateways, and DNS settings, and assign them to a specified interface name. Nmstate ensures that the result matches the configuration file or rolls back the changes.
+
+
+.Prerequisites
+
+* A physical or virtual Ethernet Network Interface Controller (NIC) exists in the server's configuration.
+* The `nmstate` package is installed.
+
+
+.Procedure
+
+. Create a YAML file, for example `~/create-ethernet-profile.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+interfaces:
+- name: enp1s0
+  type: ethernet
+  state: up
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 24
+    dhcp: false
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+    autoconf: false
+    dhcp: false
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.0.2.254
+    next-hop-interface: enp1s0
+  - destination: ::/0
+    next-hop-address: 2001:db8:1::fffe
+    next-hop-interface: enp1s0
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb
+....
++
+These settings define an Ethernet connection profile for the `enp1s0` device with the following settings:
++
+* A static IPv4 address - `192.0.2.1` with the `/24` subnet mask
+* A static IPv6 address - `2001:db8:1::1` with the `/64` subnet mask
+* An IPv4 default gateway - `192.0.2.254`
+* An IPv6 default gateway - `2001:db8:1::fffe`
+* An IPv4 DNS server - `192.0.2.200`
+* An IPv6 DNS server - `2001:db8:1::ffbb`
+* A DNS search domain - `example.com`
+
+ifeval::[{ProductNumber} >= 9]
+. Optional: You can define the `identifier: mac-address` and `mac-address: __<mac_address>__` properties in the `interfaces` property to identify the network interface card by its MAC address instead of its name, for example:
++
+[source,yaml,subs="+quotes"]
+....
+---
+interfaces:
+- name: __<profile_name>__
+  type: ethernet
+  *identifier: mac-address*
+  *mac-address: __<mac_address>__*
+  ...
+....
+endif::[]
+
+. Apply the settings to the system:
++
+[literal,subs="+quotes"]
+....
+# *nmstatectl apply ~/create-ethernet-profile.yml*
+....
+
+
+.Verification
+
+. Display the current state in YAML format:
++
+[literal,subs="+quotes"]
+....
+# *nmstatectl show enp1s0*
+....
+
+. Display the IP settings of the NIC:
++
+[literal,subs="+quotes"]
+....
+# *ip address show enp1s0*
+2: enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:17:b8:b6 brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute enp1s0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::fffe/64 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+....
+
+. Display the IPv4 default gateway:
++
+[literal,subs="+quotes"]
+....
+# *ip route show default*
+default via 192.0.2.254 dev enp1s0 proto static metric 102
+....
+
+. Display the IPv6 default gateway:
++
+[literal,subs="+quotes"]
+....
+# *ip -6 route show default*
+default via 2001:db8:1::fffe dev enp1s0 proto static metric 102 pref medium
+....
+
+. Display the DNS settings:
++
+[literal,subs="+quotes"]
+....
+# *cat /etc/resolv.conf*
+search example.com
+nameserver 192.0.2.200
+nameserver 2001:db8:1::ffbb
+....
++
+If multiple connection profiles are active at the same time, the order of `nameserver` entries depend on the DNS priority values in these profiles and the connection types.
+
+. Use the `ping` utility to verify that this host can send packets to other hosts:
++
+[literal,subs="+quotes"]
+....
+# *ping _<host-name-or-IP-address>_*
+....
+

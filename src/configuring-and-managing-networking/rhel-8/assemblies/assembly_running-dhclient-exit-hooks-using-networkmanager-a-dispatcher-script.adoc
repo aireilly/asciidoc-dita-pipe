@@ -1,0 +1,26 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script: {context}]
+
+ifndef::context[]
+[id="assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script"]
+endif::[]
+ifdef::context[]
+[id="assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script_{context}"]
+endif::[]
+= Running dhclient exit hooks using NetworkManager a dispatcher script
+
+:context: assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script
+
+[role="_abstract"]
+You can use a NetworkManager dispatcher script to execute [systemitem]`dhclient` exit hooks.
+
+
+include::modules/networking/con_the-concept-of-networkmanager-dispatcher-scripts.adoc[leveloffset=+1]
+
+include::modules/networking/proc_creating-a-networkmanager-dispatcher-script-that-runs-dhclient-exit-hooks.adoc[leveloffset=+1]
+
+
+
+ifdef::parent-context-of-assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script[:context: {parent-context-of-assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script}]
+ifndef::parent-context-of-assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script[:!context:]
+

@@ -1,0 +1,120 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="configuring-user-defined-network-interface-names-by-using-udev-rules_{context}"]
+= Configuring user-defined network interface names by using udev rules
+
+[role="_abstract"]
+You can use `udev` rules to implement custom network interface names that reflect your organization's requirements.
+
+
+.Procedure
+
+. Identify the network interface that you want to rename:
++
+[literal,subs="+quotes"]
+....
+# *ip link show*
+...
+enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...
+....
++
+Record the MAC address of the interface.
+
+. Display the device type ID of the interface:
++
+[literal,subs="+quotes"]
+....
+# *cat /sys/class/net/enp1s0/type*
+1
+....
+
+. Create the `/etc/udev/rules.d/70-persistent-net.rules` file, and add a rule for each interface that you want to rename:
++
+[source,subs="+quotes"]
+....
+SUBSYSTEM=="net",ACTION=="add",ATTR{address}=="__<MAC_address>__",ATTR{type}=="__<device_type_id>__",NAME="__<new_interface_name>__"
+....
++
+[IMPORTANT]
+====
+Use only `70-persistent-net.rules` as a file name if you require consistent device names during the boot process. The `dracut` utility adds a file with this name to the `initrd` image if you regenerate the RAM disk image.
+====
++
+For example, use the following rule to rename the interface with MAC address `00:00:5e:00:53:1a` to `provider0`:
++
+[source,subs="+quotes"]
+....
+SUBSYSTEM=="net",ACTION=="add",ATTR{address}=="__00:00:5e:00:53:1a__",ATTR{type}=="__1__",NAME="__provider0__"
+....
+
+. Optional: Regenerate the `initrd` RAM disk image:
++
+[literal,subs="+quotes"]
+....
+# *dracut -f*
+....
++
+You require this step only if you need networking capabilities in the RAM disk. For example, this is the case if the root file system is stored on a network device, such as iSCSI.
+
+. Identify which NetworkManager connection profile uses the interface that you want to rename:
++
+[literal,subs="+quotes"]
+....
+# *nmcli -f device,name connection show*
+DEVICE  NAME
+enp1s0  example_profile
+...
+....
+
+. Unset the `connection.interface-name` property in the connection profile:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify example_profile connection.interface-name ""*
+....
+
+. Temporarily, configure the connection profile to match both the new and the previous interface name:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify example_profile match.interface-name "provider0 enp1s0"*
+....
+
+. Reboot the system:
++
+[literal,subs="+quotes"]
+....
+# *reboot*
+....
+
+. Verify that the device with the MAC address that you specified in the link file has been renamed to `provider0`:
++
+[literal,subs="+quotes"]
+....
+# *ip link show*
+provider0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...
+....
+
+. Configure the connection profile to match only the new interface name:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify example_profile match.interface-name "provider0"*
+....
++
+You have now removed the old interface name from the connection profile.
+
+. Reactivate the connection profile:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up example_profile*
+....
+
+

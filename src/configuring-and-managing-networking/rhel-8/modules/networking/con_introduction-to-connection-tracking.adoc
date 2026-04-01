@@ -1,0 +1,16 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="introduction-to-connection-tracking_{context}"]
+= Introduction to connection tracking
+
+[role="_abstract"]
+Connection tracking is a Linux kernel networking feature for logical networks that tracks connections and identifies packet flow in those connections.
+
+At a firewall, the `Netfilter` framework filters packets from an external network. After a packet arrives, `Netfilter` assigns a connection tracking entry. Connection tracking filters and analyzes every packet, sets up the connection tracking table to store connection status, and updates the connection status based on identified packets. For example, in the case of FTP connection, `Netfilter` assigns a connection tracking entry to ensure all packets of FTP connection work in the same manner. The connection tracking entry stores a `Netfilter` mark and tracks the connection state information in the memory table in which a new packet tuple maps with an existing entry. If the packet tuple does not map with an existing entry, the packet adds a new connection tracking entry that groups packets of the same connection.
+
+You can control and analyze traffic on the network interface. The `tc` traffic controller utility uses the `qdisc` discipline to configure the packet scheduler in the network. The `qdisc` kernel-configured queuing discipline enqueues packets to the interface. By using `qdisc`, Kernel catches all the traffic before a network interface transmits it. Also, to limit the bandwidth rate of packets belonging to the same connection, use the `tc qdisc` command.
+
+To retrieve data from connection tracking marks into various fields, use the `tc` utility with the `ctinfo` module and the `connmark` functionality. For storing packet mark information, the `ctinfo` module copies the `Netfilter` mark and the connection state information into a socket buffer (`skb`) mark metadata field.
+
+Transmitting a packet over a physical medium removes all the metadata of a packet. Before the packet loses its metadata, the `ctinfo` module maps and copies the `Netfilter` mark value to a specific value of the Diffserv code point (DSCP) in the packet's `IP` field.
+

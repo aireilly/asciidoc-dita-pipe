@@ -1,0 +1,112 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="assigning-alternative-names-to-a-network-interface-by-using-systemd-link-files_{context}"]
+= Assigning alternative names to a network interface by using systemd link files
+
+[role="_abstract"]
+With alternative interface naming, the kernel can assign additional names to network interfaces. You can use these alternative names in the same way as the normal interface names in commands that require a network interface name.
+
+
+.Prerequisites
+
+* You must use ASCII characters for the alternative name.
+* The alternative name must be shorter than 128 characters.
+
+
+.Procedure
+
+. Display the network interface names and their MAC addresses:
++
+[literal,subs="+quotes"]
+....
+# *ip link show*
+...
+enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...
+....
++
+Record the MAC address of the interface to which you want to assign an alternative name.
+
+. If it does not already exist, create the `/etc/systemd/network/` directory:
++
+[literal,subs="+quotes"]
+....
+# *mkdir -p /etc/systemd/network/*
+....
+
+. For each interface that must have an alternative name, create a copy of the `/usr/lib/systemd/network/99-default.link` file with a unique name and `.link` suffix in the `/etc/systemd/network/` directory, for example:
++
+[subs="+quotes"]
+....
+# *cp /usr/lib/systemd/network/99-default.link /etc/systemd/network/98-lan.link*
+....
+
+. Modify the file you created in the previous step. Rewrite the `[Match]` section as follows, and append the `AlternativeName` entries to the `[Link]` section:
++
+[source,subs="+quotes"]
+....
+[Match]
+MACAddress=__<MAC_address>__
+
+[Link]
+...
+AlternativeName=__<alternative_interface_name_1>__
+AlternativeName=__<alternative_interface_name_2>__
+AlternativeName=__<alternative_interface_name_n>__
+....
++
+For example, create the `/etc/systemd/network/70-altname.link` file with the following content to assign `provider` as an alternative name to the interface with MAC address `00:00:5e:00:53:1a`:
++
+[source,subs="+quotes"]
+....
+[Match]
+MACAddress=00:00:5e:00:53:1a
+
+[Link]
+ifeval::[{ProductNumber} == 8]
+NamePolicy=kernel database onboard slot path
+AlternativeNamesPolicy=database onboard slot path
+MACAddressPolicy=persistent
+endif::[]
+ifeval::[{ProductNumber} >= 9]
+NamePolicy=keep kernel database onboard slot path
+AlternativeNamesPolicy=database onboard slot path
+MACAddressPolicy=none
+endif::[]
+AlternativeName=provider
+....
+
+. Regenerate the `initrd` RAM disk image:
++
+[literal,subs="+quotes"]
+....
+# *dracut -f*
+....
+
+. Reboot the system:
++
+[literal,subs="+quotes"]
+....
+# *reboot*
+....
+
+
+.Verification
+
+* Use the alternative interface name. For example, display the IP address settings of the device with the alternative name `provider`:
++
+[literal,subs="+quotes"]
+....
+# *ip address show provider*
+2: enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+    altname *provider*
+    ...
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+* link:https://access.redhat.com/solutions/6964829[What is AlternativeNamesPolicy in Interface naming scheme? (Red Hat Knowledgebase)]
+

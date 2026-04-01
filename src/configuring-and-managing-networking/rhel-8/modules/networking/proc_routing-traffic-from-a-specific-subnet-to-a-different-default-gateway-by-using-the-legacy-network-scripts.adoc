@@ -1,0 +1,268 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-the-legacy-network-scripts_{context}"]
+= Routing traffic from a specific subnet to a different default gateway by using the legacy network scripts
+
+[role="_abstract"]
+You can use policy-based routing to configure a different default gateway for traffic from certain subnets.
+
+For example, you can configure RHEL as a router that, by default, routes all traffic to internet provider A using the default route. However, traffic received from the internal workstations subnet is routed to provider B.
+
+[IMPORTANT]
+====
+Configuring the network using the legacy network scripts provided by the `network-scripts` package is deprecated in RHEL 8. Follow the procedure only if you use the legacy network scripts instead of NetworkManager on your host. If you use NetworkManager to manage your network settings, see
+ifdef::networking-title[]
+xref:routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-nmcli_configuring-policy-based-routing-to-define-alternative-routes[Routing traffic from a specific subnet to a different default gateway by using nmcli].
+endif::[]
+ifndef::networking-title[]
+link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-policy-based-routing-to-define-alternative-routes_configuring-and-managing-networking#routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-nmcli_configuring-policy-based-routing-to-define-alternative-routes[Routing traffic from a specific subnet to a different default gateway by using nmcli].
+endif::[]
+====
+
+The procedure assumes the following network topology:
+
+image::policy-based-routing.png["Example topology used for policy-based routing."]
+
+[NOTE]
+====
+The legacy network scripts process configuration files in alphabetical order. Therefore, configuration files must be named so that any interface used in the rules and routes of other interfaces is active when a dependent interface requires it. To accomplish the correct order, this procedure uses numbers in the `ifcfg-pass:[*]`, `route-pass:[*]`, and `rules-pass:[*]` files.
+====
+
+
+.Prerequisites
+
+* The `NetworkManager` package is not installed, or the `NetworkManager` service is disabled.
+* The `network-scripts` package is installed.
+* The RHEL router you want to set up in the procedure has four network interfaces:
+** The `enp7s0` interface is connected to the network of provider A. The gateway IP in the provider's network is `198.51.100.2`, and the network uses a `/30` network mask.
+** The `enp1s0` interface is connected to the network of provider B. The gateway IP in the provider's network is `192.0.2.2`, and the network uses a `/30` network mask.
+** The `enp8s0` interface is connected to the `10.0.0.0/24` subnet with internal workstations.
+** The `enp9s0` interface is connected to the `203.0.113.0/24` subnet with the company's servers.
+* Hosts in the internal workstations subnet use `10.0.0.1` as the default gateway. In the procedure, you assign this IP address to the `enp8s0` network interface of the router.
+* Hosts in the server subnet use `203.0.113.1` as the default gateway. In the procedure, you assign this IP address to the `enp9s0` network interface of the router.
+* The `firewalld` service is enabled and active.
+
+
+.Procedure
+
+. Add the configuration for the network interface to provider A by creating the `/etc/sysconfig/network-scripts/ifcfg-1_Provider-A` file with the following content:
++
+[source]
+....
+TYPE=Ethernet
+IPADDR=198.51.100.1
+PREFIX=30
+GATEWAY=198.51.100.2
+DNS1=198.51.100.200
+DEFROUTE=yes
+NAME=1_Provider-A
+DEVICE=enp7s0
+ONBOOT=yes
+ZONE=external
+....
++
+The configuration file uses the following parameters:
++
+* `TYPE`=`Ethernet`: Defines that the connection type is Ethernet.
+* `IPADDR`=`__IP_address__`: Sets the IPv4 address.
+* `PREFIX`=`__subnet_mask__`: Sets the subnet mask.
+* `GATEWAY`=`__IP_address__`: Sets the default gateway address.
+* `DNS1`=`__IP_of_DNS_server__`: Sets the IPv4 address of the DNS server.
+* `DEFROUTE`=`__yes|no__`: Defines whether the connection is a default route or not.
+* `NAME`=`__connection_name__`: Sets the name of the connection profile. Use a meaningful name to avoid confusion.
+* `DEVICE`=`__network_device__`: Sets the network interface.
+* `ONBOOT`=`yes`: Defines that RHEL starts this connection when the system boots.
+* `ZONE`=`__firewalld_zone__`: Assigns the network interface to the defined `firewalld` zone. Note that `firewalld` automatically enables masquerading for interfaces assigned to the `external` zone.
+
+. Add the configuration for the network interface to provider B:
+
+.. Create the `/etc/sysconfig/network-scripts/ifcfg-2_Provider-B` file with the following content:
++
+[source]
+....
+TYPE=Ethernet
+IPADDR=192.0.2.1
+PREFIX=30
+DEFROUTE=no
+NAME=2_Provider-B
+DEVICE=enp1s0
+ONBOOT=yes
+ZONE=external
+....
++
+Note that the configuration file for this interface does not contain a default gateway setting.
+
+.. Assign the gateway for the `2_Provider-B` connection to a separate routing table. Therefore, create the `/etc/sysconfig/network-scripts/route-2_Provider-B` file with the following content:
++
+[source]
+....
+0.0.0.0/0 via 192.0.2.2 table 5000
+....
++
+This entry assigns the gateway and traffic from all subnets routed through this gateway to table `5000.`
+
+. Create the configuration for the network interface to the internal workstations subnet:
+
+.. Create the `/etc/sysconfig/network-scripts/ifcfg-3_Internal-Workstations` file with the following content:
++
+[source]
+....
+TYPE=Ethernet
+IPADDR=10.0.0.1
+PREFIX=24
+DEFROUTE=no
+NAME=3_Internal-Workstations
+DEVICE=enp8s0
+ONBOOT=yes
+ZONE=internal
+....
+
+.. Add the routing rule configuration for the internal workstation subnet. Therefore, create the `/etc/sysconfig/network-scripts/rule-3_Internal-Workstations` file with the following content:
++
+[source]
+....
+pri 5 from 10.0.0.0/24 table 5000
+....
++
+This configuration defines a routing rule with priority `5` that routes all traffic from the `10.0.0.0/24` subnet to table `5000`. Low values have a high priority.
+
+.. Create the `/etc/sysconfig/network-scripts/route-3_Internal-Workstations` file with the following content to add a static route to the routing table with ID `5000`:
++
+[source]
+....
+10.0.0.0/24 via 192.0.2.1 table 5000
+....
++
+This static route defines that RHEL sends traffic from the `10.0.0.0/24` subnet to the IP of the local network interface to provider B (`192.0.2.1`). This interface is to routing table `5000` and used as the next hop.
+
+. Add the configuration for the network interface to the server subnet by creating the `/etc/sysconfig/network-scripts/ifcfg-4_Servers` file with the following content:
++
+[source]
+....
+TYPE=Ethernet
+IPADDR=203.0.113.1
+PREFIX=24
+DEFROUTE=no
+NAME=4_Servers
+DEVICE=enp9s0
+ONBOOT=yes
+ZONE=internal
+....
+
+. Restart the network:
++
+[literal,subs="+quotes"]
+....
+# **systemctl restart network**
+....
+
+
+.Verification
+
+. On a RHEL host in the internal workstation subnet:
+
+.. Install the `traceroute` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# **{PackageManagerCommand} install traceroute**
+....
+.. Use the `traceroute` utility to display the route to a host on the internet:
++
+[literal,subs="+quotes"]
+....
+# **traceroute redhat.com**
+traceroute to redhat.com (209.132.183.105), 30 hops max, 60 byte packets
+ 1  10.0.0.1 (10.0.0.1)     0.337 ms  0.260 ms  0.223 ms
+ 2  192.0.2.2 (192.0.2.2)   0.884 ms  1.066 ms  1.248 ms
+ ...
+....
++
+The output of the command displays that the router sends packets over `192.0.2.1`, which is the network of provider B.
+
+. On a RHEL host in the server subnet:
+
+.. Install the `traceroute` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# **{PackageManagerCommand} install traceroute**
+....
+.. Use the `traceroute` utility to display the route to a host on the internet:
++
+[literal,subs="+quotes"]
+....
+# **traceroute redhat.com**
+traceroute to redhat.com (209.132.183.105), 30 hops max, 60 byte packets
+ 1  203.0.113.1 (203.0.113.1)    2.179 ms  2.073 ms  1.944 ms
+ 2  198.51.100.2 (198.51.100.2)  1.868 ms  1.798 ms  1.549 ms
+ ...
+....
++
+The output of the command displays that the router sends packets over `198.51.100.2`, which is the network of provider A.
+
+
+.Troubleshooting steps
+
+On the RHEL router:
+
+. Display the rule list:
++
+[literal,subs="+quotes"]
+....
+# **ip rule list**
+0:      from all lookup local
+*5*:      *from 10.0.0.0/24 lookup 5000*
+32766:  from all lookup main
+32767:  from all lookup default
+....
++
+By default, RHEL contains rules for the tables `local`, `main`, and `default`.
+
+. Display the routes in table `5000`:
++
+[literal,subs="+quotes"]
+....
+# **ip route list table 5000**
+default via 192.0.2.2 dev enp1s0
+10.0.0.0/24 via 192.0.2.1 dev enp1s0
+....
+
+. Display the interfaces and firewall zones:
++
+[literal,subs="+quotes"]
+....
+# **firewall-cmd --get-active-zones**
+external
+  interfaces: enp1s0 enp7s0
+internal
+  interfaces: enp8s0 enp9s0
+....
+
+. Verify that the `external` zone has masquerading enabled:
++
+[literal,subs="+quotes"]
+....
+# **firewall-cmd --info-zone=external**
+external (active)
+  target: default
+  icmp-block-inversion: no
+  interfaces: enp1s0 enp7s0
+  sources:
+  services: ssh
+  ports:
+  protocols:
+  *masquerade: yes*
+  ...
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:overview-of-configuration-files-involved-in-policy-based-routing-when-using-the-legacy-network-scripts_configuring-policy-based-routing-to-define-alternative-routes[Overview of configuration files involved in policy-based routing when using the legacy network scripts]
+endif::[]
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-policy-based-routing-to-define-alternative-routes_configuring-and-managing-networking#overview-of-configuration-files-involved-in-policy-based-routing-when-using-the-legacy-network-scripts_configuring-policy-based-routing-to-define-alternative-routes[Overview of configuration files involved in policy-based routing when using the legacy network scripts]
+endif::[]
+

@@ -1,0 +1,223 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-07-18
+:_mod-docs-content-type: PROCEDURE
+
+[id="manually-configuring-an-ipsec-mesh-vpn-with-certificate-based-authentication"]
+= Manually configuring an IPsec mesh VPN with certificate-based authentication
+
+[role="_abstract"]
+An IPsec mesh creates a fully interconnected network where every server can communicate securely and directly with every other server. This is ideal for distributed database clusters or high-availability environments that span multiple data centers or cloud providers.
+
+Establishing a direct, encrypted tunnel between each pair of servers ensures secure communication without a central bottleneck. For authentication, using digital certificates managed by a Certificate Authority (CA) offers a highly secure and scalable solution. Each host in the mesh presents a certificate signed by a trusted CA. This method provides strong, verifiable authentication and simplifies user management. Access can be granted or revoked centrally at the CA, and Libreswan enforces this by checking each certificate against a certificate revocation list (CRL), denying access if a certificate appears on the list.
+
+
+.Prerequisites
+
+* A Public Key Cryptography Standards #12 (PKCS #12) file exists on each peer in the mesh with the following contents:
+** The private key of the server
+** The server certificate
+** The CA certificate
+** If required, intermediate certificates
+
++
+For details about creating a private key and certificate signing request (CSR), as well as about requesting a certificate from a CA, see your CA's documentation.
+
+* The server certificate contains the following fields:
+** Extended Key Usage (EKU) is set to `TLS Web Server Authentication`.
+** Common Name (CN) or Subject Alternative Name (SAN) is set to the fully-qualified domain name (FQDN) of the host.
+** X509v3 CRL distribution points contains URLs to Certificate Revocation Lists (CRLs).
+
+
+.Procedure
+
+. If Libreswan is not yet installed, perform the following steps:
+
+.. Install the `libreswan` package:
++
+[literal,subs="+quotes"]
+....
+# *dnf install libreswan*
+....
+
+.. Initialize the Network Security Services (NSS) database:
++
+[literal,subs="+quotes"]
+....
+# *ipsec initnss*
+....
++
+The command creates the database in the `/var/lib/ipsec/nss/` directory.
+
+.. Enable and start the `ipsec` service:
++
+[subs="+quotes"]
+....
+# *systemctl enable --now ipsec*
+....
+
+.. Open the IPsec ports and protocols in the firewall:
++
+[subs="+quotes"]
+....
+# *firewall-cmd --permanent --add-service="ipsec"*
+# *firewall-cmd --reload*
+....
+
+. Import the PKCS #12 file into the NSS database:
++
+[subs="+quotes"]
+....
+# *ipsec import _<file>_.p12*
+Enter password for PKCS12 file: _<password>_
+pk12util: PKCS12 IMPORT SUCCESSFUL
+correcting trust bits for Example-CA
+....
+
+. Display the nicknames of the server and CA certificates:
++
+[subs="+quotes"]
+....
+# *certutil -L -d  /var/lib/ipsec/nss/*
+Certificate Nickname     Trust Attributes
+                         SSL,S/MIME,JAR/XPI
+
+server1                  u,u,u
+Example-CA               CT,,
+...
+....
++
+You need this information for the configuration file.
+
+. Create a `.conf` file for the connection in the `/etc/ipsec.d/` directory. For example, create the `/etc/ipsec.d/mesh.conf` file with the following settings:
+
+.. Add a `config setup` section to enable CRL checks:
++
+[source,bash,subs="+quotes"]
+----
+config setup
+    crl-strict=yes
+    crlcheckinterval=1h
+----
++
+The settings specified in the example include the following:
++
+`crl-strict=yes`:: Enables CRL checks. Authenticating peers are rejected if no CRL is available in the NSS database.
+`crlcheckinterval=1h`:: Re-fetches the CRL from the URL specified in the server's certificate after the specified period.
+
+.. Add a section that enforces traffic among members in the mesh:
++
+[source,bash,subs="+quotes"]
+----
+conn _<connection_name>_
+    # General setup and authentication type
+    auto=ondemand
+    authby=rsasig
+
+    # Local settings settings
+    left=%defaultroute
+    leftid=%fromcert
+    leftcert="_<server_certificate_nickname>_"
+    leftrsasigkey=%cert
+    leftsendcert=always
+    failureshunt=drop
+    type=transport
+
+    # Settings related to other peers in the mesh
+    right=%opportunisticgroup
+    rightid=%fromcert
+----
++
+The settings specified in the example include the following:
++
+`left=%defaultroute`:: Dynamically sets the IP address of the default route interface when the `ipsec` service starts. Alternatively, you can set the `left` parameter to the IP address or the FQDN of the host.
+`leftid=%fromcert` and `rightid=%fromcert`:: Configures Libreswan to retrieve the identity from the distinguished name (DN) field of the certificate.
+`leftcert="_<server_certificate_nickname>_"`:: Sets the nickname of the server's certificate used in the NSS database.
+`leftrsasigkey=%cert`:: Configures Libreswan to use the RSA public key embedded in the certificate.
+`leftsendcert=always`:: Instructs the peer to always send the certificate, so that peers can validate it against the CA certificate.
+`failureshunt=drop`:: Enforces encryption and drops traffic if IPsec negotiation fails. This is critical for a secure mesh.
+`right=%opportunisticgroup`:: Specifies that the connection should apply to a dynamic group of remote peers defined in a policy file. This enables Libreswan to instantiate IPsec tunnels opportunistically for each listed IP or subnet in that group.
+
++
+For details about all parameters used in the example, see the `ipsec.conf(5)` man page on your system.
+
+. Create the `/etc/ipsec.d/policies/server-mesh` policy file that specifies the peers or subnets in classless inter-domain routing (CIDR) format:
++
+[source,bash,subs="+quotes"]
+----
+192.0.2.0/24
+198.51.100.0/24
+----
++
+With these settings, the `ipsec` service encrypts traffic between hosts in these subnets. If a host is not configured as a member of the IPsec mesh, communication between this host and the mesh members fails.
+
+. Restart the `ipsec` service:
++
+[subs="+quotes"]
+....
+# *systemctl restart ipsec*
+....
+
+. Repeat the procedure on every host in the subnets you specified in the policy file.
+
+
+.Verification
+
+. Send traffic to a host in the mesh to establish the tunnel. For example, ping the host:
++
+[subs="+quotes"]
+....
+# *ping -c3 _<peer_in_mesh>_*
+....
+
+. Display the IPsec status:
++
+[subs="+quotes"]
+....
+# *ipsec status*
+....
++
+If the connection is successfully established, the output contains lines as follows for the peer:
+
+** Phase 1 of an Internet Key Exchange version 2 (IKEv2) negotiation has been successfully completed:
++
+[source,txt,subs="+quotes"]
+----
+#1: "_<connection_name>_#192.0.2.0/24"[1] ...192.0.2.2:500 ESTABLISHED_IKE_SA (established IKE SA); REKEY in 12822s; REPLACE in 13875s; newest; idle;
+----
++
+The Security Association (SA) is now ready to negotiate the actual data encryption tunnels, known as child SAs or Phase 2 SAs.
+
+** A child SA has been established:
++
+[source,txt,subs="+quotes"]
+----
+#2: "_<connection_name>_#192.0.2.0/24"[1] ...192.0.2.2:500 ESTABLISHED_CHILD_SA (established Child SA); REKEY in 13071s; REPLACE in 13875s; newest; eroute owner; IKE SA #1; idle;
+----
++
+This is the actual tunnel that your data traffic flows through.
+
+. Check if the service loaded the CRL and added the entries to the NSS database:
++
+[subs="+quotes"]
+....
+# *ipsec auto --listcrls*
+000
+000 List of CRLs:
+000
+000 issuer: CN=Example-CA
+000 revoked certs: 1
+000 updates: this Tue Jul 15 10:22:36 2025
+000          next Sun Jan 11 10:22:36 2026
+000
+000 List of CRL fetch requests:
+000
+000 Jul 15 15:13:56 2025, trials: 1
+000        issuer:  'CN=Example-CA'
+000        distPts: 'https://ca.example.com/crl.pem'
+....
+
+
+.Next steps
+
+* If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see xref:assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn[Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel].
+

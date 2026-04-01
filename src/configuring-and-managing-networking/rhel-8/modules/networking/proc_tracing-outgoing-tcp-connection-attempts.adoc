@@ -1,0 +1,31 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="tracing-outgoing-tcp-connection-attempts_{context}"]
+= Tracing outgoing TCP connection attempts
+
+[role="_abstract"]
+The `tcpconnect` utility uses eBPF features to trace outgoing TCP connection attempts. The output of the utility also includes connections that failed.
+
+The `tcpconnect` utility is lightweight because it traces, for example, the `connect()` function of the kernel instead of capturing packets and filtering them.
+
+
+.Procedure
+
+. Enter the following command to start the tracing process that displays all outgoing connections:
++
+[subs="+quotes"]
+....
+# */usr/share/bcc/tools/tcpconnect*
+PID    COMM         IP SADDR      DADDR          DPORT
+31346  curl         4  192.0.2.1  198.51.100.16  80
+31348  telnet       4  192.0.2.1  203.0.113.231  23
+31361  isc-worker00 4  192.0.2.1  192.0.2.254    53
+...
+....
++
+Each time the kernel processes an outgoing connection, `tcpconnect` displays the details of the connections.
+
+. Press kbd:[Ctrl]+kbd:[C] to stop the tracing process.
+

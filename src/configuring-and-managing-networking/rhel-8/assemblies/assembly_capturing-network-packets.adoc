@@ -1,0 +1,26 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-capturing-network-packets: {context}]
+ifndef::context[]
+[id="capturing-network-packets"]
+endif::[]
+ifdef::context[]
+[id="capturing-network-packets_{context}"]
+endif::[]
+= Capturing network packets
+
+:context: capturing-network-packets
+
+[role="_abstract"]
+To debug network issues and communications, you can capture network packets. The following sections provide instructions and additional information about capturing network packets.
+
+
+include::modules/networking/proc_using-xdpdump-to-capture-network-packets-including-packets-dropped-by-xdp-programs.adoc[leveloffset=+1]
+
+
+[role="_additional-resources"]
+== Additional resources
+* link:https://access.redhat.com/solutions/8787[How to capture network packets with tcpdump? (Red Hat Knowledgebase)]
+
+ifdef::parent-context-of-capturing-network-packets[:context: {parent-context-of-capturing-network-packets}]
+ifndef::parent-context-of-capturing-network-packets[:!context:]
+

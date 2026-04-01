@@ -1,0 +1,104 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-static-route-by-using-the-network-rhel-system-role_{context}"]
+= Configuring a static route by using the `network` RHEL system role
+
+[role="_abstract"]
+You can use the `network` RHEL system role to configure static routes.
+
+[IMPORTANT]
+====
+When you run a play that uses the `network` RHEL system role and if the setting values do not match the values specified in the play, the role overrides the existing connection profile with the same name. To prevent resetting these values to their defaults, always specify the whole configuration of the network connection profile in the play, even if the configuration, for example the IP configuration, already exists.
+====
+
+
+
+.Prerequisites
+
+include::common-content/snip_common-prerequisites.adoc[]
+// The following are prerequisites that are specific for this task:
+// none
+
+
+.Procedure
+
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Ethernet connection profile with static IP address settings
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: enp7s0
+            type: ethernet
+            autoconnect: yes
+            ip:
+              address:
+                - 192.0.2.1/24
+                - 2001:db8:1::1/64
+              gateway4: 192.0.2.254
+              gateway6: 2001:db8:1::fffe
+              dns:
+                - 192.0.2.200
+                - 2001:db8:1::ffbb
+              dns_search:
+                - example.com
+              *route:*
+                *- network: 198.51.100.0*
+                  *prefix: 24*
+                  *gateway: 192.0.2.10*
+                *- network: '2001:db8:2::'*
+                  *prefix: 64*
+                  *gateway: 2001:db8:1::10*
+            state: up
+....
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.network/README.md` file on the control node.
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook ~/playbook.yml*
+....
+
+
+.Verification
+
+. Display the IPv4 routes:
++
+[literal,subs="+quotes"]
+....
+# *ansible managed-node-01.example.com -m command -a 'ip -4 route'*
+managed-node-01.example.com | CHANGED | rc=0 >>
+...
+198.51.100.0/24 via 192.0.2.10 dev enp7s0
+....
+
+. Display the IPv6 routes:
++
+[literal,subs="+quotes"]
+....
+# *ansible managed-node-01.example.com -m command -a 'ip -6 route'*
+managed-node-01.example.com | CHANGED | rc=0 >>
+...
+2001:db8:2::/64 via 2001:db8:1::10 dev enp7s0 metric 1024 pref medium
+....
+

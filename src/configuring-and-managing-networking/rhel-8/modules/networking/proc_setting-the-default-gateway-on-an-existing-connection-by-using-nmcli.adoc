@@ -1,0 +1,66 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="setting-the-default-gateway-on-an-existing-connection-by-using-nmcli_{context}"]
+= Setting the default gateway on an existing connection by using `nmcli`
+
+[role="_abstract"]
+In most situations, administrators set the default gateway when they create a connection. However, you can also set or update the default gateway setting on a previously created connection by using the `nmcli` utility.
+
+
+.Prerequisites
+
+* At least one static IP address must be configured on the connection on which the default gateway will be set.
+* If the user is logged in on a physical console, user permissions are sufficient. Otherwise, the user must have `root` permissions.
+
+
+.Procedure
+
+. Set the IP addresses of the default gateway:
++
+To set the IPv4 default gateway, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify _<connection_name>_ ipv4.gateway "_<IPv4_gateway_address>_"*
+....
++
+To set the IPv6 default gateway, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify _<connection_name>_ ipv6.gateway "_<IPv6_gateway_address>_"*
+....
+
+. Restart the network connection for changes to take effect:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up _<connection_name>_*
+....
++
+[WARNING]
+====
+All connections currently using this network connection are temporarily interrupted during the restart.
+====
+
+
+.Verification
+
+* Verify that the route is active:
++
+.. To display the IPv4 default gateway, enter:
++
+[literal,subs="+quotes"]
+....
+# *ip -4 route*
+default via 192.0.2.1 dev _example_ proto static metric 100
+....
+
+.. To display the IPv6 default gateway, enter:
++
+[literal,subs="+quotes"]
+....
+# *ip -6 route*
+default via 2001:db8:1::1 dev _example_ proto static metric 100 pref medium
+....
+

@@ -1,0 +1,65 @@
+:Year: 2023
+
+// Red Hat and divisions
+:RH: Red{nbsp}Hat
+:CCS: Customer Content Services
+:OrgName: {RH}
+:OrgDiv: {CCS}
+
+// The product (RHEL)
+:ProductName: {RH} Enterprise{nbsp}Linux
+:RHEL: {ProductName}
+:ProductShortName: RHEL
+:ProductNumber: 9
+:ProductNumberLink: 9
+// This is the version displayed under "Red Hat Enterprise Linux"
+:ProductNumberDocInfoXML: 9
+:RHEL9: {RHEL}{nbsp}9
+:RHEL8: {RHEL}{nbsp}8
+:RHEL7: {RHEL}{nbsp}7
+//:ProductRelease: Beta
+
+:imagesdir: images
+:experimental:
+
+// system roles
+:RHELSystemRoles: RHEL{nbsp}system{nbsp}role
+
+// Package manager branding
+
+:PackageManagerName: DNF
+:PackageManagerCommand: dnf
+
+// Identity Management attributes
+
+:IPA: Identity{nbsp}Management
+:aIPA: an Identity{nbsp}Management
+:AD: Active{nbsp}Directory
+:RH: Red{nbsp}Hat
+:RHEL: Red{nbsp}Hat Enterprise{nbsp}Linux
+:DS: Directory{nbsp}Server
+:CS: Certificate{nbsp}System
+:SSSD: System Security Services Daemon
+:AD: Active{nbsp}Directory
+
+// Platform tools attributes
+:gcct: GCC Toolset
+// dts and rhscl references are to be removed in rhel 8, present only to enable building
+:gcct-ver: 10
+:dts: {rh} Developer{nbsp}Toolset
+:rhdts: {dts}
+:dts-ver: 10
+:scl: {rh} Software{nbsp}Collections
+:rhscl: {scl}
+:rhah: {ProductName} Atomic{nbsp}Host
+:rhdt: {rh} Developer{nbsp}Tools
+// ++ for using in things like g++ that are NOT capitalized C++ = {cpp}
+:plus2: &#x002b;&#x002b;
+
+
+// Network Manager uses master/slave command line options in RHEL 8 and controller/port in RHEL 9.
+// Affected modules use attributes to show one or the other depending on the RHEL version of the guide.
+:NM_controller: controller
+:NM_port: port
+:NM_ports: ports
+

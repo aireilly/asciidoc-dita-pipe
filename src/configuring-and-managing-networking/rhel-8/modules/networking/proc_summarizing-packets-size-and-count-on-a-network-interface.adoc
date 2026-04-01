@@ -1,0 +1,53 @@
+:_mod-docs-content-type: PROCEDURE
+
+:experimental:
+
+[id="summarizing-packets-size-and-count-on-a-network-interface_{context}"]
+= Summarizing packets size and count on a network interface
+
+[role="_abstract"]
+The `netqtop` utility displays statistics about the attributes of received (RX) and transmitted (TX) packets on each network queue of a particular network interface.
+
+The statistics include:
+
+* Bytes per second (BPS)
+* Packets per second (PPS)
+* The average packet size
+* Total number of packets
+
+To generate these statistics, `netqtop` traces the kernel functions that perform events of transmitted packets `net_dev_start_xmit` and received packets `netif_receive_skb`.
+
+
+.Procedure
+. Display the number of packets within the range of bytes size of the time interval of `2` seconds:
++ 
+[subs="+quotes"]
+....
+# */usr/share/bcc/tools/netqtop -n enp1s0 -i 2*
+
+Fri Jan 31 18:08:55 2023
+TX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	0      	0      	0      	0      	0      	0     	 
+ Total  	0      	0      	0      	0      	0      	0     	 
+
+RX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	38.0   	1      	0      	0      	0      	0     	 
+ Total  	38.0   	1      	0      	0      	0      	0     	 
+-----------------------------------------------------------------------------
+Fri Jan 31 18:08:57 2023
+TX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	0      	0      	0      	0      	0      	0     	 
+ Total  	0      	0      	0      	0      	0      	0     	 
+
+RX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	38.0   	1      	0      	0      	0      	0     	 
+ Total  	38.0   	1      	0      	0      	0      	0     	 
+-----------------------------------------------------------------------------
+....
+
+. Press kbd:[Ctrl+C] to stop `netqtop`.
+

@@ -1,0 +1,42 @@
+:_newdoc-version: 2.18.3
+:_template-generated: 2025-01-21
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-an-ip-address-ping-target-to-ensure-active-network-connections_{context}"]
+= Configuring an IP address ping target to ensure active network connections
+
+[role="_abstract"]
+Configure the `connection.ip-ping-addresses` and `connection.ip-ping-timeout` settings to verify connectivity to a specific target.
+
+The NetworkManager service starts after the system boots. Certain services, such as network file system (NFS), are dependent on the network connectivity. If the gateway IP or the target IP address does not return a response, NFS fails to mount because it cannot connect to its destination as the network is not completely up and running. Therefore, you can configure the `connection.ip-ping-addresses` and `connection.ip-ping-timeout` settings to verify connectivity to a specific target to avoid such problems. The `connection.ip-ping-addresses` setting supports configuration of IPv4 and IPv6 addresses.
+
+
+.Procedure
+
+. Create a connection profile, if it does not already exist. For example, to create a profile for the `enp1s0` interface with dynamic IP address assignment, enter:
++
+[subs="+quotes"]
+----
+# **nmcli connection add con-name enp1s0 ifname enp1s0 type ethernet**
+----
++
+[NOTE]
+====
+Configuration of `connection.ip-ping-addresses` can result in the delay of response from the `network-online` target service of `systemd`, because of waiting for either the ping operation completion or timeout period.
+====
++
+. Configure the connection to ping the specified IP addresses with a defined timeout period:
++
+[subs="+quotes"]
+----
+# **nmcli connection modify enp1s0 connection.ip-ping-addresses "192.0.2.56, 192.0.2.60" connection.ip-ping-timeout 10 ipv4.may-fail no**
+----
++
+Setting the `ipv4.may-fail` attribute to `no`, ensures that IPv4 configuration must complete successfully.
+
+. Re-activate the connection:
++
+[subs="+quotes"]
+----
+# **nmcli connection up enp1s0**
+----

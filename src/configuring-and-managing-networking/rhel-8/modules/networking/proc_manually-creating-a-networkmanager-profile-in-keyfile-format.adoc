@@ -1,0 +1,83 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_manually-creating-a-networkmanager-profile-in-keyfile-format_{context}"]
+= Manually creating a NetworkManager profile in keyfile format
+
+[role="_abstract"]
+You can manually create a NetworkManager connection profile in keyfile format. For example, this can be required if an external application generates the profiles.
+
+[WARNING]
+====
+Manually creating or updating the configuration files can result in an unexpected or non-functional network configuration. As an alternative, you can use `nmcli` in offline mode. See xref:proc_using-nmcli-to-create-keyfile-connection-profiles-in-offline-mode_assembly_networkmanager-connection-profiles-in-keyfile-format[Using nmcli to create keyfile connection profiles in offline mode]
+====
+
+
+.Procedure
+
+. Create a connection profile. For example, for a connection profile for the `enp1s0` Ethernet device that uses DHCP, create the `/etc/NetworkManager/system-connections/example.nmconnection` file with the following content:
++
+[source,subs="+quotes"]
+....
+[connection]
+id=Example-Connection
+type=ethernet
+autoconnect=true
+interface-name=enp1s0
+
+[ipv4]
+method=auto
+
+[ipv6]
+method=auto
+....
++
+[NOTE]
+====
+You can use any file name with a `.nmconnection` suffix. However, when you later use `nmcli` commands to manage the connection, you must use the connection name set in the `id` variable when you refer to this connection. When you omit the `id` variable, use the file name without the `.nmconnection` to refer to this connection.
+====
+
+. Set permissions on the configuration file so that only the `root` user can read and update it:
++
+[subs="+quotes"]
+....
+# *chown root:root /etc/NetworkManager/system-connections/example.nmconnection*
+# *chmod 600 /etc/NetworkManager/system-connections/example.nmconnection*
+....
+
+. Reload the connection profiles:
++
+[subs="+quotes"]
+....
+# *nmcli connection reload*
+....
+
+. Verify that NetworkManager read the profile from the configuration file:
++
+[subs="+quotes"]
+....
+# *nmcli -f NAME,UUID,FILENAME connection*
+NAME                UUID                                  FILENAME
+Example-Connection  86da2486-068d-4d05-9ac7-957ec118afba  /etc/NetworkManager/system-connections/example.nmconnection
+...
+....
++
+If the command does not show the newly added connection, verify that the file permissions and the syntax you used in the file are correct.
+
+. If you set the `autoconnect` variable in the profile to `false`, activate the connection:
++
+[subs="+quotes"]
+....
+# *nmcli connection up example_connection*
+....
+
+
+
+.Verification
+
+* Display the connection profile:
++
+[subs="+quotes"]
+....
+# *nmcli connection show example_connection*
+....
+

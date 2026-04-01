@@ -1,0 +1,125 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_permanently-configuring-multiple-paths-for-mptcp-applications_{context}"]
+= Permanently configuring multiple paths for MPTCP applications
+
+[role="_abstract"]
+You can configure MultiPath TCP (MPTCP) by using the `nmcli` command to permanently establish multiple subflows between a source and destination system.
+
+The subflows can use different resources, different routes to the destination, and even different networks. Such as Ethernet, cellular, wifi, and so on. As a result, you achieve combined connections, which increase network resilience and throughput.
+
+The server uses the following network interfaces in our example:
+
+* enp4s0: `192.0.2.1/24`
+* enp1s0: `198.51.100.1/24`
+* enp7s0: `192.0.2.3/24`
+
+The client uses the following network interfaces in our example:
+
+* enp4s0f0: `192.0.2.2/24`
+* enp4s0f1: `198.51.100.2/24`
+* enp6s0: `192.0.2.5/24`
+
+
+.Prerequisites
+
+* You configured the default gateway on the relevant interfaces.
+
+
+.Procedure
+
+. Enable MPTCP sockets in the kernel:
++
+[literal,subs="+quotes"]
+....
+# **echo "net.mptcp.enabled=1" > /etc/sysctl.d/90-enable-MPTCP.conf**
+# **sysctl -p /etc/sysctl.d/90-enable-MPTCP.conf**
+....
+
+
+. Optional: The RHEL kernel default for subflow limit is 2. If you require more:
++
+.. Create the `/etc/systemd/system/set_mptcp_limit.service` file with the following content:
++
+[source]
+....
+[Unit]
+Description=Set MPTCP subflow limit to 3
+After=network.target
+
+[Service]
+ExecStart=ip mptcp limits set subflows 3
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
+....
++
+The *oneshot* unit executes the `ip mptcp limits set subflows 3` command after your network (`network.target`) is operational during every boot process.
++
+The `ip mptcp limits set subflows 3` command sets the maximum number of _additional_ subflows for each connection, so 4 in total. It is possible to add maximally 3 additional subflows.
+
+.. Enable the `set_mptcp_limit` service: 
++
+[literal,subs="+quotes"]
+....
+# **systemctl enable --now set_mptcp_limit**
+....
+
+
+. Enable MPTCP on all connection profiles that you want to use for connection aggregation:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify __<profile_name>__ connection.mptcp-flags signal,subflow,also-without-default-route**
+....
++
+The `connection.mptcp-flags` parameter configures MPTCP endpoints and the IP address flags. If MPTCP is enabled in a NetworkManager connection profile, the setting will configure the IP addresses of the relevant network interface as MPTCP endpoints.
++
+By default, NetworkManager does not add MPTCP flags to IP addresses if there is no default gateway. If you want to bypass that check, you need to use the `also-without-default-route` flag.
+
+
+.Verification
+
+. Verify that you enabled the MPTCP kernel parameter:
++
+[literal,subs="+quotes"]
+....
+# **sysctl net.mptcp.enabled**
+net.mptcp.enabled = 1
+....
+
+
+. Verify that you set the subflow limit correctly, in case the default was not enough:
++
+[literal,subs="+quotes"]
+....
+# **ip mptcp limit show**
+add_addr_accepted 2 subflows 3 
+....
+
+
+. Verify that you configured the per-address MPTCP setting correctly: 
++
+[literal,subs="+quotes"]
+....
+# **ip mptcp endpoint show**
+192.0.2.1 id 1 subflow dev enp4s0
+198.51.100.1 id 2 subflow dev enp1s0 
+192.0.2.3 id 3 subflow dev enp7s0
+192.0.2.4 id 4 subflow dev enp3s0
+...
+....
+
+
+
+[role="_additional-resources"]
+.Additional resources
+* xref:understanding-mptcp_getting-started-with-multipath-tcp[]
+
+* link:https://www.redhat.com/en/blog/understanding-multipath-tcp-networking-highway-future[Understanding Multipath TCP: High availability for endpoints and the networking highway of the future]
+
+* link:https://www.rfc-editor.org/rfc/rfc8684[RFC8684: TCP Extensions for Multipath Operation with Multiple Addresses]
+
+* link:https://www.redhat.com/en/blog/using-multipath-tcp-better-survive-outages-and-increase-bandwidth[Using Multipath TCP to better survive outages and increase bandwidth]
+

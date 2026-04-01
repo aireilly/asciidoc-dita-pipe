@@ -1,0 +1,25 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_managing-applications-with-mptcpize-tool_{context}"]
+= Managing applications with mptcpize tool
+
+[role="_abstract"]
+Using the `mptcpize` tool manage applications and services.
+
+The instruction below shows how to use the `mptcpize` tool to manage applications in the `TCP` environment.
+
+Assuming, you need to run the `iperf3` utility with the enabled `MPTCP` socket. You can achieve this goal by following the procedure below.
+
+.Prerequisites
+
+* The `mptcpd` package is installed
+* The `iperf3` package is installed
+
+.Procedure
+
+* Start `iperf3` utility with `MPTCP` sockets enabled:
++
+[literal,subs="+quotes",options="nowrap"]
+----
+# *mptcpize run iperf3 -s &*
+----

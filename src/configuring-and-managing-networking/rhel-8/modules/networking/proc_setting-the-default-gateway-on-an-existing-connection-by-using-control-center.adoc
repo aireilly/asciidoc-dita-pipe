@@ -1,0 +1,72 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+[id="setting-the-default-gateway-on-an-existing-connection-by-using-control-center_{context}"]
+= Setting the default gateway on an existing connection by using control-center
+
+[role="_abstract"]
+In most situations, administrators set the default gateway when they create a connection. However, you can also set or update the default gateway setting on a previously created connection using the `control-center` application.
+
+
+.Prerequisites
+
+* At least one static IP address must be configured on the connection on which the default gateway will be set.
+
+* The network configuration of the connection is open in the `control-center` application.
+
+
+.Procedure
+
+. Set the IPv4 default gateway. For example, to set the IPv4 address of the default gateway on the connection to `192.0.2.1`:
++
+.. Open the `IPv4` tab.
+
+.. Enter the address in the `gateway` field next to the IP range the gateway's address is within:
++
+image::set-default-gw-in-control-center_ipv4.png["IPv4 gateway setting in `control-center`"]
+
+. Set the IPv6 default gateway. For example, to set the IPv6 address of the default gateway on the connection to `2001:db8:1::1`:
++
+.. Open the `IPv6` tab.
+
+.. Enter the address in the `gateway` field next to the IP range the gateway's address is within:
++
+image::set-default-gw-in-control-center_ipv6.png["IPv6 gateway setting in `control-center`"]
+
+. Click btn:[Apply].
+
+. Back in the `Network` window, disable and re-enable the connection by switching the button for the connection to btn:[Off] and back to btn:[On] for changes to take effect.
++
+[WARNING]
+====
+All connections currently using this network connection are temporarily interrupted during the restart.
+====
+
+.Verification
+
+* Verify that the route is active.
++
+To display the IPv4 default gateway:
++
+[literal,subs="+quotes"]
+....
+$ *ip -4 route*
+default via 192.0.2.1 dev _example_ proto static metric 100
+....
++
+To display the IPv6 default gateway:
++
+[literal,subs="+quotes"]
+....
+$ *ip -6 route*
+default via 2001:db8:1::1 dev _example_ proto static metric 100 pref medium
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:configuring-an-ethernet-connection-by-using-nm-connection-editor_configuring-an-ethernet-connection[Configuring an Ethernet connection by using control-center]
+endif::[]
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-an-ethernet-connection_configuring-and-managing-networking#configuring-an-ethernet-connection-by-using-nm-connection-editor_configuring-an-ethernet-connection[Configuring an Ethernet connection by using control-center]
+endif::[]

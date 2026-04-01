@@ -1,0 +1,75 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_creating-a-virtual-network-in-libvirt-with-an-existing-bridge_{context}"]
+= Creating a virtual network in libvirt with an existing bridge
+
+[role="_abstract"]
+To enable virtual machines (VM) to use the `br0` bridge with the attached virtual extensible LAN (VXLAN), first add a virtual network to the `libvirtd` service that uses this bridge.
+
+
+
+.Prerequisites
+
+* You installed the `libvirt` package.
+* You started and enabled the `libvirtd` service.
+* You configured the `br0` device with the VXLAN on RHEL.
+
+
+
+.Procedure
+
+. Create the `~/vxlan10-bridge.xml` file with the following content:
++
+[literal,subs="+quotes"]
+....
+**<network>**
+**  <name>vxlan10-bridge</name>**
+**  <forward mode="bridge" />**
+**  <bridge name="br0" />**
+**</network>**
+....
+
+. Use the `~/vxlan10-bridge.xml` file to create a new virtual network in `libvirt`:
++
+[literal,subs="+quotes"]
+....
+# **virsh net-define __~/vxlan10-bridge.xml__**
+....
+
+. Remove the `~/vxlan10-bridge.xml` file:
++
+[literal,subs="+quotes"]
+....
+# **rm __~/vxlan10-bridge.xml__**
+....
+
+. Start the `vxlan10-bridge` virtual network:
++
+[literal,subs="+quotes"]
+....
+# **virsh net-start __vxlan10-bridge__**
+....
+
+. Configure the `vxlan10-bridge` virtual network to start automatically when the `libvirtd` service starts:
++
+[literal,subs="+quotes"]
+....
+# **virsh net-autostart __vxlan10-bridge__**
+....
+
+
+
+.Verification
+
+* Display the list of virtual networks:
++
+[literal,subs="+quotes"]
+....
+# **virsh net-list**
+ Name              State    Autostart   Persistent
+----------------------------------------------------
+ __vxlan10-bridge__    active   yes         yes
+ ...
+....
+
+

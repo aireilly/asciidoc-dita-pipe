@@ -1,0 +1,30 @@
+:_mod-docs-content-type: ASSEMBLY
+
+ifdef::context[:parent-context-of-assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network: {context}]
+
+ifndef::context[]
+[id="assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network"]
+endif::[]
+ifdef::context[]
+[id="assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network_{context}"]
+endif::[]
+= Using MACsec to encrypt layer-2 traffic in the same physical network
+
+:context: assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network
+
+
+[role="_abstract"]
+MACsec secures point-to-point communication between devices. For example, you can configure MACsec on the two hosts connecting your branch and central offices over a Metro-Ethernet connection to increase security.
+
+
+include::modules/networking/con_how-macsec-increases-security.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-macsec-connection-using-nmcli.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} != 8]
+include::modules/networking/proc_configuring-a-macsec-connection-using-nmstatectl.adoc[leveloffset=+1]
+endif::[]
+
+ifdef::parent-context-of-assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network[:context: {parent-context-of-assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network}]
+ifndef::parent-context-of-assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network[:!context:]
+

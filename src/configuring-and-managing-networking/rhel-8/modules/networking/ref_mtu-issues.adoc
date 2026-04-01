@@ -1,0 +1,12 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-07-22
+:_mod-docs-content-type: REFERENCE
+
+[id="mtu-issues"]
+= MTU issues
+
+[role="_abstract"]
+Diagnose intermittent IPsec connection failures caused by Maximum Transmission Unit (MTU) issues. Encryption increases packet size, leading to fragmentation and lost data when packets exceed the network's MTU, often seen with larger data transfers.
+
+A common symptom is that small packets, for example pings, work correctly, but larger packets, such as an SSH session, freeze after the login. To fix the problem, lower the MTU for the tunnel by adding the `mtu=1400` option to the configuration file.
+

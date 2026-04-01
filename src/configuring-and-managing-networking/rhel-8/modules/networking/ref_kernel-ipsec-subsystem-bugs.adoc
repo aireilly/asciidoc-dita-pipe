@@ -1,0 +1,19 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-07-22
+:_mod-docs-content-type: REFERENCE
+
+[id="kernel-ipsec-subsystem-bugs"]
+= Kernel IPsec subsystem bugs
+
+[role="_abstract"]
+A defect in the kernel's IPsec subsystem can cause it to lose sync with the IKE daemon. This can lead to discrepancies between negotiated security associations and actual IPsec policy enforcement, disrupting secure network communication.
+
+To check for kernel-level errors, display the transform (XFRM) statistics:
+
+[subs="+quotes"]
+....
+# *cat /proc/net/xfrm_stat*
+....
+
+If any of the counters in the output, such as `XfrmInError`, show a nonzero value, it indicates a problem with the kernel subsystem. In this case, open a link:https://access.redhat.com/support[support case], and attach the output of the command along with the corresponding IKE logs.
+

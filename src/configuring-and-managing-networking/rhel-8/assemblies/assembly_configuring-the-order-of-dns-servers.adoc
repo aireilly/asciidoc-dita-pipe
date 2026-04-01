@@ -1,0 +1,22 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-configuring-the-order-of-dns-servers: {context}]
+
+[id="configuring-the-order-of-dns-servers_{context}"]
+= Configuring the order of DNS servers
+
+:context: configuring-the-order-of-dns-servers
+
+[role="_abstract"]
+The `getaddrinfo()` function of the `glibc` library sends all DNS requests to the first DNS server specified in the `/etc/resolv.conf` file. If this server does not reply, RHEL tries all other name servers. You can configure NetworkManager to influence the DNS server order in `/etc/resolv.conf`.
+
+
+include::modules/networking/con_how-networkmanager-orders-dns-servers-in-etc-resolv-conf.adoc[leveloffset=+1]
+
+include::modules/networking/proc_setting-a-networkmanager-wide-default-dns-server-priority-value.adoc[leveloffset=+1]
+
+include::modules/networking/proc_setting-the-dns-priority-of-a-networkmanager-connection.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-configuring-the-order-of-dns-servers[:context: {parent-context-of-configuring-the-order-of-dns-servers}]
+ifndef::parent-context-of-configuring-the-order-of-dns-servers[:!context:]
+

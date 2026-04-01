@@ -1,0 +1,65 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="disabling-ipv6-on-a-connection-using-nmcli_{context}"]
+= Disabling IPv6 on a connection using `nmcli`
+
+[role="_abstract"]
+You can use the `nmcli` utility to disable the `IPv6` protocol on the command line.
+
+
+.Prerequisites
+* The system uses NetworkManager to manage network interfaces.
+
+
+.Procedure
+
+. Optional: Display the list of network connections:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection show**
+NAME    UUID                                  TYPE      DEVICE
+Example 7a7e0151-9c18-4e6f-89ee-65bb2d64d365  ethernet  enp1s0
+...
+....
+
+. Set the `ipv6.method` parameter of the connection to `disabled`:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection modify __Example__ ipv6.method "disabled"**
+....
+
+. Restart the network connection:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up __Example__**
+....
+
+
+.Verification
+
+. Display the IP settings of the device:
++
+[literal,subs="+quotes"]
+....
+# **ip address show __enp1s0__**
+2: __enp1s0__: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:6b:74:be brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.10.2.255 scope global noprefixroute __enp1s0__
+       valid_lft forever preferred_lft forever
+....
++
+If no `inet6` entry is displayed, `IPv6` is disabled on the device.
+
+. Verify that the `/proc/sys/net/ipv6/conf/__enp1s0__/disable_ipv6` file now contains the value `1`:
++
+[literal,subs="+quotes"]
+....
+# **cat /proc/sys/net/ipv6/conf/__enp1s0__/disable_ipv6**
+1
+....
++
+The value `1` means that `IPv6` is disabled for the device.
+

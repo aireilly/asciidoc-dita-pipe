@@ -1,0 +1,69 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-single-connection-profile-for-multiple-ethernet-interfaces-using-pci-ids_{context}"]
+= Configuring a single connection profile for multiple Ethernet interfaces using PCI IDs
+
+[role="_abstract"]
+A PCI ID uniquely identifies devices on a system. A connection profile can add multiple devices by matching interfaces to a list of PCI IDs. With this feature, you can link multiple devices to one connection profile.
+
+
+.Prerequisites
+
+* Multiple physical or virtual Ethernet devices exist in the server's configuration.
+* A DHCP server is available in the network.
+* No connection profile exists on the host.
+
+
+.Procedure
+
+. Identify the device path. For example, to display the device paths of all interfaces starting with `enp`, enter :
++
+[literal,subs="+quotes"]
+....
+# **udevadm info /sys/class/net/enp* | grep ID_PATH=**
+...
+E: ID_PATH=pci-0000:07:00.0
+E: ID_PATH=pci-0000:08:00.0
+....
+
+. Add a connection profile that applies to all PCI IDs matching the `0000:00:0[7-8].0` expression:     
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection add type ethernet connection.multi-connect multiple match.path "pci-0000:07:00.0 pci-0000:08:00.0" con-name "Wired connection 1"*
+....
+
+
+.Verification
+
+. Display the status of the connection:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection show*
+NAME                 UUID                                  TYPE      DEVICE
+Wired connection 1   9cee0958-512f-4203-9d3d-b57af1d88466  ethernet  enp7s0
+Wired connection 1   9cee0958-512f-4203-9d3d-b57af1d88466  ethernet  enp8s0
+...
+....
+
+. To display all settings of the connection profile:                     
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection show "Wired connection 1"*
+connection.id:               Wired connection 1
+...
+connection.multi-connect:    3 (multiple)
+match.path:                  pci-0000:07:00.0,pci-0000:08:00.0
+...
+....
++
+This connection profile uses all devices with a PCI ID which match the pattern in the `match.path` parameter and, therefore, the connection profiles have the same Universally Unique Identifier (UUID).
+
+[role="_additional-resources"]
+.Additional resources
+ifndef::networking-title[]
+* link:https://access.redhat.com/solutions/3068421[NetworkManager duplicates a connection after restart of NetworkManager service (Red Hat Knowledgebase)]
+endif::[]
+

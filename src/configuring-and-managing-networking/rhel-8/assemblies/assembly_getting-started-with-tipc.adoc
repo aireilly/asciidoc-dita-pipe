@@ -1,0 +1,40 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-getting-started-with-tipc: {context}]
+
+
+ifndef::context[]
+[id="getting-started-with-tipc"]
+endif::[]
+ifdef::context[]
+[id="getting-started-with-tipc_{context}"]
+endif::[]
+= Getting started with TIPC
+
+:context: getting-started-with-tipc
+
+[role="_abstract"]
+Transparent Inter-process Communication (TIPC), which is also known as [literal]`Cluster Domain Sockets`, is an Inter-process Communication (IPC) service for cluster-wide operation.
+
+Applications that are running in a high-available and dynamic cluster environment have special needs. The number of nodes in a cluster can vary, routers can fail, and, due to load balancing considerations, functionality can be moved to different nodes in the cluster. TIPC minimizes the effort by application developers to deal with such situations, and maximizes the chance that they are handled in a correct and optimal way. Additionally, TIPC provides a more efficient and fault-tolerant communication than general protocols, such as TCP.
+
+Use other bearer level protocols to encrypt the communication between nodes based on the transport media. For example:
++
+ifdef::networking-title[]
+* MACSec: See xref:assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network_configuring-and-managing-networking[Using MACsec to encrypt layer 2 traffic]
+endif::[]
+ifndef::networking-title[]
+* MACSec: See link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network_configuring-and-managing-networking.html[Using MACsec to encrypt layer-2 traffic in the same physical network]
+endif::[]
+* IPsec: See link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/securing_networks/configuring-a-vpn-connection_securing-networks[Configuring a VPN with IPsec]
+
+
+include::modules/networking/con_the-architecture-of-tipc.adoc[leveloffset=+1]
+
+include::modules/networking/proc_loading-the-tipc-module-when-the-system-boots.adoc[leveloffset=+1]
+
+include::modules/networking/proc_creating-a-tipc-network.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-getting-started-with-tipc[:context: {parent-context-of-getting-started-with-tipc}]
+ifndef::parent-context-of-getting-started-with-tipc[:!context:]
+

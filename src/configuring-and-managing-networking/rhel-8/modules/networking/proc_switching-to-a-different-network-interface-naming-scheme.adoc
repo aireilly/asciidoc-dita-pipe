@@ -1,0 +1,121 @@
+:_newdoc-version: 2.16.0
+:_template-generated: 2024-02-19
+:_mod-docs-content-type: PROCEDURE
+
+[id="switching-to-a-different-network-interface-naming-scheme_{context}"]
+= Switching to a different network interface naming scheme
+
+[role="_abstract"]
+By default, (RHEL) uses the `rhel-{ProductNumber}.0` naming scheme, even if you install or update to a later minor version of RHEL. While the default naming scheme fits in most scenarios, there might be reasons to switch to a different scheme version.
+
+Examples when you must change the naming scheme:
+
+* A new scheme can help to better identify a device if it adds additional attributes, such as a slot number, to an interface name.
+* An new scheme can prevent `udev` from falling back to the kernel-assigned device names (`eth*`). This happens if the driver does not provide enough unique attributes for two or more interfaces to generate unique names for them.
+
+
+.Prerequisites
+* You have access to the console of the server.
+
+
+.Procedure
+
+. List the network interfaces:
++
+[literal,subs="+quotes"]
+....
+# *ip link show*
+2: eno1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...
+....
++
+Record the MAC addresses of the interfaces.
+
+. Optional: Display the `ID_NET_NAMING_SCHEME` property of a network interface to identify the naming scheme that RHEL currently uses:
++
+[literal,subs="+quotes,attributes"]
+....
+ifeval::[{ProductNumber} == 8]
+# *udevadm info --query=property /sys/class/net/eno1 | grep "ID_NET_NAMING_SCHEME"*
+endif::[]
+ifeval::[{ProductNumber} >= 9]
+# *udevadm info --query=property --property=ID_NET_NAMING_SCHEME /sys/class/net/eno1*
+endif::[]
+ID_NET_NAMING_SCHEME=rhel-{ProductNumber}.0
+....
++
+Note that the property is not available on the `lo` loopback device.
+
+. Append the `net.naming-scheme=_<scheme>_` option to the command line of all installed kernels, for example:
++
+[literal,subs="+quotes,attributes"]
+....
+# *grubby --update-kernel=ALL --args=net.naming-scheme=_rhel-{ProductNumber}.4_*
+....
+
+. Reboot the system.
++
+[literal,subs="+quotes"]
+....
+# *reboot*
+....
+
+. Based on the MAC addresses you recorded, identify the new names of network interfaces that have changed due to the different naming scheme:
++
+[literal,subs="+quotes"]
+....
+# *ip link show*
+2: eno1np0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...
+....
++
+After switching the scheme, `udev` names the device with the specified MAC address `eno1np0`, whereas it was named `eno1` before.
+
+. Identify which NetworkManager connection profile uses an interface with the previous name:
++
+[literal,subs="+quotes"]
+....
+# *nmcli -f device,name connection show*
+DEVICE  NAME
+eno1  example_profile
+...
+....
+
+. Set the `connection.interface-name` property in the connection profile to the new interface name:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify example_profile connection.interface-name "eno1np0"*
+....
+
+. Reactivate the connection profile:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up example_profile*
+....
+
+
+.Verification
+
+* Identify the naming scheme that RHEL now uses by displaying the `ID_NET_NAMING_SCHEME` property of a network interface:
++
+[literal,subs="+quotes,attributes"]
+....
+ifeval::[{ProductNumber} == 8]
+# *udevadm info --query=property /sys/class/net/eno1np0 | grep "ID_NET_NAMING_SCHEME"*
+endif::[]
+ifeval::[{ProductNumber} >= 9]
+# *udevadm info --query=property --property=ID_NET_NAMING_SCHEME /sys/class/net/eno1np0*
+endif::[]
+ID_NET_NAMING_SCHEME=_rhel-{ProductNumber}.4
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+
+* xref:network-interface-naming-schemes_consistent-network-interface-device-naming[Network interface naming schemes]
+

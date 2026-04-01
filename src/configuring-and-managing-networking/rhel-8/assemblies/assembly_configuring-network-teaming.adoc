@@ -1,0 +1,51 @@
+:_mod-docs-content-type: ASSEMBLY
+:parent-context-of-configuring-network-teaming: {context}
+
+[id='configuring-network-teaming_{context}']
+= Configuring a NIC team
+
+:context: configuring-network-teaming
+
+[role="_abstract"]
+Network interface controller (NIC) teaming is a method to combine or aggregate physical and virtual network interfaces to provide a logical interface with higher throughput or redundancy. NIC teaming uses a small kernel module to implement fast handling of packet flows and a user-space service for other tasks. This way, NIC teaming is an easily extensible and scalable solution for load-balancing and redundancy requirements.
+
+{RHEL} provides administrators different options to configure team devices. For example:
+
+* Use `nmcli` to configure teams connections using the command line.
+* Use the {ProductShortName} web console to configure team connections using a web browser.
+* Use the `nm-connection-editor` application to configure team connections in a graphical interface.
+
+[IMPORTANT]
+====
+ifeval::[{ProductNumber} == 8]
+NIC teaming is deprecated in {RHEL} 9. If you plan to upgrade your server to a future version of RHEL, consider using the kernel bonding driver as an alternative. For details, see
+endif::[]
+ifeval::[{ProductNumber} == 9]
+NIC teaming is deprecated in {RHEL9}. Consider using the network bonding driver as an alternative. For details, see
+endif::[]
+ifdef::networking-title[]
+xref:configuring-network-bonding_configuring-and-managing-networking[Configuring a network bond].
+endif::[]
+ifndef::networking-title[]
+link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-network-bonding_configuring-and-managing-networking[Configuring a network bond].
+endif::[]
+====
+
+
+ifeval::[{ProductNumber} == 9]
+include::modules/networking/proc_migrating-a-network-team-configuration-to-network-bond.adoc[leveloffset=+1]
+endif::[]
+
+include::modules/networking/con_understanding-the-default-behavior-of-controller-and-port-interfaces.adoc[leveloffset=+1]
+
+include::modules/networking/con_understanding-the-teamd-service-runners-and-link-watchers.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-team-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-team-by-using-the-rhel-web-console.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-a-network-team-by-using-nm-connection-editor.adoc[leveloffset=+1]
+
+
+:context: {parent-context-of-configuring-network-teaming}
+

@@ -1,0 +1,115 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_fixing-unexpected-routing-behavior-due-to-multiple-default-gateways_{context}"]
+= Fixing unexpected routing behavior due to multiple default gateways
+
+[role="_abstract"]
+For most hosts, you require only a single default gateway to prevent unexpected routing behavior and asynchronous routing issues. Multiple default gateways are typically needed only for specific scenarios, such as when using Multipath TCP.
+
+[NOTE]
+====
+To route traffic to different internet providers, use policy-based routing instead of multiple default gateways.
+====
+
+
+.Prerequisites
+
+* The host uses NetworkManager to manage network connections, which is the default.
+* The host has multiple network interfaces.
+* The host has multiple default gateways configured.
+
+
+.Procedure
+
+. Display the routing table:
++
+** For IPv4, enter:
++
+[literal,subs="+quotes"]
+....
+# *ip -4 route*
+default via 192.0.2.1 dev enp1s0 proto dhcp metric 101
+default via 198.51.100.1 dev enp7s0 proto dhcp metric 102
+...
+....
+
+** For IPv6, enter:
++
+[literal,subs="+quotes"]
+....
+# *ip -6 route*
+default via 2001:db8:1::1 dev enp1s0 proto static ra 101 pref medium
+default via 2001:db8:2::1 dev enp7s0 proto static ra 102 pref medium
+...
+....
+
++
+Entries starting with `default` indicate a default route. Note the interface names of these entries displayed next to `dev`.
+
+. Use the following commands to display the NetworkManager connections that use the interfaces you identified in the previous step:
++
+[literal,subs="+quotes"]
+....
+# *nmcli -f GENERAL.CONNECTION,IP4.GATEWAY,IP6.GATEWAY device show enp1s0*
+GENERAL.CONNECTION:      Corporate-LAN
+IP4.GATEWAY:             192.0.2.1
+IP6.GATEWAY:             2001:db8:1::1
+
+# *nmcli -f GENERAL.CONNECTION,IP4.GATEWAY,IP6.GATEWAY device show enp7s0*
+GENERAL.CONNECTION:      Internet-Provider
+IP4.GATEWAY:             198.51.100.1
+IP6.GATEWAY:             2001:db8:2::1
+....
++
+In these examples, the profiles named `Corporate-LAN` and `Internet-Provider` have the default gateways set. Because, in a local network, the default gateway is typically the host that is one hop closer to the internet, the rest of this procedure assumes that the default gateways in the `Corporate-LAN` are incorrect.
+
+. Configure that NetworkManager does not use the `Corporate-LAN` connection as the default route for IPv4 and IPv6 connections:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify Corporate-LAN ipv4.never-default yes ipv6.never-default yes*
+....
++
+Note that setting `ipv4.never-default` and `ipv6.never-default` to `yes`, automatically removes the default gateway's IP address for the corresponding protocol from the connection profile.
+
+. Activate the `Corporate-LAN` connection:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up Corporate-LAN*
+....
+
+
+
+.Verification
+
+* Display the IPv4 and IPv6 routing tables and verify that only one default gateway is available for each protocol:
++
+** For IPv4, enter:
++
+[literal,subs="+quotes"]
+....
+# *ip -4 route*
+default via 198.51.100.1 dev enp7s0 proto dhcp metric 102
+...
+....
+
+** For IPv6, enter:
++
+[literal,subs="+quotes"]
+....
+# *ip -6 route*
+default via 2001:db8:2::1 dev enp7s0 proto ra metric 102 pref medium
+...
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+ifdef::networking-title[]
+* xref:configuring-policy-based-routing-to-define-alternative-routes_configuring-and-managing-networking[Configuring policy-based routing to define alternative routes]
+endif::[]
+ifndef::networking-title[]
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-policy-based-routing-to-define-alternative-routes_configuring-and-managing-networking[Configuring policy-based routing to define alternative routes]
+endif::[]
+

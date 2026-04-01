@@ -1,0 +1,38 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-assembly_networkmanager-connection-profiles-in-keyfile-format: {context}]
+
+ifndef::context[]
+[id="assembly_networkmanager-connection-profiles-in-keyfile-format"]
+endif::[]
+ifdef::context[]
+[id="assembly_networkmanager-connection-profiles-in-keyfile-format_{context}"]
+endif::[]
+= NetworkManager connection profiles in keyfile format
+
+:context: assembly_networkmanager-connection-profiles-in-keyfile-format
+
+[role="_abstract"]
+ifeval::[{ProductNumber} == 8]
+By default, NetworkManager stores connection profiles in `ifcfg` format, but you can also use profiles in keyfile format. Unlike the deprecated `ifcfg` format, the keyfile format supports all connection settings that NetworkManager provides.
+
+In the {ProductName} 9, the keyfile format will be the default.
+endif::[]
+ifeval::[{ProductNumber} >= 9]
+By default, NetworkManager in {ProductName} {ProductNumber} and later stores connection profiles in keyfile format. Unlike the deprecated `ifcfg` format, the keyfile format supports all connection settings that NetworkManager provides.
+endif::[]
+
+
+include::modules/networking/con_the-keyfile-format-of-networkmanager-profiles.adoc[leveloffset=+1]
+
+include::modules/networking/proc_using-nmcli-to-create-keyfile-connection-profiles-in-offline-mode.adoc[leveloffset=+1]
+
+include::modules/networking/proc_manually-creating-a-networkmanager-profile-in-keyfile-format.adoc[leveloffset=+1]
+
+include::modules/networking/ref_the-differences-in-interface-renaming-with-profiles-in-ifcfg-and-keyfile-format.adoc[leveloffset=+1]
+
+include::modules/networking/proc_migrating-networkmanager-profiles-from-ifcfg-to-keyfile-format.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-assembly_networkmanager-connection-profiles-in-keyfile-format[:context: {parent-context-of-assembly_networkmanager-connection-profiles-in-keyfile-format}]
+ifndef::parent-context-of-assembly_networkmanager-connection-profiles-in-keyfile-format[:!context:]
+

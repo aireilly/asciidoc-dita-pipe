@@ -1,0 +1,95 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="increasing-the-ring-buffers-to-reduce-a-high-packet-drop-rate_{context}"]
+= Increasing the ring buffer size to reduce a high packet drop rate by using `nmcli`
+
+[role="_abstract"]
+Increase the size of an Ethernet device's ring buffers if the packet drop rate causes applications to report a loss of data, timeouts, or other issues.
+
+Receive ring buffers are shared between the device driver and network interface controller (NIC). The card assigns a transmit (TX) and receive (RX) ring buffer. As the name implies, the ring buffer is a circular buffer where an overflow overwrites existing data. There are two ways to move data from the NIC to the kernel, hardware interrupts and software interrupts, also called SoftIRQs.
+
+The kernel uses the RX ring buffer to store incoming packets until the device driver can process them. The device driver drains the RX ring, typically by using SoftIRQs, which puts the incoming packets into a kernel data structure called an `sk_buff` or `skb` to begin its journey through the kernel and up to the application that owns the relevant socket.
+
+The kernel uses the TX ring buffer to hold outgoing packets which should be sent to the network. These ring buffers reside at the bottom of the stack and are a crucial point at which packet drop can occur, which in turn will adversely affect network performance.
+
+
+.Procedure
+
+. Display the packet drop statistics of the interface:
++
+[literal,subs="+quotes"]
+....
+# *ethtool -S _enp1s0_*
+    ...
+    rx_queue_0_drops: _97326_
+    rx_queue_1_drops: _63783_
+    ...
+....
++
+Note that the output of the command depends on the network card and the driver.
++
+High values in `discard` or `drop` counters indicate that the available buffer fills up faster than the kernel can process the packets. Increasing the ring buffers can help to avoid such loss.
+
+. Display the maximum ring buffer sizes:
++
+[literal,subs="+quotes"]
+....
+# *ethtool -g __enp1s0__*
+ Ring parameters for __enp1s0__:
+ Pre-set maximums:
+ RX:             _4096_
+ RX Mini:        _0_
+ RX Jumbo:       _16320_
+ TX:             _4096_
+ Current hardware settings:
+ RX:             _255_
+ RX Mini:        _0_
+ RX Jumbo:       _0_
+ TX:             _255_
+....
++
+If the values in the `Pre-set maximums` section are higher than in the `Current hardware settings` section, you can change the settings in the next steps.
+
+. Identify the NetworkManager connection profile that uses the interface:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection show*
+NAME                UUID                                  TYPE      DEVICE
+_Example-Connection_  _a5eb6490-cc20-3668-81f8-0314a27f3f75_  ethernet  _enp1s0_
+....
+
+. Update the connection profile, and increase the ring buffers:
+
+** To increase the RX ring buffer, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify _Example-Connection_ ethtool.ring-rx _4096_*
+....
+
+** To increase the TX ring buffer, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection modify _Example-Connection_ ethtool.ring-tx _4096_*
+....
+
+. Reload the NetworkManager connection:
++
+[literal,subs="+quotes"]
+....
+# *nmcli connection up _Example-Connection_*
+....
++
+[IMPORTANT]
+====
+Depending on the driver your NIC uses, changing in the ring buffer can shortly interrupt the network connection.
+====
+
+
+[role="_additional-resources"]
+.Additional resources
+* link:https://access.redhat.com/solutions/2073223[ifconfig and ip commands report packet drops (Red Hat Knowledgebase)]
+* link:https://access.redhat.com/solutions/742043[Should I be concerned about a 0.05% packet drop rate? (Red Hat Knowledgebase)]
+

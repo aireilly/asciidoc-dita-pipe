@@ -1,0 +1,23 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-using-networkmanager-to-disable-ipv6-for-a-specific-connection: {context}]
+
+[id="using-networkmanager-to-disable-ipv6-for-a-specific-connection_{context}"]
+= Using NetworkManager to disable IPv6 for a specific connection
+
+:context: using-networkmanager-to-disable-ipv6-for-a-specific-connection
+
+[role="_abstract"]
+On a system that uses NetworkManager to manage network interfaces, you can disable the IPv6 protocol if the network only uses IPv4. If you disable `IPv6`, NetworkManager automatically sets the corresponding `sysctl` values in the Kernel.
+
+[NOTE]
+====
+If disabling IPv6 using kernel tunables or kernel boot parameters, additional consideration must be given to system configuration. For more information, see the Red Hat Knowledgebase solution link:https://access.redhat.com/solutions/8709[How do I disable or enable the IPv6 protocol in RHEL].
+====
+
+
+include::modules/networking/proc_disabling-ipv6-on-a-connection-using-nmcli.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-using-networkmanager-to-disable-ipv6-for-a-specific-connection[:context: {parent-context-of-using-networkmanager-to-disable-ipv6-for-a-specific-connection}]
+ifndef::parent-context-of-using-networkmanager-to-disable-ipv6-for-a-specific-connection[:!context:]
+

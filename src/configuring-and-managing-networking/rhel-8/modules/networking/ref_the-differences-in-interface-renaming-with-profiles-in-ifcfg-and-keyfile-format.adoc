@@ -1,0 +1,26 @@
+:_mod-docs-content-type: REFERENCE
+
+[id="the-differences-in-interface-renaming-with-profiles-in-ifcfg-and-keyfile-format_{context}"]
+= The differences in interface renaming with profiles in ifcfg and keyfile format
+
+[role="_abstract"]
+You can define custom network interface names, such as `lan` to make interface names more descriptive. In this case, the `udev` service renames the interfaces. The renaming process works differently depending on whether you use connection profiles in `ifcfg` or keyfile format.
+
+The interface renaming process when using a profile in `ifcfg` format::
++
+. The `udev` rule file `/usr/lib/udev/rules.d/60-net.rules` calls the `/lib/udev/rename_device` helper utility.
+. The helper utility searches for the `HWADDR` parameter in `/etc/sysconfig/network-scripts/ifcfg-*` files.
+. If the value set in the variable matches the MAC address of an interface, the helper utility renames the interface to the name set in the `DEVICE` parameter of the file.
+
+The interface renaming process when using a profile in keyfile format::
++
+. Create a xref:configuring-user-defined-network-interface-names-by-using-systemd-link-files_consistent-network-interface-device-naming[systemd link file] or a xref:configuring-user-defined-network-interface-names-by-using-systemd-link-files_consistent-network-interface-device-naming[udev rule] to rename an interface.
+. Use the custom interface name in the `interface-name` property of a NetworkManager connection profile.
+
+
+[role="_additional-resources"]
+.Additional resources
+* xref:how-the-udev-device-manager-renames-network-interfaces_consistent-network-interface-device-naming[How the udev device manager renames network interfaces]
+* xref:configuring-user-defined-network-interface-names-by-using-udev-rules_consistent-network-interface-device-naming[Configuring user-defined network interface names by using udev rules]
+* xref:configuring-user-defined-network-interface-names-by-using-systemd-link-files_consistent-network-interface-device-naming[Configuring user-defined network interface names by using systemd link files]
+

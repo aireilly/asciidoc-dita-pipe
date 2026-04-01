@@ -1,0 +1,118 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_blocking-and-allowing-traffic-based-on-hostapd-authentication-events_{context}"]
+= Blocking and allowing traffic based on `hostapd` authentication events
+
+[role="_abstract"]
+The `hostapd` service does not interact with the traffic plane. The service acts only as an authenticator. However, you can write a script to allow and deny traffic based on the result of authentication events.
+
+[IMPORTANT]
+====
+This procedure is not supported and is no enterprise-ready solution. It only demonstrates how to block or allow traffic by evaluating events retrieved by `hostapd_cli`.
+====
+
+When the `802-1x-tr-mgmt` systemd service starts, RHEL blocks all traffic on the listen port of `hostapd` except extensible authentication protocol over LAN (EAPOL) packets and uses the `hostapd_cli` utility to connect to the `hostapd` control interface. The `/usr/local/bin/802-1x-tr-mgmt` script then evaluates events. Depending on the different events received by `hostapd_cli`, the script allows or blocks traffic for MAC addresses. Note that, when the `802-1x-tr-mgmt` service stops, all traffic is automatically allowed again.
+
+Perform this procedure on the `hostapd` server.
+
+
+.Prerequisites
+
+* The `hostapd` service has been configured, and the service is ready to authenticate clients.
+
+
+.Procedure
+
+. Create the `/usr/local/bin/802-1x-tr-mgmt` file with the following content:
++
+[source,bash]
+....
+#!/bin/sh
+
+TABLE="tr-mgmt-${1}"
+read -r -d '' TABLE_DEF << EOF
+table bridge ${TABLE} {
+    set allowed_macs {
+        type ether_addr
+    }
+
+    chain accesscontrol {
+        ether saddr @allowed_macs accept
+        ether daddr @allowed_macs accept
+        drop
+    }
+
+    chain forward {
+        type filter hook forward priority 0; policy accept;
+        meta ibrname "$1" jump accesscontrol
+    }
+}
+EOF
+
+case ${2:-NOTANEVENT} in
+    block_all)
+        nft destroy table bridge "$TABLE"
+        printf "$TABLE_DEF" | nft -f - 
+        echo "$1: All the bridge traffic blocked. Traffic for a client with a given MAC will be allowed after 802.1x authentication"
+        ;;
+
+    AP-STA-CONNECTED | CTRL-EVENT-EAP-SUCCESS | CTRL-EVENT-EAP-SUCCESS2)
+        nft add element bridge tr-mgmt-br0 allowed_macs { $3 }
+        echo "$1: Allowed traffic from $3"
+        ;;
+
+    AP-STA-DISCONNECTED | CTRL-EVENT-EAP-FAILURE)
+        nft delete element bridge tr-mgmt-br0 allowed_macs { $3 }
+        echo "$1: Denied traffic from $3"
+        ;;
+
+    allow_all)
+        nft destroy table bridge "$TABLE"
+        echo "$1: Allowed all bridge traffic again"
+        ;;
+
+    NOTANEVENT)
+        echo "$0 was called incorrectly, usage: $0 interface event [mac_address]"
+        ;;
+esac
+....
+
+. Create the `/etc/systemd/system/802-1x-tr-mgmt@.service` systemd service file with the following content:
++
+[source]
+....
+[Unit]
+Description=Example 802.1x traffic management for hostapd
+After=hostapd.service
+After=sys-devices-virtual-net-%i.device
+
+[Service]
+Type=simple
+ExecStartPre=bash -c '/usr/sbin/hostapd_cli ping | grep PONG'
+ExecStartPre=/usr/local/bin/802-1x-tr-mgmt %i block_all
+ExecStart=/usr/sbin/hostapd_cli -i %i -a /usr/local/bin/802-1x-tr-mgmt
+ExecStopPost=/usr/local/bin/802-1x-tr-mgmt %i allow_all
+
+[Install]
+WantedBy=multi-user.target
+....
+
+. Reload systemd:
++
+[literal,subs="+quotes"]
+....
+# *systemctl daemon-reload*
+....
+
+. Enable and start the `802-1x-tr-mgmt` service with the interface name `hostapd` is listening on:
++
+[literal,subs="+quotes"]
+....
+# *systemctl enable --now 802-1x-tr-mgmt@br0.service*
+....
+
+
+.Verification
+
+* Authenticate with a client to the network. See xref:proc_testing-eap-ttls-authentication-against-a-freeradius-server-or-authenticator_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend[Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator].
+

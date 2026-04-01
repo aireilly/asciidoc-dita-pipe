@@ -1,0 +1,51 @@
+:_mod-docs-content-type: CONCEPT
+
+// Module included in the following assemblies:
+//
+// <List assemblies here, each on a new line>
+
+// This module can be included from assemblies using the following include statement:
+// include::<path>/con_ipvlan-modes.adoc[leveloffset=+1]
+
+// The file name and the ID are based on the module title. For example:
+// * file name: con_my-concept-module-a.adoc
+// * ID: [id='con_my-concept-module-a_{context}']
+// * Title: = My concept module A
+//
+// The ID is used as an anchor for linking to the module. Avoid changing
+// it after the module has been published to ensure existing links are not
+// broken.
+//
+// The `context` attribute enables module reuse. Every module's ID includes
+// {context}, which ensures that the module has a unique ID even if it is
+// reused multiple times in a guide.
+//
+// In the title, include nouns that are used in the body text. This helps
+// readers and search engines find information quickly.
+// Do not start the title with a verb. See also _Wording of headings_
+// in _The IBM Style Guide_.
+[id="ipvlan-modes_{context}"]
+= IPVLAN modes
+
+[role="_abstract"]
+The following modes are available for IPVLAN:
+
+* *L2 mode*
++
+In IPVLAN *L2 mode*, virtual devices receive and respond to address resolution protocol (ARP) requests. The `netfilter` framework runs only inside the container that owns the virtual device. No `netfilter` chains are executed in the default namespace on the containerized traffic. Using *L2 mode* provides good performance, but less control on the network traffic.
+
+* *L3 mode*
++
+In *L3 mode*, virtual devices process only *L3* traffic and above. Virtual devices do not respond to ARP requests and users must configure the neighbour entries for the IPVLAN IP addresses on the relevant peers manually. The egress traffic of a relevant container is landed on the `netfilter` POSTROUTING and OUTPUT chains in the default namespace while the ingress traffic is threaded in the same way as *L2 mode*. Using *L3 mode* provides good control but decreases the network traffic performance.
+
+* *L3S mode*
++
+In *L3S mode*, virtual devices process the same way as in *L3 mode*, except that both egress and ingress traffics of a relevant container are landed on the `netfilter` chain in the default namespace. *L3S mode* behaves in a similar way to *L3 mode* but provides greater control of the network.
+
+[NOTE]
+
+--
+
+The IPVLAN virtual device does not receive broadcast and multicast traffic in case of *L3* and *L3S* modes.
+
+--

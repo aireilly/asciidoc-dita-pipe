@@ -1,0 +1,134 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-wireguard-client-by-using-the-wg-quick-service_{context}"]
+= Configuring a WireGuard client by using the `wg-quick` service
+
+[role="_abstract"]
+You can configure a WireGuard client by creating a configuration file in the `/etc/wireguard/` directory. Use this method to configure the service independently from NetworkManager.
+
+This procedure assumes the following settings:
+
+* Client:
+
+** Private key: `aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A=`
+** Tunnel IPv4 address: `192.0.2.2/24`
+** Tunnel IPv6 address: `2001:db8:1::2/32`
+
+* Server:
+
+** Public key: `UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=`
+** Tunnel IPv4 address: `192.0.2.1/24`
+** Tunnel IPv6 address: `2001:db8:1::1/32`
+
+
+
+.Prerequisites
+
+* You have generated the public and private key for both the server and client.
+
+* You know the following information:
++
+** The private key of the client
+** The static tunnel IP addresses and subnet masks of the client
+** The public key of the server
+** The static tunnel IP addresses and subnet masks of the server
+
+
+
+.Procedure
+
+. Install the `wireguard-tools` package:
++
+[literal,subs="+quotes,attributes"]
+....
+# *{PackageManagerCommand} install wireguard-tools*
+....
+
+. Create the `/etc/wireguard/wg0.conf` file with the following content:
++
+[literal,subs="+quotes"]
+....
+*[Interface]*
+*Address = 192.0.2.2/24, 2001:db8:1::2/32*
+*PrivateKey = aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A=*
+
+*[Peer]*
+*PublicKey = UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=*
+*AllowedIPs = 192.0.2.1, 2001:db8:1::1*
+*Endpoint = server.example.com:51820*
+*PersistentKeepalive = 20*
+....
++
+* The `[Interface]` section describes the WireGuard settings of the interface on the client:
++
+** `Address`: A comma-separated list of the client's tunnel IP addresses.
+** `PrivateKey`: The private key of the client.
+
+* The `[Peer]` section describes the settings of the server:
++
+** `PublicKey`: The public key of the server.
+** `AllowedIPs`: The IP addresses that are allowed to send data to this client. For example, set the parameter to:
+*** The tunnel IP addresses of the server to allow only the server to communicate with this client. The value in the example above configures this scenario.
+*** `0.0.0.0/0, ::/0` to allow any remote IPv4 and IPv6 address to communicate with this client. Use this setting to route all traffic through the tunnel and use the WireGuard server as default gateway.
+** `Endpoint`: Sets the hostname or IP address and the port of the server. The client uses this information to establish the connection.
+** The optional `persistent-keepalive` parameter defines an interval in seconds in which WireGuard sends a keepalive packet to the server. Set this parameter if you use the client in a network with network address translation (NAT) or if a firewall closes the UDP connection after some time of inactivity.
+
+. Enable and start the WireGuard connection:
++
+[literal,subs="+quotes"]
+....
+# *systemctl enable --now wg-quick@wg0*
+....
++
+The systemd instance name must match the name of the configuration file in the `/etc/wireguard/` directory without the `.conf` suffix. The service also uses this name for the virtual network interface.
+
+. If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see xref:assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn[Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel].
+
+
+
+.Verification
+
+. Ping the IP addresses of the server:
++
+[literal,subs="+quotes"]
+....
+# *ping 192.0.2.1*
+# *ping6 2001:db8:1::1*
+....
+
+. Display the interface configuration of the `wg0` device:
++
+[literal,subs="+quotes"]
+....
+# *wg show wg0*
+interface: wg0
+  public key: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  private key: (hidden)
+  listening port: 51820
+
+peer: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  endpoint: server.example.com:51820
+  allowed ips: 192.0.2.1/32, 2001:db8:1::1/128
+  latest handshake: 1 minute, 41 seconds ago
+  transfer: 824 B received, 1.01 KiB sent
+  persistent keepalive: every 20 seconds
+....
++
+To display the private key in the output, use the `WG_HIDE_KEYS=never wg show wg0` command.
++
+Note that the output contains only the `latest handshake` and `transfer` entries if you have already sent traffic through the VPN tunnel.
+
+. Display the IP configuration of the `wg0` device:
++
+[literal,subs="+quotes"]
+....
+# *ip address show wg0*
+10: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.2/24 scope global wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::2/32 scope global
+       valid_lft forever preferred_lft forever
+....
+
+

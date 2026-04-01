@@ -1,0 +1,35 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-a-systemd-service-to-start-after-the-network-has-been-started_{context}"]
+= Configuring a systemd service to start after the network has been started
+
+[role="_abstract"]
+RHEL installs `systemd` service files in the `/usr/lib/systemd/system/` directory. You can create a drop-in snippet in `/etc/systemd/system/_<service_name>_.service.d/` to start a service after the network is online.
+
+This snippet's settings override any conflicting settings in the original service file.
+
+
+.Procedure
+
+. Open a service file in the editor:
++
+[subs="+quotes"]
+....
+# *systemctl edit _<service_name>_*
+....
+
+. Enter the following, and save the changes:
++
+[source]
+....
+[Unit]
+After=network-online.target
+....
+
+. Reload the `systemd` service.
++
+[subs="+quotes"]
+....
+# *systemctl daemon-reload*
+....
+

@@ -1,0 +1,35 @@
+:_mod-docs-content-type: PROCEDURE
+[id="creating-a-dummy-interface-with-both-an-ipv4-and-ipv6-address-using-nmcli_{context}"]
+
+= Creating a dummy interface with both an IPv4 and IPv6 address by using `nmcli`
+
+[role="_abstract"]
+You can create a dummy interface with various settings, such as IPv4 and IPv6 addresses. After creating the interface, NetworkManager automatically assigns it to the default `public` firewalld zone.
+
+
+.Procedure
+
+* Create a dummy interface named `dummy0` with static IPv4 and IPv6 addresses:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection add type dummy ifname _dummy0_ ipv4.method manual ipv4.addresses _192.0.2.1/24_ ipv6.method manual ipv6.addresses _2001:db8:2::1/64_**
+....
++
+[NOTE]
+====
+To configure a dummy interface without IPv4 and IPv6 addresses, set both the `ipv4.method` and `ipv6.method` parameters to `disabled`. Otherwise, IP auto-configuration fails, and NetworkManager deactivates the connection and removes the device.
+====
+
+
+.Verification
+
+* List the connection profiles:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection show**
+NAME            UUID                                  TYPE     DEVICE
+dummy-dummy0    aaf6eb56-73e5-4746-9037-eed42caa8a65  dummy    dummy0
+....
+

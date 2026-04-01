@@ -1,0 +1,25 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-configuring-policy-based-routing-to-define-alternative-routes: {context}]
+
+[id="configuring-policy-based-routing-to-define-alternative-routes_{context}"]
+
+:context: configuring-policy-based-routing-to-define-alternative-routes
+
+[role="_abstract"]
+By default, the RHEL kernel forwards network packets based on the destination address by using a routing table. With policy-based routing, you can configure complex scenarios to route packets based on various criteria, such as the source address.
+
+
+include::modules/networking/proc_routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-nmcli.adoc[leveloffset=+1]
+
+include::modules/networking/proc_routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-the-network-rhel-system-role.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} == 8]
+include::modules/networking/con_overview-of-configuration-files-involved-in-policy-based-routing-when-using-the-legacy-network-scripts.adoc[leveloffset=+1]
+
+include::modules/networking/proc_routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-the-legacy-network-scripts.adoc[leveloffset=+1]
+endif::[]
+
+
+ifdef::parent-context-of-configuring-policy-based-routing-to-define-alternative-routes[:context: {parent-context-of-configuring-policy-based-routing-to-define-alternative-routes}]
+ifndef::parent-context-of-configuring-policy-based-routing-to-define-alternative-routes[:!context:]
+

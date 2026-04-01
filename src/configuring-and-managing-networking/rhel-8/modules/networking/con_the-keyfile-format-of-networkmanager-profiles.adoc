@@ -1,0 +1,48 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="con_the-keyfile-format-of-networkmanager-profiles_{context}"]
+= The keyfile format of NetworkManager profiles
+
+[role="_abstract"]
+The keyfile format is an INI-like configuration for network connections.
+
+For example, the following is an Ethernet connection profile in keyfile format:
+
+[source,subs="+quotes"]
+....
+[connection]
+id=__example_connection__
+uuid=__82c6272d-1ff7-4d56-9c7c-0eb27c300029__
+type=__ethernet__
+autoconnect=__true__
+
+[ipv4]
+method=__auto__
+
+[ipv6]
+method=__auto__
+
+[ethernet]
+mac-address=__00:53:00:8f:fa:66__
+....
+
+[WARNING]
+====
+Typos or incorrect placements of parameters can lead to unexpected behavior. Therefore, do not manually edit or create NetworkManager profiles.
+
+Use the `nmcli` utility, the `network` RHEL system role, or the `nmstate` API to manage NetworkManager connections. For example, you can use the xref:proc_using-nmcli-to-create-keyfile-connection-profiles-in-offline-mode_assembly_networkmanager-connection-profiles-in-keyfile-format[`nmcli` utility in offline mode] to create connection profiles.
+====
+
+Each section corresponds to a NetworkManager setting name as described in the `nm-settings(5)` man page. Each key-value-pair in a section is one of the properties listed in the settings specification of the man page.
+
+Most variables in NetworkManager keyfiles have a one-to-one mapping. This means that a NetworkManager property is stored in the keyfile as a variable of the same name and in the same format. However, there are exceptions, mainly to make the keyfile syntax easier to read. For a list of these exceptions, see the `nm-settings-keyfile(5)` man page on your system.
+
+[IMPORTANT]
+====
+For security reasons, because connection profiles can contain sensitive information, such as private keys and passphrases, NetworkManager uses only configuration files owned by the `root` user and that are only readable and writable by `root`.
+====
+
+Save the connection profile with a `.nmconnection` suffix in the `/etc/NetworkManager/system-connections/` directory. This directory contains persistent profiles. If you modify a persistent profile by using the NetworkManager API, NetworkManager writes and overwrites files in this directory.
+
+NetworkManager does not automatically reload profiles from disk. When you create or update a connection profile in keyfile format, use the `nmcli connection reload` command to inform NetworkManager about the changes.
+

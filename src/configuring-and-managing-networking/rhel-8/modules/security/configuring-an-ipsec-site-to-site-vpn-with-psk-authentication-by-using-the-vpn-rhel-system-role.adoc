@@ -1,0 +1,105 @@
+:_newdoc-version: 2.17.0
+:_template-generated: 2024-03-08
+:_mod-docs-content-type: PROCEDURE
+
+
+[id="configuring-an-ipsec-site-to-site-vpn-with-psk-authentication-by-using-the-vpn-rhel-system-role_{context}"]
+= Configuring an IPsec site-to-site VPN with PSK authentication by using the `vpn` RHEL system role
+
+[role="_abstract"]
+A site-to-site VPN establishes an encrypted tunnel between two distinct networks, seamlessly linking them across an insecure public network. By using the `vpn` RHEL system role, you can automate the process of creating IPsec site-to-site VPN connections.
+
+A site-to-site VPN enables devices in a branch office to access resources at a corporate headquarters just as if they were all part of the same local network.
+
+For authentication, a pre-shared key (PSK) is a straightforward method that uses a single, shared secret known only to the two peers. This approach is simple to configure and ideal for basic setups where ease of deployment is a priority. However, you must keep the key strictly confidential. An attacker with access to the key can compromise the connection.
+
+
+.Prerequisites
+// Always include prerequisites that are the same for all system role procedures:
+include::common-content/snip_common-prerequisites.adoc[]
+
+
+.Procedure
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configuring VPN
+  hosts: managed-node-01.example.com, managed-node-02.example.com
+  tasks:
+    - name: IPsec VPN with PSK authentication
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.vpn
+      vars:
+        vpn_connections:
+          - hosts:
+              managed-node-01.example.com:
+                subnets:
+                  - 192.0.2.0/24
+              managed-node-02.example.com:
+                subnets:
+                  - 198.51.100.0/24
+                  - 203.0.113.0/24
+            auth_method: psk
+            auto: start
+        vpn_manage_firewall: true
+        vpn_manage_selinux: true
+....
++
+// Explain only variables without a self-explaining name and if values are not clear.
+// If the whole playbook is self-explaining, remove both the lead-in sentence and the definition list, and keep only the "For details..." sentence.
+The settings specified in the example playbook include the following:
++
+`hosts: _<list>_`:: Defines a YAML dictionary with the gateways between which you want to configure a VPN. If an entry is not an Ansible-managed node, you must specify its fully-qualified domain name (FQDN) or IP address in the `hostname` parameter, for example:
++
+[source,yaml,subs="+quotes"]
+....
+          ...
+          - hosts:
+              ...
+              *external-host.example.com:*
+                *hostname: 192.0.2.1*
+....
++
+The role configures the VPN connection on each managed node. The connections are named `_<gateway_A>_-to-_<gateway_B>_`, for example, `managed-node-01.example.com-to-managed-node-02.example.com`. Note that the role cannot configure Libreswan on external (unmanaged) nodes. You must manually create the configuration on these peers.
+`subnets: _<yaml_list_of_subnets>_`:: Defines subnets in classless inter-domain routing (CIDR) format that are connected through the tunnel.
+`auth_method: psk`:: Enables PSK authentication between the peers. The role uses `openssl` on the control node to create the PSK.
+`auto: _<startup_method>_`:: Specifies the startup method of the connection. Valid values are `add`, `ondemand`, `start`, and `ignore`. For details, see the `ipsec.conf(5)` man page on a system with Libreswan installed. The default value of this variable is null, which means no automatic startup operation.
+`vpn_manage_firewall: true`:: Defines that the role opens the required ports in the `firewalld` service on the managed nodes.
+`vpn_manage_selinux: true`:: Defines that the role sets the required SELinux port type on the IPsec ports.
+
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.vpn/README.md` file on the control node.
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook ~/playbook.yml*
+....
+
+
+.Verification
+
+* Confirm that the connections are successfully started, for example:
++
+[subs="+quotes"]
+....
+# *ansible managed-node-01.example.com -m shell -a 'ipsec trafficstatus | grep "managed-node-01.example.com-to-managed-node-02.example.com"'*
+...
+006 #3: "managed-node-01.example.com-to-managed-node-02.example.com", type=ESP, add_time=1741857153, inBytes=38622, outBytes=324626, maxBytes=2^63B, id='@managed-node-02.example.com'
+....
++
+Note that this command only succeeds if the VPN connection is active. If you set the `auto` variable in the playbook to a value other than `start`, you might need to manually activate the connection on the managed nodes first.
+

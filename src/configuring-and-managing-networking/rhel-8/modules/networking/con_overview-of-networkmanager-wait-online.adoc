@@ -1,0 +1,25 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="overview-of-networkmanager-wait-online_{context}"]
+= Overview of `NetworkManager-wait-online`
+
+[role="_abstract"]
+The `NetworkManager-wait-online` service delays reaching the `network-online` target until NetworkManager reports that the startup is complete.
+
+During boot, NetworkManager activates all profiles with the `connection.autoconnect` parameter set to `yes`. However, the activation of profiles is not complete as long as NetworkManager profiles are in an activating state. If activation fails, NetworkManager retries the activation depending on the value of the `connection.autoconnect-retries`.
+
+When a device reaches the activated state depends on its configuration. For example, if a profile contains both IPv4 and IPv6 configuration, by default, NetworkManager considers the device as fully activated when only one of the Address families is ready. The `ipv4.may-fail` and `ipv6.may-fail` parameters in a connection profile control this behavior.
+
+For Ethernet devices, NetworkManager waits for the carrier with a timeout. Consequently, if the Ethernet cable is not connected, this can further delay `NetworkManager-wait-online.service`.
+
+When the startup completes, either all profiles are in a disconnected state or are successfully activated. You can configure profiles to auto-connect. The following are a few examples of parameters that set timeouts or define when the connection is considered active:
+
+* `connection.wait-device-timeout`: Sets the timeout for the driver to detect the device.
+* `ipv4.may-fail` and `ipv6.may-fail`: Sets activation with one IP address family ready, or whether a particular address family must have completed configuration.
+* `ipv4.gateway-ping-timeout`: Delays network activation until NetworkManager receives a ping response from the IPv4 gateway. The system waits up to the specified number of seconds before proceeding.
+ifeval::[{ProductNumber} >= 9]
+* `ip-ping-timeout` and `ip-ping-addresses`: Delays network activation until NetworkManager receives a ping response from the hosts defined in `ip-ping-addresses`. The system waits up to the specified number of seconds before proceeding.
+endif::[]
+
+For further details, see the `nm-settings(5)`, `systemd.special(7)`, `NetworkManager-wait-online.service(8)` man pages on your system.
+

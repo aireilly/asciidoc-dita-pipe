@@ -1,0 +1,99 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-macsec-connection-using-nmcli_{context}"]
+= Configuring a MACsec connection by using `nmcli`
+
+[role="_abstract"]
+You can use the `nmcli` utility to configure Ethernet interfaces to use MACsec. For example, you can create a MACsec connection between two hosts that are connected over Ethernet.
+
+
+.Procedure
+
+. On the first host on which you configure MACsec:
+
+* Create the connectivity association key (CAK) and connectivity-association key name (CKN) for the pre-shared key:
+
+.. Create a 16-byte hexadecimal CAK:
++
+[subs="+quotes"]
+....
+# *dd if=/dev/urandom count=16 bs=1 2> /dev/null | hexdump -e '1/2 "%04x"'*
+50b71a8ef0bd5751ea76de6d6c98c03a
+....
+.. Create a 32-byte hexadecimal CKN:
++
+[subs="+quotes"]
+....
+# *dd if=/dev/urandom count=32 bs=1 2> /dev/null | hexdump -e '1/2 "%04x"'*
+f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550
+....
+
+. On both hosts you want to connect over a MACsec connection:
+
+. Create the MACsec connection:
++
+[subs="+quotes"]
+....
+# *nmcli connection add type macsec con-name macsec0 ifname macsec0 connection.autoconnect yes macsec.parent enp1s0 macsec.mode psk macsec.mka-cak 50b71a8ef0bd5751ea76de6d6c98c03a macsec.mka-ckn f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550*
+....
+Use the CAK and CKN generated in the previous step in the `macsec.mka-cak` and `macsec.mka-ckn` parameters. The values must be the same on every host in the MACsec-protected network.
+
+. Configure the IP settings on the MACsec connection.
+
+.. Configure the `IPv4` settings. For example, to set a static `IPv4` address, network mask, default gateway, and DNS server to the `macsec0` connection, enter:
++
+[subs="+quotes"]
+....
+# *nmcli connection modify macsec0 ipv4.method manual ipv4.addresses '192.0.2.1/24' ipv4.gateway '192.0.2.254' ipv4.dns '192.0.2.253'*
+....
+
+.. Configure the `IPv6` settings. For example, to set a static `IPv6` address, network mask, default gateway, and DNS server to the `macsec0` connection, enter:
++
+[subs="+quotes"]
+....
+# *nmcli connection modify macsec0 ipv6.method manual ipv6.addresses '2001:db8:1::1/32'  ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffd'*
+....
+
+. Activate the connection:
++
+[subs="+quotes"]
+....
+# *nmcli connection up macsec0*
+....
+
+
+.Verification
+
+. Verify that the traffic is encrypted:
++
+[subs="+quotes"]
+....
+# *tcpdump -nn -i enp1s0*
+....
+
+. Optional: Display the unencrypted traffic:
++
+[subs="+quotes"]
+....
+# *tcpdump -nn -i macsec0*
+....
+
+. Display MACsec statistics:
++
+[subs="+quotes"]
+....
+# *ip macsec show*
+....
+
+. Display individual counters for each type of protection: integrity-only (encrypt off) and encryption (encrypt on)
++
+[subs="+quotes"]
+....
+# *ip -s macsec show*
+....
+
+
+[role="_additional-resources"]
+.Additional resources
+* link:https://developers.redhat.com/blog/2016/10/14/macsec-a-different-solution-to-encrypt-network-traffic[MACsec: a different solution to encrypt network traffic]
+

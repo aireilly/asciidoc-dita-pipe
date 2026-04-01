@@ -1,0 +1,122 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+[id="configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-the-network-rhel-system-role-with-a-device-path_{context}"]
+= Configuring an Ethernet connection with a dynamic IP address by using the `network` {RHELSystemRoles} with a device path
+
+[role="_abstract"]
+By using the `network` RHEL system role, you can configure an Ethernet connection to retrieve its IP addresses, gateways, and DNS settings from a DHCP server and IPv6 stateless address autoconfiguration (SLAAC). The role can assign the profile by the device's path.
+
+To connect a {RHEL} host to an Ethernet network, create a NetworkManager connection profile for the network device. By using Ansible and the `network` RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.
+
+
+.Prerequisites
+
+include::common-content/snip_common-prerequisites.adoc[]
+// The following are prerequisites that are specific for this task:
+* A physical or virtual Ethernet device exists in the server's configuration.
+* A DHCP server and SLAAC are available in the network.
+* The managed hosts use NetworkManager to configure the network.
+* You know the path of the device. You can display the device path by using the `udevadm info /sys/class/net/_<device_name>_ | grep ID_PATH=` command.
+
+
+.Procedure
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Ethernet connection profile with dynamic IP address settings
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: example
+            match:
+              path:
+                - pci-0000:00:0[1-3].0
+                - '&!pci-0000:00:02.0'
+            type: ethernet
+            autoconnect: yes
+            ip:
+              dhcp4: yes
+              auto6: yes
+            state: up
+....
++
+The settings specified in the example playbook include the following:
++
+`match: path`:: Defines that a condition must be met in order to apply the settings. You can only use this variable with the `path` option.
+`path: _<path_and_expressions>_`:: Defines the persistent path of a device. You can set it as a fixed path or an expression. Its value can contain modifiers and wildcards. The example applies the settings to devices that match PCI ID `0000:00:0[1-3].0`, but not `0000:00:02.0`.
+`dhcp4: yes`:: Enables automatic IPv4 address assignment from DHCP, PPP, or similar services.
+`auto6: yes`:: Enables IPv6 auto-configuration. By default, NetworkManager uses Router Advertisements. If the router announces the `managed` flag, NetworkManager requests an IPv6 address and prefix from a DHCPv6 server.
+
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.network/README.md` file on the control node.
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook ~/playbook.yml*
+....
+
+
+.Verification
+
+* Query the Ansible facts of the managed node and verify that the interface received IP addresses and DNS settings:
++
+[literal,subs="+quotes"]
+....
+# *ansible managed-node-01.example.com -m ansible.builtin.setup*
+...
+        "ansible_default_ipv4": {
+            "address": "192.0.2.1",
+            "alias": "enp1s0",
+            "broadcast": "192.0.2.255",
+            "gateway": "192.0.2.254",
+            "interface": "enp1s0",
+            "macaddress": "52:54:00:17:b8:b6",
+            "mtu": 1500,
+            "netmask": "255.255.255.0",
+            "network": "192.0.2.0",
+            "prefix": "24",
+            "type": "ether"
+        },
+        "ansible_default_ipv6": {
+            "address": "2001:db8:1::1",
+            "gateway": "2001:db8:1::fffe",
+            "interface": "enp1s0",
+            "macaddress": "52:54:00:17:b8:b6",
+            "mtu": 1500,
+            "prefix": "64",
+            "scope": "global",
+            "type": "ether"
+        },
+        ...
+        "ansible_dns": {
+            "nameservers": [
+                "192.0.2.1",
+                "2001:db8:1::ffbb"
+            ],
+            "search": [
+                "example.com"
+            ]
+        },
+...
+....
+

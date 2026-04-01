@@ -1,0 +1,37 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+[id="tracing-tcp-sessions_{context}"]
+= Tracing TCP sessions
+
+[role="_abstract"]
+The `tcplife` utility uses eBPF to trace TCP sessions that open and close, and prints a line of output to summarize each one. Administrators can use `tcplife` to identify connections and the amount of transferred traffic.
+
+For example, you can display connections to port `22` (SSH) to retrieve the following information:
+
+* The local process ID (PID)
+* The local process name
+* The local IP address and port number
+* The remote IP address and port number
+* The amount of received and transmitted traffic in KB.
+* The time in milliseconds the connection was active
+
+
+.Procedure
+
+. Enter the following command to start the tracing of connections to the local port `22`:
++
+[subs="+quotes"]
+....
+# */usr/share/bcc/tools/tcplife -L 22*
+PID   COMM    LADDR      LPORT RADDR       RPORT TX_KB  RX_KB      MS
+19392 sshd    192.0.2.1  22    192.0.2.17  43892    53     52 6681.95
+19431 sshd    192.0.2.1  22    192.0.2.245 43902    81 249381 7585.09
+19487 sshd    192.0.2.1  22    192.0.2.121 43970  6998     7 16740.35
+...
+....
++
+Each time a connection is closed, `tcplife` displays the details of the connections.
+
+. Press kbd:[Ctrl]+kbd:[C] to stop the tracing process.
+

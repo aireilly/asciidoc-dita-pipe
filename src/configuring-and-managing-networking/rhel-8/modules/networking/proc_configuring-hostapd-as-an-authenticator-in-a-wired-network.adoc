@@ -1,0 +1,125 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-hostapd-as-an-authenticator-in-a-wired-network_{context}"]
+= Configuring `hostapd` as an authenticator in a wired network
+
+[role="_abstract"]
+The host access point daemon (`hostapd`) service can act as an authenticator in a wired network to provide 802.1X authentication. For this, the `hostapd` service requires a RADIUS server that authenticates the clients.
+
+The `hostapd` service provides an integrated RADIUS server. However, use the integrated RADIUS server only for testing purposes. For production environments, use FreeRADIUS server, which supports additional features, such as different authentication methods and access control.
+
+[IMPORTANT]
+====
+The `hostapd` service does not interact with the traffic plane. The service acts only as an authenticator. For example, use a script or service that uses the `hostapd` control interface to allow or deny traffic based on the result of authentication events.
+====
+
+
+.Prerequisites
+
+* You installed the `hostapd` package.
+* The FreeRADIUS server has been configured, and it is ready to authenticate clients.
+
+
+
+.Procedure
+
+. Create the `/etc/hostapd/hostapd.conf` file with the following content:
++
+[source,subs="+quotes"]
+....
+# General settings of hostapd
+# ===========================
+
+# Control interface settings
+ctrl_interface=__/var/run/hostapd__
+ctrl_interface_group=__wheel__
+
+# Enable logging for all modules
+logger_syslog=__-1__
+logger_stdout=__-1__
+
+# Log level
+logger_syslog_level=__2__
+logger_stdout_level=__2__
+
+
+# Wired 802.1X authentication
+# ===========================
+
+# Driver interface type
+driver=wired
+
+# Enable IEEE 802.1X authorization
+ieee8021x=1
+
+# Use port access entry (PAE) group address
+# (01:80:c2:00:00:03) when sending EAPOL frames
+use_pae_group_addr=1
+
+
+# Network interface for authentication requests
+interface=__br0__
+
+
+# RADIUS client configuration
+# ===========================
+
+# Local IP address used as NAS-IP-Address
+own_ip_addr=__192.0.2.2__
+
+# Unique NAS-Identifier within scope of RADIUS server
+nas_identifier=__hostapd.example.org__
+
+# RADIUS authentication server
+auth_server_addr=__192.0.2.1__
+auth_server_port=__1812__
+auth_server_shared_secret=__hostapd_client_password__
+
+# RADIUS accounting server
+acct_server_addr=__192.0.2.1__
+acct_server_port=__1813__
+acct_server_shared_secret=__hostapd_client_password__
+....
++
+For further details about the parameters used in this configuration, see their descriptions in the `/usr/share/doc/hostapd/hostapd.conf` example configuration file.
+
+. Enable and start the `hostapd` service:
++
+[literal,subs="+quotes"]
+....
+# *systemctl enable --now hostapd*
+....
+
+
+.Verification
+
+* xref:proc_testing-eap-ttls-authentication-against-a-freeradius-server-or-authenticator_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend[Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator]
+
+
+.Troubleshooting
+
+* If the `hostapd` service fails to start, verify that the bridge interface you use in the `/etc/hostapd/hostapd.conf` file is present on the system:
++
+[literal,subs="+quotes"]
+....
+# *ip link show br0*
+....
+
+* For other problems, run `hostapd` in debug mode:
+
+.. Stop the `hostapd` service:
++
+[literal,subs="+quotes"]
+....
+# *systemctl stop hostapd*
+....
+
+.. Start the service in debug mode:
++
+[literal,subs="+quotes"]
+....
+# *hostapd -d /etc/hostapd/hostapd.conf*
+....
+
+.. Perform authentication tests on the FreeRADIUS host, as referenced in the `Verification` section.
+

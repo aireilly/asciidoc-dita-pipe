@@ -1,0 +1,103 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+
+[id="configuring-vlan-tagging-by-using-the-network-rhel-system-role_{context}"]
+= Configuring VLAN tagging by using the `network` {RHELSystemRoles}
+
+[role="_abstract"]
+You can use the `network` RHEL system role to configure VLAN tagging and, if a connection profile for the VLAN's parent device does not exist, the role can create it as well.
+
+If your network uses Virtual Local Area Networks (VLANs) to separate network traffic into logical networks, create a NetworkManager connection profile to configure VLAN tagging. By using Ansible and the `network` RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.
+
+[NOTE]
+====
+If the VLAN device requires an IP address, default gateway, and DNS settings, configure them on the VLAN device and not on the parent device.
+====
+
+
+.Prerequisites
+
+include::common-content/snip_common-prerequisites.adoc[]
+
+
+.Procedure
+
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: VLAN connection profile with Ethernet port
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          # Ethernet profile
+          - name: enp1s0
+            type: ethernet
+            interface_name: enp1s0
+            autoconnect: yes
+            state: up
+            ip:
+              dhcp4: no
+              auto6: no
+
+          # VLAN profile
+          - name: enp1s0.10
+            type: vlan
+            vlan:
+              id: 10
+            ip:
+              dhcp4: yes
+              auto6: yes
+            parent: enp1s0
+            state: up
+....
++
+The settings specified in the example playbook include the following:
++
+`type: _<profile_type>_`:: Sets the type of the profile to create. The example playbook creates two connection profiles: One for the parent Ethernet device and one for the VLAN device.
+`dhcp4: _<value>_`:: If set to `yes`, automatic IPv4 address assignment from DHCP, PPP, or similar services is enabled. Disable the IP address configuration on the parent device.
+`auto6: _<value>_`:: If set to `yes`, IPv6 auto-configuration is enabled. In this case, by default, NetworkManager uses Router Advertisements and, if the router announces the `managed` flag, NetworkManager requests an IPv6 address and prefix from a DHCPv6 server. Disable the IP address configuration on the parent device.
+`parent: _<parent_device>_`:: Sets the parent device of the VLAN connection profile. In the example, the parent is the Ethernet interface.
+
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.network/README.md` file on the control node.
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook ~/playbook.yml*
+....
+
+
+.Verification
+
+* Verify the VLAN settings:
++
+[literal,subs="+quotes"]
+....
+# *ansible managed-node-01.example.com -m command -a 'ip -d addr show enp1s0.10'*
+managed-node-01.example.com | CHANGED | rc=0 >>
+4: vlan10@enp1s0.10: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 52:54:00:72:2f:6e brd ff:ff:ff:ff:ff:ff promiscuity 0
+    vlan protocol 802.1Q id 10 <REORDER_HDR> numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535
+    ...
+....
+

@@ -1,0 +1,106 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+[id="proc_configuring-a-network-bond-by-using-network-rhel-system-role_{context}"]
+= Configuring a network bond by using the `network` {RHELSystemRoles}
+
+[role="_abstract"]
+You can use the `network` RHEL system role to configure a network bond and, if a connection profile for the bond's parent device does not exist, the role can create it as well.
+
+You can combine network interfaces in a bond to provide a logical interface with higher throughput or redundancy. To configure a bond, create a NetworkManager connection profile. By using Ansible and the `network` RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.
+
+
+.Prerequisites
+
+include::common-content/snip_common-prerequisites.adoc[]
+// The following are prerequisites that are specific for this task:
+* Two or more physical or virtual network devices are installed on the server.
+
+
+.Procedure
+
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Bond connection profile with two Ethernet ports
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          # Bond profile
+          - name: bond0
+            type: bond
+            interface_name: bond0
+            ip:
+              dhcp4: yes
+              auto6: yes
+            bond:
+              mode: active-backup
+            state: up
+
+          # Port profile for the 1st Ethernet device
+          - name: bond0-port1
+            interface_name: enp7s0
+            type: ethernet
+            controller: bond0
+            state: up
+
+          # Port profile for the 2nd Ethernet device
+          - name: bond0-port2
+            interface_name: enp8s0
+            type: ethernet
+            controller: bond0
+            state: up
+....
++
+The settings specified in the example playbook include the following:
++
+`type: _<profile_type>_`:: Sets the type of the profile to create. The example playbook creates three connection profiles: One for the bond and two for the Ethernet devices.
+`dhcp4: yes`:: Enables automatic IPv4 address assignment from DHCP, PPP, or similar services.
+`auto6: yes`:: Enables IPv6 auto-configuration. By default, NetworkManager uses Router Advertisements. If the router announces the `managed` flag, NetworkManager requests an IPv6 address and prefix from a DHCPv6 server.
+`mode: _<bond_mode>_`:: Sets the bonding mode. Possible values are:
++
+* `balance-rr` (default)
+* `active-backup`
+* `balance-xor`
+* `broadcast`
+* `802.3ad`
+* `balance-tlb`
+* `balance-alb`.
+
++
+Depending on the mode you set, you need to set additional variables in the playbook.
+
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.network/README.md` file on the control node.
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook ~/playbook.yml*
+....
+
+
+.Verification
+
+* Temporarily remove the network cable from one of the network devices and check if the other device in the bond is handling the traffic.
++
+Note that there is no method to properly test link failure events using software utilities. Tools that deactivate connections, such as `nmcli`, show only the bonding driver’s ability to handle port configuration changes and not actual link failure events.
+

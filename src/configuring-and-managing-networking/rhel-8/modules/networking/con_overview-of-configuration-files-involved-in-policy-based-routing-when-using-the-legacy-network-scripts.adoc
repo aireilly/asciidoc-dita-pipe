@@ -1,0 +1,52 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="overview-of-configuration-files-involved-in-policy-based-routing-when-using-the-legacy-network-scripts_{context}"]
+= Overview of configuration files involved in policy-based routing when using the legacy network scripts
+
+[role="_abstract"]
+If you use the legacy network scripts instead of NetworkManager to configure your network, you can also configure policy-based routing.
+
+[NOTE]
+====
+Configuring the network using the legacy network scripts provided by the `network-scripts` package is deprecated in RHEL 8. Use NetworkManager to configure policy-based routing. For an example, see
+ifdef::networking-title[]
+xref:routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-nmcli_configuring-policy-based-routing-to-define-alternative-routes[Routing traffic from a specific subnet to a different default gateway by using nmcli].
+endif::[]
+
+ifndef::networking-title[]
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/{ProductNumberLink}/html/configuring_and_managing_networking/configuring-policy-based-routing-to-define-alternative-routes_configuring-and-managing-networking#routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-by-using-nmcli_configuring-policy-based-routing-to-define-alternative-routes[Routing traffic from a specific subnet to a different default gateway by using nmcli]
+endif::[]
+
+====
+
+The following configuration files are involved in policy-based routing when you use the legacy network scripts:
+
+
+* `/etc/sysconfig/network-scripts/route-__interface__`: This file defines the IPv4 routes. Use the `table` option to specify the routing table. For example:
++
+[source]
+....
+192.0.2.0/24 via 198.51.100.1 table 1
+203.0.113.0/24 via 198.51.100.2 table 2
+....
+
+* `/etc/sysconfig/network-scripts/route6-__interface__`: This file defines the IPv6 routes.
+
+* `/etc/sysconfig/network-scripts/rule-__interface__`: This file defines the rules for IPv4 source networks for which the kernel routes traffic to specific routing tables. For example:
++
+[source]
+....
+from 192.0.2.0/24 lookup 1
+from 203.0.113.0/24 lookup 2
+....
+
+* `/etc/sysconfig/network-scripts/rule6-__interface__`: This file defines the rules for IPv6 source networks for which the kernel routes traffic to specific routing tables.
+
+* `/etc/iproute2/rt_tables`: This file defines the mappings if you want to use names instead of numbers to refer to specific routing tables. For example:
++
+[source]
+....
+1     Provider_A
+2     Provider_B
+....
+

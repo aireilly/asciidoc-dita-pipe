@@ -1,0 +1,18 @@
+:_mod-docs-content-type: CONCEPT
+
+[id="con_benefits-of-vxlans_{context}"]
+= Benefits of VXLANs
+
+[role="_abstract"]
+A virtual extensible LAN (VXLAN) provides the following major benefits:
+
+* VXLANs use a 24-bit ID. Therefore, you can create up to 16,777,216 isolated networks. For example, a virtual LAN (VLAN), supports only 4,096 isolated networks.
+
+* VXLANs use the IP protocol. This enables you to route the traffic and virtually run systems in different networks and locations within the same layer-2 domain.
+
+* Unlike most tunnel protocols, a VXLAN is not only a point-to-point network. A VXLAN can learn the IP addresses of the other endpoints either dynamically or use statically-configured forwarding entries.
+
+* Certain network cards support UDP tunnel-related offload features.
+
+For further details, see the `/usr/share/doc/kernel-doc-__<kernel_version>__/Documentation/networking/vxlan.rst` file provided by the `kernel-doc` package.
+

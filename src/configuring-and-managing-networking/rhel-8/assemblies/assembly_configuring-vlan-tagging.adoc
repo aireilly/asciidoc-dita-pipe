@@ -1,0 +1,44 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-configuring-vlan-tagging: {context}]
+
+[id="configuring-vlan-tagging_{context}"]
+= Configuring VLAN tagging
+
+:context: configuring-vlan-tagging
+
+[role="_abstract"]
+A Virtual Local Area Network (VLAN) is a logical network within a physical network. The VLAN interface tags packets with the VLAN ID as they pass through the interface, and removes tags of returning packets.
+
+You create VLAN interfaces on top of another interface, such as Ethernet, bond, or bridge devices. These interfaces are called the `parent interface`.
+
+{RHEL} provides administrators different options to configure VLAN devices. For example:
+
+* Use `nmcli` to configure VLAN tagging using the command line.
+* Use the {ProductShortName} web console to configure VLAN tagging using a web browser.
+* Use `nmtui` to configure VLAN tagging in a text-based user interface.
+* Use the `nm-connection-editor` application to configure connections in a graphical interface.
+* Use `nmstatectl` to configure connections through the Nmstate API.
+* Use {RHELSystemRoles}s to automate the VLAN configuration on one or multiple hosts.
+
+
+include::modules/networking/proc_configuring-vlan-tagging-by-using-nmcli.adoc[leveloffset=+1]
+
+//Requested only for RHEL9
+ifeval::[{ProductNumber} != 8]
+include::modules/networking/proc_configuring-nested-vlans-using-nmcli-commands.adoc[leveloffset=+1]
+endif::[]
+
+include::modules/networking/proc_configuring-vlan-tagging-by-using-the-rhel-web-console.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-vlan-tagging-by-using-nmtui.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-vlan-tagging-by-using-nm-connection-editor.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-vlan-tagging-by-using-nmstatectl.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-vlan-tagging-by-using-the-rhel-network-system-role.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-configuring-vlan-tagging[:context: {parent-context-of-configuring-vlan-tagging}]
+ifndef::parent-context-of-configuring-vlan-tagging[:!context:]
+

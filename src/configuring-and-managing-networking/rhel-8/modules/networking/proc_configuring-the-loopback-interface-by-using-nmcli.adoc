@@ -1,0 +1,86 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-the-loopback-interface-by-using-nmcli_{context}"]
+= Configuring the loopback interface by using `nmcli`
+
+[role="_abstract"]
+By default, NetworkManager does not manage the loopback (`lo`) interface. After creating a connection profile for the `lo` interface, you can configure this device by using NetworkManager.
+
+Some of the examples when users want to configure the loopback interface are as follows:
+
+* Assign additional IP addresses to the `lo` interface
+* Define DNS addresses
+* Change the Maximum Transmission Unit (MTU) size of the `lo` interface
+
+
+.Procedure
+. Create a new connection of type `loopback`:
++
+[subs="+quotes"]
+....
+# *nmcli connection add con-name _example-loopback_ type loopback*
+....
+
+. Configure custom connection settings, for example:
+
+.. To assign an additional IP address to the interface, enter:
++
+[subs="+quotes"]
+....
+# *nmcli connection modify _example-loopback_ +ipv4.addresses _192.0.2.1/24_*
+....
++
+[NOTE]
+====
+NetworkManager manages the `lo` interface by always assigning the IP addresses `127.0.0.1` and `::1` that are persistent across the reboots. You cannot override `127.0.0.1` and `::1`. However, you can assign additional IP addresses to the interface.
+====
++
+.. To set a custom Maximum Transmission Unit (MTU), enter:
++
+[subs="+quotes"]
+....
+# *nmcli con mod _example-loopback_ loopback.mtu _16384_*
+....
+
+.. To set an IP address to your DNS server, enter:
++
+[subs="+quotes"]
+....
+# *nmcli connection modify _example-loopback_ ipv4.dns _192.0.2.0_*
+....
++
+If you set a DNS server in the loopback connection profile, this entry is always available in the `/etc/resolv.conf` file. The DNS server entry remains independent of whether or not the host roams between different networks.
+
+. Activate the connection:
++
+[subs="+quotes"]
+....
+# *nmcli connection up example-loopback*
+....
+
+
+.Verification
+
+. Display the settings of the `lo` interface:
++
+[subs="+quotes"]
+....
+# *ip address show lo*
+
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu *16384* qdisc noqueue state UNKNOWN group default qlen 1000
+
+link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 inet 127.0.0.1/8 scope host lo valid_lft forever preferred_lft forever inet `192.0.2.1/24` brd `192.0.2.255` scope global lo valid_lft forever preferred_lft forever
+
+inet6 ::1/128 scope host
+valid_lft forever preferred_lft forever
+....
+
+. Verify the DNS address:
++
+[subs="+quotes"]
+....
+# *cat /etc/resolv.conf*
+...
+nameserver `192.0.2.0`
+...
+....

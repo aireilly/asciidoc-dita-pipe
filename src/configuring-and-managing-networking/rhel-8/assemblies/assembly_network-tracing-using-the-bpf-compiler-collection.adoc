@@ -1,0 +1,51 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-network-tracing-using-the-bpf-compiler-collection: {context}]
+
+[id="network-tracing-using-the-bpf-compiler-collection_{context}"]
+= Network tracing using the BPF compiler collection
+
+:context: network-tracing-using-the-bpf-compiler-collection
+
+[role="_abstract"]
+BPF Compiler Collection (BCC) is a library, which facilitates the creation of the extended Berkeley Packet Filter (eBPF) programs. The main utility of eBPF programs is analyzing the operating system performance and network performance without experiencing overhead or security issues.
+
+BCC removes the need for users to know deep technical details of eBPF, and provides many out-of-the-box starting points, such as the [systemitem]`bcc-tools` package with pre-created eBPF programs.
+
+[NOTE]
+====
+The eBPF programs are triggered on events, such as disk I/O, TCP connections, and process creations. It is unlikely that the programs should cause the kernel to crash, loop or become unresponsive because they run in a safe virtual machine in the kernel.
+====
+
+
+include::modules/core-kernel/proc_installing-the-bcc-tools-package.adoc[leveloffset=+1]
+
+include::modules/networking/proc_displaying-tcp-connections-added-to-the-kernels-accept-queue.adoc[leveloffset=+1]
+
+include::modules/networking/proc_tracing-outgoing-tcp-connection-attempts.adoc[leveloffset=+1]
+
+include::modules/networking/proc_measuring-the-latency-of-outgoing-tcp-connections.adoc[leveloffset=+1]
+
+include::modules/networking/proc_displaying-details-about-tcp-packets-and-segments-that-were-dropped-by-the-kernel.adoc[leveloffset=+1]
+
+include::modules/networking/proc_tracing-tcp-sessions.adoc[leveloffset=+1]
+
+include::modules/networking/proc_tracing-tcp-retransmissions.adoc[leveloffset=+1]
+
+include::modules/networking/proc_displaying-tcp-state-change-information.adoc[leveloffset=+1]
+
+include::modules/networking/proc_summarizing-and-aggregating-tcp-traffic-sent-to-specific-subnets.adoc[leveloffset=+1]
+
+include::modules/networking/proc_displaying-the-network-throughput-by-ip-address-and-port.adoc[leveloffset=+1]
+
+include::modules/networking/proc_tracing-established-tcp-connections.adoc[leveloffset=+1]
+
+include::modules/networking/proc_tracing-ipv4-and-ipv6-listen-attempts.adoc[leveloffset=+1]
+
+include::modules/networking/proc_summarizing-the-service-time-of-soft-interrupts.adoc[leveloffset=+1]
+
+include::modules/networking/proc_summarizing-packets-size-and-count-on-a-network-interface.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-network-tracing-using-the-bpf-compiler-collection[:context: {parent-context-of-network-tracing-using-the-bpf-compiler-collection}]
+ifndef::parent-context-of-network-tracing-using-the-bpf-compiler-collection[:!context:]
+

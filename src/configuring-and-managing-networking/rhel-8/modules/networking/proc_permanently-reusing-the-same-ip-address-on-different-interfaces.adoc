@@ -1,0 +1,83 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="permanently-reusing-the-same-ip-address-on-different-interfaces_{context}"]
+
+= Permanently reusing the same IP address on different interfaces
+
+[role="_abstract"]
+You can use the virtual routing and forwarding (VRF) feature to permanently use the same IP address on different interfaces in one server.
+
+[IMPORTANT]
+====
+To enable remote peers to contact both VRF interfaces while reusing the same IP address, the network interfaces must belong to different broadcasting domains. A broadcast domain in a network is a set of nodes, which receive broadcast traffic sent by any of them. In most configurations, all nodes connected to the same switch belong to the same broadcasting domain.
+====
+
+
+.Prerequisites
+
+* You are logged in as the `root` user.
+
+* The network interfaces are not configured.
+
+
+.Procedure
+
+. Create and configure the first VRF device:
+
+.. Create a connection for the VRF device and assign it to a routing table. For example, to create a VRF device named `vrf0` that is assigned to the `1001` routing table:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection add type vrf ifname _vrf0_ con-name _vrf0_ table 1001 ipv4.method disabled ipv6.method disabled**
+----
+
+.. Enable the `vrf0` device:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection up _vrf0_**
+----
+
+.. Assign a network device to the VRF just created. For example, to add the `enp1s0` Ethernet device to the `vrf0` VRF device and assign an IP address and the subnet mask to `enp1s0`, enter:
++
+[literal,subs="+quotes,attributes"]
+----
+# **nmcli connection add type ethernet con-name _vrf.enp1s0_ ifname _enp1s0_ {NM_controller} vrf0 ipv4.method _manual_ ipv4.address _192.0.2.1/24_**
+----
+
+.. Activate the `vrf.enp1s0` connection:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection up _vrf.enp1s0_**
+----
+
+. Create and configure the next VRF device:
+
+.. Create the VRF device and assign it to a routing table. For example, to create a VRF device named `vrf1` that is assigned to the `1002` routing table, enter:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection add type vrf ifname _vrf1_ con-name _vrf1_ table 1002 ipv4.method disabled ipv6.method disabled**
+----
+.. Activate the `vrf1` device:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection up _vrf1_**
+----
+
+.. Assign a network device to the VRF just created. For example, to add the `enp7s0` Ethernet device to the `vrf1` VRF device and assign an IP address and the subnet mask to `enp7s0`, enter:
++
+[literal,subs="+quotes,attributes"]
+----
+# **nmcli connection add type ethernet con-name _vrf.enp7s0_ ifname _enp7s0_ {NM_controller} _vrf1_ ipv4.method _manual_ ipv4.address _192.0.2.1/24_**
+----
+
+.. Activate the `vrf.enp7s0` device:
++
+[literal,subs="+quotes"]
+----
+# **nmcli connection up _vrf.enp7s0_**
+----
+

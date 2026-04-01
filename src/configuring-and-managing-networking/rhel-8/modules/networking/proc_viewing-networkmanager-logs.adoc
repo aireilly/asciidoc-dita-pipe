@@ -1,0 +1,17 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="viewing-networkmanager-logs_{context}"]
+= Viewing NetworkManager logs
+
+[role="_abstract"]
+You can view the NetworkManager logs for troubleshooting.
+
+.Procedure
+
+* To view the logs, enter:
++
+[literal,subs="+quotes"]
+----
+# **journalctl -u NetworkManager -b**
+----
+

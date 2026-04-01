@@ -1,0 +1,44 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-an-ethtool-offload-feature-by-using-nmcli_{context}"]
+= Configuring an ethtool offload feature by using `nmcli`
+
+[role="_abstract"]
+You can use NetworkManager to enable and disable `ethtool` offload features in a connection profile.
+
+
+.Procedure
+
+. For example, to enable the RX offload feature and disable TX offload in the `enp1s0` connection profile, enter:
++
+[literal,subs="+quotes"]
+....
+# **nmcli con modify __enp1s0__ ethtool.feature-rx on ethtool.feature-tx off**
+....
++
+This command explicitly enables RX offload and disables TX offload.
+
+. To remove the setting of an offload feature that you previously enabled or disabled, set the feature's parameter to a null value. For example, to remove the configuration for TX offload, enter:
++
+[literal,subs="+quotes"]
+....
+# *nmcli con modify _enp1s0_ ethtool.feature-tx ""*
+....
+
+. Reactivate the network profile:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up __enp1s0__**
+....
+
+
+.Verification
+
+* Use the `ethtool -k` command to display the current offload features of a network device:
++
+[literal,subs="+quotes"]
+....
+# **ethtool -k __network_device__**
+....
+

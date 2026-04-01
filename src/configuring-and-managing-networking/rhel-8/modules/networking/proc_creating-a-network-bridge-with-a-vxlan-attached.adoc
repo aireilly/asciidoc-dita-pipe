@@ -1,0 +1,71 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_creating-a-network-bridge-with-a-vxlan-attached_{context}"]
+= Creating a network bridge with a VXLAN attached
+
+[role="_abstract"]
+To make a virtual extensible LAN (VXLAN) invisible to virtual machines (VMs), create a bridge on a host, and attach the VXLAN to the bridge. Use NetworkManager to create both the bridge and the VXLAN. You do not add any traffic access point (TAP) devices of the VMs, typically named `vnet*` on the host, to the bridge. The `libvirtd` service adds them dynamically when the VMs start.
+
+Run this procedure on both RHEL hosts, and adjust the IP addresses accordingly.
+
+
+
+.Procedure
+
+. Create the bridge `br0`:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection add type bridge con-name br0 ifname br0 ipv4.method disabled ipv6.method disabled**
+....
++
+This command sets no IPv4 and IPv6 addresses on the bridge device, because this bridge works on layer 2.
+
+. Create the VXLAN interface and attach it to `br0`:
++
+[literal,subs="+quotes,attributes"]
+....
+# **nmcli connection add type vxlan {NM_port}-type bridge con-name __br0-vxlan10__ ifname __vxlan10__ id __10__ local __198.51.100.2__ remote __203.0.113.1__ {NM_controller} __br0__**
+....
++
+This command uses the following settings:
++
+* `id 10`: Sets the VXLAN identifier.
+* `local 198.51.100.2`: Sets the source IP address of outgoing packets.
+* `remote 203.0.113.1`: Sets the unicast or multicast IP address to use in outgoing packets when the destination link layer address is not known in the VXLAN device forwarding database.
+* `{NM_controller} br0`: Sets this VXLAN connection to be created as a port in the `br0` connection.
+* `ipv4.method disabled` and `ipv6.method disabled`: Disables IPv4 and IPv6 on the bridge.
+
++
+By default, NetworkManager uses `8472` as the destination port. If the destination port is different, additionally, pass the `destination-port __<port_number>__` option to the command.
+
+. Activate the `br0` connection profile:
++
+[literal,subs="+quotes"]
+....
+# **nmcli connection up __br0__**
+....
+
+. Open port `8472` for incoming UDP connections in the local firewall:
++
+[literal,subs="+quotes"]
+....
+# **firewall-cmd --permanent --add-port=8472/udp**
+# **firewall-cmd --reload**
+....
+
+
+
+.Verification
+
+* Display the forwarding table:
++
+[literal,subs="+quotes"]
+....
+# **bridge fdb show dev __vxlan10__**
+2a:53:bd:d5:b3:0a master br0 permanent
+00:00:00:00:00:00 dst 203.0.113.1 self permanent
+...
+....
+
+

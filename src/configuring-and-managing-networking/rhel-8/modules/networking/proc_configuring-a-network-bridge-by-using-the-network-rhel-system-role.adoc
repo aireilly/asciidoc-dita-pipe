@@ -1,0 +1,119 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+[id="configuring-a-network-bridge-by-using-the-network-rhel-system-role_{context}"]
+= Configuring a network bridge by using the `network` {RHELSystemRoles}
+
+[role="_abstract"]
+You can use the `network` RHEL system role to configure a bridge and, if a connection profile for the bridge's parent device does not exist, the role can create it as well.
+
+You can connect multiple networks on layer 2 of the Open Systems Interconnection (OSI) model by creating a network bridge. To configure a bridge, create a connection profile in NetworkManager. By using Ansible and the `network` RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.
+
+
+[NOTE]
+====
+If you want to assign IP addresses, gateways, and DNS settings to a bridge, configure them on the bridge and not on its ports.
+====
+
+
+
+.Prerequisites
+
+include::common-content/snip_common-prerequisites.adoc[]
+// The following are prerequisites that are specific for this task:
+* Two or more physical or virtual network devices are installed on the server.
+
+
+.Procedure
+
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Bridge connection profile with two Ethernet ports
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          # Bridge profile
+          - name: bridge0
+            type: bridge
+            interface_name: bridge0
+            ip:
+              dhcp4: yes
+              auto6: yes
+            state: up
+
+          # Port profile for the 1st Ethernet device
+          - name: bridge0-port1
+            interface_name: enp7s0
+            type: ethernet
+            controller: bridge0
+            port_type: bridge
+            state: up
+
+          # Port profile for the 2nd Ethernet device
+          - name: bridge0-port2
+            interface_name: enp8s0
+            type: ethernet
+            controller: bridge0
+            port_type: bridge
+            state: up
+....
++
+The settings specified in the example playbook include the following:
++
+`type: _<profile_type>_`:: Sets the type of the profile to create. The example playbook creates three connection profiles: One for the bridge and two for the Ethernet devices.
+`dhcp4: yes`:: Enables automatic IPv4 address assignment from DHCP, PPP, or similar services. 
+`auto6: yes`:: Enables IPv6 auto-configuration. By default, NetworkManager uses Router Advertisements. If the router announces the `managed` flag, NetworkManager requests an IPv6 address and prefix from a DHCPv6 server.
+
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.network/README.md` file on the control node.
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook ~/playbook.yml*
+....
+
+
+.Verification
+
+. Display the link status of Ethernet devices that are ports of a specific bridge: 
++
+[literal,subs="+quotes"]
+....
+# *ansible managed-node-01.example.com -m command -a 'ip link show master bridge0'*
+managed-node-01.example.com | CHANGED | rc=0 >>
+3: enp7s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel master bridge0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:62:61:0e brd ff:ff:ff:ff:ff:ff
+4: enp8s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel master bridge0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:9e:f1:ce brd ff:ff:ff:ff:ff:ff
+....
+
+. Display the status of Ethernet devices that are ports of any bridge device: 
++
+[literal,subs="+quotes"]
+....
+# *ansible managed-node-01.example.com -m command -a 'bridge link show'*
+managed-node-01.example.com | CHANGED | rc=0 >>
+3: enp7s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master bridge0 state forwarding priority 32 cost 100
+4: enp8s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master bridge0 state listening priority 32 cost 100
+....
+

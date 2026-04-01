@@ -1,0 +1,113 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="determining-a-predictable-roce-device-name-on-the-ibm-z-platform_{context}"]
+= Determining a predictable RoCE device name on the IBM Z platform
+
+[role="_abstract"]
+Before you can use a `udev` rule or a `systemd` link file to rename an interface manually, you must determine a predictable device name.
+
+On {ProductName} ({ProductShortName}) 8.7 and later, the `udev` device manager sets names for RoCE interfaces on IBM Z as follows:
+
+* If the host enforces a unique identifier (UID) for a device, `udev` assigns a consistent device name that is based on the UID, for example `eno__<UID_in_decimal>__`.
+* If the host does not enforce a UID for a device, the behavior depends on your settings:
+** By default, `udev` uses unpredictable names for the device.
+** If you set the `net.naming-scheme=rhel-8.7` kernel command line option, `udev` assigns a consistent device name that is based on the function identifier (FID) of the device, for example `ens__<FID_in_decimal>__`.
+
+Manually configure predictable device name for RoCE interfaces on IBM Z in the following cases:
+
+* Your host runs {ProductShortName} 8.6 or earlier and enforces a UID for a device, and you plan to update to {ProductShortName} 8.7 or later.
++
+After an update to {ProductShortName} 8.7 or later, `udev` uses consistent interface names. However, if you used unpredictable device names before the update, NetworkManager connection profiles still use these names and fail to activate until you update the affected profiles.
+
+* Your host runs {ProductShortName} 8.7 or later and does not enforce a UID, and you plan to upgrade to {ProductShortName} 9.
+
+
+.Prerequisites
+
+* An RoCE controller is installed in the system.
+* The `sysfsutils` package is installed.
+
+
+.Procedure
+
+. Display the available network devices, and note the names of the RoCE devices:
++
+[literal,subs="+quotes"]
+....
+# *ip link show*
+...
+2: enP5165p0s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+...
+....
+
+. Display the device path in the `/sys/` file system:
++
+[literal,subs="+quotes"]
+....
+# *systool -c net -p*
+Class = "net"
+
+  Class Device = "enP5165p0s0"
+  Class Device path = "/sys/devices/pci142d:00/142d:00:00.0/net/enP5165p0s0"
+    Device = "142d:00:00.0"
+    Device path = "/sys/devices/pci142d:00/142d:00:00.0"
+....
++
+Use the path shown in the `Device path` field in the next steps.
+
+. Display the value of the `__<device_path>__/uid_id_unique` file, for example:
++
+[literal,subs="+quotes"]
+....
+# *cat /sys/devices/pci142d:00/142d:00:00.0/uid_id_unique*
+....
++
+The displayed value indicates whether UID uniqueness is enforced or not, and you require this value in later steps.
+
+. Determine a unique identifier:
+
+** If UID uniqueness is enforced (`1`), display the UID stored in the `__<device_path>__/uid` file, for example:
++
+[literal,subs="+quotes"]
+....
+# *cat /sys/devices/pci142d:00/142d:00:00.0/uid*
+....
+
+** If UID uniqueness is not enforced (`0`), display the FID stored in the `__<device_path>__/function_id` file, for example:
++
+[literal,subs="+quotes"]
+....
+# *cat /sys/devices/pci142d:00/142d:00:00.0/function_id*
+....
+
++
+The outputs of the commands display the UID and FID values in hexadecimal.
+
+. Convert the hexadecimal identifier to decimal, for example:
++
+[literal,subs="+quotes"]
+....
+# *printf "%d\n" 0x00001402*
+5122
+....
+
+. To determine the predictable device name, append the identifier in decimal format to the corresponding prefix based on whether UID uniqueness is enforced or not:
+
+** If UID uniqueness is enforced, append the identifier to the `eno` prefix, for example `eno5122`.
+** If UID uniqueness is not enforced, append the identifier to the `ens` prefix, for example `ens5122`.
+
+
+.Next steps
+
+* Use one of the following methods to rename the interface to the predictable name:
+
+** xref:configuring-user-defined-network-interface-names-by-using-udev-rules_consistent-network-interface-device-naming[Configuring user-defined network interface names by using udev rules]
+** xref:configuring-user-defined-network-interface-names-by-using-systemd-link-files_consistent-network-interface-device-naming[Configuring user-defined network interface names by using systemd link files]
+
+
+[role="_additional-resources"]
+.Additional resources
+// According to our content strategist, we can make an exception and link IBM docs.
+// IBM Z is an exception and we do not have the hardware to test this, but we support this.
+* link:https://www.ibm.com/docs/en/linux-on-systems?topic=identifiers-interface-names[Network interface names (IBM documentation)]
+

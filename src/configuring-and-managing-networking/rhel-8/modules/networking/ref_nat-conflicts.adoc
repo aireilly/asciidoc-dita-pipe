@@ -1,0 +1,27 @@
+:_newdoc-version: 2.18.5
+:_template-generated: 2025-07-22
+:_mod-docs-content-type: REFERENCE
+
+[id="nat-conflicts"]
+= NAT conflicts
+
+[role="_abstract"]
+Resolve NAT conflicts that occur when an IPsec host also acts as a NAT router. Incorrect NAT application can translate source IP addresses before encryption, causing packets to be sent unencrypted over the network.
+
+For example, if the source IP address of the packet is translated by a masquerade rule before IPsec encryption is applied, the packet's source no longer matches the IPsec policy, and Libreswan sends it unencrypted over the network.
+
+To solve this problem, add a firewall rule that excludes traffic between the IPsec subnets from NAT. This rule should be inserted at the beginning of the `POSTROUTING` chain to ensure it is processed before the general NAT rule.
+
+.Solution by using the `nftables` framework
+[example]
+====
+The following example uses `nftables` to set up a basic NAT environment that excludes traffic between the 192.0.2.0/24 and 198.51.100.0/24 subnets from address translation:
+
+[subs="+quotes"]
+....
+# *nft add table ip nat*
+# *nft add chain ip nat postrouting { type nat hook postrouting priority 100 \; }*
+# *nft add rule ip nat postrouting ip saddr 192.0.2.0/24 ip daddr 198.51.100.0/24 return*
+....
+====
+

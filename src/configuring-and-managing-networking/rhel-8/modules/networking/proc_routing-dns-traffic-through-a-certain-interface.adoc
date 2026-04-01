@@ -1,0 +1,70 @@
+:_newdoc-version: 2.18.3
+:_template-generated: 2025-01-20
+:_mod-docs-content-type: PROCEDURE
+
+[id="routing-dns-traffic-through-a-certain-interface_{context}"]
+= Routing DNS traffic through a certain interface
+
+[role="_abstract"]
+If your host has multiple network interfaces and each DNS server is reachable only through a specific interface, configure RHEL to route DNS traffic correctly to prevent misdirected queries and resolution failures.
+
+NetworkManager can configure the `systemd-resolved`, `dnsmasq`, and `dnsconf` DNS backends. To avoid DNS resolution issues on multi-interface systems, NetworkManager can automatically create dedicated routes for DNS servers tied to specific network interfaces.
+
+Each DNS server mentioned in a connection profile is associated with a specific network interface. The DNS backend services `systemd-resolved` and `dnsmasq` ensure that each DNS name server remains accessible only through the correct network interface. However, other backend services do not support this feature. In this regard, NetworkManager has a feature that automatically adds a dedicated route so that each name server is reached only through the correct interface. You can set up the `ipv4.routed-dns` and `ipv6.routed-dns` properties to use this feature. 
+
+Example scenario:
+
+* Connection profile 1 _<example-connection-1>_ :
+** Default gateway: `192.0.2.254`
+** DNS server: `10.0.0.1`
+** Search domain: example-domain.com
+
+* Connection profile 2 _<example-connection-2>_ :
+** Default gateway: `198.51.100.254` (this gateway has no access to the `10.0.0.0/24` network)
+** DNS server: `203.0.113.1`
+
+In this example, you have two connection profiles: _<example-connection-1>_ and _<example-connection-2>_ that are connected through `enp1s0` and `enp7s0` network interfaces. If the _<example-connection-2>_ second profile was connected first, the default gateway `198.51.100.254` of this connection has a lower metric and takes precedence over the first profile. Consequently, RHEL uses the default gateway of the second connection while connecting to the DNS server `10.0.0.1` of the first profile. As a result, the DNS resolution fails. To solve this problem, enable the `ipv4.routed-dns` setting for both connection profiles so that NetworkManager creates a dedicated route for the `10.0.0.1` DNS server through the correct interface, in this case, `enp1s0`.
+
+.Prerequisites
+
+*  The connection profiles already exist.
+
+.Procedure
+
+. Modify the connection profile to enable the creation of routes to the name server:
+
+.. For connection profile 1, enter:
++
+[subs="+quotes"]
+----
+# **nmcli connection modify __<example-connection-1>__ ipv4.routed-dns yes**
+----
+
+.. For connection profile 2, enter:
++
+[subs="+quotes"]
+----
+# **nmcli connection modify __<example-connection-2>__ ipv4.routed-dns yes**
+----
+
+. Re-activate the connections:
++
+[subs="+quotes"]
+----
+# **nmcli connection up __<example-connection-1>__**
+
+# **nmcli connection up __<example-connection-2>__**
+----
+
+.Verification
+
+* Display the route to reach an IP address:
++
+[subs="+quotes"]
+----
+# **ip route get 203.0.113.1**
+203.0.113.1  dev  enp1s0  table  20053  src  10.0.0.1  uid  0
+----
++
+This command verifies if the name server is reached through the correct interface and uses the policy routing method that places all the routes for DNS servers in the special routing table `20053`.
+

@@ -1,0 +1,88 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-a-static-route-by-using-nmtui_{context}"]
+= Configuring a static route by using `nmtui`
+
+[role="_abstract"]
+The `nmtui` application provides a text-based user interface for NetworkManager. You can use `nmtui` to configure static routes on a host without a graphical interface.
+
+For example, the procedure below adds a route to the `192.0.2.0/24` network that uses the gateway running on `198.51.100.1`, which is reachable through an existing connection profile.
+
+[NOTE]
+====
+In `nmtui`:
+
+* Navigate by using the cursor keys.
+* Press a button by selecting it and hitting kbd:[Enter].
+* Select and clear checkboxes by using kbd:[Space].
+* To return to the previous screen, use kbd:[ESC].
+====
+
+
+
+.Prerequisites
+
+* The network is configured.
+* The gateway for the static route must be directly reachable on the interface.
+* If the user is logged in on a physical console, user permissions are sufficient. Otherwise, the command requires root permissions.
+
+
+
+.Procedure
+
+. Start `nmtui`:
++
+[literal,subs="+quotes"]
+....
+# *nmtui*
+....
+
+. Select *Edit a connection*, and press kbd:[Enter].
+
+. Select the connection profile through which you can reach the next hop to the destination network, and press kbd:[Enter].
+
+. Depending on whether it is an IPv4 or IPv6 route, press the *Show* button next to the protocol's configuration area.
+
+. Press the *Edit* button next to *Routing*. This opens a new window where you configure static routes:
+
+.. Press the *Add* button and fill in:
++
+* The destination network, including the prefix in Classless Inter-Domain Routing (CIDR) format
+* The IP address of the next hop
+* A metric value, if you add multiple routes to the same network and want to prioritize the routes by efficiency
+
+.. Repeat the previous step for every route you want to add and that is reachable through this connection profile.
+
+.. Press the *OK* button to return to the window with the connection settings.
++
+.Example of a static route without metric
+image::nmtui-add-static-route.png["Setting the destination, next hop, and metric, for a static route in `nmtui`"]
+
+. Press the OK button to return to the `nmtui` main menu.
+
+. Select *Activate a connection* and press kbd:[Enter].
+
+. Select the connection profile that you edited, and press kbd:[Enter] twice to deactivate and activate it again.
++
+[IMPORTANT]
+====
+Skip this step if you run `nmtui` over a remote connection, such as SSH, that uses the connection profile you want to reactivate. In this case, if you deactivate it in `nmtui`, the connection is terminated and, consequently, you cannot activate it again. To avoid this problem, use the `nmcli connection _<connection_profile>_ up` command to reactivate the connection in the mentioned scenario.
+====
+
+. Press the *Back* button to return to the main menu.
+
+. Select *Quit*, and press kbd:[Enter] to close the `nmtui` application.
+
+
+
+.Verification
+
+* Verify that the route is active:
++
+[literal,subs="+quotes"]
+....
+$ *ip route*
+...
+192.0.2.0/24 via 198.51.100.1 dev _example_ proto static metric 100
+....
+

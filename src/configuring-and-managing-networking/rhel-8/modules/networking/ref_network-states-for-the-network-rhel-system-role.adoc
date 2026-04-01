@@ -1,0 +1,94 @@
+:_mod-docs-content-type: REFERENCE
+
+[id="ref_network-states-for-the-network-rhel-system-roles_{context}"]
+= Network states for the `network` RHEL system role
+
+[role="_abstract"]
+The `network` {RHELSystemRoles} supports state configurations in playbooks to configure the devices. For this, use the `network_state` variable followed by the state configurations. 
+
+Benefits of using the `network_state` variable in a playbook:
+
+* Using the declarative method with the state configurations, you can configure interfaces, and the NetworkManager creates a profile for these interfaces in the background.
+* With the `network_state` variable, you can specify the options that you require to change, and all the other options will remain the same as they are. However, with the `network_connections` variable, you must specify all settings to change the network connection profile.
+
+[IMPORTANT]
+====
+You can set only Nmstate YAML instructions in `network_state`. These instructions differ from the variables you can set in `network_connections`.
+====
+
+For example, to create an Ethernet connection with dynamic IP address settings, use the following `vars` block in your playbook: 
+
+[cols="a,a"]
+|===
+|Playbook with state configurations|Regular playbook
+|
+[source,yaml]
+....
+vars:
+  network_state:
+    interfaces:
+    - name: enp7s0
+      type: ethernet
+      state: up
+      ipv4:
+        enabled: true
+        auto-dns: true
+        auto-gateway: true
+        auto-routes: true
+        dhcp: true
+      ipv6:
+        enabled: true
+        auto-dns: true
+        auto-gateway: true
+        auto-routes: true
+        autoconf: true
+        dhcp: true
+....
+|
+[source,yaml]
+....
+vars:
+  network_connections:
+    - name: enp7s0
+      interface_name: enp7s0
+      type: ethernet
+      autoconnect: yes
+      ip:
+        dhcp4: yes
+        auto6: yes
+      state: up
+....
+|===
+
+For example, to only change the connection status of dynamic IP address settings that you created as above, use the following `vars` block in your playbook:
+
+[cols="a,a"]
+|===
+|Playbook with state configurations|Regular playbook
+|
+[source,yaml]
+....
+vars:
+  network_state:
+    interfaces:
+    - name: enp7s0
+      type: ethernet
+      state: down
+....
+|
+[source,yaml]
+....
+vars:
+  network_connections:
+    - name: enp7s0
+      interface_name: enp7s0
+      type: ethernet
+      autoconnect: yes
+      ip:
+        dhcp4: yes
+        auto6: yes
+      state: down
+....
+|===
+
+

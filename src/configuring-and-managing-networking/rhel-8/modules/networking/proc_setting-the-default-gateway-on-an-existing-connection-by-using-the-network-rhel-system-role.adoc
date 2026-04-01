@@ -1,0 +1,100 @@
+:_mod-docs-content-type: PROCEDURE
+:experimental:
+
+[id="proc_setting-the-default-gateway-on-an-existing-connection-by-using-the-network-rhel-system-role_{context}"]
+= Setting the default gateway on an existing connection by using the `network` RHEL system role
+
+[role="_abstract"]
+By using the `network` RHEL system role, you can automate setting the default gateway in a NetworkManager connection profile. With this method, you can remotely configure the default gateway on hosts defined in a playbook.
+
+In most situations, administrators set the default gateway when they create a connection. However, you can also set or update the default gateway setting on a previously-created connection.
+
+[WARNING]
+====
+You cannot use the `network` RHEL system role to update only specific values in an existing connection profile. The role ensures that a connection profile exactly matches the settings in a playbook. If a connection profile with the same name already exists, the role applies the settings from the playbook and resets all other settings in the profile to their defaults. To prevent resetting values, always specify the whole configuration of the network connection profile in the playbook, including the settings that you do not want to change.
+====
+
+
+.Prerequisites
+
+include::common-content/snip_common-prerequisites.adoc[]
+// The following are prerequisites that are specific for this task:
+//none
+
+
+.Procedure
+
+. Create a playbook file, for example, `~/playbook.yml`, with the following content:
++
+[source,yaml,subs="+quotes"]
+....
+---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Ethernet connection profile with static IP address settings
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: enp1s0
+            type: ethernet
+            autoconnect: yes
+            ip:
+              address:
+                - 198.51.100.20/24
+                - 2001:db8:1::1/64
+              *gateway4: 198.51.100.254*
+              *gateway6: 2001:db8:1::fffe*
+              dns:
+                - 198.51.100.200
+                - 2001:db8:1::ffbb
+              dns_search:
+                - example.com
+            state: up
+....
++
+For details about all variables used in the playbook, see the `/usr/share/ansible/roles/rhel-system-roles.network/README.md` file on the control node.
+
+
+. Validate the playbook syntax:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook --syntax-check ~/playbook.yml*
+....
++
+Note that this command only validates the syntax and does not protect against a wrong but valid configuration.
+
+
+. Run the playbook:
++
+[subs="+quotes"]
+....
+$ *ansible-playbook ~/playbook.yml*
+....
+
+
+.Verification
+
+* Query the Ansible facts of the managed node and verify the active network settings:
++
+[literal,subs="+quotes"]
+....
+# *ansible managed-node-01.example.com -m ansible.builtin.setup*
+...
+        "ansible_default_ipv4": {
+	    ...
+            "gateway": "198.51.100.254",
+            "interface": "enp1s0",
+	    ...
+        },
+        "ansible_default_ipv6": {
+	    ...
+            "gateway": "2001:db8:1::fffe",
+            "interface": "enp1s0",
+	    ...
+	}
+...
+....
+

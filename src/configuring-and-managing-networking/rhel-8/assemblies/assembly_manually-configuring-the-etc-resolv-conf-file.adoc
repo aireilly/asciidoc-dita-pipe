@@ -1,0 +1,25 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-manually-configuring-the-etc-resolv-conf-file: {context}]
+
+[id="manually-configuring-the-etc-resolv-conf-file_{context}"]
+= Manually configuring the /etc/resolv.conf file
+
+:context: manually-configuring-the-etc-resolv-conf-file
+
+[role="_abstract"]
+By default, NetworkManager dynamically updates the `/etc/resolv.conf` file with the DNS settings from active NetworkManager connection profiles. However, you can disable this behavior and manually configure DNS settings in `/etc/resolv.conf`.
+
+[NOTE]
+====
+Alternatively, if you require a specific order of DNS servers in `/etc/resolv.conf`, see xref:configuring-the-order-of-dns-servers_configuring-and-managing-networking[Configuring the order of DNS servers].
+====
+
+
+include::modules/networking/proc_disabling-dns-processing-in-the-networkmanager-configuration.adoc[leveloffset=+1]
+
+include::modules/networking/proc_replacing-etc-resolv-conf-with-a-symbolic-link-to-manually-configure-dns-settings.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-manually-configuring-the-etc-resolv-conf-file[:context: {parent-context-of-manually-configuring-the-etc-resolv-conf-file}]
+ifndef::parent-context-of-manually-configuring-the-etc-resolv-conf-file[:!context:]
+

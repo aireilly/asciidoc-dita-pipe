@@ -1,0 +1,47 @@
+:_mod-docs-content-type: ASSEMBLY
+:parent-context-of-consistent-network-interface-device-naming: {context}
+
+[id='consistent-network-interface-device-naming_{context}']
+= Implementing consistent network interface naming
+
+:context: consistent-network-interface-device-naming
+
+[role="_abstract"]
+The `udev` device manager implements consistent device naming in {ProductName}. The device manager supports different naming schemes and, by default, assigns fixed names based on firmware, topology, and location information.
+
+Without consistent device naming, the Linux kernel assigns names to network interfaces by combining a fixed prefix and an index. The index increases as the kernel initializes the network devices. For example, `eth0` represents the first Ethernet device being probed on start-up. If you add another network interface controller to the system, the assignment of the kernel device names is no longer fixed because, after a reboot, the devices can initialize in a different order. In that case, the kernel can name the devices differently.
+
+To solve this problem, `udev` assigns consistent device names. This has the following advantages:
+
+* Device names are stable across reboots.
+* Device names stay fixed even if you add or remove hardware.
+* Defective hardware can be seamlessly replaced.
+* The network naming is stateless and does not require explicit configuration files.
+
+[WARNING]
+====
+Generally, Red Hat does not support systems where consistent device naming is disabled. For exceptions, see the Red Hat Knowledgebase solution link:https://access.redhat.com/solutions/2435891[Is it safe to set net.ifnames=0].
+====
+
+include::modules/networking/con_how-the-udev-device-manager-renames-network-interfaces.adoc[leveloffset=+1]
+
+include::modules/networking/con_network-interface-naming-policies.adoc[leveloffset=+1]
+
+include::modules/networking/con_network-interface-naming-schemes.adoc[leveloffset=+1]
+
+include::modules/networking/proc_switching-to-a-different-network-interface-naming-scheme.adoc[leveloffset=+1]
+
+ifeval::[{ProductNumber} == 8]
+include::modules/networking/proc_determining-a-predictable-roce-device-name-on-the-ibm-z-platform.adoc[leveloffset=+1]
+endif::[]
+
+include::modules/networking/proc_customizing-the-prefix-for-ethernet-interfaces-during-installation.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-user-defined-network-interface-names-by-using-udev-rules.adoc[leveloffset=+1]
+
+include::modules/networking/proc_configuring-user-defined-network-interface-names-by-using-systemd-link-files.adoc[leveloffset=+1]
+
+include::modules/networking/proc_assigning-alternative-names-to-a-network-interface-by-using-systemd-link-files.adoc[leveloffset=+1]
+
+:context: {parent-context-of-consistent-network-interface-device-naming}
+

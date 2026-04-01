@@ -1,0 +1,30 @@
+:_mod-docs-content-type: ASSEMBLY
+ifdef::context[:parent-context-of-assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp: {context}]
+
+ifndef::context[]
+[id="assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp"]
+endif::[]
+ifdef::context[]
+[id="assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp_{context}"]
+endif::[]
+= Using nmstate-autoconf to automatically configure the network state using LLDP
+
+:context: assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp
+
+[role="_abstract"]
+Network devices can use the Link Layer Discovery Protocol (LLDP) to advertise their identity, capabilities, and neighbors in a LAN. The [systemitem]`nmstate-autoconf` utility can use this information to automatically configure local network interfaces.
+
+[IMPORTANT]
+====
+The [systemitem]`nmstate-autoconf` utility is provided as a Technology Preview only. Technology Preview features are not supported with Red Hat production Service Level Agreements (SLAs), might not be functionally complete, and Red Hat does not recommend using them for production. These previews provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
+
+See link:https://access.redhat.com/support/offerings/techpreview[Technology Preview Features Support Scope] on the Red Hat Customer Portal for information about the support scope for Technology Preview features.
+====
+
+
+include::modules/networking/proc_using-nmstate-autoconf-to-automatically-configure-network-interfaces.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp[:context: {parent-context-of-assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp}]
+ifndef::parent-context-of-assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp[:!context:]
+

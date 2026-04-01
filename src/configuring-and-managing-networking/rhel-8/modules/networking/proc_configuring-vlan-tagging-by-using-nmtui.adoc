@@ -1,0 +1,118 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-vlan-tagging-by-using-nmtui_{context}"]
+= Configuring VLAN tagging by using `nmtui`
+
+[role="_abstract"]
+The `nmtui` application provides a text-based user interface for NetworkManager. You can use `nmtui` to configure VLAN tagging on a host without a graphical interface.
+
+[NOTE]
+====
+In `nmtui`:
+
+* Navigate by using the cursor keys.
+* Press a button by selecting it and hitting kbd:[Enter].
+* Select and clear checkboxes by using kbd:[Space].
+* To return to the previous screen, use kbd:[ESC].
+====
+
+
+
+.Prerequisites
+
+* The interface you plan to use as a parent to the virtual VLAN interface supports VLAN tags.
+
+* If you configure the VLAN on top of a bond interface:
+** The ports of the bond are up.
+** The bond is not configured with the `fail_over_mac=follow` option. A VLAN virtual device cannot change its MAC address to match the parent's new MAC address. In such a case, the traffic would still be sent with the then incorrect source MAC address.
+** The bond is usually not expected to get IP addresses from a DHCP server or IPv6 auto-configuration. Ensure it by setting the `ipv4.method=disable` and `ipv6.method=ignore` options while creating the bond. Otherwise, if DHCP or IPv6 auto-configuration fails after some time, the interface might be brought down.
+
+* The switch the host is connected to is configured to support VLAN tags. For details, see the documentation of your switch.
+
+
+
+.Procedure
+
+. If you do not know the network device name on which you want configure VLAN tagging, display the available devices:
++
+[literal,subs="+quotes"]
+....
+# *nmcli device status*
+DEVICE     TYPE      STATE                   CONNECTION 
+enp1s0     ethernet  unavailable             --
+...
+....
+
+. Start `nmtui`:
++
+[literal,subs="+quotes"]
+....
+# *nmtui*
+....
+
+. Select *Edit a connection*, and press kbd:[Enter].
+
+. Press *Add*.
+
+. Select *VLAN* from the list of network types, and press kbd:[Enter].
+
+. Optional: Enter a name for the NetworkManager profile to be created.
++
+On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.
+
+. Enter the VLAN device name to be created into the *Device* field.
+
+. Enter the name of the device on which you want to configure VLAN tagging into the *Parent* field.
+
+. Enter the VLAN ID. The ID must be within the range from `0` to `4094`.
+
+. Depending on your environment, configure the IP address settings in the *IPv4 configuration* and *IPv6 configuration* areas accordingly. For this, press the button next to these areas, and select:
+
+** `Disabled`, if this VLAN device does not require an IP address or you want to use it as a port of other devices.
+
+** `Automatic`, if a DHCP server or stateless address autoconfiguration (SLAAC) dynamically assigns an IP address to the VLAN device.
+
+** `Manual`, if the network requires static IP address settings. In this case, you must fill further fields:
+
+... Press *Show* next to the protocol you want to configure to display additional fields.
+
+... Press *Add* next to *Addresses*, and enter the IP address and the subnet mask in Classless Inter-Domain Routing (CIDR) format.
++
+If you do not specify a subnet mask, NetworkManager sets a `/32` subnet mask for IPv4 addresses and `/64` for IPv6 addresses.
+
+... Enter the address of the default gateway.
+
+... Press *Add* next to *DNS servers*, and enter the DNS server address.
+
+... Press *Add* next to *Search domains*, and enter the DNS search domain.
+
++
+.Example of a VLAN connection with static IP address settings
+image::nmtui-vlan-static-IP.png["Static IP address settings in `nmtui`"]
+
+. Press *OK* to create and automatically activate the new connection.
+
+. Press *Back* to return to the main menu.
+
+. Select *Quit*, and press kbd:[Enter] to close the `nmtui` application.
+
+
+
+.Verification
+
+* Verify the settings:
++
+[literal,subs="+quotes"]
+----
+# *ip -d addr show vlan10*
+4: vlan10@enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 52:54:00:72:2f:6e brd ff:ff:ff:ff:ff:ff promiscuity 0
+    vlan protocol 802.1Q id 10 <REORDER_HDR> numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute vlan10
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::8dd7:9030:6f8e:89e6/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+----
+

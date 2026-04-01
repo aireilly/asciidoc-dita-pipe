@@ -1,0 +1,18 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-the-dpdk-package_{context}"]
+= Installing the dpdk package
+
+[role="_abstract"]
+To use DPDK, install the `dpdk` package.
+
+
+.Procedure
+
+* Use the `{PackageManagerCommand}` utility to install the `dpdk` package:
++
+[literal,subs="+quotes,attributes"]
+----
+# **{PackageManagerCommand} install dpdk**
+----
+

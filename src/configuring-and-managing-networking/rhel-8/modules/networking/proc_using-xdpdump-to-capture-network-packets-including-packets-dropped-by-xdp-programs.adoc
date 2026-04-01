@@ -1,0 +1,39 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="using-xdpdump-to-capture-network-packets-including-packets-dropped-by-xdp-programs_{context}"]
+= Using `xdpdump` to capture network packets including packets dropped by XDP programs
+
+[role="_abstract"]
+The `xdpdump` utility captures network packets, including those dropped or modified by XDP programs. Unlike `tcpdump`, `xdpdump` uses an eBPF program, allowing it to capture packets that traditional user-space utilities cannot.
+
+You can use `xdpdump` to debug XDP programs that are already attached to an interface. Therefore, the utility can capture packets before an XDP program is started and after it has finished. In the latter case, `xdpdump` also captures the XDP action. By default, `xdpdump` captures incoming packets at the entry of the XDP program.
+
+[IMPORTANT]
+====
+On other architectures than AMD and Intel 64-bit, the `xdpdump` utility is provided as a Technology Preview only. Technology Preview features are not supported with Red Hat production Service Level Agreements (SLAs), might not be functionally complete, and Red Hat does not recommend using them for production. These previews provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
+
+See link:https://access.redhat.com/support/offerings/techpreview[Technology Preview Features Support Scope] on the Red Hat Customer Portal for information about the support scope for Technology Preview features.
+====
+
+Note that `xdpdump` has no packet filter or decode capabilities. However, you can use it in combination with `tcpdump` for packet decoding.
+
+If you are a developer and you are interested in the source code of `xdpdump`, download and install the corresponding source RPM (SRPM) from the Red Hat Customer Portal.
+
+
+.Prerequisites
+
+* A network driver that supports XDP programs.
+* An XDP program is loaded to the `enp1s0` interface. If no program is loaded, `xdpdump` captures packets in a similar way `tcpdump` does, for backward compatibility.
+
+
+.Procedure
+
+. To capture packets on the `enp1s0` interface and write them to the `/root/capture.pcap` file, enter:
++
+[literal,subs="+quotes"]
+....
+# **xdpdump -i enp1s0 -w /root/capture.pcap**
+....
+
+. To stop capturing packets, press kbd:[Ctrl+C].
+

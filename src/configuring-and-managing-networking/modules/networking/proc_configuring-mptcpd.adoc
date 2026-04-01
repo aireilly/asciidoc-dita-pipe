@@ -1,0 +1,49 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="proc_configuring-mptcpd_{context}"]
+= Configuring mptcpd
+
+[role="_abstract"]
+The `mptcpd` service is a component of the `mptcp` protocol which provides an instrument to configure `mptcp` endpoints. The `mptcpd` service creates a subflow endpoint for each address by default. The endpoint list is updated dynamically according to IP addresses modification on the running host. The `mptcpd` service creates the list of endpoints automatically. It enables multiple paths as an alternative to using the `ip` utility.
+
+.Prerequisites
+
+* The `mptcpd` package installed
+
+.Procedure
+
+. Enable `mptcp.enabled` option in the kernel with the following command:
++
+[literal,subs="+quotes",options="nowrap"]
+----
+
+# *echo "net.mptcp.enabled=1" > /etc/sysctl.d/90-enable-MPTCP.conf*
+# *sysctl -p /etc/sysctl.d/90-enable-MPTCP.conf*
+
+----
+
+. Start the `mptcpd` service:
++
+[literal,subs="+quotes",options="nowrap"]
+----
+# *systemctl start mptcp.service*
+----
+
+. Verify endpoint creation:
++
+[literal,subs="+quotes",options="nowrap"]
+----
+# *ip mptcp endpoint*
+----
+
+. To stop the `mptcpd` service, use the following command:
++
+[literal,subs="+quotes",options="nowrap"]
+----
+# *systemctl stop mptcp.service*
+----
+
+. To configure `mptcpd` service manually, modify the `/etc/mptcpd/mptcpd.conf` configuration file.
++
+Note, that the endpoint, which mptcpd service creates, lasts till the host shutdown.
+
