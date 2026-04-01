@@ -1,0 +1,62 @@
+name: DITA Transform
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  transform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install asciidoctor
+        run: sudo gem install asciidoctor --no-document
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install DITA-OT
+        run: |
+          curl -sL https://github.com/dita-ot/dita-ot/releases/download/4.3.1/dita-ot-4.3.1.zip -o dita-ot.zip
+          unzip -q dita-ot.zip
+          echo "$PWD/dita-ot-4.3.1/bin" >> "$GITHUB_PATH"
+
+      - name: Install html2text
+        run: pip install html2text
+
+      - name: Run pipeline
+        run: make all
+
+      - name: Validate with DITA-OT
+        run: make validate
+
+      - name: Content coverage check
+        run: |
+          cd src/configuring-and-managing-networking && asciidoctor master.adoc -o ../../build/asciidoc-html/master.html
+          cd ../..
+          ./scripts/compare-content.sh || true
+
+      - name: Push DITA output to main_dita branch
+        run: |
+          cd out
+          git init
+          git checkout -b main_dita
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "DITA transform output from ${GITHUB_SHA::8}
+
+          Source commit: $GITHUB_SHA
+          Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git push --force origin main_dita
