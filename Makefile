@@ -64,7 +64,8 @@ images:
 	@echo "== Images: $$(ls $(OUT)/images/ | wc -l) files copied"
 
 validate:
-	dita -i $(OUT)/master.ditamap -f html5 -o $(OUT)/html5
+	dita -i $(OUT)/master.ditamap -f html5 -o $(OUT)/html5 \
+		-Dargs.cssroot=$(CURDIR)/css -Dargs.css=custom.css -Dargs.copycss=yes
 
 clean:
 	rm -rf $(BUILD) $(OUT)

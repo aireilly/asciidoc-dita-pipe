@@ -432,16 +432,16 @@
     <xsl:value-of select="concat($comment-char, ' (', ., ')')"/>
   </xsl:template>
 
-  <!-- Convert callout lists to bullet lists -->
+  <!-- Convert callout lists to ordered lists -->
   <xsl:template match="ol[@outputclass = 'db.calloutlist']">
-    <ul>
+    <ol outputclass="calloutlist">
       <xsl:for-each select="li[@outputclass = 'db.callout']">
         <li>
           <!-- Skip the xref back-link, emit the paragraph content directly -->
           <xsl:apply-templates select="p/node()"/>
         </li>
       </xsl:for-each>
-    </ul>
+    </ol>
   </xsl:template>
 
   <!-- Clean up: remove db.* outputclass attributes -->
