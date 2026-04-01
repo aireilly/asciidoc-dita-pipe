@@ -21,9 +21,9 @@ You can use the declarative Nmstate API to configure an Ethernet connection with
 ....
 ---
 interfaces:
-- name: enp1s0
-  type: ethernet
-  state: up
+- name: enp1s0 <1>
+  type: ethernet <2>
+  state: up <3>
   ipv4:
     enabled: true
     address:
@@ -53,16 +53,9 @@ dns-resolver:
     - 192.0.2.200
     - 2001:db8:1::ffbb
 ....
-+
-These settings define an Ethernet connection profile for the `enp1s0` device with the following settings:
-+
-* A static IPv4 address - `192.0.2.1` with the `/24` subnet mask
-* A static IPv6 address - `2001:db8:1::1` with the `/64` subnet mask
-* An IPv4 default gateway - `192.0.2.254`
-* An IPv6 default gateway - `2001:db8:1::fffe`
-* An IPv4 DNS server - `192.0.2.200`
-* An IPv6 DNS server - `2001:db8:1::ffbb`
-* A DNS search domain - `example.com`
+<1> `interfaces.name`: The name of the network interface to configure
+<2> `interfaces.type`: The type of network device
+<3> `interfaces.state`: The desired state of the interface after configuration
 
 ifeval::[{ProductNumber} >= 9]
 . Optional: You can define the `identifier: mac-address` and `mac-address: __<mac_address>__` properties in the `interfaces` property to identify the network interface card by its MAC address instead of its name, for example:

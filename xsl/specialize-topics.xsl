@@ -419,6 +419,31 @@
     </codeblock>
   </xsl:template>
 
+  <!-- Convert callout markers inside codeblocks to comment-style text -->
+  <xsl:template match="keyword[@outputclass = 'db.co']">
+    <xsl:variable name="lang" select="ancestor::pre[1]/@outputclass"/>
+    <xsl:variable name="comment-char">
+      <xsl:choose>
+        <xsl:when test="contains($lang, 'language-yaml') or contains($lang, 'language-bash')
+                        or contains($lang, 'language-python') or contains($lang, 'language-ini')">#</xsl:when>
+        <xsl:otherwise>//</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:value-of select="concat($comment-char, ' (', ., ')')"/>
+  </xsl:template>
+
+  <!-- Convert callout lists to bullet lists -->
+  <xsl:template match="ol[@outputclass = 'db.calloutlist']">
+    <ul>
+      <xsl:for-each select="li[@outputclass = 'db.callout']">
+        <li>
+          <!-- Skip the xref back-link, emit the paragraph content directly -->
+          <xsl:apply-templates select="p/node()"/>
+        </li>
+      </xsl:for-each>
+    </ul>
+  </xsl:template>
+
   <!-- Clean up: remove db.* outputclass attributes -->
   <xsl:template match="@outputclass[starts-with(., 'db.')]"/>
 

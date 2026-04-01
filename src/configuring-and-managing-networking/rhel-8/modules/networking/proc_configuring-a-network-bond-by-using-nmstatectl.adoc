@@ -28,8 +28,8 @@ Depending on your environment, adjust the YAML file accordingly. For example, to
 ....
 ---
 interfaces:
-- name: bond0
-  type: bond
+- name: bond0 <1>
+  type: bond <2>
   state: up
   ipv4:
     enabled: true
@@ -45,10 +45,10 @@ interfaces:
     autoconf: false
     dhcp: false
   link-aggregation:
-    mode: active-backup
+    mode: active-backup <3>
     port:
     - enp1s0
-    - enp7s0
+    - enp7s0 <4>
 - name: enp1s0
   type: ethernet
   state: up
@@ -73,20 +73,13 @@ dns-resolver:
     - example.com
     server:
     - 192.0.2.200
-    - 2001:db8:1::ffbb
+    - 2001:db8:1::ffbb <5>
 ....
-+
-These settings define a network bond with the following settings:
-+
-* Network interfaces in the bond: `enp1s0` and `enp7s0`
-* Mode: `active-backup`
-* Static IPv4 address: `192.0.2.1` with a `/24` subnet mask
-* Static IPv6 address: `2001:db8:1::1` with a `/64` subnet mask
-* IPv4 default gateway: `192.0.2.254`
-* IPv6 default gateway: `2001:db8:1::fffe`
-* IPv4 DNS server: `192.0.2.200`
-* IPv6 DNS server: `2001:db8:1::ffbb`
-* DNS search domain: `example.com`
+<1> `interfaces.name`: The name of the bond interface
+<2> `interfaces.type`: The type of network interface
+<3> `link-aggregation.mode`: The bonding mode, set to active-backup for failover
+<4> `link-aggregation.port`: The list of physical interfaces used as bond ports
+<5> `dns-resolver.config.server`: The DNS server IP addresses for name resolution
 
 . Apply the settings to the system:
 +
