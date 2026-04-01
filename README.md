@@ -182,7 +182,8 @@ Section titles (Prerequisites, Procedure, Verification, etc.) are detected using
 1. **Primary: `outputclass="db.title"`** — The dbdita transform preserves DocBook `<title>` elements as `<p outputclass="db.title">`. This attribute is the most reliable indicator.
 2. **Fallback: exact text match** — For elements without the `db.title` attribute, the pipeline matches the exact normalized text (e.g., `normalize-space(.) = 'Procedure'`).
 
-The pipeline avoids `contains()` matching (e.g., matching "procedure" inside "The procedure below...") to prevent false positives that would misclassify content paragraphs as section boundaries.
+> [!WARNING]
+> The pipeline avoids `contains()` matching (e.g., matching "procedure" inside "The procedure below...") to prevent false positives that would misclassify content paragraphs as section boundaries.
 
 ### Step extraction
 
@@ -192,7 +193,8 @@ Each `<step>` contains:
 
 ## Reference body restructuring
 
-Reference topics (`<reference>`) use `<refbody>` which has a strict content model — it only allows `<section>`, `<table>`, `<simpletable>`, `<properties>`, and `<example>` as direct children. Bare `<p>`, `<ul>`, `<ol>`, `<pre>`, and `<note>` elements are invalid.
+> [!IMPORTANT]
+> Reference topics (`<reference>`) use `<refbody>` which has a strict content model — it only allows `<section>`, `<table>`, `<simpletable>`, `<properties>`, and `<example>` as direct children. Bare `<p>`, `<ul>`, `<ol>`, `<pre>`, and `<note>` elements are invalid.
 
 The pipeline uses `for-each-group` with `group-adjacent` to:
 - Pass `<table>` and `<example>` elements through directly (valid refbody children)
@@ -202,10 +204,8 @@ The pipeline uses `for-each-group` with `group-adjacent` to:
 
 The pipeline achieves **97% word coverage** compared to direct `asciidoctor` HTML output, validated by extracting text via `html2text` from both outputs.
 
-The ~3% gap is due to:
-- Table and admonition content rendered differently by DITA-OT vs asciidoctor
-- `html2text` formatting variations between the two HTML outputs
-- Section title text consumed as structural markers (by design)
+> [!TIP]
+> The ~3% gap is due to table and admonition content rendered differently by DITA-OT vs asciidoctor, `html2text` formatting variations between the two HTML outputs, and section title text consumed as structural markers (by design).
 
 Run `scripts/compare-content.sh` to verify coverage after changes.
 
@@ -214,6 +214,9 @@ Run `scripts/compare-content.sh` to verify coverage after changes.
 <img width="500" alt="image" src="https://github.com/user-attachments/assets/631053ea-072e-436e-b273-f5e95a150627" />
 
 ## Known limitations
+
+> [!NOTE]
+> The pipeline produces a **fully resolved build** — all AsciiDoc attributes (`{ProductName}`, `{context}`, etc.), conditional directives (`ifdef`, `ifeval`), and `include::` reuse are expanded at build time by asciidoctor. The DITA output contains the rendered content, not the reusable source structure. AsciiDoc content reuse (shared modules included in multiple assemblies) is flattened into individual DITA topics. If required, reusable content (e.g. shared modules, common snippets) could be extracted and converted to DITA `conref` or `conkeyref` targets, but this is not currently implemented.
 
 - Section title paragraphs ("Additional resources") in concept and reference topics remain as `<p>` text rather than being converted to `<section><title>`. They are structurally valid but semantically informal.
 - Inline `<ph outputclass="db.title">` artifacts from dbdita are stripped (the text is typically a duplicate of the topic title).
