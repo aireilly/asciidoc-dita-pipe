@@ -93,4 +93,16 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- Carry programlisting @language through dbdita as role (-> outputclass) -->
+  <xsl:template match="d:programlisting[@language]">
+    <xsl:copy>
+      <xsl:apply-templates select="@*"/>
+      <xsl:attribute name="role">
+        <xsl:text>db.programlisting language-</xsl:text>
+        <xsl:value-of select="@language"/>
+      </xsl:attribute>
+      <xsl:apply-templates select="node()"/>
+    </xsl:copy>
+  </xsl:template>
+
 </xsl:stylesheet>

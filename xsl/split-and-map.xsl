@@ -172,7 +172,7 @@
     </xsl:copy>
   </xsl:template>
 
-  <!-- Strip outputclass attributes -->
-  <xsl:template match="@outputclass"/>
+  <!-- Strip outputclass attributes, but keep language-* on codeblocks -->
+  <xsl:template match="@outputclass[not(starts-with(., 'language-'))]"/>
 
 </xsl:stylesheet>

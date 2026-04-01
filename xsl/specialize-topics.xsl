@@ -395,6 +395,30 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- Convert <pre> to <codeblock> with language outputclass -->
+  <xsl:template match="pre[@outputclass]">
+    <codeblock>
+      <xsl:variable name="oc" select="@outputclass"/>
+      <xsl:choose>
+        <!-- programlisting with language: "db.programlisting language-yaml" -->
+        <xsl:when test="contains($oc, 'language-')">
+          <xsl:attribute name="outputclass">
+            <xsl:value-of select="substring-after($oc, 'db.programlisting ')"/>
+          </xsl:attribute>
+        </xsl:when>
+        <!-- plain programlisting without language -->
+        <xsl:when test="$oc = 'db.programlisting'"/>
+        <!-- screen = terminal/console output -->
+        <xsl:when test="$oc = 'db.screen'">
+          <xsl:attribute name="outputclass">language-console</xsl:attribute>
+        </xsl:when>
+        <!-- literallayout = monospaced terminal commands -->
+        <xsl:when test="$oc = 'db.literallayout'"/>
+      </xsl:choose>
+      <xsl:apply-templates select="node()"/>
+    </codeblock>
+  </xsl:template>
+
   <!-- Clean up: remove db.* outputclass attributes -->
   <xsl:template match="@outputclass[starts-with(., 'db.')]"/>
 
