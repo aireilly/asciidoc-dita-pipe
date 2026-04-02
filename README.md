@@ -210,7 +210,7 @@ The pipeline uses `for-each-group` with `group-adjacent` to:
 
 The pipeline achieves **97% word coverage** compared to direct `asciidoctor` HTML output, validated by extracting text via `html2text` from both outputs.
 
-> [!TIP]
+> [!NOTE]
 > The ~3% gap is due to table and admonition content rendered differently by DITA-OT vs asciidoctor, `html2text` formatting variations between the two HTML outputs, and section title text consumed as structural markers (by design).
 
 Run `scripts/compare-content.sh` to verify coverage after changes.
