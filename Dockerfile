@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-jammy
+FROM docker.io/eclipse-temurin:17-jre-jammy
 
 ARG DITA_OT_VERSION=4.3.1
 
