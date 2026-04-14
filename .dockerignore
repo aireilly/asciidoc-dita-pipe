@@ -1,0 +1,10 @@
+build/
+out/
+.git/
+.gitignore
+.claude/
+.vscode/
+.idea/
+src/
+*.md
+LICENSE

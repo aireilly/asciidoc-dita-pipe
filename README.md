@@ -134,6 +134,31 @@ make split
 | `make split` | Stage 5 only |
 | `make images` | Copy images to output |
 
+## Container build
+
+Build and run the pipeline in a container without installing any dependencies locally.
+
+```bash
+# Build the image
+docker build -t asciidoc-dita-pipe .
+
+# Process an assembly (mount your source tree at /input)
+docker run --rm \
+  -v /path/to/your/source:/input \
+  -v /path/to/output:/output \
+  asciidoc-dita-pipe assembly_configuring-an-ethernet-connection.adoc
+
+# Process a standalone module
+docker run --rm \
+  -v /path/to/modules:/input \
+  -v /path/to/output:/output \
+  asciidoc-dita-pipe proc_some-procedure.adoc
+```
+
+The container detects the content type from `:_mod-docs-content-type:` or the filename prefix, runs the full pipeline, and writes DITA output to `/output/dita/` and HTML5 to `/output/html/`.
+
+For assemblies with `include::` directives, mount the directory tree that contains the included files at `/input` so the includes resolve correctly.
+
 ## Output structure
 
 ```
