@@ -2,43 +2,55 @@
 
 Multi-stage pipeline that transforms modular AsciiDoc documentation (Red Hat-style assemblies, concepts, procedures, references) into DITA topics with proper specialization, individual topic files, sub-assembly maps, and a master ditamap.
 
-## Containerized quick start
+> [!NOTE]
+> A container build is available at [quay.io/repository/rhn_support_aireilly/asciidoc-dita-pipe](https://quay.io/repository/rhn_support_aireilly/asciidoc-dita-pipe).
+
+## Quick start
+
+The pipeline is available as a container image. No local dependencies required beyond `podman` or `docker`.
 
 ```bash
+cd your-docs-repo
 mkdir -p out
 
 podman run --rm \
   -v "$PWD":/input:ro,z \
   -v "$PWD"/out:/output:z \
   quay.io/rhn_support_aireilly/asciidoc-dita-pipe \
-  <ASCIIDOC_FILE>
+  path/to/your-assembly.adoc
 ```
 
-## Prerequisites
+The input file's content type is detected automatically from the `:_mod-docs-content-type:` attribute or filename prefix (`assembly_`, `proc_`, `con_`, `ref_`). Assemblies are processed directly; standalone modules are wrapped in a minimal document structure.
 
-- **asciidoctor** (tested with 2.0.23)
-- **Java 17+** (for Saxon) — install via:
-  - Fedora/RHEL: `sudo dnf install java-17-openjdk`
-  - Ubuntu/Debian: `sudo apt install openjdk-17-jdk`
-- **Saxon HE 12.4** (included in `SaxonHE12-4J/`)
-- **DITA-OT 4.3.1+** (for validation and HTML5 output)
+Mount the root of your docs repo at `/input` so that `include::` directives resolve correctly.
 
-## Developing quick start
+## Output structure
 
-```bash
-# Install dependencies (requires Java 17+ already installed)
-make install
-
-# Full pipeline: AsciiDoc -> DocBook -> DITA -> HTML5
-make clean all validate
 ```
+out/
+  dita/
+    master.ditamap              # Top-level map
+    maps/
+      *.ditamap                 # Sub-assembly maps
+    topics/
+      *.dita                    # Specialized topics (concept, task, reference)
+    images/
+      *.png                     # Copied images
+  html/
+    index.html                  # HTML5 table of contents
+    topics/
+      *.html                    # Rendered topic pages
+    custom.css
+```
+
+All `index.html` links resolve to `topics/*.html`. Cross-references to other assemblies outside the build scope are expected to be unresolved.
 
 ## Pipeline stages
 
 The pipeline transforms content through 6 stages:
 
 ```
-src/configuring-and-managing-networking/master.adoc
+input.adoc
     |
     v  [Stage 0] scripts/build-manifest.py
 build/content-type-manifest.xml
@@ -56,11 +68,10 @@ build/dita-raw/master-composite.dita
 build/dita-specialized/master-composite.dita
     |
     v  [Stage 5] xsl/split-and-map.xsl
-out/
-  master.ditamap
-  maps/*.ditamap    (46 assembly sub-maps)
-  topics/*.dita     (302 specialized topics)
-  images/*.png      (54 images)
+out/dita/{master.ditamap, topics/*.dita, maps/*.ditamap}
+    |
+    v  [HTML] dita -f html5
+out/html/{index.html, topics/*.html}
 ```
 
 ### Stage 0: Content-type manifest
@@ -70,33 +81,17 @@ out/
 1. Checks for `:_mod-docs-content-type:` attribute (primary)
 2. Falls back to filename prefix: `con_` -> concept, `proc_` -> task, `ref_` -> reference
 
-```bash
-make manifest
-```
-
 ### Stage 1: AsciiDoc to DocBook5
 
-Converts the AsciiDoc book to DocBook5 XML using asciidoctor.
-
-```bash
-make docbook
-```
+Converts the AsciiDoc source to DocBook5 XML using asciidoctor.
 
 ### Stage 2: Enrich DocBook
 
 `xsl/enrich-docbook.xsl` reads the manifest and injects `role="concept|task|reference|assembly"` attributes onto DocBook `<section>` elements. This metadata survives the dbdita transform and drives topic specialization.
 
-```bash
-make enrich
-```
-
 ### Stage 3: dbdita transform
 
 Runs the IBM dbdita DocBook-to-DITA transform via Saxon. Produces a single composite DITA file with all topics nested under a `<dita>` root. All topics are generic `<topic>` at this stage.
-
-```bash
-make dita-raw
-```
 
 ### Stage 4: Specialize and clean
 
@@ -113,68 +108,13 @@ Also cleans up:
 - Removes invalid `frame` attribute values
 - Strips `xml:lang` from nested topics
 
-```bash
-make specialize
-```
-
 ### Stage 5: Split and generate maps
 
 `xsl/split-and-map.xsl` splits the composite into individual files:
 
-- Each topic -> `out/topics/{id}.dita` with proper DOCTYPE declaration
-- Assembly topics with children -> `out/maps/{id}.ditamap` (sub-maps)
-- Top-level -> `out/master.ditamap` with `<mapref>` to sub-maps and `<topicref>` to standalone topics
-
-```bash
-make split
-```
-
-## Make targets
-
-| Target | Description |
-|--------|-------------|
-| `make install` | Install asciidoctor, html2text, and DITA-OT |
-| `make all` | Run the full pipeline (stages 0-5 + images) |
-| `make validate` | Build HTML5 output with DITA-OT to validate |
-| `make stats` | Show topic type counts in specialized output |
-| `make clean` | Remove `build/` and `out/` directories |
-| `make manifest` | Stage 0 only |
-| `make docbook` | Stage 1 only |
-| `make enrich` | Stage 2 only |
-| `make dita-raw` | Stage 3 only |
-| `make specialize` | Stage 4 only |
-| `make split` | Stage 5 only |
-| `make images` | Copy images to output |
-
-## Container build
-
-Build and run the pipeline in a container without installing any dependencies locally.
-
-```bash
-# Build the image
-docker build -t asciidoc-dita-pipe .
-```
-
-## Output structure
-
-The container detects the content type from `:_mod-docs-content-type:` or the filename prefix, runs the full pipeline, and writes DITA output to `/output/dita/` and HTML5 to `/output/html/`.
-
-For assemblies with `include::` directives, mount the directory tree that contains the included files at `/input` so the includes resolve correctly.
-
-```
-out/
-  master.ditamap                    # Top-level map
-  maps/
-    assembly_*.ditamap              # 46 sub-assembly maps
-  topics/                           # 302 specialized topics
-    con_*.dita                      #  30 concept topics
-    proc_*.dita                     # 198 task topics (189 ordered + 9 unordered steps)
-    ref_*.dita                      #  20 reference topics
-    *.dita                          #  54 generic/assembly topics
-  images/
-    *.png                           # 54 images
-  html5/                            # HTML5 output (after validate)
-```
+- Each topic -> `topics/{id}.dita` with proper DOCTYPE declaration
+- Assembly topics with children -> `maps/{id}.ditamap` (sub-maps)
+- Top-level -> `master.ditamap` with `<mapref>` to sub-maps and `<topicref>` to standalone topics
 
 ## Content-type detection
 
@@ -253,6 +193,50 @@ Run `scripts/compare-content.sh` to verify coverage after changes.
 - Inline `<ph outputclass="db.title">` artifacts from dbdita are stripped (the text is typically a duplicate of the topic title).
 - Definition lists (`<dl>`) pass through unchanged; no special handling is applied.
 - Footnote references from deprecated `footnoteref` macros are not resolved.
+
+## Local development
+
+### Prerequisites
+
+- **asciidoctor** (tested with 2.0.23)
+- **Java 17+** (for Saxon) — install via:
+  - Fedora/RHEL: `sudo dnf install java-17-openjdk`
+  - Ubuntu/Debian: `sudo apt install openjdk-17-jdk`
+- **Saxon HE 12.4** (included in `SaxonHE12-4J/`)
+- **DITA-OT 4.3.1+** (for validation and HTML5 output)
+
+### Getting started
+
+```bash
+# Install dependencies (requires Java 17+ already installed)
+make install
+
+# Full pipeline: AsciiDoc -> DocBook -> DITA -> HTML5
+make clean all validate
+```
+
+### Make targets
+
+| Target | Description |
+|--------|-------------|
+| `make install` | Install asciidoctor, html2text, and DITA-OT |
+| `make all` | Run the full pipeline (stages 0-5 + images) |
+| `make validate` | Build HTML5 output with DITA-OT to validate |
+| `make stats` | Show topic type counts in specialized output |
+| `make clean` | Remove `build/` and `out/` directories |
+| `make manifest` | Stage 0 only |
+| `make docbook` | Stage 1 only |
+| `make enrich` | Stage 2 only |
+| `make dita-raw` | Stage 3 only |
+| `make specialize` | Stage 4 only |
+| `make split` | Stage 5 only |
+| `make images` | Copy images to output |
+
+### Building the container image
+
+```bash
+docker build -t asciidoc-dita-pipe .
+```
 
 ## Custom XSLT transforms
 
