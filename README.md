@@ -2,6 +2,18 @@
 
 Multi-stage pipeline that transforms modular AsciiDoc documentation (Red Hat-style assemblies, concepts, procedures, references) into DITA topics with proper specialization, individual topic files, sub-assembly maps, and a master ditamap.
 
+## Containerized quick start
+
+```bash
+mkdir -p out
+
+podman run --rm \
+  -v "$PWD":/input:ro,z \
+  -v "$PWD"/out:/output:z \
+  quay.io/rhn_support_aireilly/asciidoc-dita-pipe \
+  <ASCIIDOC_FILE>
+```
+
 ## Prerequisites
 
 - **asciidoctor** (tested with 2.0.23)
@@ -11,7 +23,7 @@ Multi-stage pipeline that transforms modular AsciiDoc documentation (Red Hat-sty
 - **Saxon HE 12.4** (included in `SaxonHE12-4J/`)
 - **DITA-OT 4.3.1+** (for validation and HTML5 output)
 
-## Quick start
+## Developing quick start
 
 ```bash
 # Install dependencies (requires Java 17+ already installed)
@@ -141,25 +153,13 @@ Build and run the pipeline in a container without installing any dependencies lo
 ```bash
 # Build the image
 docker build -t asciidoc-dita-pipe .
-
-# Process an assembly (mount your source tree at /input)
-docker run --rm \
-  -v /path/to/your/source:/input \
-  -v /path/to/output:/output \
-  asciidoc-dita-pipe assembly_configuring-an-ethernet-connection.adoc
-
-# Process a standalone module
-docker run --rm \
-  -v /path/to/modules:/input \
-  -v /path/to/output:/output \
-  asciidoc-dita-pipe proc_some-procedure.adoc
 ```
+
+## Output structure
 
 The container detects the content type from `:_mod-docs-content-type:` or the filename prefix, runs the full pipeline, and writes DITA output to `/output/dita/` and HTML5 to `/output/html/`.
 
 For assemblies with `include::` directives, mount the directory tree that contains the included files at `/input` so the includes resolve correctly.
-
-## Output structure
 
 ```
 out/

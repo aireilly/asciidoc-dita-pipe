@@ -16,8 +16,25 @@ WORK="/work"
 BUILD="${WORK}/build"
 PIPE="/pipeline"
 
+# --- Colour helpers ---
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+DIM='\033[2m'
+RESET='\033[0m'
+
+info()  { echo -e "${BLUE}${BOLD}▶${RESET} $*"; }
+stage() { echo -e "${CYAN}${BOLD}[$1]${RESET} $2"; }
+detail(){ echo -e "  ${DIM}$*${RESET}"; }
+ok()    { echo -e "  ${GREEN}✔${RESET} $*"; }
+warn()  { echo -e "  ${YELLOW}⚠${RESET} $*"; }
+err()   { echo -e "${RED}${BOLD}✖${RESET} $*"; }
+
 usage() {
-    echo "Usage: docker run -v /path/to/src:/input -v /path/to/out:/output asciidoc-dita-pipe <file.adoc>"
+    echo -e "${BOLD}Usage:${RESET} docker run -v /path/to/src:/input -v /path/to/out:/output asciidoc-dita-pipe <file.adoc>"
     echo ""
     echo "  Mount your AsciiDoc source directory at /input."
     echo "  The specified .adoc file is processed through the DITA pipeline."
@@ -40,15 +57,15 @@ if [ -f "${INPUT_DIR}/${INPUT_FILE}" ]; then
 elif [ -f "${INPUT_FILE}" ]; then
     INPUT_PATH="${INPUT_FILE}"
 else
-    echo "ERROR: File not found: ${INPUT_FILE}"
-    echo "       Looked in ${INPUT_DIR}/${INPUT_FILE} and ${INPUT_FILE}"
+    err "File not found: ${INPUT_FILE}"
+    detail "Looked in ${INPUT_DIR}/${INPUT_FILE} and ${INPUT_FILE}"
     exit 1
 fi
 
 BASENAME=$(basename "${INPUT_PATH}" .adoc)
 INPUT_PARENT=$(dirname "${INPUT_PATH}")
 
-echo "== Processing: ${INPUT_FILE}"
+info "Processing: ${BOLD}${INPUT_FILE}${RESET}"
 
 # --- Detect content type ---
 CONTENT_TYPE=""
@@ -56,7 +73,7 @@ MOD_TYPE=$(grep -m1 '^:_mod-docs-content-type:' "${INPUT_PATH}" | sed 's/^:_mod-
 
 if [ -n "${MOD_TYPE}" ]; then
     CONTENT_TYPE="${MOD_TYPE}"
-    echo "== Content type (attribute): ${CONTENT_TYPE}"
+    ok "Content type (attribute): ${BOLD}${CONTENT_TYPE}${RESET}"
 else
     # Filename prefix fallback
     case "${BASENAME}" in
@@ -65,9 +82,9 @@ else
         con_*)      CONTENT_TYPE="CONCEPT" ;;
         ref_*)      CONTENT_TYPE="REFERENCE" ;;
         *)          CONTENT_TYPE="CONCEPT"
-                    echo "== WARNING: No content type detected, defaulting to CONCEPT" ;;
+                    warn "No content type detected, defaulting to CONCEPT" ;;
     esac
-    echo "== Content type (filename prefix): ${CONTENT_TYPE}"
+    ok "Content type (filename prefix): ${BOLD}${CONTENT_TYPE}${RESET}"
 fi
 
 # --- Prepare working directory ---
@@ -85,7 +102,7 @@ REL_PATH=$(realpath --relative-to="${INPUT_DIR}" "${INPUT_PATH}" 2>/dev/null || 
 
 # For modules, create a wrapper master.adoc so the pipeline has a top-level document
 if [ "${CONTENT_TYPE}" != "ASSEMBLY" ]; then
-    echo "== Module detected — generating wrapper document"
+    detail "Module detected — generating wrapper document"
     WRAPPER="${SRC_WORK}/_wrapper_master.adoc"
     cat > "${WRAPPER}" <<ADOC
 // Auto-generated wrapper for single-module pipeline
@@ -101,53 +118,53 @@ else
     MASTER_FILE="${REL_PATH}"
 fi
 
-echo "== Master file: ${MASTER_FILE}"
+detail "Master file: ${MASTER_FILE}"
 
 # --- Stage 0: Build manifest ---
-echo "== Stage 0: Building content-type manifest"
+stage "0" "Building content-type manifest"
 python3 "${PIPE}/scripts/build-manifest.py" "${SRC_WORK}" > "${BUILD}/content-type-manifest.xml"
 ENTRY_COUNT=$(grep -c '<entry' "${BUILD}/content-type-manifest.xml" || echo 0)
-echo "   Manifest: ${ENTRY_COUNT} entries"
+ok "Manifest: ${ENTRY_COUNT} entries"
 
 # --- Stage 1: AsciiDoc to DocBook ---
-echo "== Stage 1: AsciiDoc → DocBook"
+stage "1" "AsciiDoc → DocBook"
 cd "${SRC_WORK}" && asciidoctor -b docbook5 \
     -a imagesdir=images \
     "${MASTER_FILE}" \
     -o "${BUILD}/docbook/master.xml"
 cd "${WORK}"
-echo "   DocBook: $(wc -c < "${BUILD}/docbook/master.xml") bytes"
+ok "DocBook: $(wc -c < "${BUILD}/docbook/master.xml") bytes"
 
 # --- Stage 2: Enrich DocBook with content types ---
-echo "== Stage 2: Enriching DocBook"
+stage "2" "Enriching DocBook"
 java -jar "${PIPE}/SaxonHE12-4J/saxon-he-12.4.jar" -dtd:off \
     -xsl:"${PIPE}/xsl/enrich-docbook.xsl" \
     -s:"${BUILD}/docbook/master.xml" \
     -o:"${BUILD}/docbook/master-enriched.xml" \
     "manifest-uri=file://${BUILD}/content-type-manifest.xml"
-echo "   Enriched: $(wc -c < "${BUILD}/docbook/master-enriched.xml") bytes"
+ok "Enriched: $(wc -c < "${BUILD}/docbook/master-enriched.xml") bytes"
 
 # --- Stage 3: DocBook to DITA (dbdita) ---
-echo "== Stage 3: DocBook → DITA (dbdita)"
+stage "3" "DocBook → DITA (dbdita)"
 mkdir -p "${BUILD}/dita-raw"
 java -jar "${PIPE}/SaxonHE12-4J/saxon-he-12.4.jar" -dtd:off \
     -xsl:"${PIPE}/dbdita/db2dita/docbook2dita.xsl" \
     -s:"${BUILD}/docbook/master-enriched.xml" \
     -o:"${BUILD}/dita-raw/master-composite.dita"
-echo "   Raw DITA: $(wc -c < "${BUILD}/dita-raw/master-composite.dita") bytes"
+ok "Raw DITA: $(wc -c < "${BUILD}/dita-raw/master-composite.dita") bytes"
 
 # --- Stage 4: Specialize topics ---
-echo "== Stage 4: Specializing topics"
+stage "4" "Specializing topics"
 mkdir -p "${BUILD}/dita-specialized"
 sed '/DOCTYPE/,/>/d' "${BUILD}/dita-raw/master-composite.dita" > "${BUILD}/dita-raw/master-composite-nodtd.dita"
 java -jar "${PIPE}/SaxonHE12-4J/saxon-he-12.4.jar" -dtd:off \
     -xsl:"${PIPE}/xsl/specialize-topics.xsl" \
     -s:"${BUILD}/dita-raw/master-composite-nodtd.dita" \
     -o:"${BUILD}/dita-specialized/master-composite.dita"
-echo "   Specialized: $(wc -c < "${BUILD}/dita-specialized/master-composite.dita") bytes"
+ok "Specialized: $(wc -c < "${BUILD}/dita-specialized/master-composite.dita") bytes"
 
 # --- Stage 5: Split into individual files + ditamap ---
-echo "== Stage 5: Splitting into individual files"
+stage "5" "Splitting into individual files"
 java -jar "${PIPE}/SaxonHE12-4J/saxon-he-12.4.jar" -dtd:off \
     -xsl:"${PIPE}/xsl/split-and-map.xsl" \
     -s:"${BUILD}/dita-specialized/master-composite.dita" \
@@ -155,24 +172,24 @@ java -jar "${PIPE}/SaxonHE12-4J/saxon-he-12.4.jar" -dtd:off \
     "outdir=file://${OUTPUT_DIR}/dita"
 TOPIC_COUNT=$(find "${OUTPUT_DIR}/dita/topics" -name '*.dita' 2>/dev/null | wc -l)
 MAP_COUNT=$(find "${OUTPUT_DIR}/dita/maps" -name '*.ditamap' 2>/dev/null | wc -l)
-echo "   Split: ${TOPIC_COUNT} topics, ${MAP_COUNT} maps"
+ok "Split: ${TOPIC_COUNT} topics, ${MAP_COUNT} maps"
 
 # --- Copy images ---
-echo "== Copying images"
+stage "+" "Copying images"
 if find "${SRC_WORK}" -name '*.png' -o -name '*.jpg' -o -name '*.gif' -o -name '*.svg' 2>/dev/null | head -1 | grep -q .; then
     mkdir -p "${OUTPUT_DIR}/dita/images"
     find "${SRC_WORK}" -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.gif' -o -name '*.svg' \) -exec cp {} "${OUTPUT_DIR}/dita/images/" \;
     IMAGE_COUNT=$(ls "${OUTPUT_DIR}/dita/images/" 2>/dev/null | wc -l)
-    echo "   Images: ${IMAGE_COUNT} files"
+    ok "Images: ${IMAGE_COUNT} files"
 else
-    echo "   No images found"
+    detail "No images found"
 fi
 
 # --- Find the ditamap ---
 DITAMAP=$(find "${OUTPUT_DIR}/dita" -maxdepth 1 -name '*.ditamap' | head -1)
 if [ -z "${DITAMAP}" ]; then
-    echo "WARNING: No ditamap found in output — skipping HTML generation"
-    echo "== Done. DITA output is in ${OUTPUT_DIR}/dita/"
+    warn "No ditamap found in output — skipping HTML generation"
+    info "Done. DITA output is in ${OUTPUT_DIR}/dita/"
     exit 0
 fi
 
@@ -181,7 +198,7 @@ fi
 # the output tree.  Symlink the DITA output into a directory named "html"
 # so the mirrored prefix becomes the output folder itself:
 #   {output-dir}/html/index.html + {output-dir}/html/topics/*.html
-echo "== Generating HTML5 output"
+stage "html" "Generating HTML5 output"
 if command -v dita >/dev/null 2>&1; then
     DITA_LINK="${BUILD}/html"
     ln -sfn "${OUTPUT_DIR}/dita" "${DITA_LINK}"
@@ -190,17 +207,17 @@ if command -v dita >/dev/null 2>&1; then
         --generate.copy.outer=3 \
         --outer.control=warn \
         --args.cssroot="${PIPE}/css" --args.css=custom.css --args.copycss=yes 2>&1 || {
-        echo "WARNING: HTML5 generation completed with errors (see above)"
+        warn "HTML5 generation completed with errors (see above)"
     }
     rm -f "${DITA_LINK}"
 
     HTML_COUNT=$(find "${OUTPUT_DIR}/html" -name '*.html' | wc -l)
-    echo "   HTML: ${HTML_COUNT} pages"
+    ok "HTML: ${HTML_COUNT} pages"
 else
-    echo "WARNING: dita command not found — skipping HTML generation"
+    warn "dita command not found — skipping HTML generation"
 fi
 
 echo ""
-echo "== Done."
-echo "   DITA output: ${OUTPUT_DIR}/dita/"
-echo "   HTML output: ${OUTPUT_DIR}/html/"
+echo -e "${GREEN}${BOLD}Done.${RESET} Check the output folder"
+echo -e "  ${DIM}DITA → ${OUTPUT_DIR}/dita/${RESET}"
+echo -e "  ${DIM}HTML → ${OUTPUT_DIR}/html/${RESET}"
