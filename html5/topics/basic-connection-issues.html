@@ -1,0 +1,14 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Basic connection issues</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="basic-connection-issues"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Basic connection issues</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">Problems with VPN connections often occur due to mismatched configurations between the endpoints.</p>
+         <p class="p">To confirm that an IPsec connection is established, enter:</p>
+         <pre class="pre codeblock"><code># <strong class="ph b">ipsec trafficstatus</strong>
+006 #8: "vpn.example.com"[1] 192.0.2.1, type=ESP, add_time=1595296930, inBytes=5999, outBytes=3231, id='@vpn.example.com', lease=198.51.100.1/32</code></pre>
+         <p class="p">For a successful connection, the command shows an entry with the connection’s name and details. If the output is empty, the tunnel is not established.</p>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="troubleshooting-ipsec-configurations_setting-up-an-ipsec-vpn.html">Troubleshooting IPsec configurations</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Getting started with DPDK</title>
+   <topicref href="../topics/getting-started-with-dpdk_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/installing-the-dpdk-package_getting-started-with-dpdk.dita"/>
+   <topicref href="../topics/_additional_resources_2.dita"/>
+</map>

@@ -1,0 +1,158 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a network bond by using the network RHEL&nbsp;system&nbsp;role</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-network-bond-by-using-network-rhel-system-role_configuring-network-bonding"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a network bond by using the <code class="ph codeph">network</code> RHEL&nbsp;system&nbsp;role</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles" target="_blank" rel="external noopener">You have prepared the control node and the managed nodes</a>.</p>
+            </li>
+            <li class="li">
+               <p class="p">The account you use to connect to the managed nodes has <code class="ph codeph">sudo</code> permissions for these nodes.</p>
+            </li>
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the <code class="ph codeph">network</code> RHEL system role to configure a network bond and, if a connection profile for the bond’s parent device does not exist, the role can create it as well.</p>
+         <p class="p">You can combine network interfaces in a bond to provide a logical interface with higher throughput or redundancy. To configure a bond, create a NetworkManager connection profile. By using Ansible and the <code class="ph codeph">network</code> RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a playbook file, for example, <code class="ph codeph">~/playbook.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Bond connection profile with two Ethernet ports
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          # Bond profile
+          - name: bond0
+            type: bond
+            interface_name: bond0
+            ip:
+              dhcp4: yes
+              auto6: yes
+            bond:
+              mode: active-backup
+            state: up
+
+          # Port profile for the 1st Ethernet device
+          - name: bond0-port1
+            interface_name: enp7s0
+            type: ethernet
+            controller: bond0
+            state: up
+
+          # Port profile for the 2nd Ethernet device
+          - name: bond0-port2
+            interface_name: enp8s0
+            type: ethernet
+            controller: bond0
+            state: up</code></pre>
+               <p class="p">The settings specified in the example playbook include the following:</p>
+               <dl class="dl">
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">type: <em class="ph i">&lt;profile_type&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Sets the type of the profile to create. The example playbook creates three connection profiles: One for the bond and two for the Ethernet devices.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">dhcp4: yes</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Enables automatic IPv4 address assignment from DHCP, PPP, or similar services.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">auto6: yes</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Enables IPv6 auto-configuration. By default, NetworkManager uses Router Advertisements. If the router announces the <code class="ph codeph">managed</code> flag, NetworkManager requests an IPv6 address and prefix from a DHCPv6 server.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">mode: <em class="ph i">&lt;bond_mode&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Sets the bonding mode. Possible values are:</p>
+                        <ul class="ul">
+                           <li class="li">
+                              <p class="p">
+                                 <code class="ph codeph">balance-rr</code> (default)</p>
+                           </li>
+                           <li class="li">
+                              <p class="p">
+                                 <code class="ph codeph">active-backup</code>
+                              </p>
+                           </li>
+                           <li class="li">
+                              <p class="p">
+                                 <code class="ph codeph">balance-xor</code>
+                              </p>
+                           </li>
+                           <li class="li">
+                              <p class="p">
+                                 <code class="ph codeph">broadcast</code>
+                              </p>
+                           </li>
+                           <li class="li">
+                              <p class="p">
+                                 <code class="ph codeph">802.3ad</code>
+                              </p>
+                           </li>
+                           <li class="li">
+                              <p class="p">
+                                 <code class="ph codeph">balance-tlb</code>
+                              </p>
+                           </li>
+                           <li class="li">
+                              <p class="p">
+                                 <code class="ph codeph">balance-alb</code>.</p>
+                           </li>
+                        </ul>
+                        <p class="p">Depending on the mode you set, you need to set additional variables in the playbook.</p>
+                     </dd>
+                  
+               </dl>
+               <p class="p">For details about all variables used in the playbook, see the <code class="ph codeph">/usr/share/ansible/roles/rhel-system-roles.network/README.md</code> file on the control node.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Validate the playbook syntax:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook --syntax-check ~/playbook.yml</strong>
+               </code></pre>
+               <p class="p">Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Run the playbook:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook ~/playbook.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Temporarily remove the network cable from one of the network devices and check if the other device in the bond is handling the traffic.</p>
+               <p class="p">Note that there is no method to properly test link failure events using software utilities. Tools that deactivate connections, such as <code class="ph codeph">nmcli</code>, show only the bonding driver’s ability to handle port configuration changes and not actual link failure events.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-bonding_configuring-and-managing-networking.html">Configuring a network bond</a></div></div></nav></article></main></body></html>

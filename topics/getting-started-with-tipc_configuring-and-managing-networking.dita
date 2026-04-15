@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="getting-started-with-tipc_configuring-and-managing-networking">
+   <title>Getting started with TIPC</title>
+   <body>
+      <p>Transparent Inter-process Communication (TIPC), which is also known as <codeph>Cluster Domain Sockets</codeph>, is an Inter-process Communication (IPC) service for cluster-wide operation.</p>
+      <p>Applications that are running in a high-available and dynamic cluster environment have special needs. The number of nodes in a cluster can vary, routers can fail, and, due to load balancing considerations, functionality can be moved to different nodes in the cluster. TIPC minimizes the effort by application developers to deal with such situations, and maximizes the chance that they are handled in a correct and optimal way. Additionally, TIPC provides a more efficient and fault-tolerant communication than general protocols, such as TCP.</p>
+      <p>Use other bearer level protocols to encrypt the communication between nodes based on the transport media. For example:</p>
+      <p>+
+* MACSec: See <xref href="#assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network_configuring-and-managing-networking">Using MACsec to encrypt layer 2 traffic</xref>
+* IPsec: See <xref href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/securing_networks/configuring-a-vpn-connection_securing-networks"
+               format="html"
+               scope="external">Configuring a VPN with IPsec</xref>
+      </p>
+   </body>
+</topic>

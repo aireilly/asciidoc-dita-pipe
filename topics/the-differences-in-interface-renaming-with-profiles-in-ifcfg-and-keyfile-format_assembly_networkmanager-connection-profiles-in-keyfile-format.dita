@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="the-differences-in-interface-renaming-with-profiles-in-ifcfg-and-keyfile-format_assembly_networkmanager-connection-profiles-in-keyfile-format">
+   <title>The differences in interface renaming with profiles in ifcfg and keyfile format</title>
+   <refbody>
+      <section>
+         <p>You can define custom network interface names, such as <codeph>lan</codeph> to make interface names more descriptive. In this case, the <codeph>udev</codeph> service renames the interfaces. The renaming process works differently depending on whether you use connection profiles in <codeph>ifcfg</codeph> or keyfile format.</p>
+         <dl>
+            <dlentry>
+               <dt>The interface renaming process when using a profile in <codeph>ifcfg</codeph> format</dt>
+               <dd>
+                  <ol>
+                     <li>
+                        <p>The <codeph>udev</codeph> rule file <codeph>/usr/lib/udev/rules.d/60-net.rules</codeph> calls the <codeph>/lib/udev/rename_device</codeph> helper utility.</p>
+                     </li>
+                     <li>
+                        <p>The helper utility searches for the <codeph>HWADDR</codeph> parameter in <codeph>/etc/sysconfig/network-scripts/ifcfg-*</codeph> files.</p>
+                     </li>
+                     <li>
+                        <p>If the value set in the variable matches the MAC address of an interface, the helper utility renames the interface to the name set in the <codeph>DEVICE</codeph> parameter of the file.</p>
+                     </li>
+                  </ol>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>The interface renaming process when using a profile in keyfile format</dt>
+               <dd>
+                  <ol>
+                     <li>
+                        <p>Create a <xref href="#configuring-user-defined-network-interface-names-by-using-systemd-link-files_consistent-network-interface-device-naming">systemd link file</xref> or a <xref href="#configuring-user-defined-network-interface-names-by-using-systemd-link-files_consistent-network-interface-device-naming">udev rule</xref> to rename an interface.</p>
+                     </li>
+                     <li>
+                        <p>Use the custom interface name in the <codeph>interface-name</codeph> property of a NetworkManager connection profile.</p>
+                     </li>
+                  </ol>
+               </dd>
+            </dlentry>
+         </dl>
+         <p>Additional resources</p>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#how-the-udev-device-manager-renames-network-interfaces_consistent-network-interface-device-naming">How the udev device manager renames network interfaces</xref>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <xref href="#configuring-user-defined-network-interface-names-by-using-udev-rules_consistent-network-interface-device-naming">Configuring user-defined network interface names by using udev rules</xref>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <xref href="#configuring-user-defined-network-interface-names-by-using-systemd-link-files_consistent-network-interface-device-naming">Configuring user-defined network interface names by using systemd link files</xref>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </refbody>
+</reference>

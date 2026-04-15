@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl_setting-up-an-ipsec-vpn">
+   <title>Configuring an IPsec based VPN connection by using nmstatectl</title>
+   <body>
+      <p>Configure IPsec VPN connections to establish encrypted tunnels over untrusted networks and ensure the integrity of data in transit. By using Nmstate, you can create IPsec VPN connections by using a declarative API.</p>
+      <p>You can use the <codeph>nmstatectl</codeph> utility to configure Libreswan IPsec VPN connections through the Nmstate API. The <codeph>nmstatectl</codeph> utility is a command-line tool to manage host networking through the declarative Nmstate API. Instead of running multiple imperative commands to configure an interface, you define the expected state in a YAML file. Nmstate then takes this definition and applies it to the system. A key advantage of this approach is an atomic result. Nmstate ensures that the resulting configuration precisely matches your YAML definition. If any part of the configuration fails to apply, it automatically rolls back all changes and prevents the system from entering an incorrect or broken network state.</p>
+      <note>
+         <p>Due to the design of the <codeph>NetworkManager-libreswan</codeph> plugin, you can use <codeph>nmstatectl</codeph> only on one peer and must manually configure Libreswan on the other peer.</p>
+      </note>
+   </body>
+</topic>

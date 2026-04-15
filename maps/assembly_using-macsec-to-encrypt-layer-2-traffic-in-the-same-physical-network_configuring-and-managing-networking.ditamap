@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Using MACsec to encrypt layer-2 traffic in the same physical network</title>
+   <topicref href="../topics/assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/how-macsec-increases-security_assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network.dita"/>
+   <topicref href="../topics/proc_configuring-a-macsec-connection-using-nmcli_assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network.dita"/>
+   <topicref href="../topics/configuring-a-macsec-connection-using-nmstatectl_assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network.dita"/>
+</map>

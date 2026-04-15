@@ -1,0 +1,17 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Using different DNS servers for different domains</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="using-different-dns-servers-for-different-domains_configuring-and-managing-networking"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Using different DNS servers for different domains</h1>
+   <div class="body">
+      <p class="p">By default, Red&nbsp;Hat Enterprise&nbsp;Linux (RHEL) sends all DNS requests to the first DNS server specified in the <code class="ph codeph">/etc/resolv.conf</code> file. If this server does not reply, RHEL tries the next server in this file until it finds a working one. In environments where one DNS server cannot resolve all domains, administrators can configure RHEL to send DNS requests for a specific domain to a selected DNS server.</p>
+      <p class="p">For example, you connect a server to a Virtual Private Network (VPN), and hosts in the VPN use the <code class="ph codeph">example.com</code> domain. In this case, you can configure RHEL to process DNS queries in the following way:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">Send only DNS requests for <code class="ph codeph">example.com</code> to the DNS server in the VPN network.</p>
+         </li>
+         <li class="li">
+            <p class="p">Send all other requests to the DNS server that is configured in the connection profile with the default gateway.</p>
+         </li>
+      </ul>
+   </div>
+<nav role="navigation" class="related-links"><ul class="ullinks"><li class="link ulchildlink"><strong><a href="using-dnsmasq-in-networkmanager-to-send-dns-requests-for-a-specific-domain-to-a-selected-dns-server_using-different-dns-servers-for-different-domains.html">Using dnsmasq in NetworkManager to send DNS requests for a specific domain to a selected DNS server</a></strong><br></li><li class="link ulchildlink"><strong><a href="using-systemd-resolved-in-networkmanager-to-send-dns-requests-for-a-specific-domain-to-a-selected-dns-server_using-different-dns-servers-for-different-domains.html">Using systemd-resolved in NetworkManager to send DNS requests for a specific domain to a selected DNS server</a></strong><br></li><li class="link ulchildlink"><strong><a href="routing-dns-traffic-through-a-certain-interface_using-different-dns-servers-for-different-domains.html">Routing DNS traffic through a certain interface</a></strong><br></li></ul></nav></article></main></body></html>

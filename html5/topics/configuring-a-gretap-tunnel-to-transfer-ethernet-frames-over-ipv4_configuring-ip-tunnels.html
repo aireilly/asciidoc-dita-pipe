@@ -1,0 +1,147 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a GRETAP tunnel to transfer Ethernet frames over IPv4</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-gretap-tunnel-to-transfer-ethernet-frames-over-ipv4_configuring-ip-tunnels"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a GRETAP tunnel to transfer Ethernet frames over IPv4</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Each RHEL router has a network interface that is connected to its local network, and the interface has no IP configuration assigned.</p>
+            </li>
+            <li class="li">
+               <p class="p">Each RHEL router has a network interface that is connected to the internet.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">A Generic Routing Encapsulation Terminal Access Point (GRETAP) tunnel operates on OSI level 2 and encapsulates Ethernet traffic in IPv4 packets as described in <a class="xref" href="https://tools.ietf.org/html/rfc2784" target="_blank" rel="external noopener">RFC 2784</a>.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">Data sent through a GRETAP tunnel is not encrypted. For security reasons, establish the tunnel over a VPN or a different encrypted connection.</p>
+         </div></div>
+         <p class="p">For example, you can create a GRETAP tunnel between two RHEL routers to connect two networks using a bridge as shown in the following diagram:</p>
+         <figure class="fig fignone">
+            <br><img class="image" src="../images/GRETAP-tunnel.png" alt="Diagram of a GRETAP tunnel to connect two networks by using a bridge"><br>
+         </figure>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">On the RHEL router in network A:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create a bridge interface named <code class="ph codeph">bridge0</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type bridge con-name bridge0 ifname bridge0</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Configure the IP settings of the bridge:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 ipv4.addresses '192.0.2.1/24'</strong>
+# <strong class="ph b">nmcli connection modify bridge0 ipv4.method manual</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Add a new connection profile for the interface that is connected to local network to the bridge:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ethernet port-type bridge con-name bridge0-port1 ifname enp1s0 controller bridge0</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Add a new connection profile for the GRETAP tunnel interface to the bridge:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ip-tunnel ip-tunnel.mode gretap port-type bridge con-name bridge0-port2 ifname gretap1 remote 198.51.100.5 local 203.0.113.10 controller bridge0</strong>
+                     </code></pre>
+                     <p class="p">The <code class="ph codeph">remote</code> and <code class="ph codeph">local</code> parameters set the public IP addresses of the remote and the local routers.</p>
+                     <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+                        <p class="p">The <code class="ph codeph">gretap0</code> device name is reserved. Use <code class="ph codeph">gretap1</code> or a different name for the device.</p>
+                     </div></div>
+                  </li>
+                  <li class="li">
+                     <p class="p">Optional: Disable the Spanning Tree Protocol (STP) if you do not need it:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 bridge.stp no</strong>
+                     </code></pre>
+                     <p class="p">By default, STP is enabled and causes a delay before you can use the connection.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Configure that activating the <code class="ph codeph">bridge0</code> connection automatically activates the ports of the bridge:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 connection.autoconnect-ports 1</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Active the <code class="ph codeph">bridge0</code> connection:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up bridge0</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">On the RHEL router in network B:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create a bridge interface named <code class="ph codeph">bridge0</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type bridge con-name bridge0 ifname bridge0</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Configure the IP settings of the bridge:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 ipv4.addresses '192.0.2.2/24'</strong>
+# <strong class="ph b">nmcli connection modify bridge0 ipv4.method manual</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Add a new connection profile for the interface that is connected to local network to the bridge:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ethernet port-type bridge con-name bridge0-port1 ifname enp1s0 controller bridge0</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Add a new connection profile for the GRETAP tunnel interface to the bridge:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ip-tunnel ip-tunnel.mode gretap port-type bridge con-name bridge0-port2 ifname gretap1 remote 203.0.113.10 local 198.51.100.5 controller bridge0</strong>
+                     </code></pre>
+                     <p class="p">The <code class="ph codeph">remote</code> and <code class="ph codeph">local</code> parameters set the public IP addresses of the remote and the local routers.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Optional: Disable the Spanning Tree Protocol (STP) if you do not need it:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 bridge.stp no</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Configure that activating the <code class="ph codeph">bridge0</code> connection automatically activates the ports of the bridge:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 connection.autoconnect-ports 1</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Active the <code class="ph codeph">bridge0</code> connection:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up bridge0</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">On both routers, verify that the <code class="ph codeph">enp1s0</code> and <code class="ph codeph">gretap1</code> connections are connected and that the <code class="ph codeph">CONNECTION</code> column displays the connection name of the port:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device</strong>
+nmcli device
+DEVICE   TYPE      STATE      CONNECTION
+...
+bridge0  bridge    connected  bridge0
+enp1s0   ethernet  connected  bridge0-port1
+gretap1  iptunnel  connected  bridge0-port2</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">From each RHEL router, ping the IP address of the internal interface of the other router:</p>
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">On Router A, ping <code class="ph codeph">192.0.2.2</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ping 192.0.2.2</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">On Router B, ping <code class="ph codeph">192.0.2.1</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ping 192.0.2.1</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-ip-tunnels_configuring-and-managing-networking.html">Configuring IP tunnels</a></div></div></nav></article></main></body></html>

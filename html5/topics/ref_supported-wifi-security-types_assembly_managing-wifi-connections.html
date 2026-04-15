@@ -1,0 +1,40 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Supported wifi security types</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="ref_supported-wifi-security-types_assembly_managing-wifi-connections"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Supported wifi security types</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">Depending on the security type a wifi network supports, you can transmit data more or less securely.</p>
+         <div class="note attention note_attention"><span class="note__title">Attention:</span> <div class="note__body">
+            <p class="p">Do not connect to wifi networks that do not use encryption or which support only the insecure WEP or WPA standards.</p>
+         </div></div>
+         <p class="p">RHEL&nbsp;9 supports the following wifi security types:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">None</code>: Encryption is disabled, and data is transferred in plain text over the network.</p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">Enhanced Open</code>: With opportunistic wireless encryption (OWE), devices negotiate unique pairwise master keys (PMK) to encrypt connections in wireless networks without authentication.</p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">LEAP</code>: The Lightweight Extensible Authentication Protocol, which was developed by Cisco, is a proprietary version of the extensible authentication protocol (EAP).</p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">WPA &amp; WPA2 Personal</code>: In personal mode, the Wi-Fi Protected Access (WPA) and Wi-Fi Protected Access 2 (WPA2) authentication methods use a pre-shared key.</p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">WPA &amp; WPA2 Enterprise</code>: In enterprise mode, WPA and WPA2 use the EAP framework and authenticate users to a remote authentication dial-in user service (RADIUS) server.</p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">WPA3 Personal</code>: Wi-Fi Protected Access 3 (WPA3) Personal uses simultaneous authentication of equals (SAE) instead of pre-shared keys (PSK) to prevent dictionary attacks. WPA3 uses perfect forward secrecy (PFS).</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_managing-wifi-connections_configuring-and-managing-networking.html">Managing wifi connections</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring 802.3 link settings using the nmcli utility</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-802-3-link-settings-using-the-nmcli-utility_configuring-802-3-link-settings"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring 802.3 link settings using the <code class="ph codeph">nmcli</code> utility</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">To configure the 802.3 link settings of an Ethernet connection, modify the following configuration parameters:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">802-3-ethernet.auto-negotiate</code>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">802-3-ethernet.speed</code>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">802-3-ethernet.duplex</code>
+               </p>
+            </li>
+         </ul>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Display the current settings of the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show <em class="ph i">Example-connection</em>
+                  </strong>
+...
+802-3-ethernet.speed:  0
+802-3-ethernet.duplex: --
+802-3-ethernet.auto-negotiate: no
+...</code></pre>
+               <p class="p">You can use these values if you need to reset the parameters in case of any problems.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the speed and duplex link settings:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">Example-connection</em> 802-3-ethernet.auto-negotiate <em class="ph i">yes</em> 802-3-ethernet.speed <em class="ph i">10000</em> 802-3-ethernet.duplex <em class="ph i">full</em>
+                  </strong>
+               </code></pre>
+               <p class="p">This command enables auto-negotiation and sets the speed of the connection to <code class="ph codeph">10000</code> Mbit full duplex.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reactivate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">Example-connection</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Use the <code class="ph codeph">ethtool</code> utility to verify the values of Ethernet interface <code class="ph codeph">enp1s0</code>:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ethtool <em class="ph i">enp1s0</em>
+                  </strong>
+
+Settings for enp1s0:
+...
+Speed: 10000 Mb/s
+Duplex: Full
+Auto-negotiation: on
+...
+Link detected: yes</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-802-3-link-settings_configuring-and-managing-networking.html">Configuring 802.3 link settings</a></div></div></nav></article></main></body></html>

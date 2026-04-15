@@ -1,0 +1,40 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Enabling MPTCP sockets for a service by using the mptcpize utility</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_enabling-mptcp-sockets-for-a-services-using-the-mptcpize-utility_assembly_managing-the-mptcpd-service"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Enabling MPTCP sockets for a service by using the mptcpize utility</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">mptcpd</code> package is installed</p>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">nginx</code> package is installed</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">The following set of commands instruct you how to manage services using the <code class="ph codeph">mptcpize</code> tool. You can enable or disable the <code class="ph codeph">mptcp</code> socket for a service.</p>
+         <p class="p">Assuming, you need to manage <code class="ph codeph">mptcp</code> socket for the <code class="ph codeph">nginx</code> service. You can achieve this goal by following the procedure below.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Enable <code class="ph codeph">MPTCP</code> sockets for a service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">mptcpize enable nginx</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Disable the <code class="ph codeph">MPTCP</code> sockets for a service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">mptcpize disable nginx</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart the service to make the changes to take effect:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl restart nginx</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_managing-the-mptcpd-service_configuring-and-managing-networking.html">Managing the mptcpd service</a></div></div></nav></article></main></body></html>

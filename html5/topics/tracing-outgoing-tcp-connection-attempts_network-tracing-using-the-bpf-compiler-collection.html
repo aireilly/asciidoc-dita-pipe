@@ -1,0 +1,25 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Tracing outgoing TCP connection attempts</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="tracing-outgoing-tcp-connection-attempts_network-tracing-using-the-bpf-compiler-collection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Tracing outgoing TCP connection attempts</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">The <code class="ph codeph">tcpconnect</code> utility uses eBPF features to trace outgoing TCP connection attempts. The output of the utility also includes connections that failed.</p>
+         <p class="p">The <code class="ph codeph">tcpconnect</code> utility is lightweight because it traces, for example, the <code class="ph codeph">connect()</code> function of the kernel instead of capturing packets and filtering them.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Enter the following command to start the tracing process that displays all outgoing connections:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">/usr/share/bcc/tools/tcpconnect</strong>
+PID    COMM         IP SADDR      DADDR          DPORT
+31346  curl         4  192.0.2.1  198.51.100.16  80
+31348  telnet       4  192.0.2.1  203.0.113.231  23
+31361  isc-worker00 4  192.0.2.1  192.0.2.254    53
+...</code></pre>
+               <p class="p">Each time the kernel processes an outgoing connection, <code class="ph codeph">tcpconnect</code> displays the details of the connections.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press <span class="ph">Ctrl</span>+<span class="ph">C</span> to stop the tracing process.</span>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="network-tracing-using-the-bpf-compiler-collection_configuring-and-managing-networking.html">Network tracing using the BPF compiler collection</a></div></div></nav></article></main></body></html>

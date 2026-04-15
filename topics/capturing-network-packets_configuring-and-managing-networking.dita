@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="capturing-network-packets_configuring-and-managing-networking">
+   <title>Capturing network packets</title>
+   <body>
+      <p>To debug network issues and communications, you can capture network packets. The following sections provide instructions and additional information about capturing network packets.</p>
+   </body>
+</topic>

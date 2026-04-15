@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="automatically-configuring-network-interfaces-in-public-clouds-using-nm-cloud-setup_configuring-and-managing-networking">
+   <title>Automatically configuring network interfaces in public clouds using nm-cloud-setup</title>
+   <body>
+      <p>Usually, a virtual machine (VM) has only one interface that is configurable by DHCP. However, DHCP cannot configure VMs with multiple network entities, such as interfaces, IP subnets, and IP addresses. Additionally, you cannot apply settings when the VM instance is running. To solve this runtime configuration issue, the <codeph>nm-cloud-setup</codeph> utility automatically retrieves configuration information from the metadata server of the cloud service provider and updates the network configuration of the host. The utility automatically picks up multiple network interfaces, multiple IP addresses, or IP subnets on one interface and helps to reconfigure the network of the running VM instance.</p>
+   </body>
+</topic>

@@ -1,0 +1,133 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a network bond by using the RHEL web console</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-network-bond-by-using-the-rhel-web-console_configuring-network-bonding"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a network bond by using the RHEL web console</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use Ethernet devices as members of the bond, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use team, bridge, or VLAN devices as members of the bond, create them in advance as described in:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#proc_configuring-a-network-team-by-using-the-rhel-web-console_configuring-network-teaming">Configuring a network team by using the RHEL web console</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#proc_configuring-a-network-bridge-by-using-the-rhel-web-console_configuring-a-network-bridge">Configuring a network bridge by using the RHEL web console</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#proc_configuring-vlan-tagging-by-using-the-rhel-web-console_configuring-vlan-tagging">Configuring VLAN tagging by using the RHEL web console</a>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You have installed the RHEL&nbsp;9 web console.</p>
+            </li>
+            <li class="li">
+               <p class="p">You have enabled the cockpit service.</p>
+            </li>
+            <li class="li">
+               <p class="p">Your user account is allowed to log in to the web console.</p>
+               <p class="p">For instructions, see
+<a class="xref" href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_systems_using_the_rhel_9_web_console/getting-started-with-the-rhel-9-web-console_system-management-using-the-rhel-9-web-console#installing-the-web-console_getting-started-with-the-rhel-9-web-console" target="_blank" rel="external noopener">Installing and enabling the web console</a>.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Use the RHEL web console to configure a network bond if you prefer to manage network settings using a web browser-based interface.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Log in to the RHEL&nbsp;9 web console.</span>
+            <div class="itemgroup info">
+               <p class="p">For details, see <a class="xref" href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_systems_using_the_rhel_9_web_console/getting-started-with-the-rhel-9-web-console_system-management-using-the-rhel-9-web-console#logging-in-to-the-web-console_getting-started-with-the-rhel-9-web-console" target="_blank" rel="external noopener">Logging in to the web console</a>.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the <strong class="ph b">Networking</strong> tab in the navigation on the left side of the screen.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Add bond</span> in the <strong class="ph b">Interfaces</strong> section.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter the name of the bond device you want to create.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the interfaces that should be members of the bond.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the mode of the bond.</span>
+            <div class="itemgroup info">
+               <p class="p">If you select <strong class="ph b">Active backup</strong>, the web console shows the additional field <strong class="ph b">Primary</strong> in which you can select the preferred active device.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the link monitoring mode. For example, when you use the <strong class="ph b">Adaptive load balancing</strong> mode, set it to <code class="ph codeph">ARP</code>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Adjust the monitoring interval, link up delay, and link down delay settings. Typically, you only change the defaults for troubleshooting purposes.</span>
+            <div class="itemgroup info">
+               <figure class="fig fignone">
+                  <br><img class="image" src="../images/bond-settings.png" alt="The bond settings dialog in the RHEL web console"><br>
+               </figure>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Apply</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">By default, the bond uses a dynamic IP address. If you want to set a static IP address:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Click the name of the bond in the <strong class="ph b">Interfaces</strong> section.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <strong class="ph b">Edit</strong> next to the protocol you want to configure.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Select <strong class="ph b">Manual</strong> next to <strong class="ph b">Addresses</strong>, and enter the IP address, prefix, and default gateway.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">In the <strong class="ph b">DNS</strong> section, click the <span class="ph uicontrol">+</span> button, and enter the IP address of the DNS server. Repeat this step to set multiple DNS servers.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">In the <strong class="ph b">DNS search domains</strong> section, click the <span class="ph uicontrol">+</span> button, and enter the search domain.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If the interface requires static routes, configure them in the <strong class="ph b">Routes</strong> section.</p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/bond-team-bridge-vlan.ipv4.png" alt="The IPv4 settings in the RHEL web console"><br>
+                     </figure>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <span class="ph uicontrol">Apply</span>
+                     </p>
+                  </li>
+               </ol>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Select the <strong class="ph b">Networking</strong> tab in the navigation on the left side of the screen, and check if there is incoming and outgoing traffic on the interface:</p>
+               <figure class="fig fignone">
+                  <br><img class="image" src="../images/bond-verify.png" alt="Bond interface statistics"><br>
+               </figure>
+            </li>
+            <li class="li">
+               <p class="p">Temporarily remove the network cable from one of the network devices and check if the other device in the bond is handling the traffic.</p>
+               <p class="p">Note that there is no method to properly test link failure events using software utilities. Tools that deactivate connections, such as the web console, show only the bonding driver’s ability to handle member configuration changes and not actual link failure events.</p>
+            </li>
+            <li class="li">
+               <p class="p">Display the status of the bond:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /proc/net/bonding/bond0</strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-bonding_configuring-and-managing-networking.html">Configuring a network bond</a></div></div></nav></article></main></body></html>

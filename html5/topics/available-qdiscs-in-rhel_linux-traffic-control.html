@@ -1,0 +1,283 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Available qdiscs in RHEL</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="available-qdiscs-in-rhel_linux-traffic-control"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Available <code class="ph codeph">qdiscs</code> in RHEL</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">Each <code class="ph codeph">qdisc</code> addresses unique networking-related issues. You can use any of them to shape network traffic based on your networking requirements.</p>
+         <p class="p">These <code class="ph codeph">qdiscs</code> are available in RHEL:</p>
+      </section>
+      <table class="table frame-all"><caption><span class="table--title-label">Table 1. </span><span class="title">Available schedulers in RHEL</span></caption><colgroup><col style="width:33.3333%"><col style="width:33.3333%"><col style="width:33.3334%"></colgroup><thead class="thead">
+               <tr class="row">
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <code class="ph codeph">qdisc</code> name</th>
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="available-qdiscs-in-rhel_linux-traffic-control__entry__2">Included in</th>
+                  <th class="entry align-left rowsep-1 valign-top" id="available-qdiscs-in-rhel_linux-traffic-control__entry__3">Offload support</th>
+               </tr>
+            </thead><tbody class="tbody">
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Credit-Based Shaper</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-modules-extra</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3">
+                     <p class="p">Yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">CHOose and Keep for responsive flows, CHOose and Kill for unresponsive flows (CHOKE)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-modules-extra</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Controlled Delay (CoDel)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Enhanced Transmission Selection (ETS)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-modules-extra</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3">
+                     <p class="p">Yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Fair Queue (FQ)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Fair Queuing Controlled Delay  (FQ_CODel)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Generalized Random Early Detection (GRED)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-modules-extra</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Hierarchical Fair Service Curve (HSFC)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Heavy-Hitter Filter (HHF)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Hierarchy Token Bucket (HTB)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3">
+                     <p class="p">Yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">INGRESS</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3">
+                     <p class="p">Yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Multi Queue Priority (MQPRIO)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-modules-extra</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3">
+                     <p class="p">Yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Multiqueue (MULTIQ)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-modules-extra</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3">
+                     <p class="p">Yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Network Emulator (NETEM)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-modules-extra</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Proportional Integral-controller Enhanced (PIE)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">PLUG</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Quick Fair Queueing (QFQ)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-modules-extra</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Random Early Detection (RED)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-modules-extra</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3">
+                     <p class="p">Yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Stochastic Fair Blue (SFB)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-modules-extra</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Stochastic Fairness Queueing (SFQ)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Token Bucket Filter (TBF)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3">
+                     <p class="p">Yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__1">
+                     <p class="p">Trivial Link Equalizer (TEQL)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">kernel-modules-extra</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left valign-top" headers="available-qdiscs-in-rhel_linux-traffic-control__entry__3"></td>
+               </tr>
+            </tbody></table>
+      <section class="section">
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">The <code class="ph codeph">qdisc</code> offload requires hardware and driver support on NIC.</p>
+         </div></div>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="linux-traffic-control_configuring-and-managing-networking.html">Linux traffic control</a></div></div></nav></article></main></body></html>

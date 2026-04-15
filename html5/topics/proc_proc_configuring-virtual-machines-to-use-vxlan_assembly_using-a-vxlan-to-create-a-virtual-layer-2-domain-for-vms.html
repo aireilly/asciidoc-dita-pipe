@@ -1,0 +1,89 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring virtual machines to use VXLAN</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_proc_configuring-virtual-machines-to-use-vxlan_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring virtual machines to use VXLAN</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You configured the <code class="ph codeph">vxlan10-bridge</code> virtual network in <code class="ph codeph">libvirtd</code>.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">To configure a VM to use a bridge device with an attached virtual extensible LAN (VXLAN) on the host, create a new VM that uses the <code class="ph codeph">vxlan10-bridge</code> virtual network or update the settings of existing VMs to use this network.</p>
+         <p class="p">Perform this procedure on the RHEL hosts.</p>
+      </section>
+      <section><ul class="ul steps-unordered"><li class="li step stepexpand">
+            <span class="ph cmd">To create a new VM and configure it to use the <code class="ph codeph">vxlan10-bridge</code> network, pass the <code class="ph codeph">--network network:<em class="ph i">vxlan10-bridge</em>
+               </code> option to the <code class="ph codeph">virt-install</code> command when you create the VM:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">virt-install ... --network network:<em class="ph i">vxlan10-bridge</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">To change the network settings of an existing VM:</span>
+            <div class="itemgroup info">
+               <ol class="ol">
+                  <li class="li">
+                     <p class="p">Connect the VM’s network interface to the <code class="ph codeph">vxlan10-bridge</code> virtual network:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">virt-xml <em class="ph i">VM_name</em> --edit --network network=<em class="ph i">vxlan10-bridge</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Shut down the VM, and start it again:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">virsh shutdown <em class="ph i">VM_name</em>
+                        </strong>
+# <strong class="ph b">virsh start <em class="ph i">VM_name</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li></ul></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the virtual network interfaces of the VM on the host:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">virsh domiflist <em class="ph i">VM_name</em>
+                  </strong>
+ Interface   Type     Source           Model    MAC
+-------------------------------------------------------------------
+ <em class="ph i">vnet1</em>       bridge   <em class="ph i">vxlan10-bridge</em>   virtio   <em class="ph i">52:54:00:c5:98:1c</em>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the interfaces attached to the <code class="ph codeph">vxlan10-bridge</code> bridge:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip link show master vxlan10-bridge</strong>
+18: vxlan10: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue master <em class="ph i">br0</em> state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether <em class="ph i">2a:53:bd:d5:b3:0a</em> brd ff:ff:ff:ff:ff:ff
+19: vnet1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue master <em class="ph i">br0</em> state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether <em class="ph i">52:54:00:c5:98:1c</em> brd ff:ff:ff:ff:ff:ff</code></pre>
+               <p class="p">Note that the <code class="ph codeph">libvirtd</code> service dynamically updates the bridge’s configuration. When you start a VM which uses the <code class="ph codeph">vxlan10-bridge</code> network, the corresponding <code class="ph codeph">vnet*</code> device on the host appears as a port of the bridge.</p>
+            </li>
+            <li class="li">
+               <p class="p">Use address resolution protocol (ARP) requests to verify whether VMs are in the same VXLAN:</p>
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Start two or more VMs in the same VXLAN.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Send an ARP request from one VM to the other one:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">arping -c 1 <em class="ph i">192.0.2.2</em>
+                        </strong>
+ARPING <em class="ph i">192.0.2.2</em> from <em class="ph i">192.0.2.1</em>
+                        <em class="ph i">enp1s0</em>
+Unicast reply from <em class="ph i">192.0.2.2</em> [<em class="ph i">52:54:00:c5:98:1c</em>] <em class="ph i">1.450ms</em>
+Sent 1 probe(s) (0 broadcast(s))
+Received 1 response(s) (0 request(s), 0 broadcast(s))</code></pre>
+                     <p class="p">If the command shows a reply, the VM is in the same layer-2 domain and, in this case in the same VXLAN.</p>
+                     <p class="p">Install the <code class="ph codeph">iputils</code> package to use the <code class="ph codeph">arping</code> utility.</p>
+                  </li>
+               </ol>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms_configuring-and-managing-networking.html">Using a VXLAN to create a virtual layer-2 domain for VMs</a></div></div></nav></article></main></body></html>

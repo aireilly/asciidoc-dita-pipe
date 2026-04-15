@@ -1,0 +1,88 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Temporarily reusing the same IP address on different interfaces</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="temporarily-reusing-the-same-ip-address-on-different-interfaces_reusing-the-same-ip-address-on-different-interfaces"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Temporarily reusing the same IP address on different interfaces</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You are logged in as the <code class="ph codeph">root</code> user.</p>
+            </li>
+            <li class="li">
+               <p class="p">The network interfaces are not configured.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the virtual routing and forwarding (VRF) feature to temporarily use the same IP address on different interfaces in one server. Use this procedure only for testing purposes, because the configuration is temporary and lost after you reboot the system.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">To enable remote peers to contact both VRF interfaces while reusing the same IP address, the network interfaces must belong to different broadcasting domains. A broadcast domain in a network is a set of nodes which receive broadcast traffic sent by any of them. In most configurations, all nodes connected to the same switch belong to the same broadcasting domain.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create and configure the first VRF device:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create the VRF device and assign it to a routing table. For example, to create a VRF device named <code class="ph codeph">blue</code> that is assigned to the <code class="ph codeph">1001</code> routing table:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip link add dev blue type vrf table 1001</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enable the <code class="ph codeph">blue</code> device:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip link set dev blue up</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Assign a network device to the VRF device. For example, to add the <code class="ph codeph">enp1s0</code> Ethernet device to the <code class="ph codeph">blue</code> VRF device:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip link set dev enp1s0 master blue</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enable the <code class="ph codeph">enp1s0</code> device:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip link set dev enp1s0 up</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Assign an IP address and subnet mask to the <code class="ph codeph">enp1s0</code> device. For example, to set it to <code class="ph codeph">192.0.2.1/24</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip addr add dev enp1s0 192.0.2.1/24</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create and configure the next VRF device:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create the VRF device and assign it to a routing table. For example, to create a VRF device named <code class="ph codeph">red</code> that is assigned to the <code class="ph codeph">1002</code> routing table:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip link add dev red type vrf table 1002</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enable the <code class="ph codeph">red</code> device:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip link set dev red up</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Assign a network device to the VRF device. For example, to add the <code class="ph codeph">enp7s0</code> Ethernet device to the <code class="ph codeph">red</code> VRF device:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip link set dev enp7s0 master red</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enable the <code class="ph codeph">enp7s0</code> device:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip link set dev enp7s0 up</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Assign the same IP address and subnet mask to the <code class="ph codeph">enp7s0</code> device as you used for <code class="ph codeph">enp1s0</code> in the <code class="ph codeph">blue</code> VRF domain:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip addr add dev enp7s0 192.0.2.1/24</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Create further VRF devices as described above.</span>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="reusing-the-same-ip-address-on-different-interfaces_configuring-and-managing-networking.html">Reusing the same IP address on different interfaces</a></div></div></nav></article></main></body></html>

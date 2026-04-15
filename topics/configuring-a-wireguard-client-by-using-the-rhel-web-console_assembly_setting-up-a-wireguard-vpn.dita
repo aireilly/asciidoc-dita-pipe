@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-a-wireguard-client-by-using-the-rhel-web-console_assembly_setting-up-a-wireguard-vpn">
+   <title>Configuring a WireGuard client by using the RHEL web console</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You are logged in to the RHEL web console.</p>
+            </li>
+            <li>
+               <p>You know the following information:</p>
+               <ul>
+                  <li>
+                     <p>The static tunnel IP addresses and subnet masks of both the server and client</p>
+                  </li>
+                  <li>
+                     <p>The public key of the server</p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can configure a WireGuard client by using the browser-based RHEL web console. Use this method to let NetworkManager manage the WireGuard connection.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Select the <b>Networking</b> tab in the navigation on the left side of the screen.</cmd>
+         </step>
+         <step>
+            <cmd>Click <b>Add VPN</b> in the <b>Interfaces</b> section.</cmd>
+         </step>
+         <step>
+            <cmd>If the <codeph>wireguard-tools</codeph> and <codeph>systemd-resolved</codeph> packages are not already installed, the web console displays a corresponding notification. Click <b>Install</b> to install these packages.</cmd>
+         </step>
+         <step>
+            <cmd>Enter the name of the WireGuard device that you want to create.</cmd>
+         </step>
+         <step>
+            <cmd>Configure the key pair of this host:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>If you want use the keys that the web console has created:</p>
+                     <ol>
+                        <li>
+                           <p>Keep the pre-selected <b>Generated</b> option in the <b>Private key</b> area.</p>
+                        </li>
+                        <li>
+                           <p>Note the <b>Public key</b> value. You require this information when you configure the client.</p>
+                        </li>
+                     </ol>
+                  </li>
+                  <li>
+                     <p>If you want to use an existing private key:</p>
+                     <ol>
+                        <li>
+                           <p>Select <b>Paste existing key</b> in the <b>Private key</b> area.</p>
+                        </li>
+                        <li>
+                           <p>Paste the private key into the text field. The web console automatically calculates the corresponding public key.</p>
+                        </li>
+                     </ol>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Preserve the <codeph>0</codeph> value in the <b>Listen port</b> field.</cmd>
+         </step>
+         <step>
+            <cmd>Set the tunnel IPv4 address and subnet mask of the client.</cmd>
+            <info>
+               <p>To also set an IPv6 address, you must edit the connection after you have created it.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Add a peer configuration for the server that you want to allow to communicate with this client:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Click <b>Add peer</b>.</p>
+                  </li>
+                  <li>
+                     <p>Enter the public key of the server.</p>
+                  </li>
+                  <li>
+                     <p>Set the <b>Endpoint</b> field to the hostname or IP address and the port of the server, for example <codeph>server.example.com:51820</codeph>. The client uses this information to establish the connection.</p>
+                  </li>
+                  <li>
+                     <p>Set the <b>Allowed IPs</b> field to the tunnel IP addresses of the clients that are allowed to send data to this server. For example, set the field to one of the following:</p>
+                     <ul>
+                        <li>
+                           <p>The tunnel IP addresses of the server to allow only the server to communicate with this client. The value in the screen capture below configures this scenario.</p>
+                        </li>
+                        <li>
+                           <p>
+                              <codeph>0.0.0.0/0</codeph> to allow any remote IPv4 address to communicate with this client. Use this setting to route all traffic through the tunnel and use the WireGuard server as default gateway.</p>
+                        </li>
+                     </ul>
+                  </li>
+               </ol>
+               <fig>
+                  <image href="../images/wireguard-client-settings.png" placement="break">
+                     <alt>WireGuard client settings</alt>
+                  </image>
+               </fig>
+            </info>
+         </step>
+         <step>
+            <cmd>Click <b>Add</b> to create the WireGuard connection.</cmd>
+         </step>
+         <step>
+            <cmd>If you want to also set a tunnel IPv6 address:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Click on the WireGuard connection’s name in the <b>Interfaces</b> section.</p>
+                  </li>
+                  <li>
+                     <p>Click <b>Edit</b> next to <b>IPv6</b>.</p>
+                  </li>
+                  <li>
+                     <p>Set the <b>Addresses</b> field to <codeph>Manual</codeph>, and enter the tunnel IPv6 address and prefix of the client.</p>
+                  </li>
+                  <li>
+                     <p>Click <b>Save</b>.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <xref href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</xref>.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Ping the IP addresses of the server:</p>
+               <codeblock># <b>ping 192.0.2.1</b>
+               </codeblock>
+               <p>WireGuard establishes the connection when you try to send traffic through the tunnel.</p>
+            </li>
+            <li>
+               <p>Display the interface configuration of the <codeph>wg0</codeph> device:</p>
+               <codeblock># <b>wg show wg0</b>
+interface: wg0
+  public key: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  private key: (hidden)
+  listening port: 45513
+
+peer: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  endpoint: server.example.com:51820
+  allowed ips: 192.0.2.1/32, 2001:db8:1::1/128
+  latest handshake: 1 minute, 41 seconds ago
+  transfer: 824 B received, 1.01 KiB sent
+  persistent keepalive: every 20 seconds</codeblock>
+               <p>To display the private key in the output, use the <codeph>WG_HIDE_KEYS=never wg show wg0</codeph> command.</p>
+               <p>Note that the output has only the <codeph>latest handshake</codeph> and <codeph>transfer</codeph> entries if you have already sent traffic through the VPN tunnel.</p>
+            </li>
+            <li>
+               <p>Display the IP configuration of the <codeph>wg0</codeph> device:</p>
+               <codeblock># <b>ip address show wg0</b>
+10: wg0: &lt;POINTOPOINT,NOARP,UP,LOWERUP&gt; mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.2/24 brd 192.0.2.255 scope global noprefixroute wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::2/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::73d9:6f51:ea6f:863e/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

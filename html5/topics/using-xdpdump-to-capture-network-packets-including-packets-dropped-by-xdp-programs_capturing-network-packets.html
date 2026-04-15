@@ -1,0 +1,39 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Using xdpdump to capture network packets including packets dropped by XDP programs</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="using-xdpdump-to-capture-network-packets-including-packets-dropped-by-xdp-programs_capturing-network-packets"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Using <code class="ph codeph">xdpdump</code> to capture network packets including packets dropped by XDP programs</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A network driver that supports XDP programs.</p>
+            </li>
+            <li class="li">
+               <p class="p">An XDP program is loaded to the <code class="ph codeph">enp1s0</code> interface. If no program is loaded, <code class="ph codeph">xdpdump</code> captures packets in a similar way <code class="ph codeph">tcpdump</code> does, for backward compatibility.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">The <code class="ph codeph">xdpdump</code> utility captures network packets, including those dropped or modified by XDP programs. Unlike <code class="ph codeph">tcpdump</code>, <code class="ph codeph">xdpdump</code> uses an eBPF program, allowing it to capture packets that traditional user-space utilities cannot.</p>
+         <p class="p">You can use <code class="ph codeph">xdpdump</code> to debug XDP programs that are already attached to an interface. Therefore, the utility can capture packets before an XDP program is started and after it has finished. In the latter case, <code class="ph codeph">xdpdump</code> also captures the XDP action. By default, <code class="ph codeph">xdpdump</code> captures incoming packets at the entry of the XDP program.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">On other architectures than AMD and Intel 64-bit, the <code class="ph codeph">xdpdump</code> utility is provided as a Technology Preview only. Technology Preview features are not supported with Red Hat production Service Level Agreements (SLAs), might not be functionally complete, and Red Hat does not recommend using them for production. These previews provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.</p>
+            <p class="p">See <a class="xref" href="https://access.redhat.com/support/offerings/techpreview" target="_blank" rel="external noopener">Technology Preview Features Support Scope</a> on the Red Hat Customer Portal for information about the support scope for Technology Preview features.</p>
+         </div></div>
+         <p class="p">Note that <code class="ph codeph">xdpdump</code> has no packet filter or decode capabilities. However, you can use it in combination with <code class="ph codeph">tcpdump</code> for packet decoding.</p>
+         <p class="p">If you are a developer and you are interested in the source code of <code class="ph codeph">xdpdump</code>, download and install the corresponding source RPM (SRPM) from the Red Hat Customer Portal.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">To capture packets on the <code class="ph codeph">enp1s0</code> interface and write them to the <code class="ph codeph">/root/capture.pcap</code> file, enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">xdpdump -i enp1s0 -w /root/capture.pcap</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">To stop capturing packets, press <span class="ph">
+                  <span class="ph">Ctrl</span>
+                  <span class="ph">C</span>
+               </span>.</span>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="capturing-network-packets_configuring-and-managing-networking.html">Capturing network packets</a></div></div></nav></article></main></body></html>

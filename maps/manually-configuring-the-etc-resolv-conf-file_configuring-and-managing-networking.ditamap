@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Manually configuring the /etc/resolv.conf file</title>
+   <topicref href="../topics/manually-configuring-the-etc-resolv-conf-file_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/disabling-dns-processing-in-the-networkmanager-configuration_manually-configuring-the-etc-resolv-conf-file.dita"/>
+   <topicref href="../topics/replacing-etc-resolv-conf-with-a-symbolic-link-to-manually-configure-dns-settings_manually-configuring-the-etc-resolv-conf-file.dita"/>
+</map>

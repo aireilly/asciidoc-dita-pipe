@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="creating-a-dummy-interface-with-both-an-ipv4-and-ipv6-address-using-nmcli_creating-a-dummy-interface">
+   <title>Creating a dummy interface with both an IPv4 and IPv6 address by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <context>
+         <p>You can create a dummy interface with various settings, such as IPv4 and IPv6 addresses. After creating the interface, NetworkManager automatically assigns it to the default <codeph>public</codeph> firewalld zone.</p>
+      </context>
+      <steps-unordered>
+         <step>
+            <cmd>Create a dummy interface named <codeph>dummy0</codeph> with static IPv4 and IPv6 addresses:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type dummy ifname <i>dummy0</i> ipv4.method manual ipv4.addresses <i>192.0.2.1/24</i> ipv6.method manual ipv6.addresses <i>2001:db8:2::1/64</i>
+                  </b>
+               </codeblock>
+               <note>
+                  <p>To configure a dummy interface without IPv4 and IPv6 addresses, set both the <codeph>ipv4.method</codeph> and <codeph>ipv6.method</codeph> parameters to <codeph>disabled</codeph>. Otherwise, IP auto-configuration fails, and NetworkManager deactivates the connection and removes the device.</p>
+               </note>
+            </info>
+         </step>
+      </steps-unordered>
+      <result>
+         <ul>
+            <li>
+               <p>List the connection profiles:</p>
+               <codeblock># <b>nmcli connection show</b>
+NAME            UUID                                  TYPE     DEVICE
+dummy-dummy0    aaf6eb56-73e5-4746-9037-eed42caa8a65  dummy    dummy0</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

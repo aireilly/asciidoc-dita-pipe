@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="differences-between-the-network-and-network-online-systemd-target_systemd-network-targets-and-services">
+   <title>Differences between the <codeph>network</codeph> and <codeph>network-online</codeph> systemd target</title>
+   <conbody>
+      <p>The <codeph>network</codeph> target indicates that the network management stack has been started, and the <codeph>network-online</codeph> target is to actively wait until the network is up and a usable network connection is available.</p>
+      <p>Systemd maintains the <codeph>network</codeph> and <codeph>network-online</codeph> target units. The special units such as <codeph>NetworkManager-wait-online.service</codeph>, have <codeph>WantedBy=network-online.target</codeph> and <codeph>Before=network-online.target</codeph> parameters. If enabled, these units get started with <codeph>network-online.target</codeph> and delay the target to be reached until some form of network connectivity is established. They delay the <codeph>network-online</codeph> target until the network is connected.</p>
+      <p>The <codeph>network-online</codeph> target starts a service, which adds substantial delays to further execution. Systemd automatically adds dependencies with <codeph>Wants</codeph> and <codeph>After</codeph> parameters for this target unit to all the System V (SysV) <codeph>init</codeph> script service units with a Linux Standard Base (LSB) header referring to the <codeph>$network</codeph> facility. The LSB header is metadata for <codeph>init</codeph> scripts. You can use it to specify dependencies. This is similar to the <codeph>systemd</codeph> target.</p>
+      <p>The <codeph>network</codeph> target does not significantly delay the execution of the boot process. Reaching the <codeph>network</codeph> target means that the service that is responsible for setting up the network has started. However, it does not mean that a network device was configured. This target is important during the shutdown of the system. For example, if you have a service that was ordered after the <codeph>network</codeph> target during bootup, then this dependency is reversed during the shutdown. The network does not get disconnected until your service has been stopped. All mount units for remote network file systems automatically start the <codeph>network-online</codeph> target unit and order themselves after it.</p>
+      <note>
+         <p>The <codeph>network-online</codeph> target unit is only useful during the system startup. After the system has completed booting up, this target does not track the online state of the network. Therefore, you cannot use <codeph>network-online</codeph> to monitor the network connection. This target provides a one-time system startup concept.</p>
+      </note>
+   </conbody>
+</concept>

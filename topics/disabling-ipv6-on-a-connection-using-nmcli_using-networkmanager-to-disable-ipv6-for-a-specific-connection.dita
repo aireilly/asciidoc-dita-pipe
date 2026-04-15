@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="disabling-ipv6-on-a-connection-using-nmcli_using-networkmanager-to-disable-ipv6-for-a-specific-connection">
+   <title>Disabling IPv6 on a connection using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The system uses NetworkManager to manage network interfaces.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the <codeph>nmcli</codeph> utility to disable the <codeph>IPv6</codeph> protocol on the command line.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: Display the list of network connections:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection show</b>
+NAME    UUID                                  TYPE      DEVICE
+Example 7a7e0151-9c18-4e6f-89ee-65bb2d64d365  ethernet  enp1s0
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the <codeph>ipv6.method</codeph> parameter of the connection to <codeph>disabled</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>Example</i> ipv6.method "disabled"</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Restart the network connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>Example</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IP settings of the device:</p>
+               <codeblock># <b>ip address show <i>enp1s0</i>
+                  </b>
+2: <i>enp1s0</i>: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:6b:74:be brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.10.2.255 scope global noprefixroute <i>enp1s0</i>
+       valid_lft forever preferred_lft forever</codeblock>
+               <p>If no <codeph>inet6</codeph> entry is displayed, <codeph>IPv6</codeph> is disabled on the device.</p>
+            </li>
+            <li>
+               <p>Verify that the <codeph>/proc/sys/net/ipv6/conf/<i>enp1s0</i>/disable_ipv6</codeph> file now contains the value <codeph>1</codeph>:</p>
+               <codeblock># <b>cat /proc/sys/net/ipv6/conf/<i>enp1s0</i>/disable_ipv6</b>
+1</codeblock>
+               <p>The value <codeph>1</codeph> means that <codeph>IPv6</codeph> is disabled for the device.</p>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

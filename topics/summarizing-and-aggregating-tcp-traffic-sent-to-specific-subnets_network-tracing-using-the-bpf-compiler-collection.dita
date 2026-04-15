@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="summarizing-and-aggregating-tcp-traffic-sent-to-specific-subnets_network-tracing-using-the-bpf-compiler-collection">
+   <title>Summarizing and aggregating TCP traffic sent to specific subnets</title>
+   <taskbody>
+      <context>
+         <p>The <codeph>tcpsubnet</codeph> utility summarizes and aggregates IPv4 TCP traffic that the local host sends to subnets and displays the output on a fixed interval. The utility uses eBPF features to collect and summarize the data to reduce the overhead.</p>
+         <p>By default, <codeph>tcpsubnet</codeph> summarizes traffic for the following subnets:</p>
+         <ul>
+            <li>
+               <p>
+                  <codeph>127.0.0.1/32</codeph>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <codeph>10.0.0.0/8</codeph>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <codeph>172.16.0.0/12</codeph>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <codeph>192.0.2.0/24/16</codeph>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <codeph>0.0.0.0/0</codeph>
+               </p>
+            </li>
+         </ul>
+         <p>Note that the last subnet (<codeph>0.0.0.0/0</codeph>) is a catch-all option. The <codeph>tcpsubnet</codeph> utility counts all traffic for subnets different from the first four in this catch-all entry.</p>
+         <p>Follow the procedure to count the traffic for the <codeph>192.0.2.0/24</codeph> and <codeph>198.51.100.0/24</codeph> subnets. Traffic to other subnets will be tracked in the <codeph>0.0.0.0/0</codeph> catch-all subnet entry.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Start monitoring the amount of traffic sent to the <codeph>192.0.2.0/24</codeph>, <codeph>198.51.100.0/24</codeph>, and other subnets:</cmd>
+            <info>
+               <codeblock># <b>/usr/share/bcc/tools/tcpsubnet 192.0.2.0/24,198.51.100.0/24,0.0.0.0/0</b>
+Tracing... Output every 1 secs. Hit Ctrl-C to end
+[02/21/20 10:04:50]
+192.0.2.0/24           856
+198.51.100.0/24       7467
+[02/21/20 10:04:51]
+192.0.2.0/24          1200
+198.51.100.0/24       8763
+0.0.0.0/0              673
+...</codeblock>
+               <p>This command displays the traffic in bytes for the specified subnets once per second.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Press <ph>Ctrl</ph>+<ph>C</ph> to stop the tracing process.</cmd>
+         </step>
+      </steps>
+   </taskbody>
+</task>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="using-iproute2-to-temporarily-configure-and-enable-multiple-paths-for-mptcp-applications_getting-started-with-multipath-tcp">
+   <title>Using iproute2 to temporarily configure and enable multiple paths for MPTCP applications</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>mptcpd</codeph> package is installed</p>
+            </li>
+            <li>
+               <p>The <codeph>iperf3</codeph> package is installed</p>
+            </li>
+            <li>
+               <p>Server network interface settings:</p>
+               <ul>
+                  <li>
+                     <p>enp4s0:  <codeph>192.0.2.1/24</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>enp1s0: <codeph>198.51.100.1/24</codeph>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>Client network interface settings:</p>
+               <ul>
+                  <li>
+                     <p>enp4s0f0:  <codeph>192.0.2.2/24</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>enp4s0f1: <codeph>198.51.100.2/24</codeph>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>Each MPTCP connection uses a single subflow similar to plain TCP. To get the MPTCP benefits, specify a higher limit for maximum number of subflows for each MPTCP connection. Then configure additional endpoints to create those subflows.</p>
+         <note type="important">
+            <p>The configuration in this procedure will not persist after rebooting your machine.</p>
+         </note>
+         <p>Note that MPTCP does not yet support mixed IPv6 and IPv4 endpoints for the same socket. Use endpoints belonging to the same address family.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Configure the client to accept up to 1 additional remote address, as provided by the server:</cmd>
+            <info>
+               <codeblock># <b>ip mptcp limits set add_addr_accepted <i>1</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Add IP address <codeph>198.51.100.1</codeph> as a new MPTCP endpoint on the server:</cmd>
+            <info>
+               <codeblock># <b>ip mptcp endpoint add <i>198.51.100.1</i> dev <i>enp1s0</i>
+                     <i>signal</i>
+                  </b>
+               </codeblock>
+               <p>The <codeph>signal</codeph> option ensures that the <codeph>ADD_ADDR</codeph> packet is sent after the three-way-handshake.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Start the <codeph>iperf3</codeph> server, and force it to create MPTCP sockets instead of TCP sockets:</cmd>
+            <info>
+               <codeblock># <b>mptcpize run iperf3 -s</b>
+
+Server listening on 5201</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Connect the client to the server, and force it to create MPTCP sockets instead of TCP sockets:</cmd>
+            <info>
+               <codeblock># <b>mptcpize iperf3 -c 192.0.2.1 -t 3</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Verify the connection is established:</p>
+               <codeblock># <b>ss -nti '(  sport :5201 )'</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Verify the connection and IP address limit:</p>
+               <codeblock># <b>ip mptcp limit show</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Verify the newly added endpoint:</p>
+               <codeblock># <b>ip mptcp endpoint show</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Verify MPTCP counters by using the <codeph>nstat MPTcp*</codeph> command on a server:</p>
+               <codeblock># <b>nstat MPTcp</b>*
+
+#kernel
+MPTcpExtMPCapableSYNRX          2                  0.0
+MPTcpExtMPCapableACKRX          2                  0.0
+MPTcpExtMPJoinSynRx             2                  0.0
+MPTcpExtMPJoinAckRx             2                  0.0
+MPTcpExtEchoAdd                 2                  0.0</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

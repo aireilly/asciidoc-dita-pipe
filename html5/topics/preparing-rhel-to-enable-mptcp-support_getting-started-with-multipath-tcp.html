@@ -1,0 +1,69 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Preparing RHEL to enable MPTCP support</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="preparing-rhel-to-enable-mptcp-support_getting-started-with-multipath-tcp"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Preparing RHEL to enable MPTCP support</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">By default the MPTCP support is disabled in RHEL. Enable MPTCP so that applications that support this feature can use it. Additionally, you have to configure user space applications to force use MPTCP sockets if those applications have TCP sockets by default.</p>
+         <p class="p">The following packages are installed:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">iperf3</code>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">mptcpd</code>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">systemtap</code>
+               </p>
+            </li>
+         </ul>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Enable MPTCP sockets in the kernel:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">echo "net.mptcp.enabled=1" &gt; /etc/sysctl.d/90-enable-MPTCP.conf</strong>
+# <strong class="ph b">sysctl -p /etc/sysctl.d/90-enable-MPTCP.conf</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Start the <code class="ph codeph">iperf3</code> server, and force it to create MPTCP sockets instead of TCP sockets:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">mptcpize run iperf3 -s</strong>
+
+Server listening on 5201</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Connect the client to the server, and force it to create MPTCP sockets instead of TCP sockets:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">mptcpize iperf3 -c 127.0.0.1 -t 3</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">After the connection is established, verify the <code class="ph codeph">ss</code> output to see the subflow-specific status:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ss -nti '( dport :5201 )'</strong>
+
+State Recv-Q Send-Q Local Address:Port Peer Address:Port Process
+ESTAB 0      0      127.0.0.1:41842    127.0.0.1:5201
+cubic wscale:7,7 rto:205 rtt:4.455/8.878 ato:40 mss:21888 pmtu:65535 rcvmss:536 advmss:65483 cwnd:10 bytes_sent:141 bytes_acked:142 bytes_received:4 segs_out:8 segs_in:7 data_segs_out:3 data_segs_in:3 send 393050505bps lastsnd:2813 lastrcv:2772 lastack:2772 pacing_rate 785946640bps delivery_rate 10944000000bps delivered:4 busy:41ms rcv_space:43690 rcv_ssthresh:43690 minrtt:0.008 tcp-ulp-mptcp flags:Mmec token:0000(id:0)/2ff053ec(id:0) seq:3e2cbea12d7673d4 sfseq:3 ssnoff:ad3d00f4 maplen:2</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Verify MPTCP counters:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nstat MPTcp</strong>*
+
+#kernel
+MPTcpExtMPCapableSYNRX          2                  0.0
+MPTcpExtMPCapableSYNTX          2                  0.0
+MPTcpExtMPCapableSYNACKRX       2                  0.0
+MPTcpExtMPCapableACKRX          2                  0.0</code></pre>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="getting-started-with-multipath-tcp_configuring-and-managing-networking.html">Getting started with Multipath TCP</a></div></div></nav></article></main></body></html>

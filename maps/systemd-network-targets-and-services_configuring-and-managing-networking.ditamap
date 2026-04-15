@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Systemd network targets and services</title>
+   <topicref href="../topics/systemd-network-targets-and-services_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/differences-between-the-network-and-network-online-systemd-target_systemd-network-targets-and-services.dita"/>
+   <topicref href="../topics/overview-of-networkmanager-wait-online_systemd-network-targets-and-services.dita"/>
+   <topicref href="../topics/configuring-a-systemd-service-to-start-after-the-network-has-been-started_systemd-network-targets-and-services.dita"/>
+</map>

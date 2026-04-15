@@ -1,0 +1,29 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>How WireGuard uses tunnel IP addresses, public keys, and remote endpoints</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="con_how-wireguard-uses-tunnel-ip-addresses-public-keys-and-remote-endpoints_assembly_setting-up-a-wireguard-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">How WireGuard uses tunnel IP addresses, public keys, and remote endpoints</h1>
+   <div class="body conbody">
+      <p class="p">WireGuard’s design tightly couples network routing with cryptographic identity, creating a <code class="ph codeph">Cryptokey Routing Table</code>. This system enables the protocol to function as both a routing mechanism for outgoing traffic and an access control list for incoming packets, ensuring that only authenticated and authorized traffic is processed.</p>
+      <p class="p">When WireGuard sends a network packet to a peer:</p>
+      <ol class="ol">
+         <li class="li">
+            <p class="p">WireGuard reads the destination IP from the packet and compares it to the list of allowed IP addresses in the local configuration. If the peer is not found, WireGuard drops the packet.</p>
+         </li>
+         <li class="li">
+            <p class="p">If the peer is valid, WireGuard encrypts the packet using the peer’s public key.</p>
+         </li>
+         <li class="li">
+            <p class="p">The sending host looks up the most recent Internet IP address of the host and sends the encrypted packet to it.</p>
+         </li>
+      </ol>
+      <p class="p">When WireGuard receives a packet:</p>
+      <ol class="ol">
+         <li class="li">
+            <p class="p">WireGuard decrypts the packet using the private key of the remote host.</p>
+         </li>
+         <li class="li">
+            <p class="p">WireGuard reads the internal source address from the packet and looks up whether the IP is configured in the list of allowed IP addresses in the settings for the peer on the local host. If the source IP is on the allowlist, WireGuard accepts the packet. If the IP address is not on the list, WireGuard drops the packet.</p>
+         </li>
+      </ol>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-a-wireguard-vpn_configuring-and-managing-networking.html">Setting up a WireGuard VPN</a></div></div></nav></article></main></body></html>

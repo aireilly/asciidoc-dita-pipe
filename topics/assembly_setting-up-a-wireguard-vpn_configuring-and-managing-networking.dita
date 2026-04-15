@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_setting-up-a-wireguard-vpn_configuring-and-managing-networking">
+   <title>Setting up a WireGuard VPN</title>
+   <body>
+      <p>WireGuard is a high-performance VPN that runs in the Linux kernel. It uses modern cryptography and is easier to configure than other VPN solutions. Its small codebase improves security, and for authentication and encryption, it uses keys similar to SSH.</p>
+      <note type="important">
+         <p>WireGuard is provided as a Technology Preview only. Technology Preview features are not supported with Red Hat production Service Level Agreements (SLAs), might not be functionally complete, and Red Hat does not recommend using them for production. These previews provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.</p>
+         <p>See <xref href="https://access.redhat.com/support/offerings/techpreview"
+                  format="html"
+                  scope="external">Technology Preview Features Support Scope</xref> on the Red Hat Customer Portal for information about the support scope for Technology Preview features.</p>
+      </note>
+      <p>Note that all hosts that participate in a WireGuard VPN are peers. This documentation uses the terms <codeph>client</codeph> to describe hosts that establish a connection and <codeph>server</codeph> to describe the host with the fixed hostname or IP address that the clients connect to and optionally route all traffic through this server.</p>
+      <p>To set up a WireGuard VPN, you must complete the following steps:</p>
+      <ol>
+         <li>
+            <p>Configure the server.</p>
+         </li>
+         <li>
+            <p>Open the WireGuard port in the local firewall.</p>
+         </li>
+         <li>
+            <p>Configure the clients.</p>
+         </li>
+      </ol>
+      <p>WireGuard operates on the network layer (layer 3). Therefore, you cannot use DHCP and must assign static IP addresses or IPv6 global addresses to the tunnel devices on both the server and clients.</p>
+      <note type="important">
+         <p>You can use WireGuard only if the Federal Information Processing Standard (FIPS) mode in RHEL is disabled.</p>
+      </note>
+   </body>
+</topic>

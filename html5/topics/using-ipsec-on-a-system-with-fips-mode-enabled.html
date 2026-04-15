@@ -1,0 +1,22 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Using IPsec on a system with FIPS mode enabled</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="using-ipsec-on-a-system-with-fips-mode-enabled"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Using IPsec on a system with FIPS mode enabled</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">RHEL in Federal Information Processing Standard (FIPS) mode exclusively uses validated cryptographic modules, automatically disabling legacy protocols and ciphers. Enabling FIPS mode is often a requirement for federal compliance and enhances system security.</p>
+         <p class="p">The Libreswan IPsec implementation provided by RHEL is fully FIPS-compliant. When the system is in FIPS mode, Libreswan automatically uses the certified cryptographic modules without requiring any additional configuration, regardless of whether Libreswan is installed on a new FIPS-enabled system or when FIPS mode is activated on a system with an existing Libreswan VPN.</p>
+         <p class="p">If FIPS mode is enabled, you can confirm that Libreswan is running in FIPS mode:</p>
+         <pre class="pre codeblock"><code># <strong class="ph b">ipsec whack --fipsstatus</strong>
+000 FIPS mode enabled</code></pre>
+         <p class="p">To list the allowed algorithms and ciphers in Libreswan in FIPS mode, enter:</p>
+         <pre class="pre codeblock"><code># <strong class="ph b">ipsec pluto --selftest 2&gt;&amp;1</strong>
+...
+000 FIPS Encryption algorithms:
+000   AES_CCM_16  {256,192,*128} IKEv1:  ESP  IKEv2:  ESP  FIPS   aes_ccm, aes_ccm_c
+000   AES_CCM_12  {256,192,*128} IKEv1:  ESP  IKEv2:  ESP  FIPS   aes_ccm_b
+000   AES_CCM_8   {256,192,*128} IKEv1:  ESP  IKEv2:  ESP  FIPS   aes_ccm_a
+000 ...</code></pre>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="setting-up-an-ipsec-vpn_configuring-and-managing-networking.html">Setting up an IPsec VPN</a></div></div></nav></article></main></body></html>

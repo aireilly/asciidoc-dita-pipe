@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="getting-started-with-dpdk_configuring-and-managing-networking">
+   <title>Getting started with DPDK</title>
+   <body>
+      <p>The data plane development kit (DPDK) provides libraries and network drivers to accelerate packet processing in user space.</p>
+      <p>Administrators use DPDK, for example, in virtual machines to use Single Root I/O Virtualization (SR-IOV) to reduce latencies and increase I/O throughput.</p>
+      <note>
+         <p>Red Hat does not support experimental DPDK APIs.</p>
+      </note>
+   </body>
+</topic>

@@ -1,0 +1,128 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring VLAN tagging by using nmstatectl</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-vlan-tagging-by-using-nmstatectl_configuring-vlan-tagging"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring VLAN tagging by using <code class="ph codeph">nmstatectl</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">To use Ethernet devices as ports in the VLAN, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">nmstate</code> package is installed.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the declarative Nmstate API to configure a Virtual Local Area Network VLAN. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+         <p class="p">Depending on your environment, adjust the YAML file accordingly. For example, to use different devices than Ethernet adapters in the VLAN, adapt the <code class="ph codeph">base-iface</code> attribute and <code class="ph codeph">type</code> attributes of the ports you use in the VLAN.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a YAML file, for example <code class="ph codeph">~/create-vlan.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+interfaces:
+- name: vlan10
+  type: vlan
+  state: up
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 24
+    dhcp: false
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+    autoconf: false
+    dhcp: false
+  vlan:
+    base-iface: enp1s0
+    id: 10
+- name: enp1s0
+  type: ethernet
+  state: up
+
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.0.2.254
+    next-hop-interface: vlan10
+  - destination: ::/0
+    next-hop-address: 2001:db8:1::fffe
+    next-hop-interface: vlan10
+
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb</code></pre>
+               <p class="p">These settings define a VLAN with ID 10 that uses the <code class="ph codeph">enp1s0</code> device. As the child device, the VLAN connection has the following settings:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">A static IPv4 address - <code class="ph codeph">192.0.2.1</code> with the <code class="ph codeph">/24</code> subnet mask</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">A static IPv6 address - <code class="ph codeph">2001:db8:1::1</code> with the <code class="ph codeph">/64</code> subnet mask</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">An IPv4 default gateway - <code class="ph codeph">192.0.2.254</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">An IPv6 default gateway - <code class="ph codeph">2001:db8:1::fffe</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">An IPv4 DNS server - <code class="ph codeph">192.0.2.200</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">An IPv6 DNS server - <code class="ph codeph">2001:db8:1::ffbb</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">A DNS search domain - <code class="ph codeph">example.com</code>
+                     </p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Apply the settings to the system:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl apply ~/create-vlan.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the status of the devices and connections:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device status</strong>
+DEVICE      TYPE      STATE      CONNECTION
+vlan10      vlan      <strong class="ph b">connected</strong>  vlan10</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display all settings of the connection profile:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show vlan10</strong>
+connection.id:              vlan10
+connection.uuid:            1722970f-788e-4f81-bd7d-a86bf21c9df5
+connection.stable-id:       --
+connection.type:            vlan
+connection.interface-name:  vlan10
+...</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the connection settings in YAML format:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl show vlan10</strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-vlan-tagging_configuring-and-managing-networking.html">Configuring VLAN tagging</a></div></div></nav></article></main></body></html>

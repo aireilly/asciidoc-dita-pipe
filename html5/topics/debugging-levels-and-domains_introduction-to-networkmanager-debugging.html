@@ -1,0 +1,80 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Debugging levels and domains</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="debugging-levels-and-domains_introduction-to-networkmanager-debugging"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Debugging levels and domains</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">You can use the <code class="ph codeph">levels</code> and <code class="ph codeph">domains</code> parameters to manage the debugging for NetworkManager. The level defines the verbosity level, whereas the domains define the category of the messages to record the logs with given severity (<code class="ph codeph">level</code>).</p>
+      </section>
+      <table class="table frame-all"><caption></caption><colgroup><col style="width:25%"><col style="width:75%"></colgroup><thead class="thead">
+               <tr class="row">
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__1">Log levels</th>
+                  <th class="entry align-left rowsep-1 valign-top" id="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__2">Description</th>
+               </tr>
+            </thead><tbody class="tbody">
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__1">
+                     <p class="p">
+                        <code class="ph codeph">OFF</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__2">
+                     <p class="p">Does not log any messages about NetworkManager</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__1">
+                     <p class="p">
+                        <code class="ph codeph">ERR</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__2">
+                     <p class="p">Logs only critical errors</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__1">
+                     <p class="p">
+                        <code class="ph codeph">WARN</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__2">
+                     <p class="p">Logs warnings that can reflect the operation</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__1">
+                     <p class="p">
+                        <code class="ph codeph">INFO</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__2">
+                     <p class="p">Logs various informational messages that are useful for tracking state and operations</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__1">
+                     <p class="p">
+                        <code class="ph codeph">DEBUG</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__2">
+                     <p class="p">Enables verbose logging for debugging purposes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__1">
+                     <p class="p">
+                        <code class="ph codeph">TRACE</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left valign-top" headers="debugging-levels-and-domains_introduction-to-networkmanager-debugging__entry__2">
+                     <p class="p">Enables more verbose logging than the <code class="ph codeph">DEBUG</code> level</p>
+                  </td>
+               </tr>
+            </tbody></table>
+      <section class="section">
+         <p class="p">Note that subsequent levels log all messages from earlier levels. For example, setting the log level to <code class="ph codeph">INFO</code> also logs messages contained in the <code class="ph codeph">ERR</code> and <code class="ph codeph">WARN</code> log level.</p>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="introduction-to-networkmanager-debugging_configuring-and-managing-networking.html">Introduction to NetworkManager Debugging</a></div></div></nav></article></main></body></html>

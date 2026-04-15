@@ -1,0 +1,225 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Manually configuring an IPsec site-to-site VPN with raw RSA key authentication</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="manually-configuring-an-ipsec-site-to-site-vpn-with-raw-rsa-key-authentication_setting-up-an-ipsec-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Manually configuring an IPsec site-to-site VPN with raw RSA key authentication</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Routes in both networks ensure that the traffic to the remote networks is sent through the local VPN gateway devices.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">A site-to-site VPN establishes a secure, encrypted tunnel between two distinct networks, seamlessly linking them across an insecure public network such as the internet.</p>
+         <p class="p">For example, a site-to-site VPN enables devices in a branch office to access resources at a corporate headquarters just as if they were all part of the same local network.</p>
+         <p class="p">For authenticating the gateway devices, RSA keys are more secure than pre-shared keys (PSKs) because their asymmetric encryption eliminates the risk of a shared secret. Using RSA keys also simplifies deployment by avoiding the need for a certificate authority (CA), while still providing strong peer-to-peer authentication.</p>
+         <p class="p">Perform the steps on both gateway devices.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">If Libreswan is not yet installed, perform the following steps:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Install the <code class="ph codeph">libreswan</code> package:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">dnf install libreswan</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Initialize the Network Security Services (NSS) database:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ipsec initnss</strong>
+                     </code></pre>
+                     <p class="p">The command creates the database in the <code class="ph codeph">/var/lib/ipsec/nss/</code> directory.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enable and start the <code class="ph codeph">ipsec</code> service:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">systemctl enable --now ipsec</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Open the IPsec ports and protocols in the firewall:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">firewall-cmd --permanent --add-service="ipsec"</strong>
+# <strong class="ph b">firewall-cmd --reload</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create an RSA key pair:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ipsec newhostkey</strong>
+               </code></pre>
+               <p class="p">The <code class="ph codeph">ipsec</code> utility stores the key pair in the NSS database.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Designate your peers. In an IPsec tunnel, you must designate one host as <em class="ph i">left</em> and the other as <em class="ph i">right</em>. This is an arbitrary choice. A common practice is to call your local host <em class="ph i">left</em> and the remote host <em class="ph i">right</em>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the Certificate Key Attribute ID (CKAID) on both the left and right peer:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ipsec showhostkey --list</strong>
+&lt; 1&gt; RSA keyid: <em class="ph i">&lt;key_id&gt;</em> ckaid: <em class="ph i">&lt;ckaid&gt;</em>
+               </code></pre>
+               <p class="p">You require the CKAIDs of both peers in the next steps.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the public keys:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">On the left peer, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ipsec showhostkey --left --ckaid <em class="ph i">&lt;ckaid_of_left_peer&gt;</em>
+                        </strong>
+	# rsakey AwEAAdKCx
+	leftrsasigkey=0sAwEAAdKCxpc9db48cehzQiQD...</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">On the right peer, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ipsec showhostkey --right --ckaid <em class="ph i">&lt;ckaid_of_right_peer&gt;</em>
+                        </strong>
+	# rsakey AwEAAcNWC
+	rightrsasigkey=0sAwEAAcNWCzZO+PR1j8WbO8X...</code></pre>
+                  </li>
+               </ol>
+               <p class="p">The commands display the public keys with the corresponding parameters that you must use in the configuration file.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create a <code class="ph codeph">.conf</code> file for the connection in the <code class="ph codeph">/etc/ipsec.d/</code> directory. For example, create the <code class="ph codeph">/etc/ipsec.d/site-to-site.conf</code> file with the following settings:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-bash"><code>conn <em class="ph i">&lt;connection_name&gt;</em>
+    # General setup and authentication type
+    auto=start
+    authby=rsasig
+
+    # Site A
+    left=<em class="ph i">&lt;ip_address_or_fqdn_of_left_peer&gt;</em>
+    leftid=@site_a
+    leftrsasigkey=<em class="ph i">&lt;public_key_of_left_peer&gt;</em>
+    leftsubnet=192.0.2.0/24
+
+    # Site B
+    right=<em class="ph i">&lt;ip_address_or_fqdn_of_right_peer&gt;</em>
+    rightid=@site_b
+    rightrsasigkey=<em class="ph i">&lt;public_key_of_right_peer&gt;</em>
+    rightsubnet={198.51.100.0/24, 203.0.113.0/24}</code></pre>
+               <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+                  <p class="p">You can use the same configuration file on both gateway devices, and Libreswan identifies whether it is operating on the left or right host by using internal information. However, it is important that all values in <code class="ph codeph">left*</code> parameters belong to one peer and the values in <code class="ph codeph">right*</code> parameters belong to the other.</p>
+               </div></div>
+               <p class="p">The settings specified in the example include the following:</p>
+               <dl class="dl">
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">conn <em class="ph i">&lt;connection_name&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines the connection name. The name is arbitrary, and Libreswan uses it to identify the connection. You must indent parameters in this connection by at least one space or tab.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">auto=<em class="ph i">&lt;type&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Controls how the connection is initiated. If you set the value to <code class="ph codeph">start</code>, Libreswan activates the connection automatically when the service starts.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">authby=rsasig</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Enables RSA signature authentication for this connection.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">left=<em class="ph i">&lt;ip_address_or_fqdn_of_left_peer&gt;</em>
+                        </code> and <code class="ph codeph">right=<em class="ph i">&lt;ip_address_or_fqdn_of_right_peer&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines the IP address or DNS name of the peers.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">leftid=<em class="ph i">&lt;id&gt;</em>
+                        </code> and <code class="ph codeph">rightid=<em class="ph i">&lt;id&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines how each peer is identified during the Internet Key Exchange (IKE) negotiation process. This can be a fully-qualified domain name (FQDN), an IP address, or a literal string. In the latter case, precede the string with an <code class="ph codeph">@</code> sign.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">leftrsasigkey=<em class="ph i">&lt;public_key&gt;</em>
+                        </code> and <code class="ph codeph">rightrsasigkey=<em class="ph i">&lt;public_key&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Specifies the public key of the peers. Use the values displayed by the <code class="ph codeph">ipsec showhostkey</code> command in a previous step.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">leftsubnet=<em class="ph i">&lt;subnet&gt;</em>
+                        </code> and <code class="ph codeph">rightsubnet=<em class="ph i">&lt;subnet&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines subnets in classless inter-domain routing (CIDR) format that are connected through the tunnel. If you want to tunnel multiple subnets on one side, specify them in curly brackets and separate them with a comma.</p>
+                     </dd>
+                  
+               </dl>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enable packet forwarding:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">echo "net.ipv4.ip_forward=1" &gt; /etc/sysctl.d/95-IPv4-forwarding.conf</strong>
+# <strong class="ph b">sysctl -p /etc/sysctl.d/95-IPv4-forwarding.conf</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart the <code class="ph codeph">ipsec</code> service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl restart ipsec</strong>
+               </code></pre>
+               <p class="p">If you use <code class="ph codeph">auto=start</code> in the configuration file, the connection is automatically activated. With other methods, additional steps are required to activate the connection. For details, see the <code class="ph codeph">ipsec.conf(5)</code> man page on your system.</p>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the IPsec status:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ipsec status</strong>
+               </code></pre>
+               <p class="p">If the connection is successfully established, the output contains lines as follows:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">Phase 1 of an Internet Key Exchange version 2 (IKEv2) negotiation has been successfully completed:</p>
+                     <pre class="pre codeblock language-txt"><code>000 #2: "<em class="ph i">&lt;connection_name&gt;</em>":500 STATE_V2_ESTABLISHED_IKE_SA (established IKE SA); REKEY in 27935s; REPLACE in 28610s; newest; idle;</code></pre>
+                     <p class="p">The Security Association (SA) is now ready to negotiate the actual data encryption tunnels, known as child SAs or Phase 2 SAs.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">A child SA has been established:</p>
+                     <pre class="pre codeblock language-txt"><code>000 #3: "<em class="ph i">&lt;connection_name&gt;</em>":500 STATE_V2_ESTABLISHED_CHILD_SA (established Child SA); REKEY in 27671s; REPLACE in 28610s; IKE SA #2; idle;</code></pre>
+                     <p class="p">This is the actual tunnel that your data traffic flows through.</p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">From a client in the local subnet, ping a client in the remote subnet.</p>
+            </li>
+         </ol>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <a class="xref" href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</a>.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="setting-up-an-ipsec-vpn_configuring-and-managing-networking.html">Setting up an IPsec VPN</a></div></div></nav></article></main></body></html>

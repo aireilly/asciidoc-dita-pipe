@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting">
+   <title>How NetworkManager manages multiple default gateways</title>
+   <conbody>
+      <p>In certain situations, for example for fallback reasons, you set multiple default gateways on a host. However, to avoid asynchronous routing issues, each default gateway of the same protocol requires a separate metric value.</p>
+      <p>Note that RHEL only uses the connection to the default gateway that has the lowest metric set.</p>
+      <p>You can set the metric for both the IPv4 and IPv6 gateway of a connection using the following command:</p>
+      <codeblock># <b>nmcli connection modify <i>&lt;connection_name&gt;</i> ipv4.route-metric &lt;value&gt; ipv6.route-metric &lt;value&gt;</b>
+      </codeblock>
+      <note type="important">
+         <p>Do not set the same metric value for the same protocol in multiple connection profiles to avoid routing issues.</p>
+      </note>
+      <p>If you set a default gateway without a metric value, NetworkManager automatically sets the metric value based on the interface type. For that, NetworkManager assigns the default value of this network type to the first connection that is activated, and sets an incremented value to each other connection of the same type in the order they are activated. For example, if two Ethernet connections with a default gateway exist, NetworkManager sets a metric of <codeph>100</codeph> on the route to the default gateway of the connection that you activate first. For the second connection, NetworkManager sets <codeph>101</codeph>.</p>
+      <p>The following is an overview of frequently-used network types and their default metrics:</p>
+      <table colsep="1" rowsep="1" frame="all">
+         <tgroup cols="2">
+            <colspec colname="col_1" colwidth="50*"/>
+            <colspec colname="col_2" colwidth="50*"/>
+            <thead>
+               <row>
+                  <entry align="left" valign="top">Connection type</entry>
+                  <entry align="left" valign="top">Default metric value</entry>
+               </row>
+            </thead>
+            <tbody>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>VPN</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>50</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Ethernet</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>100</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>MACsec</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>125</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>InfiniBand</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>150</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Bond</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>300</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Team</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>350</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>VLAN</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>400</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Bridge</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>425</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>TUN</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>450</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Wi-Fi</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>600</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>IP tunnel</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>675</p>
+                  </entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+      <p>Additional resources</p>
+      <ul>
+         <li>
+            <p>
+               <xref href="#proc_configuring-a-static-route-by-using-the-network-rhel-system-role_configuring-static-routes/configuring-policy-based-routing-to-define-alternative-routes_configuring-and-managing-networking">Configuring policy-based routing to define alternative routes</xref>
+            </p>
+         </li>
+      </ul>
+   </conbody>
+</concept>

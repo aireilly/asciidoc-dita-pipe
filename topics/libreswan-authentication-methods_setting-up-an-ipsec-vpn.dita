@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="libreswan-authentication-methods_setting-up-an-ipsec-vpn">
+   <title>Libreswan authentication methods</title>
+   <refbody>
+      <section>
+         <p>Select the appropriate authentication method to establish a secure VPN connection based on your security needs and network environment.</p>
+         <p>Libreswan supports the following authentication methods:</p>
+         <dl>
+            <dlentry>
+               <dt>Pre-Shared key</dt>
+               <dd>
+                  <p>The Pre-Shared Key (PSK) method involves both endpoints by using the same secret to authenticate each other. PSKs offer simplicity and broad compatibility, making them suitable for small-scale deployments. However, managing PSKs is risky if the key is reused or not rotated frequently. For security, PSKs should consist of more than 64 random characters and must meet FIPS strength requirements if your host operates in FIPS mode.</p>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Raw RSA key</dt>
+               <dd>
+                  <p>This method uses an RSA public and private key pair on each peer for mutual identification. Raw RSA keys provide stronger security than PSKs and are ideal for environments where a full certificate infrastructure is not required.</p>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>X.509 certificates</dt>
+               <dd>
+                  <p>This method uses X.509 certificates issued by a trusted Certificate Authority (CA). Each peer proves its identity by using its certificate and private key, which the other peer verifies against the trusted CA. While providing the highest level of security and scalability for large enterprises, this method is more complex as it requires deploying and maintaining a public key infrastructure (PKI).</p>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>NULL authentication</dt>
+               <dd>
+                  <p>This method provides only encryption with no authentication between peers. Because it does not verify the identity of the remote endpoint, NULL authentication is insecure and offers no protection against man-in-the-middle attacks.</p>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Protection against quantum computers</dt>
+               <dd>
+                  <p>While not a standalone authentication method, Libreswan offers Post-quantum Pre-shared Keys (PPKs) to protect modern IKEv2 connections from future attacks by quantum computers. This feature is necessary because neither the older IKEv1 protocol nor standard IKEv2 is inherently quantum-resistant on its own. A PPK adds another layer of security on top of the primary authentication method, and its security relies on using a cryptographically strong key that has been distributed securely through an external communication channel.</p>
+               </dd>
+            </dlentry>
+         </dl>
+      </section>
+   </refbody>
+</reference>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="updating-the-default-qdisc_linux-traffic-control">
+   <title>Updating the default qdisc</title>
+   <taskbody>
+      <context>
+         <p>If you observe networking packet losses with the current <codeph>qdisc</codeph>, you can change the <codeph>qdisc</codeph> based on your network-requirements.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>View the current default <codeph>qdisc</codeph>:</cmd>
+            <info>
+               <codeblock># <b>sysctl -a | grep qdisc</b>
+net.core.default_qdisc = fq_codel</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>View the <codeph>qdisc</codeph> of current Ethernet connection:</cmd>
+            <info>
+               <codeblock># <b>tc -s qdisc show dev <i>enp0s1</i>
+                  </b>
+qdisc fq_codel 0: root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5.0ms interval 100.0ms memory_limit 32Mb ecn
+Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0)
+backlog 0b 0p requeues 0
+maxpacket 0 drop_overlimit 0 new_flow_count 0 ecn_mark 0
+new_flows_len 0 old_flows_len 0</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Update the existing <codeph>qdisc</codeph>:</cmd>
+            <info>
+               <codeblock># <b>sysctl -w net.core.default_qdisc=pfifo_fast</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>To apply the changes, reload the network driver:</cmd>
+            <info>
+               <codeblock># <b>modprobe -r <i>NETWORKDRIVERNAME</i>
+                  </b>
+# <b>modprobe <i>NETWORKDRIVERNAME</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Start the network interface:</cmd>
+            <info>
+               <codeblock># <b>ip link set <i>enp0s1</i> up</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>View the <codeph>qdisc</codeph> of the Ethernet connection:</p>
+               <codeblock># <b>tc -s qdisc show dev <i>enp0s1</i>
+                  </b>
+qdisc <i>pfifo_fast</i> 0: root refcnt 2 bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+ Sent 373186 bytes 5333 pkt (dropped 0, overlimits 0 requeues 0)
+ backlog 0b 0p requeues 0
+....</codeblock>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/solutions/2587"
+                        format="html"
+                        scope="external">How to set <codeph>sysctl</codeph> variables on Red Hat Enterprise Linux (Red Hat Knowledgebase)</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

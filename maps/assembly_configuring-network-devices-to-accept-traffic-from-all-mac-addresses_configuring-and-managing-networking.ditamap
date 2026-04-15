@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Configuring network devices to accept traffic from all MAC addresses</title>
+   <topicref href="../topics/assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/proc_temporarily-configuring-a-network-device-to-accept-all-traffic_assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses.dita"/>
+   <topicref href="../topics/proc_permanently-configuring-a-network-device-to-accept-all-traffic-using-nmcli_assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses.dita"/>
+   <topicref href="../topics/proc_permanently-configuring-a-network-device-to-accept-all-traffic-using-nmstatectl_assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses.dita"/>
+</map>

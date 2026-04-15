@@ -1,0 +1,9 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Getting started with IPVLAN</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="getting-started-with-ipvlan_configuring-and-managing-networking"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Getting started with IPVLAN</h1>
+   <div class="body">
+      <p class="p">IPVLAN is a driver for a virtual network device that can be used in container environment to access the host network.</p>
+      <p class="p">IPVLAN exposes a single MAC address to the external network regardless of the number of IPVLAN devices created inside the host network. This means that a user can have multiple IPVLAN devices in multiple containers and the corresponding switch reads a single MAC address. The IPVLAN driver is useful when the local switch imposes constraints on the total number of MAC addresses that it can manage.</p>
+   </div>
+<nav role="navigation" class="related-links"><ul class="ullinks"><li class="link ulchildlink"><strong><a href="ipvlan-modes_getting-started-with-ipvlan.html">IPVLAN modes</a></strong><br></li><li class="link ulchildlink"><strong><a href="ipvlan-and-macvlan_getting-started-with-ipvlan.html">Comparison of IPVLAN and MACVLAN</a></strong><br></li><li class="link ulchildlink"><strong><a href="creating-and-configuring-the-ipvlan-device-using-iproute2_getting-started-with-ipvlan.html">Creating and configuring the IPVLAN device using iproute2</a></strong><br></li></ul></nav></article></main></body></html>

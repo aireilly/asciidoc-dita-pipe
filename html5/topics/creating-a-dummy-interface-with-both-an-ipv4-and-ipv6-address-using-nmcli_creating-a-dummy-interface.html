@@ -1,0 +1,32 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Creating a dummy interface with both an IPv4 and IPv6 address by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="creating-a-dummy-interface-with-both-an-ipv4-and-ipv6-address-using-nmcli_creating-a-dummy-interface"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Creating a dummy interface with both an IPv4 and IPv6 address by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">You can create a dummy interface with various settings, such as IPv4 and IPv6 addresses. After creating the interface, NetworkManager automatically assigns it to the default <code class="ph codeph">public</code> firewalld zone.</p>
+      </section>
+      <section><div class="ul steps-unordered"><div class="li step p">
+            <span class="ph cmd">Create a dummy interface named <code class="ph codeph">dummy0</code> with static IPv4 and IPv6 addresses:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type dummy ifname <em class="ph i">dummy0</em> ipv4.method manual ipv4.addresses <em class="ph i">192.0.2.1/24</em> ipv6.method manual ipv6.addresses <em class="ph i">2001:db8:2::1/64</em>
+                  </strong>
+               </code></pre>
+               <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+                  <p class="p">To configure a dummy interface without IPv4 and IPv6 addresses, set both the <code class="ph codeph">ipv4.method</code> and <code class="ph codeph">ipv6.method</code> parameters to <code class="ph codeph">disabled</code>. Otherwise, IP auto-configuration fails, and NetworkManager deactivates the connection and removes the device.</p>
+               </div></div>
+            </div>
+         </div></div></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">List the connection profiles:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show</strong>
+NAME            UUID                                  TYPE     DEVICE
+dummy-dummy0    aaf6eb56-73e5-4746-9037-eed42caa8a65  dummy    dummy0</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="creating-a-dummy-interface_configuring-and-managing-networking.html">Creating a dummy interface</a></div></div></nav></article></main></body></html>

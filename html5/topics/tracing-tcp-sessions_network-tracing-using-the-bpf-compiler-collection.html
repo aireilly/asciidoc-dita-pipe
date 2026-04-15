@@ -1,0 +1,45 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Tracing TCP sessions</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="tracing-tcp-sessions_network-tracing-using-the-bpf-compiler-collection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Tracing TCP sessions</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">The <code class="ph codeph">tcplife</code> utility uses eBPF to trace TCP sessions that open and close, and prints a line of output to summarize each one. Administrators can use <code class="ph codeph">tcplife</code> to identify connections and the amount of transferred traffic.</p>
+         <p class="p">For example, you can display connections to port <code class="ph codeph">22</code> (SSH) to retrieve the following information:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The local process ID (PID)</p>
+            </li>
+            <li class="li">
+               <p class="p">The local process name</p>
+            </li>
+            <li class="li">
+               <p class="p">The local IP address and port number</p>
+            </li>
+            <li class="li">
+               <p class="p">The remote IP address and port number</p>
+            </li>
+            <li class="li">
+               <p class="p">The amount of received and transmitted traffic in KB.</p>
+            </li>
+            <li class="li">
+               <p class="p">The time in milliseconds the connection was active</p>
+            </li>
+         </ul>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Enter the following command to start the tracing of connections to the local port <code class="ph codeph">22</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">/usr/share/bcc/tools/tcplife -L 22</strong>
+PID   COMM    LADDR      LPORT RADDR       RPORT TX_KB  RX_KB      MS
+19392 sshd    192.0.2.1  22    192.0.2.17  43892    53     52 6681.95
+19431 sshd    192.0.2.1  22    192.0.2.245 43902    81 249381 7585.09
+19487 sshd    192.0.2.1  22    192.0.2.121 43970  6998     7 16740.35
+...</code></pre>
+               <p class="p">Each time a connection is closed, <code class="ph codeph">tcplife</code> displays the details of the connections.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press <span class="ph">Ctrl</span>+<span class="ph">C</span> to stop the tracing process.</span>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="network-tracing-using-the-bpf-compiler-collection_configuring-and-managing-networking.html">Network tracing using the BPF compiler collection</a></div></div></nav></article></main></body></html>

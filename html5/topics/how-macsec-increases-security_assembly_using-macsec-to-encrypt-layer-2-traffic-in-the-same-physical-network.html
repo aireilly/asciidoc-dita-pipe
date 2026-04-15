@@ -1,0 +1,57 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>How MACsec increases security</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="how-macsec-increases-security_assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">How MACsec increases security</h1>
+   <div class="body conbody">
+      <p class="p">Media Access Control security (MACsec) is a layer-2 protocol that encrypts and authenticates all LAN traffic. It uses a pre-shared key to establish connections. To change this key, you must update the NetworkManager configuration on all hosts that use MACsec.</p>
+      <p class="p">MACsec secures different traffic types over the Ethernet links, including:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">Dynamic host configuration protocol (DHCP)</p>
+         </li>
+         <li class="li">
+            <p class="p">address resolution protocol (ARP)</p>
+         </li>
+         <li class="li">
+            <p class="p">IPv4 and IPv6 traffic</p>
+         </li>
+         <li class="li">
+            <p class="p">Any traffic over IP such as TCP or UDP</p>
+         </li>
+      </ul>
+      <p class="p">A MACsec connection uses an Ethernet device, such as an Ethernet network card, VLAN, or tunnel device, as a parent. You can either set an IP configuration only on the MACsec device to communicate with other hosts only by using the encrypted connection, or you can also set an IP configuration on the parent device. In the latter case, you can use the parent device to communicate with other hosts using an unencrypted connection and the MACsec device for encrypted connections.</p>
+      <p class="p">MACsec does not require any special hardware. For example, you can use any switch, except if you want to encrypt traffic only between a host and a switch. In this scenario, the switch must also support MACsec.</p>
+      <p class="p">In other words, you can configure MACsec for two common scenarios:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">Host-to-host</p>
+         </li>
+         <li class="li">
+            <p class="p">Host-to-switch and switch-to-other-hosts</p>
+         </li>
+      </ul>
+      <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+         <p class="p">You can use MACsec only between hosts being in the same physical or virtual LAN.</p>
+      </div></div>
+      <p class="p">Using the MACsec security standard for securing communication at the link layer, also known as layer 2 of the Open Systems Interconnection (OSI) model provides the following notable benefits:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">Encryption at layer 2 eliminates the need for encrypting individual services at layer 7. This reduces the overhead associated with managing a large number of certificates for each endpoint on each host.</p>
+         </li>
+         <li class="li">
+            <p class="p">Point-to-point security between directly connected network devices such as routers and switches.</p>
+         </li>
+         <li class="li">
+            <p class="p">No changes needed for applications and higher-layer protocols.</p>
+         </li>
+      </ul>
+      <p class="p">Additional resources</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <a class="xref" href="https://developers.redhat.com/blog/2016/10/14/macsec-a-different-solution-to-encrypt-network-traffic" target="_blank" rel="external noopener">MACsec: a different solution to encrypt network traffic</a>
+            </p>
+         </li>
+      </ul>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network_configuring-and-managing-networking.html">Using MACsec to encrypt layer-2 traffic in the same physical network</a></div></div></nav></article></main></body></html>

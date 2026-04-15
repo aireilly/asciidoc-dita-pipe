@@ -1,0 +1,33 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Identifying the reason why NetworkManager does not manage a certain network device</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="identifying-the-reason-why-networkmanager-does-not-manage-a-certain-network-device_configuring-networkmanager-to-ignore-certain-devices"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Identifying the reason why NetworkManager does not manage a certain network device</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">In addition to the status of each network device, NetworkManager also tracks the reason why the devices are in their current status. You can use this feature to identify why NetworkManager does not manage certain devices.</p>
+      </section>
+      <section><div class="ul steps-unordered"><div class="li step p">
+            <span class="ph cmd">Display the status and its reason of all network devices:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli -f GENERAL.DEVICE,GENERAL.STATE,GENERAL.REASON device show</strong>
+               </code></pre>
+               <p class="p">If you pass a device name to the command, you can display the output only of the specified device.</p>
+               <p class="p">Example output:</p>
+               <pre class="pre codeblock language-console"><code>GENERAL.DEVICE:    enp1s0
+GENERAL.STATE:     10 (unmanaged)
+GENERAL.REASON:    75 (The device is unmanaged by explicit user decision (e.g. 'nmcli device set $DEV managed no'))
+
+GENERAL.DEVICE:    enp7s0
+GENERAL.STATE:     10 (unmanaged)
+GENERAL.REASON:    74 (The device is unmanaged by user decision in NetworkManager.conf ('unmanaged' in a [device*] section)
+
+GENERAL.DEVICE:    veth3
+GENERAL.STATE:     10 (unmanaged)
+GENERAL.REASON:    77 (The device is unmanaged via udev rule)</code></pre>
+               <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+                  <p class="p">Note that the command returns the status of all devices, regardless whether they are managed or unmanaged.</p>
+               </div></div>
+            </div>
+         </div></div></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-networkmanager-to-ignore-certain-devices_configuring-and-managing-networking.html">Configuring NetworkManager to ignore certain devices</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Increasing the ring buffer size to reduce a high packet drop rate by using the network RHEL&nbsp;system&nbsp;role</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_increasing-the-ring-buffer-size-to-reduce-a-high-packet-drop-rate-using-the-network-rhel-system-role_configuring-ethtool-settings-in-networkmanager-connection-profiles"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Increasing the ring buffer size to reduce a high packet drop rate by using the <code class="ph codeph">network</code> RHEL&nbsp;system&nbsp;role</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles" target="_blank" rel="external noopener">You have prepared the control node and the managed nodes</a>.</p>
+            </li>
+            <li class="li">
+               <p class="p">The account you use to connect to the managed nodes has <code class="ph codeph">sudo</code> permissions for these nodes.</p>
+            </li>
+            <li class="li">
+               <p class="p">You know the maximum ring buffer sizes that the device supports.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Increase the size of an Ethernet device’s ring buffers if the packet drop rate causes applications to report a loss of data, timeouts, or other issues.</p>
+         <p class="p">Ring buffers are circular buffers where an overflow overwrites existing data. The network card assigns a transmit (TX) and receive (RX) ring buffer. Receive ring buffers are shared between the device driver and the network interface controller (NIC). Data can move from NIC to the kernel through either hardware interrupts or software interrupts, also called SoftIRQs.</p>
+         <p class="p">The kernel uses the RX ring buffer to store incoming packets until the device driver can process them. The device driver drains the RX ring, typically by using SoftIRQs, which puts the incoming packets into a kernel data structure called an <code class="ph codeph">sk_buff</code> or <code class="ph codeph">skb</code> to begin its journey through the kernel and up to the application that owns the relevant socket.</p>
+         <p class="p">The kernel uses the TX ring buffer to hold outgoing packets which should be sent to the network. These ring buffers reside at the bottom of the stack and are a crucial point at which packet drop can occur, which in turn will adversely affect network performance.</p>
+         <p class="p">You configure ring buffer settings in the NetworkManager connection profiles. By using Ansible and the <code class="ph codeph">network</code> RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.</p>
+         <div class="note attention note_attention"><span class="note__title">Attention:</span> <div class="note__body">
+            <p class="p">You cannot use the <code class="ph codeph">network</code> RHEL system role to update only specific values in an existing connection profile. The role ensures that a connection profile exactly matches the settings in a playbook. If a connection profile with the same name already exists, the role applies the settings from the playbook and resets all other settings in the profile to their defaults. To prevent resetting values, always specify the whole configuration of the network connection profile in the playbook, including the settings that you do not want to change.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a playbook file, for example, <code class="ph codeph">~/playbook.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Ethernet connection profile with dynamic IP address setting and increased ring buffer sizes
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: enp1s0
+            type: ethernet
+            autoconnect: yes
+            ip:
+              dhcp4: yes
+              auto6: yes
+            <strong class="ph b">ethtool:</strong>
+                  <strong class="ph b">ring:</strong>
+                  <strong class="ph b">rx: 4096</strong>
+                  <strong class="ph b">tx: 4096</strong>
+            state: up</code></pre>
+               <p class="p">The settings specified in the example playbook include the following:</p>
+               <dl class="dl">
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">rx: <em class="ph i">&lt;value&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Sets the maximum number of received ring buffer entries.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">tx: <em class="ph i">&lt;value&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Sets the maximum number of transmitted ring buffer entries.</p>
+                     </dd>
+                  
+               </dl>
+               <p class="p">For details about all variables used in the playbook, see the <code class="ph codeph">/usr/share/ansible/roles/rhel-system-roles.network/README.md</code> file on the control node.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Validate the playbook syntax:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook --syntax-check ~/playbook.yml</strong>
+               </code></pre>
+               <p class="p">Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Run the playbook:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook ~/playbook.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Display the maximum ring buffer sizes:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ansible managed-node-01.example.com -m command -a 'ethtool -g enp1s0'</strong>
+managed-node-01.example.com | CHANGED | rc=0 &gt;&gt;
+...
+Current hardware settings:
+RX:             4096
+RX Mini:        0
+RX Jumbo:       0
+TX:             4096</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-ethtool-settings-in-networkmanager-connection-profiles_configuring-and-managing-networking.html">Configuring ethtool settings in NetworkManager connection profiles</a></div></div></nav></article></main></body></html>

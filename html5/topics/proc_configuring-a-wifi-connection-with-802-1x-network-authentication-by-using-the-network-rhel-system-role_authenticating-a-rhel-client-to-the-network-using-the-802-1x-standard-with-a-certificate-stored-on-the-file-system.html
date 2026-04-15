@@ -1,0 +1,151 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a wifi connection with 802.1X network authentication by using the network RHEL system role</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-wifi-connection-with-802-1x-network-authentication-by-using-the-network-rhel-system-role_authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a wifi connection with 802.1X network authentication by using the <code class="ph codeph">network</code> RHEL system role</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles" target="_blank" rel="external noopener">You have prepared the control node and the managed nodes</a>.</p>
+            </li>
+            <li class="li">
+               <p class="p">The account you use to connect to the managed nodes has <code class="ph codeph">sudo</code> permissions for these nodes.</p>
+            </li>
+            <li class="li">
+               <p class="p">The network supports 802.1X network authentication.</p>
+            </li>
+            <li class="li">
+               <p class="p">You installed the <code class="ph codeph">wpa_supplicant</code> package on the managed node.</p>
+            </li>
+            <li class="li">
+               <p class="p">DHCP is available in the network of the managed node.</p>
+            </li>
+            <li class="li">
+               <p class="p">The following files required for TLS authentication exist on the control node:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">The client key is stored in the <code class="ph codeph">/srv/data/client.key</code> file.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The client certificate is stored in the <code class="ph codeph">/srv/data/client.crt</code> file.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The CA certificate is stored in the <code class="ph codeph">/srv/data/ca.crt</code> file.</p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">By using the <code class="ph codeph">network</code> RHEL system role, you can automate setting up Network Access Control (NAC) on remote hosts. You can define authentication details for clients in a playbook to ensure only authorized clients can access the network.</p>
+         <p class="p">You can use an Ansible playbook to copy a private key, a certificate, and the CA certificate to the client, and then use the <code class="ph codeph">network</code> RHEL system role to configure a connection profile with 802.1X network authentication.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Store your sensitive variables in an encrypted file:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create the vault:</p>
+                     <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-vault create ~/vault.yml</strong>
+New Vault password: <em class="ph i">&lt;vault_password&gt;</em>
+Confirm New Vault password: <em class="ph i">&lt;vault_password&gt;</em>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">After the <code class="ph codeph">ansible-vault create</code> command opens an editor, enter the sensitive data in the <code class="ph codeph">
+                           <em class="ph i">&lt;key&gt;</em>: <em class="ph i">&lt;value&gt;</em>
+                        </code> format:</p>
+                     <pre class="pre codeblock language-ini"><code>pwd: <em class="ph i">&lt;password&gt;</em>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Save the changes, and close the editor. Ansible encrypts the data in the vault.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create a playbook file, for example, <code class="ph codeph">~/playbook.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+- name: Configure a wifi connection with 802.1X authentication
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Copy client key for 802.1X authentication
+      ansible.builtin.copy:
+        src: "/srv/data/client.key"
+        dest: "/etc/pki/tls/private/client.key"
+        mode: 0400
+
+    - name: Copy client certificate for 802.1X authentication
+      ansible.builtin.copy:
+        src: "/srv/data/client.crt"
+        dest: "/etc/pki/tls/certs/client.crt"
+
+    - name: Copy CA certificate for 802.1X authentication
+      ansible.builtin.copy:
+        src: "/srv/data/ca.crt"
+        dest: "/etc/pki/ca-trust/source/anchors/ca.crt"
+
+    - name: Wifi connection profile with dynamic IP address settings and 802.1X
+      ansible.builtin.import_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: Wifi connection profile with dynamic IP address settings and 802.1X
+            interface_name: wlp1s0
+            state: up
+            type: wireless
+            autoconnect: yes
+            ip:
+              dhcp4: true
+              auto6: true
+            wireless:
+              ssid: "Example-wifi"
+              key_mgmt: "wpa-eap"
+            ieee802_1x:
+              identity: <em class="ph i">&lt;user_name&gt;</em>
+              eap: tls
+              private_key: "/etc/pki/tls/client.key"
+              private_key_password: "{{ pwd }}"
+              private_key_password_flags: none
+              client_cert: "/etc/pki/tls/client.pem"
+              ca_cert: "/etc/pki/tls/cacert.pem"
+              domain_suffix_match: "example.com"</code></pre>
+               <p class="p">The settings specified in the example playbook include the following:</p>
+               <dl class="dl">
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">ieee802_1x</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">This variable contains the 802.1X-related settings.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">eap: tls</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Configures the profile to use the certificate-based <code class="ph codeph">TLS</code> authentication method for the Extensible Authentication Protocol (EAP).</p>
+                     </dd>
+                  
+               </dl>
+               <p class="p">For details about all variables used in the playbook, see the <code class="ph codeph">/usr/share/ansible/roles/rhel-system-roles.network/README.md</code> file on the control node.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Validate the playbook syntax:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook --ask-vault-pass --syntax-check ~/playbook.yml</strong>
+               </code></pre>
+               <p class="p">Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Run the playbook:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook --ask-vault-pass ~/playbook.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system_configuring-and-managing-networking.html">Authenticating a RHEL client to the network by using the 802.1X standard with a certificate stored on the file system</a></div></div></nav></article></main></body></html>

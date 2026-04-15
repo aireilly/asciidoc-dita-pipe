@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Running dhclient exit hooks using NetworkManager a dispatcher script</title>
+   <topicref href="../topics/assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/con_the-concept-of-networkmanager-dispatcher-scripts_assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script.dita"/>
+   <topicref href="../topics/proc_creating-a-networkmanager-dispatcher-script-that-runs-dhclient-exit-hooks_assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script.dita"/>
+</map>

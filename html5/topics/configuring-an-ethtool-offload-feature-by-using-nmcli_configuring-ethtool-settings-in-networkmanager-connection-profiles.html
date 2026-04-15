@@ -1,0 +1,42 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring an ethtool offload feature by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-an-ethtool-offload-feature-by-using-nmcli_configuring-ethtool-settings-in-networkmanager-connection-profiles"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring an ethtool offload feature by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">You can use NetworkManager to enable and disable <code class="ph codeph">ethtool</code> offload features in a connection profile.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">For example, to enable the RX offload feature and disable TX offload in the <code class="ph codeph">enp1s0</code> connection profile, enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli con modify <em class="ph i">enp1s0</em> ethtool.feature-rx on ethtool.feature-tx off</strong>
+               </code></pre>
+               <p class="p">This command explicitly enables RX offload and disables TX offload.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">To remove the setting of an offload feature that you previously enabled or disabled, set the feature’s parameter to a null value. For example, to remove the configuration for TX offload, enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli con modify <em class="ph i">enp1s0</em> ethtool.feature-tx ""</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reactivate the network profile:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">enp1s0</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Use the <code class="ph codeph">ethtool -k</code> command to display the current offload features of a network device:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ethtool -k <em class="ph i">network_device</em>
+                  </strong>
+               </code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-ethtool-settings-in-networkmanager-connection-profiles_configuring-and-managing-networking.html">Configuring ethtool settings in NetworkManager connection profiles</a></div></div></nav></article></main></body></html>

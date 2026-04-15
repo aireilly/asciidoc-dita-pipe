@@ -1,0 +1,11 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Reusing the same IP address on different interfaces</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="reusing-the-same-ip-address-on-different-interfaces_configuring-and-managing-networking"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Reusing the same IP address on different interfaces</h1>
+   <div class="body">
+      <p class="p">With Virtual routing and forwarding (VRF), administrators can use multiple routing tables simultaneously on the same host. For that, VRF partitions a network at layer 3. This enables the administrator to isolate traffic using separate and independent route tables per VRF domain. This technique is similar to virtual LANs (VLAN), which partitions a network at layer 2, where the operating system uses different VLAN tags to isolate traffic sharing the same physical medium.</p>
+      <p class="p">One benefit of VRF over partitioning on layer 2 is that routing scales better considering the number of peers involved.</p>
+      <p class="p">Red Hat Enterprise Linux uses a virtual <code class="ph codeph">vrt</code> device for each VRF domain and adds routes to a VRF domain by adding existing network devices to a VRF device. Addresses and routes previously attached to the original device will be moved inside the VRF domain.</p>
+      <p class="p">Note that each VRF domain is isolated from each other.</p>
+   </div>
+<nav role="navigation" class="related-links"><ul class="ullinks"><li class="link ulchildlink"><strong><a href="permanently-reusing-the-same-ip-address-on-different-interfaces_reusing-the-same-ip-address-on-different-interfaces.html">Permanently reusing the same IP address on different interfaces</a></strong><br></li><li class="link ulchildlink"><strong><a href="temporarily-reusing-the-same-ip-address-on-different-interfaces_reusing-the-same-ip-address-on-different-interfaces.html">Temporarily reusing the same IP address on different interfaces</a></strong><br></li></ul></nav></article></main></body></html>

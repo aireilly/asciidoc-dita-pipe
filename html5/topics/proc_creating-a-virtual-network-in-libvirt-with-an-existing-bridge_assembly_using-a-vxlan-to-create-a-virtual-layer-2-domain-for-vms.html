@@ -1,0 +1,75 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Creating a virtual network in libvirt with an existing bridge</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_creating-a-virtual-network-in-libvirt-with-an-existing-bridge_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Creating a virtual network in libvirt with an existing bridge</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You installed the <code class="ph codeph">libvirt</code> package.</p>
+            </li>
+            <li class="li">
+               <p class="p">You started and enabled the <code class="ph codeph">libvirtd</code> service.</p>
+            </li>
+            <li class="li">
+               <p class="p">You configured the <code class="ph codeph">br0</code> device with the VXLAN on RHEL.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">To enable virtual machines (VM) to use the <code class="ph codeph">br0</code> bridge with the attached virtual extensible LAN (VXLAN), first add a virtual network to the <code class="ph codeph">libvirtd</code> service that uses this bridge.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">~/vxlan10-bridge.xml</code> file with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>
+                  <strong class="ph b">&lt;network&gt;</strong>
+                  <strong class="ph b">  &lt;name&gt;vxlan10-bridge&lt;/name&gt;</strong>
+                  <strong class="ph b">  &lt;forward mode="bridge" /&gt;</strong>
+                  <strong class="ph b">  &lt;bridge name="br0" /&gt;</strong>
+                  <strong class="ph b">&lt;/network&gt;</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Use the <code class="ph codeph">~/vxlan10-bridge.xml</code> file to create a new virtual network in <code class="ph codeph">libvirt</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">virsh net-define <em class="ph i">~/vxlan10-bridge.xml</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Remove the <code class="ph codeph">~/vxlan10-bridge.xml</code> file:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">rm <em class="ph i">~/vxlan10-bridge.xml</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Start the <code class="ph codeph">vxlan10-bridge</code> virtual network:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">virsh net-start <em class="ph i">vxlan10-bridge</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the <code class="ph codeph">vxlan10-bridge</code> virtual network to start automatically when the <code class="ph codeph">libvirtd</code> service starts:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">virsh net-autostart <em class="ph i">vxlan10-bridge</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Display the list of virtual networks:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">virsh net-list</strong>
+ Name              State    Autostart   Persistent
+----------------------------------------------------
+ <em class="ph i">vxlan10-bridge</em>    active   yes         yes
+ ...</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms_configuring-and-managing-networking.html">Using a VXLAN to create a virtual layer-2 domain for VMs</a></div></div></nav></article></main></body></html>

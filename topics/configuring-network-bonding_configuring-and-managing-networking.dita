@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="configuring-network-bonding_configuring-and-managing-networking">
+   <title>Configuring a network bond</title>
+   <body>
+      <p>A network bond aggregates physical and virtual network interfaces into a single logical one. The kernel exclusively handles all operations. You can create bonds on different device types, such as Ethernet or VLANs, for higher throughput or redundancy.</p>
+      <p>Red Hat Enterprise Linux provides administrators different options to configure bond devices. For example:</p>
+      <ul>
+         <li>
+            <p>Use <codeph>nmcli</codeph> to configure bond connections using the command line.</p>
+         </li>
+         <li>
+            <p>Use the RHEL web console to configure bond connections using a web browser.</p>
+         </li>
+         <li>
+            <p>Use <codeph>nmtui</codeph> to configure bond connections in a text-based user interface.</p>
+         </li>
+         <li>
+            <p>Use the <codeph>nm-connection-editor</codeph> application to configure bond connections in a graphical interface.</p>
+         </li>
+         <li>
+            <p>Use <codeph>nmstatectl</codeph> to configure bond connections through the Nmstate API.</p>
+         </li>
+         <li>
+            <p>Use RHEL system roles to automate the bond configuration on one or multiple hosts.</p>
+         </li>
+      </ul>
+   </body>
+</topic>

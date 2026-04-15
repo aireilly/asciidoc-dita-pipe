@@ -1,0 +1,58 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Permanently configuring a network device to accept all traffic using nmstatectl</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_permanently-configuring-a-network-device-to-accept-all-traffic-using-nmstatectl_assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Permanently configuring a network device to accept all traffic using <code class="ph codeph">nmstatectl</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">nmstate</code> package is installed.</p>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">enp1s0.yml</code> file that you used to configure the device is available.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Use the <code class="ph codeph">nmstatectl</code> utility to configure a device to accept all traffic regardless of the MAC addresses through the Nmstate API. The Nmstate API ensures that, after setting the configuration, the result matches the configuration file. If anything fails, <code class="ph codeph">nmstatectl</code> automatically rolls back the changes to avoid leaving the system in an incorrect state.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Edit the existing <code class="ph codeph">enp1s0.yml</code> file for the <code class="ph codeph">enp1s0</code> connection and add the following content to it:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+<strong class="ph b">interfaces:</strong>
+                  <strong class="ph b">- name: <em class="ph i">enp1s0</em>
+                  </strong>
+                  <strong class="ph b">type: ethernet</strong>
+                  <strong class="ph b">state: up</strong>
+                  <strong class="ph b">accept -all-mac-address: <em class="ph i">true</em>
+                  </strong>
+               </code></pre>
+               <p class="p">These settings configure the <code class="ph codeph">enp1s0</code> device to accept all traffic.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Apply the network settings:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl apply ~/enp1s0.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Verify that the <code class="ph codeph">802-3-ethernet.accept-all-mac-addresses</code> mode is enabled:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl show <em class="ph i">enp1s0</em>
+                  </strong>
+interfaces:
+  - name: <em class="ph i">enp1s0</em>
+    type: ethernet
+    state: up
+    accept-all-mac-addresses:     <strong class="ph b">true</strong>
+...</code></pre>
+               <p class="p">The <code class="ph codeph">802-3-ethernet.accept-all-mac-addresses: true</code> indicates that the mode is enabled.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses_configuring-and-managing-networking.html">Configuring network devices to accept traffic from all MAC addresses</a></div></div></nav></article></main></body></html>

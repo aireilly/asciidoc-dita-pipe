@@ -1,0 +1,80 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Starting a service within an isolated VRF network</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_starting-a-service-within-an-isolated-vrf-network_assembly_starting-a-service-within-an-isolated-vrf-network"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Starting a service within an isolated VRF network</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You configured the <code class="ph codeph">vrf0</code> device.</p>
+            </li>
+            <li class="li">
+               <p class="p">You configured Apache HTTP Server to listen only on the IP address that is assigned to the interface associated with the <code class="ph codeph">vrf0</code> device.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can configure a service, such as the Apache HTTP Server, to start within an isolated virtual routing and forwarding (VRF) network.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">Services can only bind to local IP addresses that are in the same VRF network.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Display the content of the <code class="ph codeph">httpd</code> systemd service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl cat httpd</strong>
+...
+[Service]
+ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND
+...</code></pre>
+               <p class="p">You require the content of the <code class="ph codeph">ExecStart</code> parameter in a later step to run the same command within the isolated VRF network.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/systemd/system/httpd.service.d/</code> directory:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">mkdir /etc/systemd/system/httpd.service.d/</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/systemd/system/httpd.service.d/override.conf</code> file with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code>[Service]
+ExecStart=
+ExecStart=/usr/sbin/ip vrf exec <em class="ph i">vrf0</em> /usr/sbin/httpd $OPTIONS -DFOREGROUND</code></pre>
+               <p class="p">To override the <code class="ph codeph">ExecStart</code> parameter, you first need to unset it and then set it to the new value as shown.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reload systemd.</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl daemon-reload</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart the <code class="ph codeph">httpd</code> service.</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl restart httpd</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the process IDs (PID) of <code class="ph codeph">httpd</code> processes:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">pidof -c httpd</strong>
+1904 ...</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the VRF association for the PIDs, for example:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip vrf identify 1904</strong>
+vrf0</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display all PIDs associated with the <code class="ph codeph">vrf0</code> device:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip vrf pids vrf0</strong>
+1904  httpd
+...</code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_starting-a-service-within-an-isolated-vrf-network_configuring-and-managing-networking.html">Starting a service within an isolated VRF network</a></div></div></nav></article></main></body></html>

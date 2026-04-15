@@ -1,0 +1,31 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a systemd service to start after the network has been started</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-systemd-service-to-start-after-the-network-has-been-started_systemd-network-targets-and-services"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a systemd service to start after the network has been started</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">RHEL installs <code class="ph codeph">systemd</code> service files in the <code class="ph codeph">/usr/lib/systemd/system/</code> directory. You can create a drop-in snippet in <code class="ph codeph">/etc/systemd/system/<em class="ph i">&lt;service_name&gt;</em>.service.d/</code> to start a service after the network is online.</p>
+         <p class="p">This snippet’s settings override any conflicting settings in the original service file.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Open a service file in the editor:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl edit <em class="ph i">&lt;service_name&gt;</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter the following, and save the changes:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code>[Unit]
+After=network-online.target</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reload the <code class="ph codeph">systemd</code> service.</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl daemon-reload</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="systemd-network-targets-and-services_configuring-and-managing-networking.html">Systemd network targets and services</a></div></div></nav></article></main></body></html>

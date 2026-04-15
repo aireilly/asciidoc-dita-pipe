@@ -1,0 +1,98 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Assigning alternative names to a network interface by using systemd link files</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="assigning-alternative-names-to-a-network-interface-by-using-systemd-link-files_consistent-network-interface-device-naming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Assigning alternative names to a network interface by using systemd link files</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You must use ASCII characters for the alternative name.</p>
+            </li>
+            <li class="li">
+               <p class="p">The alternative name must be shorter than 128 characters.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">With alternative interface naming, the kernel can assign additional names to network interfaces. You can use these alternative names in the same way as the normal interface names in commands that require a network interface name.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Display the network interface names and their MAC addresses:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ip link show</strong>
+...
+enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...</code></pre>
+               <p class="p">Record the MAC address of the interface to which you want to assign an alternative name.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If it does not already exist, create the <code class="ph codeph">/etc/systemd/network/</code> directory:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">mkdir -p /etc/systemd/network/</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">For each interface that must have an alternative name, create a copy of the <code class="ph codeph">/usr/lib/systemd/network/99-default.link</code> file with a unique name and <code class="ph codeph">.link</code> suffix in the <code class="ph codeph">/etc/systemd/network/</code> directory, for example:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">cp /usr/lib/systemd/network/99-default.link /etc/systemd/network/98-lan.link</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Modify the file you created in the previous step. Rewrite the <code class="ph codeph">[Match]</code> section as follows, and append the <code class="ph codeph">AlternativeName</code> entries to the <code class="ph codeph">[Link]</code> section:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code>[Match]
+MACAddress=<em class="ph i">&lt;MAC_address&gt;</em>
+
+[Link]
+...
+AlternativeName=<em class="ph i">&lt;alternative_interface_name_1&gt;</em>
+AlternativeName=<em class="ph i">&lt;alternative_interface_name_2&gt;</em>
+AlternativeName=<em class="ph i">&lt;alternative_interface_name_n&gt;</em>
+               </code></pre>
+               <p class="p">For example, create the <code class="ph codeph">/etc/systemd/network/70-altname.link</code> file with the following content to assign <code class="ph codeph">provider</code> as an alternative name to the interface with MAC address <code class="ph codeph">00:00:5e:00:53:1a</code>:</p>
+               <pre class="pre codeblock language-console"><code>[Match]
+MACAddress=00:00:5e:00:53:1a
+
+[Link]
+NamePolicy=keep kernel database onboard slot path
+AlternativeNamesPolicy=database onboard slot path
+MACAddressPolicy=none
+AlternativeName=provider</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Regenerate the <code class="ph codeph">initrd</code> RAM disk image:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">dracut -f</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reboot the system:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">reboot</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Use the alternative interface name. For example, display the IP address settings of the device with the alternative name <code class="ph codeph">provider</code>:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip address show provider</strong>
+2: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+    altname <strong class="ph b">provider</strong>
+    ...</code></pre>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/solutions/6964829" target="_blank" rel="external noopener">What is AlternativeNamesPolicy in Interface naming scheme? (Red Hat Knowledgebase)</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="consistent-network-interface-device-naming_configuring-and-managing-networking.html">Implementing consistent network interface naming</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Routing DNS traffic through a certain interface</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="routing-dns-traffic-through-a-certain-interface_using-different-dns-servers-for-different-domains"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Routing DNS traffic through a certain interface</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The connection profiles already exist.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">If your host has multiple network interfaces and each DNS server is reachable only through a specific interface, configure RHEL to route DNS traffic correctly to prevent misdirected queries and resolution failures.</p>
+         <p class="p">NetworkManager can configure the <code class="ph codeph">systemd-resolved</code>, <code class="ph codeph">dnsmasq</code>, and <code class="ph codeph">dnsconf</code> DNS backends. To avoid DNS resolution issues on multi-interface systems, NetworkManager can automatically create dedicated routes for DNS servers tied to specific network interfaces.</p>
+         <p class="p">Each DNS server mentioned in a connection profile is associated with a specific network interface. The DNS backend services <code class="ph codeph">systemd-resolved</code> and <code class="ph codeph">dnsmasq</code> ensure that each DNS name server remains accessible only through the correct network interface. However, other backend services do not support this feature. In this regard, NetworkManager has a feature that automatically adds a dedicated route so that each name server is reached only through the correct interface. You can set up the <code class="ph codeph">ipv4.routed-dns</code> and <code class="ph codeph">ipv6.routed-dns</code> properties to use this feature.</p>
+         <p class="p">Example scenario:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Connection profile 1 <em class="ph i">&lt;example-connection-1&gt;</em> :</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">Default gateway: <code class="ph codeph">192.0.2.254</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">DNS server: <code class="ph codeph">10.0.0.1</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Search domain: example-domain.com</p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">Connection profile 2 <em class="ph i">&lt;example-connection-2&gt;</em> :</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">Default gateway: <code class="ph codeph">198.51.100.254</code> (this gateway has no access to the <code class="ph codeph">10.0.0.0/24</code> network)</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">DNS server: <code class="ph codeph">203.0.113.1</code>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+         <p class="p">In this example, you have two connection profiles: <em class="ph i">&lt;example-connection-1&gt;</em> and <em class="ph i">&lt;example-connection-2&gt;</em> that are connected through <code class="ph codeph">enp1s0</code> and <code class="ph codeph">enp7s0</code> network interfaces. If the <em class="ph i">&lt;example-connection-2&gt;</em> second profile was connected first, the default gateway <code class="ph codeph">198.51.100.254</code> of this connection has a lower metric and takes precedence over the first profile. Consequently, RHEL uses the default gateway of the second connection while connecting to the DNS server <code class="ph codeph">10.0.0.1</code> of the first profile. As a result, the DNS resolution fails. To solve this problem, enable the <code class="ph codeph">ipv4.routed-dns</code> setting for both connection profiles so that NetworkManager creates a dedicated route for the <code class="ph codeph">10.0.0.1</code> DNS server through the correct interface, in this case, <code class="ph codeph">enp1s0</code>.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Modify the connection profile to enable the creation of routes to the name server:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">For connection profile 1, enter:</p>
+                     <pre class="pre codeblock language-console"><code># <strong class="ph b">nmcli connection modify <em class="ph i">&lt;example-connection-1&gt;</em> ipv4.routed-dns yes</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">For connection profile 2, enter:</p>
+                     <pre class="pre codeblock language-console"><code># <strong class="ph b">nmcli connection modify <em class="ph i">&lt;example-connection-2&gt;</em> ipv4.routed-dns yes</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Re-activate the connections:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code># <strong class="ph b">nmcli connection up <em class="ph i">&lt;example-connection-1&gt;</em>
+                  </strong>
+
+# <strong class="ph b">nmcli connection up <em class="ph i">&lt;example-connection-2&gt;</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Display the route to reach an IP address:</p>
+               <pre class="pre codeblock language-console"><code># <strong class="ph b">ip route get 203.0.113.1</strong>
+203.0.113.1  dev  enp1s0  table  20053  src  10.0.0.1  uid  0</code></pre>
+               <p class="p">This command verifies if the name server is reached through the correct interface and uses the policy routing method that places all the routes for DNS servers in the special routing table <code class="ph codeph">20053</code>.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="using-different-dns-servers-for-different-domains_configuring-and-managing-networking.html">Using different DNS servers for different domains</a></div></div></nav></article></main></body></html>

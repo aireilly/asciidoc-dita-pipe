@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="linux-traffic-control_configuring-and-managing-networking">
+   <title>Linux traffic control</title>
+   <body>
+      <p>Linux Traffic Control (TC) helps in policing, classifying, shaping, and scheduling network traffic. It uses queuing disciplines (<codeph>qdisc</codeph>) and filters to manage and manipulate packet transmission, including mangling packet content.</p>
+      <p>The scheduling mechanism arranges or rearranges the packets before they enter or exit different queues. The most common scheduler is the First-In-First-Out (FIFO) scheduler. You can do the <codeph>qdiscs</codeph> operations temporarily using the <codeph>tc</codeph> utility or permanently using NetworkManager.</p>
+      <p>In Red Hat Enterprise Linux, you can configure default queueing disciplines in various ways to manage the traffic on a network interface.</p>
+   </body>
+</topic>

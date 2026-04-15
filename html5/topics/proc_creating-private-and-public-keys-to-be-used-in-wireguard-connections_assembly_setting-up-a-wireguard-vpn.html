@@ -1,0 +1,48 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Creating private and public keys to be used in WireGuard connections</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_creating-private-and-public-keys-to-be-used-in-wireguard-connections_assembly_setting-up-a-wireguard-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Creating private and public keys to be used in WireGuard connections</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">WireGuard uses base64-encoded private and public keys to authenticate hosts to each other. Therefore, you must create the keys on each host that participates in the WireGuard VPN.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">For secure connections, create different keys for each host, and ensure that you only share the public key with the remote WireGuard host. Do not use the example keys used in this documentation.</p>
+         </div></div>
+         <p class="p">If you plan to use the RHEL web console to create a WireGuard VPN connection, you can, alternatively, generate the public and private key pairs in the web console.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Install the <code class="ph codeph">wireguard-tools</code> package:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">dnf install wireguard-tools</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create a private key and a corresponding public key for the host:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">wg genkey | tee /etc/wireguard/$HOSTNAME.private.key | wg pubkey &gt; /etc/wireguard/$HOSTNAME.public.key</strong>
+               </code></pre>
+               <p class="p">You will need the content of the key files, but not the files themselves. However, Red Hat recommends keeping the files in case that you need to remember the keys in future.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set secure permissions on the key files:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">chmod 600 /etc/wireguard/$HOSTNAME.private.key /etc/wireguard/$HOSTNAME.public.key</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the private key:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /etc/wireguard/$HOSTNAME.private.key</strong>
+YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg=</code></pre>
+               <p class="p">You will need the private key to configure the WireGuard connection on the local host. Do not share the private key.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the public key:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /etc/wireguard/$HOSTNAME.public.key</strong>
+UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=</code></pre>
+               <p class="p">You will need the public key to configure the WireGuard connection on the remote host.</p>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-a-wireguard-vpn_configuring-and-managing-networking.html">Setting up a WireGuard VPN</a></div></div></nav></article></main></body></html>

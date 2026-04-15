@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_setting-the-default-gateway-on-an-existing-connection-by-using-nmstatectl_managing-the-default-gateway-setting">
+   <title>Setting the default gateway on an existing connection by using <codeph>nmstatectl</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>At least one static IP address must be configured on the connection on which the default gateway will be set.</p>
+            </li>
+            <li>
+               <p>The <codeph>enp1s0</codeph> interface is configured, and the IP address of the default gateway is within the subnet of the IP configuration of this interface.</p>
+            </li>
+            <li>
+               <p>The <codeph>nmstate</codeph> package is installed.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the declarative Nmstate API to set or update the default gateway in a connection. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a YAML file, for example <codeph>~/set-default-gateway.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.0.2.1
+    next-hop-interface: enp1s0</codeblock>
+               <p>These settings define <codeph>192.0.2.1</codeph> as the default gateway, and the default gateway is reachable through the <codeph>enp1s0</codeph> interface.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Apply the settings to the system:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl apply ~/set-default-gateway.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

@@ -1,0 +1,101 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a VRF device</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-vrf-device_assembly_starting-a-service-within-an-isolated-vrf-network"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a VRF device</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You are logged in locally or using a network interface that is different to the one you want to assign to the VRF device.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">To use virtual routing and forwarding (VRF), you create a VRF device and attach a physical or virtual network interface and routing information to it.</p>
+         <div class="note attention note_attention"><span class="note__title">Attention:</span> <div class="note__body">
+            <p class="p">To prevent that you lock yourself out yourself out remotely, perform this procedure on the local console or remotely over a network interface that you do not want to assign to the VRF device.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">vrf0</code> connection with a same-named virtual device, and attach it to routing table <code class="ph codeph">1000</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type vrf ifname <em class="ph i">vrf0</em> con-name <em class="ph i">vrf0</em> table <em class="ph i">1000</em> ipv4.method disabled ipv6.method disabled</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Add the <code class="ph codeph">enp1s0</code> device to the <code class="ph codeph">vrf0</code> connection, and configure the IP settings:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ethernet con-name <em class="ph i">enp1s0</em> ifname <em class="ph i">enp1s0</em> controller <em class="ph i">vrf0</em> ipv4.method <em class="ph i">manual</em> ipv4.address <em class="ph i">192.0.2.1/24</em> ipv4.gateway <em class="ph i">192.0.2.254</em>
+                  </strong>
+               </code></pre>
+               <p class="p">This command creates the <code class="ph codeph">enp1s0</code> connection as a port of the <code class="ph codeph">vrf0</code> connection. Due to this configuration, the routing information are automatically assigned to the routing table <code class="ph codeph">1000</code> that is associated with the <code class="ph codeph">vrf0</code> device.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If you require static routes in the isolated network:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Add the static routes:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">enp1s0</em> +ipv4.routes "<em class="ph i">198.51.100.0/24</em>
+                           <em class="ph i">192.0.2.2</em>"</strong>
+                     </code></pre>
+                     <p class="p">This adds a route to the <code class="ph codeph">198.51.100.0/24</code> network that uses <code class="ph codeph">192.0.2.2</code> as the router.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Activate the connection:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">enp1s0</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the IP settings of the device that is associated with <code class="ph codeph">vrf0</code>:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip -br addr show vrf <em class="ph i">vrf0</em>
+                  </strong>
+                  <em class="ph i">enp1s0</em>    UP    <em class="ph i">192.0.2.1/24</em>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the VRF devices and their associated routing table:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip vrf show</strong>
+Name              Table
+-----------------------
+<em class="ph i">vrf0</em>
+                  <em class="ph i">1000</em>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the main routing table:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip route show</strong>
+default via <em class="ph i">203.0.113.0/24</em> dev <em class="ph i">enp7s0</em> proto static metric 100</code></pre>
+               <p class="p">The main routing table does not mention any routes associated with the device <code class="ph codeph">enp1s0</code> device or the <code class="ph codeph">192.0.2.1/24</code> subnet.</p>
+            </li>
+            <li class="li">
+               <p class="p">Display the routing table <code class="ph codeph">1000</code>:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip route show table <em class="ph i">1000</em>
+                  </strong>
+default via <em class="ph i">192.0.2.254</em> dev <em class="ph i">enp1s0</em> proto static metric 101
+broadcast <em class="ph i">192.0.2.0</em> dev <em class="ph i">enp1s0</em> proto kernel scope link src <em class="ph i">192.0.2.1</em>
+                  <em class="ph i">192.0.2.0</em>/24 dev <em class="ph i">enp1s0</em> proto kernel scope link src <em class="ph i">192.0.2.1</em> metric 101
+local <em class="ph i">192.0.2.1</em> dev <em class="ph i">enp1s0</em> proto kernel scope host src <em class="ph i">192.0.2.1</em>
+broadcast <em class="ph i">192.0.2.255</em> dev <em class="ph i">enp1s0</em> proto kernel scope link src <em class="ph i">192.0.2.1</em>
+                  <em class="ph i">198.51.100.0/24</em> via <em class="ph i">192.0.2.2</em> dev <em class="ph i">enp1s0</em> proto static metric 101</code></pre>
+               <p class="p">The <code class="ph codeph">default</code> entry indicates that services that use this routing table, use <code class="ph codeph">192.0.2.254</code> as their default gateway and not the default gateway in the main routing table.</p>
+            </li>
+            <li class="li">
+               <p class="p">Execute the <code class="ph codeph">traceroute</code> utility in the network associated with <code class="ph codeph">vrf0</code> to verify that the utility uses the route from table <code class="ph codeph">1000</code>:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip vrf exec <em class="ph i">vrf0</em> traceroute <em class="ph i">203.0.113.1</em>
+                  </strong>
+traceroute to <em class="ph i">203.0.113.1</em> (<em class="ph i">203.0.113.1</em>), 30 hops max, 60 byte packets
+ 1  <em class="ph i">192.0.2.254</em> (<em class="ph i">192.0.2.254</em>)  0.516 ms  0.459 ms  0.430 ms
+...</code></pre>
+               <p class="p">The first hop is the default gateway that is assigned to the routing table <code class="ph codeph">1000</code> and not the default gateway from the system’s main routing table.</p>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_starting-a-service-within-an-isolated-vrf-network_configuring-and-managing-networking.html">Starting a service within an isolated VRF network</a></div></div></nav></article></main></body></html>

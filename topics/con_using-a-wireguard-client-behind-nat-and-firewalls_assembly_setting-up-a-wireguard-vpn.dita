@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="con_using-a-wireguard-client-behind-nat-and-firewalls_assembly_setting-up-a-wireguard-vpn">
+   <title>Using a WireGuard client behind NAT and firewalls</title>
+   <conbody>
+      <p>WireGuard uses the UDP protocol and transmits data only when a peer sends packets. Stateful firewalls and network address translation (NAT) on routers track connections to enable a peer behind NAT or a firewall to receive packets.</p>
+      <p>To keep the connection active, WireGuard supports <codeph>persistent keepalives</codeph>. This means you can set an interval at which WireGuard sends keepalive packets. By default, the persistent keep-alive feature is disabled to reduce network traffic. Enable this feature on the client if you use the client in a network with NAT or if a firewall closes the connection after some time of inactivity.</p>
+      <note>
+         <p>Note that you cannot configure keepalive packets in WireGuard connections by using the RHEL web console. To configure this feature, edit the connection profile by using the <codeph>nmcli</codeph> utility.</p>
+      </note>
+   </conbody>
+</concept>

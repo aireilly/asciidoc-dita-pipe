@@ -1,0 +1,93 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring 802.1X network authentication on an existing Ethernet connection by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-802-1x-network-authentication-on-an-existing-ethernet-connection-by-using-nmcli_authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring 802.1X network authentication on an existing Ethernet connection by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The network supports 802.1X network authentication.</p>
+            </li>
+            <li class="li">
+               <p class="p">The Ethernet connection profile exists in NetworkManager and has a valid IP configuration.</p>
+            </li>
+            <li class="li">
+               <p class="p">The following files required for TLS authentication exist on the client:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">The client key stored is in the <code class="ph codeph">/etc/pki/tls/private/client.key</code> file, and the file is owned and only readable by the <code class="ph codeph">root</code> user.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The client certificate is stored in the <code class="ph codeph">/etc/pki/tls/certs/client.crt</code> file.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The Certificate Authority (CA) certificate is stored in the <code class="ph codeph">/etc/pki/tls/certs/ca.crt</code> file.</p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">wpa_supplicant</code> package is installed.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the <code class="ph codeph">nmcli</code> utility to configure an Ethernet connection with 802.1X network authentication on the command line.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Set the Extensible Authentication Protocol (EAP) to <code class="ph codeph">tls</code> and the paths to the client certificate and key file:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">enp1s0</em> 802-1x.eap tls 802-1x.client-cert /etc/pki/tls/certs/client.crt 802-1x.private-key /etc/pki/tls/private/client.key</strong>
+               </code></pre>
+               <p class="p">Note that you must set the <code class="ph codeph">802-1x.eap</code>, <code class="ph codeph">802-1x.client-cert</code>, and <code class="ph codeph">802-1x.private-key</code> parameters in a single command.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the path to the CA certificate:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">enp1s0</em> 802-1x.ca-cert /etc/pki/tls/certs/ca.crt</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the identity of the user used in the certificate:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">enp1s0</em> 802-1x.identity <em class="ph i">user@example.com</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Store the password in the configuration:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">enp1s0</em> 802-1x.private-key-password <em class="ph i">password</em>
+                  </strong>
+               </code></pre>
+               <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+                  <p class="p">By default, NetworkManager stores the password in clear text in the connection profile on the disk, but the file is readable only by the <code class="ph codeph">root</code> user. However, clear text passwords in a configuration file can be a security risk.</p>
+                  <p class="p">To increase the security, set the <code class="ph codeph">802-1x.password-flags</code> parameter to <code class="ph codeph">agent-owned</code>. With this setting, on servers with the GNOME desktop environment or the <code class="ph codeph">nm-applet</code> running, NetworkManager retrieves the password from these services, after you unlock the keyring. In other cases, NetworkManager prompts for the password.</p>
+               </div></div>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the connection profile:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">enp1s0</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Access resources on the network that require network authentication.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#configuring-an-ethernet-connection_configuring-and-managing-networking">Configuring an Ethernet connection</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system_configuring-and-managing-networking.html">Authenticating a RHEL client to the network by using the 802.1X standard with a certificate stored on the file system</a></div></div></nav></article></main></body></html>

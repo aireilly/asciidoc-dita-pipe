@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp_configuring-and-managing-networking">
+   <title>Using nmstate-autoconf to automatically configure the network state using LLDP</title>
+   <body>
+      <p>Network devices can use the Link Layer Discovery Protocol (LLDP) to advertise their identity, capabilities, and neighbors in a LAN. The <codeph>nmstate-autoconf</codeph> utility can use this information to automatically configure local network interfaces.</p>
+      <note type="important">
+         <p>The <codeph>nmstate-autoconf</codeph> utility is provided as a Technology Preview only. Technology Preview features are not supported with Red Hat production Service Level Agreements (SLAs), might not be functionally complete, and Red Hat does not recommend using them for production. These previews provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.</p>
+         <p>See <xref href="https://access.redhat.com/support/offerings/techpreview"
+                  format="html"
+                  scope="external">Technology Preview Features Support Scope</xref> on the Red Hat Customer Portal for information about the support scope for Technology Preview features.</p>
+      </note>
+   </body>
+</topic>

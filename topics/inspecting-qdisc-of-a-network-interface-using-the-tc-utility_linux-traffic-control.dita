@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="inspecting-qdisc-of-a-network-interface-using-the-tc-utility_linux-traffic-control">
+   <title>Inspecting qdiscs of a network interface using the tc utility</title>
+   <taskbody>
+      <context>
+         <p>By default, Red Hat Enterprise Linux systems use <codeph>fq_codel qdisc</codeph>. You can inspect the <codeph>qdisc</codeph> counters using the <codeph>tc</codeph> utility.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: View your current <codeph>qdisc</codeph>:</cmd>
+            <info>
+               <codeblock># <b>tc qdisc show dev <i>enp0s1</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Inspect the current <codeph>qdisc</codeph> counters:</cmd>
+            <info>
+               <codeblock># <b>tc -s qdisc show dev <i>enp0s1</i>
+                  </b>
+qdisc fq_codel 0: root refcnt 2 limit 10240p flows 1024 quantum 1514 target 5.0ms interval 100.0ms memory_limit 32Mb ecn
+Sent 1008193 bytes 5559 pkt (dropped 233, overlimits 55 requeues 77)
+backlog 0b 0p requeues 0</codeblock>
+               <ul>
+                  <li>
+                     <p>
+                        <codeph>dropped</codeph> - the number of times a packet is dropped because all queues are full</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>overlimits</codeph> - the number of times the configured link capacity is filled</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>sent</codeph> - the number of dequeues</p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

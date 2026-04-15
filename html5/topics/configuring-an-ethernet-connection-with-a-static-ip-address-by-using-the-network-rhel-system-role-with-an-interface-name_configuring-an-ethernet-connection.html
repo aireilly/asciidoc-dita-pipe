@@ -1,0 +1,125 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring an Ethernet connection with a static IP address by using the network RHEL&nbsp;system&nbsp;role with an interface name</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-an-ethernet-connection-with-a-static-ip-address-by-using-the-network-rhel-system-role-with-an-interface-name_configuring-an-ethernet-connection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring an Ethernet connection with a static IP address by using the <code class="ph codeph">network</code> RHEL&nbsp;system&nbsp;role with an interface name</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles" target="_blank" rel="external noopener">You have prepared the control node and the managed nodes</a>.</p>
+            </li>
+            <li class="li">
+               <p class="p">The account you use to connect to the managed nodes has <code class="ph codeph">sudo</code> permissions for these nodes.</p>
+            </li>
+            <li class="li">
+               <p class="p">A physical or virtual Ethernet device exists in the server configuration.</p>
+            </li>
+            <li class="li">
+               <p class="p">The managed nodes use NetworkManager to configure the network.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the <code class="ph codeph">network</code> RHEL system role to configure an Ethernet connection with static IP addresses, gateways, and DNS settings, and assign them to a specified interface name.</p>
+         <p class="p">To connect a Red&nbsp;Hat Enterprise&nbsp;Linux host to an Ethernet network, create a NetworkManager connection profile for the network device. By using Ansible and the <code class="ph codeph">network</code> RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.</p>
+         <p class="p">Typically, administrators want to reuse a playbook and not maintain individual playbooks for each host to which Ansible should assign static IP addresses. In this case, you can use variables in the playbook and maintain the settings in the inventory. As a result, you need only one playbook to dynamically assign individual settings to multiple hosts.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Edit the <code class="ph codeph">~/inventory</code> file, and append the host-specific settings to the host entries:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-ini"><code>managed-node-01.example.com <strong class="ph b">interface=enp1s0 ip_v4=192.0.2.1/24 ip_v6=2001:db8:1::1/64 gateway_v4=192.0.2.254 gateway_v6=2001:db8:1::fffe</strong>
+
+managed-node-02.example.com <strong class="ph b">interface=enp1s0 ip_v4=192.0.2.2/24 ip_v6=2001:db8:1::2/64 gateway_v4=192.0.2.254 gateway_v6=2001:db8:1::fffe</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create a playbook file, for example, <code class="ph codeph">~/playbook.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+- name: Configure the network
+  hosts: managed-node-01.example.com,managed-node-02.example.com
+  tasks:
+    - name: Ethernet connection profile with static IP address settings
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: "{{ interface }}"
+            interface_name: "{{ interface }}"
+            type: ethernet
+            autoconnect: yes
+            ip:
+              address:
+                - "{{ ip_v4 }}"
+                - "{{ ip_v6 }}"
+              gateway4: "{{ gateway_v4 }}"
+              gateway6: "{{ gateway_v6 }}"
+              dns:
+                - 192.0.2.200
+                - 2001:db8:1::ffbb
+              dns_search:
+                - example.com
+            state: up</code></pre>
+               <p class="p">This playbook reads certain values dynamically for each host from the inventory file and uses static values in the playbook for settings which are the same for all hosts.</p>
+               <p class="p">For details about all variables used in the playbook, see the <code class="ph codeph">/usr/share/ansible/roles/rhel-system-roles.network/README.md</code> file on the control node.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Validate the playbook syntax:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook --syntax-check ~/playbook.yml</strong>
+               </code></pre>
+               <p class="p">Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Run the playbook:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook ~/playbook.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Query the Ansible facts of the managed node and verify the active network settings:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ansible managed-node-01.example.com -m ansible.builtin.setup</strong>
+...
+        "ansible_default_ipv4": {
+            "address": "192.0.2.1",
+            "alias": "enp1s0",
+            "broadcast": "192.0.2.255",
+            "gateway": "192.0.2.254",
+            "interface": "enp1s0",
+            "macaddress": "52:54:00:17:b8:b6",
+            "mtu": 1500,
+            "netmask": "255.255.255.0",
+            "network": "192.0.2.0",
+            "prefix": "24",
+            "type": "ether"
+        },
+        "ansible_default_ipv6": {
+            "address": "2001:db8:1::1",
+            "gateway": "2001:db8:1::fffe",
+            "interface": "enp1s0",
+            "macaddress": "52:54:00:17:b8:b6",
+            "mtu": 1500,
+            "prefix": "64",
+            "scope": "global",
+            "type": "ether"
+        },
+        ...
+        "ansible_dns": {
+            "nameservers": [
+                "192.0.2.1",
+                "2001:db8:1::ffbb"
+            ],
+            "search": [
+                "example.com"
+            ]
+        },
+...</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-an-ethernet-connection_configuring-and-managing-networking.html">Configuring an Ethernet connection</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="network-tracing-using-the-bpf-compiler-collection_configuring-and-managing-networking">
+   <title>Network tracing using the BPF compiler collection</title>
+   <body>
+      <p>BPF Compiler Collection (BCC) is a library, which facilitates the creation of the extended Berkeley Packet Filter (eBPF) programs. The main utility of eBPF programs is analyzing the operating system performance and network performance without experiencing overhead or security issues.</p>
+      <p>BCC removes the need for users to know deep technical details of eBPF, and provides many out-of-the-box starting points, such as the <codeph>bcc-tools</codeph> package with pre-created eBPF programs.</p>
+      <note>
+         <p>The eBPF programs are triggered on events, such as disk I/O, TCP connections, and process creations. It is unlikely that the programs should cause the kernel to crash, loop or become unresponsive because they run in a safe virtual machine in the kernel.</p>
+      </note>
+   </body>
+</topic>

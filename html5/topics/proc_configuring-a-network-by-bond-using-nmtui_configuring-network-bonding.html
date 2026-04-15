@@ -1,0 +1,156 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a network bond by using nmtui</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-network-by-bond-using-nmtui_configuring-network-bonding"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a network bond by using <code class="ph codeph">nmtui</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use Ethernet devices as ports of the bond, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">The <code class="ph codeph">nmtui</code> application provides a text-based user interface for NetworkManager. You can use <code class="ph codeph">nmtui</code> to configure a network bond on a host without a graphical interface.</p>
+         <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+            <p class="p">In <code class="ph codeph">nmtui</code>:</p>
+            <ul class="ul">
+               <li class="li">
+                  <p class="p">Navigate by using the cursor keys.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Press a button by selecting it and hitting <span class="ph">Enter</span>.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Select and clear checkboxes by using <span class="ph">Space</span>.</p>
+               </li>
+               <li class="li">
+                  <p class="p">To return to the previous screen, use <span class="ph">ESC</span>.</p>
+               </li>
+            </ul>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">If you do not know the network device names on which you want configure a network bond, display the available devices:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device status</strong>
+DEVICE     TYPE      STATE                   CONNECTION
+enp7s0     ethernet  unavailable             --
+enp8s0     ethernet  unavailable             --
+...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Start <code class="ph codeph">nmtui</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmtui</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <strong class="ph b">Edit a connection</strong>, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press <strong class="ph b">Add</strong>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <strong class="ph b">Bond</strong> from the list of network types, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Enter a name for the NetworkManager profile to be created.</span>
+            <div class="itemgroup info">
+               <p class="p">On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter the bond device name to be created into the <strong class="ph b">Device</strong> field.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Add ports to the bond to be created:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Press <strong class="ph b">Add</strong> next to the <strong class="ph b">Ports</strong> list.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Select the type of the interface you want to add as a port to the bond, for example, <strong class="ph b">Ethernet</strong>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Optional: Enter a name for the NetworkManager profile to be created for this bond port.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enter the port’s device name into the <strong class="ph b">Device</strong> field.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Press <strong class="ph b">OK</strong> to return to the window with the bond settings.</p>
+                     <figure class="fig fignone">
+                        <p class="p">Adding an Ethernet device as a port to a bond</p>
+                        <br><img class="image" src="../images/nmtui-bond-add-port.png" alt="Editing a bond connection profile in `nmtui`"><br>
+                     </figure>
+                  </li>
+                  <li class="li">
+                     <p class="p">Repeat these steps to add more ports to the bond.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the bond mode. Depending on the value you set, <code class="ph codeph">nmtui</code> displays additional fields for settings that are related to the selected mode.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Depending on your environment, configure the IP address settings in the <strong class="ph b">IPv4 configuration</strong> and <strong class="ph b">IPv6 configuration</strong> areas accordingly. For this, press the button next to these areas, and select:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">Disabled</code>, if the bond does not require an IP address.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">Automatic</code>, if a DHCP server or stateless address autoconfiguration (SLAAC) dynamically assigns an IP address to the bond.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">Manual</code>, if the network requires static IP address settings. In this case, you must fill further fields:</p>
+                     <ol class="ol" type="a">
+                        <li class="li">
+                           <p class="p">Press <strong class="ph b">Show</strong> next to the protocol you want to configure to display additional fields.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Press <strong class="ph b">Add</strong> next to <strong class="ph b">Addresses</strong>, and enter the IP address and the subnet mask in Classless Inter-Domain Routing (CIDR) format.</p>
+                           <p class="p">If you do not specify a subnet mask, NetworkManager sets a <code class="ph codeph">/32</code> subnet mask for IPv4 addresses and <code class="ph codeph">/64</code> for IPv6 addresses.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Enter the address of the default gateway.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Press <strong class="ph b">Add</strong> next to <strong class="ph b">DNS servers</strong>, and enter the DNS server address.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Press <strong class="ph b">Add</strong> next to <strong class="ph b">Search domains</strong>, and enter the DNS search domain.</p>
+                        </li>
+                     </ol>
+                  </li>
+               </ul>
+               <figure class="fig fignone">
+                  <p class="p">Example of a bond connection with static IP address settings</p>
+                  <br><img class="image" src="../images/nmtui-bond-static-IP.png" alt="Static IP address settings in `nmtui`"><br>
+               </figure>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press <strong class="ph b">OK</strong> to create and automatically activate the new connection.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press <strong class="ph b">Back</strong> to return to the main menu.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <strong class="ph b">Quit</strong>, and press <span class="ph">Enter</span> to close the <code class="ph codeph">nmtui</code> application.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Temporarily remove the network cable from one of the network devices and check if the other device in the bond is handling the traffic.</p>
+               <p class="p">Note that there is no method to properly test link failure events using software utilities. Tools that deactivate connections, such as <code class="ph codeph">nmcli</code>, show only the bonding driver’s ability to handle port configuration changes and not actual link failure events.</p>
+            </li>
+            <li class="li">
+               <p class="p">Display the status of the bond:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /proc/net/bonding/bond0</strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-bonding_configuring-and-managing-networking.html">Configuring a network bond</a></div></div></nav></article></main></body></html>

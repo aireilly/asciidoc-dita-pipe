@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-wireguard-by-using-nmcli_assembly_setting-up-a-wireguard-vpn">
+   <title>Configuring a WireGuard server by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You have generated the public and private key for both the server and client.</p>
+            </li>
+            <li>
+               <p>You know the following information:</p>
+               <ul>
+                  <li>
+                     <p>The private key of the server</p>
+                  </li>
+                  <li>
+                     <p>The static tunnel IP addresses and subnet masks of the client</p>
+                  </li>
+                  <li>
+                     <p>The public key of the client</p>
+                  </li>
+                  <li>
+                     <p>The static tunnel IP addresses and subnet masks of the server</p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can configure the WireGuard server by creating a connection profile in NetworkManager. Use this method to let NetworkManager manage the WireGuard connection.</p>
+         <p>This procedure assumes the following settings:</p>
+         <ul>
+            <li>
+               <p>Server:</p>
+               <ul>
+                  <li>
+                     <p>Private key: <codeph>YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg=</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv4 address: <codeph>192.0.2.1/24</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv6 address: <codeph>2001:db8:1::1/32</codeph>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>Client:</p>
+               <ul>
+                  <li>
+                     <p>Public key: <codeph>bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv4 address: <codeph>192.0.2.2/24</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv6 address: <codeph>2001:db8:1::2/32</codeph>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Add a NetworkManager WireGuard connection profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type wireguard con-name server-wg0 ifname wg0 autoconnect no</b>
+               </codeblock>
+               <p>This command creates a profile named <codeph>server-wg0</codeph> and assigns the virtual interface <codeph>wg0</codeph> to it. To prevent the connection from starting automatically after you add it without finalizing the configuration, disable the <codeph>autoconnect</codeph> parameter.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the tunnel IPv4 address and subnet mask of the server:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify server-wg0 ipv4.method manual ipv4.addresses 192.0.2.1/24</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the tunnel IPv6 address and subnet mask of the server:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify server-wg0 ipv6.method manual ipv6.addresses 2001:db8:1::1/32</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Add the server’s private key to the connection profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify server-wg0 wireguard.private-key "YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg="</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the port for incoming WireGuard connections:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify server-wg0 wireguard.listen-port 51820</b>
+               </codeblock>
+               <p>Always set a fixed port number on hosts that receive incoming WireGuard connections. If you do not set a port, WireGuard uses a random free port each time you activate the <codeph>wg0</codeph> interface.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Add peer configurations for each client that you want to allow to communicate with this server. You must add these settings manually, because the <codeph>nmcli</codeph> utility does not support setting the corresponding connection properties.</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Edit the <codeph>/etc/NetworkManager/system-connections/server-wg0.nmconnection</codeph> file, and append:</p>
+                     <codeblock>
+                        <b>[wireguard-peer.bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=]</b>
+                        <b>allowed-ips=192.0.2.2;2001:db8:1::2;</b>
+                     </codeblock>
+                     <ul>
+                        <li>
+                           <p>The <codeph>[wireguard-peer.<i>&lt;public_key_of_the_client</i>&gt;]</codeph> entry defines the peer section of the client, and the section name contains the public key of the client.</p>
+                        </li>
+                        <li>
+                           <p>The <codeph>allowed-ips</codeph> parameter sets the tunnel IP addresses of the client that are allowed to send data to this server.</p>
+                           <p>Add a section for each client.</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li>
+                     <p>Reload the <codeph>server-wg0</codeph> connection profile:</p>
+                     <codeblock># <b>nmcli connection load /etc/NetworkManager/system-connections/server-wg0.nmconnection</b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Configure the connection to start automatically, enter:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify server-wg0 autoconnect yes</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Reactivate the <codeph>server-wg0</codeph> connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up server-wg0</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <xref href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</xref>.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the interface configuration of the <codeph>wg0</codeph> device:</p>
+               <codeblock># <b>wg show wg0</b>
+interface: wg0
+  public key: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  private key: (hidden)
+  listening port: 51820
+
+peer: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  allowed ips: 192.0.2.2/32, 2001:db8:1::2/128</codeblock>
+               <p>To display the private key in the output, use the <codeph>WG_HIDE_KEYS=never wg show wg0</codeph> command.</p>
+            </li>
+            <li>
+               <p>Display the IP configuration of the <codeph>wg0</codeph> device:</p>
+               <codeblock># <b>ip address show wg0</b>
+20: wg0: &lt;POINTOPOINT,NOARP,UP,LOWER_UP&gt; mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::3ef:8863:1ce2:844/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever</codeblock>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#proc_configuring-firewalld-on-a-wireguard-server-by-using-the-command-line_assembly_setting-up-a-wireguard-vpn">Configure the firewalld service on the WireGuard server</xref>.</p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

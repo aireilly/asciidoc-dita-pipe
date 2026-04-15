@@ -1,0 +1,39 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring NetworkManager to avoid using a specific profile to provide a default gateway</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring NetworkManager to avoid using a specific profile to provide a default gateway</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The NetworkManager connection profile for the connection that is not connected to the default gateway exists.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">In connection profiles that are not connected to the default gateway, you can configure that NetworkManager never uses this profile to provide the default gateway.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">If the connection uses a dynamic IP configuration, configure that NetworkManager does not use this connection as the default connection for the corresponding IP type, meaning that NetworkManager will never assign the default route to it:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">&lt;connection_name&gt;</em> ipv4.never-default yes ipv6.never-default yes</strong>
+               </code></pre>
+               <p class="p">Note that setting <code class="ph codeph">ipv4.never-default</code> and <code class="ph codeph">ipv6.never-default</code> to <code class="ph codeph">yes</code>, automatically removes the default gateway’s IP address for the corresponding protocol from the connection profile.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">&lt;connection_name&gt;</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Use the <code class="ph codeph">ip -4 route</code> and <code class="ph codeph">ip -6 route</code> commands to verify that RHEL does not use the network interface for the default route for the IPv4 and IPv6 protocol.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="managing-the-default-gateway-setting_configuring-and-managing-networking.html">Managing the default gateway setting</a></div></div></nav></article></main></body></html>

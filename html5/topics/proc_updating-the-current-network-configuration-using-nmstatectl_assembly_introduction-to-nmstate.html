@@ -1,0 +1,48 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Updating the current network configuration by using nmstatectl</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_updating-the-current-network-configuration-using-nmstatectl_assembly_introduction-to-nmstate"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Updating the current network configuration by using <code class="ph codeph">nmstatectl</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">nmstate</code> package is installed.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the <code class="ph codeph">nmstatectl</code> utility to store the current network configuration of one or all interfaces in a file.</p>
+         <p class="p">You can then use this file to:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Modify the configuration and apply it to the same system.</p>
+            </li>
+            <li class="li">
+               <p class="p">Copy the file to a different host and configure the host with the same or modified settings.</p>
+            </li>
+         </ul>
+         <p class="p">For example, you can export the settings of the <code class="ph codeph">enp1s0</code> interface to a file, modify the configuration, and apply the settings to the host.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Export the settings of the <code class="ph codeph">enp1s0</code> interface to the <code class="ph codeph">~/network-config.yml</code> file:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl show <em class="ph i">enp1s0</em> &gt; <em class="ph i">~/network-config.yml</em>
+                  </strong>
+               </code></pre>
+               <p class="p">This command stores the configuration of <code class="ph codeph">enp1s0</code> in YAML format. To store the output in JSON format, pass the <code class="ph codeph">--json</code> option to the command.</p>
+               <p class="p">If you do not specify an interface name, <code class="ph codeph">nmstatectl</code> exports the configuration of all interfaces.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Modify the <code class="ph codeph">~/network-config.yml</code> file using a text editor to update the configuration.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Apply the settings from the <code class="ph codeph">~/network-config.yml</code> file:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl apply <em class="ph i">~/network-config.yml</em>
+                  </strong>
+               </code></pre>
+               <p class="p">If you exported the settings in JSON format, pass the <code class="ph codeph">--json</code> option to the command.</p>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_introduction-to-nmstate_configuring-and-managing-networking.html">Introduction to Nmstate</a></div></div></nav></article></main></body></html>

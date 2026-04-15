@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Configuring a static route</title>
+   <topicref href="../topics/configuring-static-routes_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/ref_example-of-a-network-that-requires-static-routes_configuring-static-routes.dita"/>
+   <topicref href="../topics/how-to-use-the-nmcli-command-to-configure-a-static-route_configuring-static-routes.dita"/>
+   <topicref href="../topics/configuring-a-static-route-by-using-nmcli_configuring-static-routes.dita"/>
+   <topicref href="../topics/proc_configuring-a-static-route-by-using-nmtui_configuring-static-routes.dita"/>
+   <topicref href="../topics/configuring-a-static-route-by-using-control-center_configuring-static-routes.dita"/>
+   <topicref href="../topics/configuring-a-static-route-by-using-nm-connection-editor_configuring-static-routes.dita"/>
+   <topicref href="../topics/configuring-a-static-route-by-using-the-nmcli-interactive-mode_configuring-static-routes.dita"/>
+   <topicref href="../topics/proc_configuring-a-static-route-by-using-nmstatectl_configuring-static-routes.dita"/>
+   <topicref href="../topics/proc_configuring-a-static-route-by-using-the-network-rhel-system-role_configuring-static-routes.dita"/>
+   <topicref href="../topics/routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-nmcli_configuring-policy-based-routing-to-define-alternative-routes.dita"/>
+   <topicref href="../topics/proc_routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-the-network-rhel-system-role_configuring-policy-based-routing-to-define-alternative-routes.dita"/>
+</map>

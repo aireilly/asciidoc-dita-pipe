@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="consistent-network-interface-device-naming_configuring-and-managing-networking">
+   <title>Implementing consistent network interface naming</title>
+   <body>
+      <p>The <codeph>udev</codeph> device manager implements consistent device naming in Red Hat Enterprise Linux. The device manager supports different naming schemes and, by default, assigns fixed names based on firmware, topology, and location information.</p>
+      <p>Without consistent device naming, the Linux kernel assigns names to network interfaces by combining a fixed prefix and an index. The index increases as the kernel initializes the network devices. For example, <codeph>eth0</codeph> represents the first Ethernet device being probed on start-up. If you add another network interface controller to the system, the assignment of the kernel device names is no longer fixed because, after a reboot, the devices can initialize in a different order. In that case, the kernel can name the devices differently.</p>
+      <p>To solve this problem, <codeph>udev</codeph> assigns consistent device names. This has the following advantages:</p>
+      <ul>
+         <li>
+            <p>Device names are stable across reboots.</p>
+         </li>
+         <li>
+            <p>Device names stay fixed even if you add or remove hardware.</p>
+         </li>
+         <li>
+            <p>Defective hardware can be seamlessly replaced.</p>
+         </li>
+         <li>
+            <p>The network naming is stateless and does not require explicit configuration files.</p>
+         </li>
+      </ul>
+      <note type="attention">
+         <p>Generally, Red Hat does not support systems where consistent device naming is disabled. For exceptions, see the Red Hat Knowledgebase solution <xref href="https://access.redhat.com/solutions/2435891"
+                  format="html"
+                  scope="external">Is it safe to set net.ifnames=0</xref>.</p>
+      </note>
+   </body>
+</topic>

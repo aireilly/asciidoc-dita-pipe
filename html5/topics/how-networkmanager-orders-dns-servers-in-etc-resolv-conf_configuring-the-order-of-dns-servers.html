@@ -1,0 +1,71 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>How NetworkManager orders DNS servers in /etc/resolv.conf</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="how-networkmanager-orders-dns-servers-in-etc-resolv-conf_configuring-the-order-of-dns-servers"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">How NetworkManager orders DNS servers in <code class="ph codeph">/etc/resolv.conf</code>
+   </h1>
+   <div class="body conbody">
+      <p class="p">NetworkManager orders DNS servers in the <code class="ph codeph">/etc/resolv.conf</code> file by applying a specific set of rules.</p>
+      <p class="p">The ordering depends on the following conditions:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">If only one connection profile exists, NetworkManager uses the order of IPv4 and IPv6 DNS server specified in that connection.</p>
+         </li>
+         <li class="li">
+            <p class="p">If multiple connection profiles are activated, NetworkManager orders DNS servers based on a DNS priority value. If you set DNS priorities, the behavior of NetworkManager depends on the value set in the <code class="ph codeph">dns</code> parameter. You can set this parameter in the <code class="ph codeph">[main]</code> section in the <code class="ph codeph">/etc/NetworkManager/NetworkManager.conf</code> file:</p>
+            <ul class="ul">
+               <li class="li">
+                  <p class="p">
+                     <code class="ph codeph">dns=default</code> or if the <code class="ph codeph">dns</code> parameter is not set:</p>
+                  <p class="p">NetworkManager orders the DNS servers from different connections based on the <code class="ph codeph">ipv4.dns-priority</code> and <code class="ph codeph">ipv6.dns-priority</code> parameters in each connection.</p>
+                  <p class="p">If you set no value or you set <code class="ph codeph">ipv4.dns-priority</code> and <code class="ph codeph">ipv6.dns-priority</code> to <code class="ph codeph">0</code>, NetworkManager uses the global default value.</p>
+               </li>
+               <li class="li">
+                  <p class="p">
+                     <code class="ph codeph">dns=dnsmasq</code> or <code class="ph codeph">dns=systemd-resolved</code>:</p>
+                  <p class="p">When you use one of these settings, NetworkManager sets either <code class="ph codeph">127.0.0.1</code> for <code class="ph codeph">dnsmasq</code> or <code class="ph codeph">127.0.0.53</code> as <code class="ph codeph">nameserver</code> entry in the <code class="ph codeph">/etc/resolv.conf</code> file.</p>
+                  <p class="p">Both the <code class="ph codeph">dnsmasq</code> and <code class="ph codeph">systemd-resolved</code> services forward queries for the search domain set in a NetworkManager connection to the DNS server specified in that connection, and forwards queries to other domains to the connection with the default route. When multiple connections have the same search domain set, <code class="ph codeph">dnsmasq</code> and <code class="ph codeph">systemd-resolved</code> forward queries for this domain to the DNS server set in the connection with the lowest priority value.</p>
+               </li>
+            </ul>
+         </li>
+      </ul>
+      <p class="p">NetworkManager uses the following default values for connections:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">50</code> for VPN connections</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">100</code> for other connections</p>
+         </li>
+      </ul>
+      <p class="p">You can set both the global default and connection-specific <code class="ph codeph">ipv4.dns-priority</code> and <code class="ph codeph">ipv6.dns-priority</code> parameters to a value between <code class="ph codeph">-2147483647</code> and <code class="ph codeph">2147483647</code>.</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">A lower value has a higher priority.</p>
+         </li>
+         <li class="li">
+            <p class="p">Negative values have the special effect of excluding other configurations with a greater value. For example, if at least one connection with a negative priority value exists, NetworkManager uses only the DNS servers specified in the connection profile with the lowest priority.</p>
+         </li>
+         <li class="li">
+            <p class="p">If multiple connections have the same DNS priority, NetworkManager prioritizes the DNS in the following order:</p>
+            <ol class="ol">
+               <li class="li">
+                  <p class="p">VPN connections</p>
+               </li>
+               <li class="li">
+                  <p class="p">Connection with an active default route. The active default route is the default route with the lowest metric.</p>
+               </li>
+            </ol>
+         </li>
+      </ul>
+      <p class="p">Additional resources</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <a class="xref" href="#using-different-dns-servers-for-different-domains_configuring-and-managing-networking">Using different DNS servers for different domains</a>
+            </p>
+         </li>
+      </ul>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-the-order-of-dns-servers_configuring-and-managing-networking.html">Configuring the order of DNS servers</a></div></div></nav></article></main></body></html>

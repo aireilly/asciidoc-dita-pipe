@@ -1,0 +1,274 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Manually configuring an IPsec mesh VPN with certificate-based authentication</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="manually-configuring-an-ipsec-mesh-vpn-with-certificate-based-authentication"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Manually configuring an IPsec mesh VPN with certificate-based authentication</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A Public Key Cryptography Standards #12 (PKCS #12) file exists on each peer in the mesh with the following contents:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">The private key of the server</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The server certificate</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The CA certificate</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If required, intermediate certificates</p>
+                  </li>
+               </ul>
+               <p class="p">For details about creating a private key and certificate signing request (CSR), as well as about requesting a certificate from a CA, see your CA’s documentation.</p>
+            </li>
+            <li class="li">
+               <p class="p">The server certificate contains the following fields:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">Extended Key Usage (EKU) is set to <code class="ph codeph">TLS Web Server Authentication</code>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Common Name (CN) or Subject Alternative Name (SAN) is set to the fully-qualified domain name (FQDN) of the host.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">X509v3 CRL distribution points contains URLs to Certificate Revocation Lists (CRLs).</p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">An IPsec mesh creates a fully interconnected network where every server can communicate securely and directly with every other server. This is ideal for distributed database clusters or high-availability environments that span multiple data centers or cloud providers.</p>
+         <p class="p">Establishing a direct, encrypted tunnel between each pair of servers ensures secure communication without a central bottleneck. For authentication, using digital certificates managed by a Certificate Authority (CA) offers a highly secure and scalable solution. Each host in the mesh presents a certificate signed by a trusted CA. This method provides strong, verifiable authentication and simplifies user management. Access can be granted or revoked centrally at the CA, and Libreswan enforces this by checking each certificate against a certificate revocation list (CRL), denying access if a certificate appears on the list.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">If Libreswan is not yet installed, perform the following steps:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Install the <code class="ph codeph">libreswan</code> package:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">dnf install libreswan</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Initialize the Network Security Services (NSS) database:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ipsec initnss</strong>
+                     </code></pre>
+                     <p class="p">The command creates the database in the <code class="ph codeph">/var/lib/ipsec/nss/</code> directory.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enable and start the <code class="ph codeph">ipsec</code> service:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">systemctl enable --now ipsec</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Open the IPsec ports and protocols in the firewall:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">firewall-cmd --permanent --add-service="ipsec"</strong>
+# <strong class="ph b">firewall-cmd --reload</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Import the PKCS #12 file into the NSS database:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ipsec import <em class="ph i">&lt;file&gt;</em>.p12</strong>
+Enter password for PKCS12 file: <em class="ph i">&lt;password&gt;</em>
+pk12util: PKCS12 IMPORT SUCCESSFUL
+correcting trust bits for Example-CA</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the nicknames of the server and CA certificates:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">certutil -L -d  /var/lib/ipsec/nss/</strong>
+Certificate Nickname     Trust Attributes
+                         SSL,S/MIME,JAR/XPI
+
+server1                  u,u,u
+Example-CA               CT,,
+...</code></pre>
+               <p class="p">You need this information for the configuration file.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create a <code class="ph codeph">.conf</code> file for the connection in the <code class="ph codeph">/etc/ipsec.d/</code> directory. For example, create the <code class="ph codeph">/etc/ipsec.d/mesh.conf</code> file with the following settings:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Add a <code class="ph codeph">config setup</code> section to enable CRL checks:</p>
+                     <pre class="pre codeblock language-bash"><code>config setup
+    crl-strict=yes
+    crlcheckinterval=1h</code></pre>
+                     <p class="p">The settings specified in the example include the following:</p>
+                     <dl class="dl">
+                        
+                           <dt class="dt dlterm">
+                              <code class="ph codeph">crl-strict=yes</code>
+                           </dt>
+                           <dd class="dd">
+                              <p class="p">Enables CRL checks. Authenticating peers are rejected if no CRL is available in the NSS database.</p>
+                           </dd>
+                        
+                        
+                           <dt class="dt dlterm">
+                              <code class="ph codeph">crlcheckinterval=1h</code>
+                           </dt>
+                           <dd class="dd">
+                              <p class="p">Re-fetches the CRL from the URL specified in the server’s certificate after the specified period.</p>
+                           </dd>
+                        
+                     </dl>
+                  </li>
+                  <li class="li">
+                     <p class="p">Add a section that enforces traffic among members in the mesh:</p>
+                     <pre class="pre codeblock language-bash"><code>conn <em class="ph i">&lt;connection_name&gt;</em>
+    # General setup and authentication type
+    auto=ondemand
+    authby=rsasig
+
+    # Local settings settings
+    left=%defaultroute
+    leftid=%fromcert
+    leftcert="<em class="ph i">&lt;server_certificate_nickname&gt;</em>"
+    leftrsasigkey=%cert
+    leftsendcert=always
+    failureshunt=drop
+    type=transport
+
+    # Settings related to other peers in the mesh
+    right=%opportunisticgroup
+    rightid=%fromcert</code></pre>
+                     <p class="p">The settings specified in the example include the following:</p>
+                     <dl class="dl">
+                        
+                           <dt class="dt dlterm">
+                              <code class="ph codeph">left=%defaultroute</code>
+                           </dt>
+                           <dd class="dd">
+                              <p class="p">Dynamically sets the IP address of the default route interface when the <code class="ph codeph">ipsec</code> service starts. Alternatively, you can set the <code class="ph codeph">left</code> parameter to the IP address or the FQDN of the host.</p>
+                           </dd>
+                        
+                        
+                           <dt class="dt dlterm">
+                              <code class="ph codeph">leftid=%fromcert</code> and <code class="ph codeph">rightid=%fromcert</code>
+                           </dt>
+                           <dd class="dd">
+                              <p class="p">Configures Libreswan to retrieve the identity from the distinguished name (DN) field of the certificate.</p>
+                           </dd>
+                        
+                        
+                           <dt class="dt dlterm">
+                              <code class="ph codeph">leftcert="<em class="ph i">&lt;server_certificate_nickname&gt;</em>"</code>
+                           </dt>
+                           <dd class="dd">
+                              <p class="p">Sets the nickname of the server’s certificate used in the NSS database.</p>
+                           </dd>
+                        
+                        
+                           <dt class="dt dlterm">
+                              <code class="ph codeph">leftrsasigkey=%cert</code>
+                           </dt>
+                           <dd class="dd">
+                              <p class="p">Configures Libreswan to use the RSA public key embedded in the certificate.</p>
+                           </dd>
+                        
+                        
+                           <dt class="dt dlterm">
+                              <code class="ph codeph">leftsendcert=always</code>
+                           </dt>
+                           <dd class="dd">
+                              <p class="p">Instructs the peer to always send the certificate, so that peers can validate it against the CA certificate.</p>
+                           </dd>
+                        
+                        
+                           <dt class="dt dlterm">
+                              <code class="ph codeph">failureshunt=drop</code>
+                           </dt>
+                           <dd class="dd">
+                              <p class="p">Enforces encryption and drops traffic if IPsec negotiation fails. This is critical for a secure mesh.</p>
+                           </dd>
+                        
+                        
+                           <dt class="dt dlterm">
+                              <code class="ph codeph">right=%opportunisticgroup</code>
+                           </dt>
+                           <dd class="dd">
+                              <p class="p">Specifies that the connection should apply to a dynamic group of remote peers defined in a policy file. This enables Libreswan to instantiate IPsec tunnels opportunistically for each listed IP or subnet in that group.</p>
+                           </dd>
+                        
+                     </dl>
+                  </li>
+               </ol>
+               <p class="p">For details about all parameters used in the example, see the <code class="ph codeph">ipsec.conf(5)</code> man page on your system.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/ipsec.d/policies/server-mesh</code> policy file that specifies the peers or subnets in classless inter-domain routing (CIDR) format:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-bash"><code>192.0.2.0/24
+198.51.100.0/24</code></pre>
+               <p class="p">With these settings, the <code class="ph codeph">ipsec</code> service encrypts traffic between hosts in these subnets. If a host is not configured as a member of the IPsec mesh, communication between this host and the mesh members fails.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart the <code class="ph codeph">ipsec</code> service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl restart ipsec</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Repeat the procedure on every host in the subnets you specified in the policy file.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Send traffic to a host in the mesh to establish the tunnel. For example, ping the host:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ping -c3 <em class="ph i">&lt;peer_in_mesh&gt;</em>
+                  </strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the IPsec status:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ipsec status</strong>
+               </code></pre>
+               <p class="p">If the connection is successfully established, the output contains lines as follows for the peer:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">Phase 1 of an Internet Key Exchange version 2 (IKEv2) negotiation has been successfully completed:</p>
+                     <pre class="pre codeblock language-txt"><code>#1: "<em class="ph i">&lt;connection_name&gt;</em>#192.0.2.0/24"[1] ...192.0.2.2:500 ESTABLISHED_IKE_SA (established IKE SA); REKEY in 12822s; REPLACE in 13875s; newest; idle;</code></pre>
+                     <p class="p">The Security Association (SA) is now ready to negotiate the actual data encryption tunnels, known as child SAs or Phase 2 SAs.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">A child SA has been established:</p>
+                     <pre class="pre codeblock language-txt"><code>#2: "<em class="ph i">&lt;connection_name&gt;</em>#192.0.2.0/24"[1] ...192.0.2.2:500 ESTABLISHED_CHILD_SA (established Child SA); REKEY in 13071s; REPLACE in 13875s; newest; eroute owner; IKE SA #1; idle;</code></pre>
+                     <p class="p">This is the actual tunnel that your data traffic flows through.</p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">Check if the service loaded the CRL and added the entries to the NSS database:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ipsec auto --listcrls</strong>
+000
+000 List of CRLs:
+000
+000 issuer: CN=Example-CA
+000 revoked certs: 1
+000 updates: this Tue Jul 15 10:22:36 2025
+000          next Sun Jan 11 10:22:36 2026
+000
+000 List of CRL fetch requests:
+000
+000 Jul 15 15:13:56 2025, trials: 1
+000        issuer:  'CN=Example-CA'
+000        distPts: 'https://ca.example.com/crl.pem'</code></pre>
+            </li>
+         </ol>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <a class="xref" href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</a>.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="setting-up-an-ipsec-vpn_configuring-and-managing-networking.html">Setting up an IPsec VPN</a></div></div></nav></article></main></body></html>

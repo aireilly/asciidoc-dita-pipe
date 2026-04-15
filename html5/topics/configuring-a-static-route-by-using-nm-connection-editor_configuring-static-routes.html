@@ -1,0 +1,101 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a static route by using nm-connection-editor</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-static-route-by-using-nm-connection-editor_configuring-static-routes"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a static route by using nm-connection-editor</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The network is configured.</p>
+            </li>
+            <li class="li">
+               <p class="p">This host is in the same IP subnet as the gateways.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the <code class="ph codeph">nm-connection-editor</code> application to add a static route to the configuration of a network connection.</p>
+         <p class="p">The procedure below configures the following routes:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">An IPv4 route to the remote <code class="ph codeph">198.51.100.0/24</code> network. The corresponding gateway with the IP address <code class="ph codeph">192.0.2.10</code> is reachable through the <code class="ph codeph">example</code> connection.</p>
+            </li>
+            <li class="li">
+               <p class="p">An IPv6 route to the remote <code class="ph codeph">2001:db8:2::/64</code> network. The corresponding gateway with the IP address <code class="ph codeph">2001:db8:1::10</code> is reachable through the <code class="ph codeph">example</code> connection.</p>
+            </li>
+         </ul>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Open a terminal, and enter <code class="ph codeph">nm-connection-editor</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">nm-connection-editor</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the <code class="ph codeph">example</code> connection profile, and click the gear wheel icon to edit the existing connection.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">On the <code class="ph codeph">IPv4 Settings</code> tab:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Click the <span class="ph uicontrol">Routes</span> button.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click the <span class="ph uicontrol">Add</span> button and enter the address, netmask, gateway, and optionally a metric value.</p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/IPv4-static-route-in-nm-connection-editor.png" alt="Static IPv4 address settings in `nm-connection-editor`"><br>
+                     </figure>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <span class="ph uicontrol">OK</span>.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">On the <code class="ph codeph">IPv6 Settings</code> tab:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Click the <span class="ph uicontrol">Routes</span> button.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click the <span class="ph uicontrol">Add</span> button and enter the address, netmask, gateway, and optionally a metric value.</p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/IPv6-static-route-in-nm-connection-editor.png" alt="Static IPv4 address settings in `nm-connection-editor`"><br>
+                     </figure>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <span class="ph uicontrol">OK</span>.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Save</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart the network connection for changes to take effect. For example, to restart the <code class="ph codeph">example</code> connection using the command line:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">example</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the IPv4 routes:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip -4 route</strong>
+...
+<em class="ph i">198.51.100.0/24</em> via <em class="ph i">192.0.2.10</em> dev <em class="ph i">enp1s0</em>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the IPv6 routes:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip -6 route</strong>
+...
+<em class="ph i">2001:db8:2::/64</em> via <em class="ph i">2001:db8:1::10</em> dev <em class="ph i">enp1s0</em> metric <em class="ph i">1024</em> pref <em class="ph i">medium</em>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-static-routes_configuring-and-managing-networking.html">Configuring a static route</a></div></div></nav></article></main></body></html>

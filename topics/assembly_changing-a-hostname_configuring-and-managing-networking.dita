@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_changing-a-hostname_configuring-and-managing-networking">
+   <title>Changing a hostname</title>
+   <body>
+      <p>The hostname of a system is the name on the system itself. You can set the name when you install RHEL, and you can change it afterwards.</p>
+   </body>
+</topic>

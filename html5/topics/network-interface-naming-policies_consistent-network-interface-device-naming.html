@@ -1,0 +1,114 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Network interface naming policies</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="network-interface-naming-policies_consistent-network-interface-device-naming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Network interface naming policies</h1>
+   <div class="body conbody">
+      <p class="p">By default, the <code class="ph codeph">udev</code> device manager uses the <code class="ph codeph">/usr/lib/systemd/network/99-default.link</code> file to determine how it renames interfaces. The <code class="ph codeph">NamePolicy</code> parameter in this file defines which naming policies <code class="ph codeph">udev</code> applies and in what order.</p>
+      <p class="p">Default order:</p>
+      <pre class="pre codeblock"><code>NamePolicy=keep kernel database onboard slot path</code></pre>
+      <p class="p">The following table describes the different actions of <code class="ph codeph">udev</code> based on which policy matches first as specified by the <code class="ph codeph">NamePolicy</code> parameter:</p>
+      <table class="table frame-all"><caption></caption><colgroup><col style="width:20%"><col style="width:60%"><col style="width:20%"></colgroup><thead class="thead">
+               <tr class="row">
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="network-interface-naming-policies_consistent-network-interface-device-naming__entry__1">Policy</th>
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="network-interface-naming-policies_consistent-network-interface-device-naming__entry__2">Description</th>
+                  <th class="entry align-left rowsep-1 valign-top" id="network-interface-naming-policies_consistent-network-interface-device-naming__entry__3">Example name</th>
+               </tr>
+            </thead><tbody class="tbody">
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__1">
+                     <p class="p">keep</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__2">
+                     <p class="p">If the device already has a name that was assigned in the user space, <code class="ph codeph">udev</code> does not rename this device. For example, this is the case if the name was assigned during device creation or by a rename operation.</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__3"></td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__1">
+                     <p class="p">kernel</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__2">
+                     <p class="p">If the kernel indicates that a device name is predictable, <code class="ph codeph">udev</code> does not rename this device.</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__3">
+                     <p class="p">
+                        <code class="ph codeph">lo</code>
+                     </p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__1">
+                     <p class="p">database</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__2">
+                     <p class="p">This policy assigns names based on mappings in the <code class="ph codeph">udev</code> hardware database. For details, see the <code class="ph codeph">hwdb(7)</code> man page on your system.</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__3">
+                     <p class="p">
+                        <code class="ph codeph">idrac</code>
+                     </p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__1">
+                     <p class="p">onboard</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__2">
+                     <p class="p">Device names incorporate firmware or BIOS-provided index numbers for onboard devices.</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__3">
+                     <p class="p">
+                        <code class="ph codeph">eno1</code>
+                     </p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__1">
+                     <p class="p">slot</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__2">
+                     <p class="p">Device names incorporate firmware or BIOS-provided PCI Express (PCIe) hot-plug slot-index numbers.</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__3">
+                     <p class="p">
+                        <code class="ph codeph">ens1</code>
+                     </p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__1">
+                     <p class="p">path</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__2">
+                     <p class="p">Device names incorporate the physical location of the connector of the hardware.</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__3">
+                     <p class="p">
+                        <code class="ph codeph">enp1s0</code>
+                     </p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__1">
+                     <p class="p">mac</p>
+                  </td>
+                  <td class="entry align-left colsep-1 valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__2">
+                     <p class="p">Device names incorporate the MAC address. By default, Red&nbsp;Hat Enterprise&nbsp;Linux does not use this policy, but administrators can enable it.</p>
+                  </td>
+                  <td class="entry align-left valign-top" headers="network-interface-naming-policies_consistent-network-interface-device-naming__entry__3">
+                     <p class="p">
+                        <code class="ph codeph">enx525400d5e0fb</code>
+                     </p>
+                  </td>
+               </tr>
+            </tbody></table>
+      <p class="p">Additional resources</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <a class="xref" href="#how-the-udev-device-manager-renames-network-interfaces_consistent-network-interface-device-naming">How the udev device manager renames network interfaces</a>
+            </p>
+         </li>
+      </ul>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="consistent-network-interface-device-naming_configuring-and-managing-networking.html">Implementing consistent network interface naming</a></div></div></nav></article></main></body></html>

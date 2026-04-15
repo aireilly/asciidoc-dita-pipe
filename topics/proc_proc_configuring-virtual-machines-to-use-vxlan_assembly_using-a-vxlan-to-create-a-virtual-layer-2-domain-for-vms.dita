@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_proc_configuring-virtual-machines-to-use-vxlan_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms">
+   <title>Configuring virtual machines to use VXLAN</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You configured the <codeph>vxlan10-bridge</codeph> virtual network in <codeph>libvirtd</codeph>.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>To configure a VM to use a bridge device with an attached virtual extensible LAN (VXLAN) on the host, create a new VM that uses the <codeph>vxlan10-bridge</codeph> virtual network or update the settings of existing VMs to use this network.</p>
+         <p>Perform this procedure on the RHEL hosts.</p>
+      </context>
+      <steps-unordered>
+         <step>
+            <cmd>To create a new VM and configure it to use the <codeph>vxlan10-bridge</codeph> network, pass the <codeph>--network network:<i>vxlan10-bridge</i>
+               </codeph> option to the <codeph>virt-install</codeph> command when you create the VM:</cmd>
+            <info>
+               <codeblock># <b>virt-install ... --network network:<i>vxlan10-bridge</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>To change the network settings of an existing VM:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Connect the VM’s network interface to the <codeph>vxlan10-bridge</codeph> virtual network:</p>
+                     <codeblock># <b>virt-xml <i>VM_name</i> --edit --network network=<i>vxlan10-bridge</i>
+                        </b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Shut down the VM, and start it again:</p>
+                     <codeblock># <b>virsh shutdown <i>VM_name</i>
+                        </b>
+# <b>virsh start <i>VM_name</i>
+                        </b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+      </steps-unordered>
+      <result>
+         <ol>
+            <li>
+               <p>Display the virtual network interfaces of the VM on the host:</p>
+               <codeblock># <b>virsh domiflist <i>VM_name</i>
+                  </b>
+ Interface   Type     Source           Model    MAC
+-------------------------------------------------------------------
+ <i>vnet1</i>       bridge   <i>vxlan10-bridge</i>   virtio   <i>52:54:00:c5:98:1c</i>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display the interfaces attached to the <codeph>vxlan10-bridge</codeph> bridge:</p>
+               <codeblock># <b>ip link show master vxlan10-bridge</b>
+18: vxlan10: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue master <i>br0</i> state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether <i>2a:53:bd:d5:b3:0a</i> brd ff:ff:ff:ff:ff:ff
+19: vnet1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue master <i>br0</i> state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether <i>52:54:00:c5:98:1c</i> brd ff:ff:ff:ff:ff:ff</codeblock>
+               <p>Note that the <codeph>libvirtd</codeph> service dynamically updates the bridge’s configuration. When you start a VM which uses the <codeph>vxlan10-bridge</codeph> network, the corresponding <codeph>vnet*</codeph> device on the host appears as a port of the bridge.</p>
+            </li>
+            <li>
+               <p>Use address resolution protocol (ARP) requests to verify whether VMs are in the same VXLAN:</p>
+               <ol>
+                  <li>
+                     <p>Start two or more VMs in the same VXLAN.</p>
+                  </li>
+                  <li>
+                     <p>Send an ARP request from one VM to the other one:</p>
+                     <codeblock># <b>arping -c 1 <i>192.0.2.2</i>
+                        </b>
+ARPING <i>192.0.2.2</i> from <i>192.0.2.1</i>
+                        <i>enp1s0</i>
+Unicast reply from <i>192.0.2.2</i> [<i>52:54:00:c5:98:1c</i>] <i>1.450ms</i>
+Sent 1 probe(s) (0 broadcast(s))
+Received 1 response(s) (0 request(s), 0 broadcast(s))</codeblock>
+                     <p>If the command shows a reply, the VM is in the same layer-2 domain and, in this case in the same VXLAN.</p>
+                     <p>Install the <codeph>iputils</codeph> package to use the <codeph>arping</codeph> utility.</p>
+                  </li>
+               </ol>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

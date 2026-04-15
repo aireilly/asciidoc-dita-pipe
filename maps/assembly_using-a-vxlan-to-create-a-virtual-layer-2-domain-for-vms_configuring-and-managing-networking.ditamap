@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Using a VXLAN to create a virtual layer-2 domain for VMs</title>
+   <topicref href="../topics/assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/con_benefits-of-vxlans_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms.dita"/>
+   <topicref href="../topics/proc_configuring-the-ethernet-interface-on-the-hosts_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms.dita"/>
+   <topicref href="../topics/proc_creating-a-network-bridge-with-a-vxlan-attached_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms.dita"/>
+   <topicref href="../topics/proc_creating-a-virtual-network-in-libvirt-with-an-existing-bridge_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms.dita"/>
+   <topicref href="../topics/proc_proc_configuring-virtual-machines-to-use-vxlan_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms.dita"/>
+</map>

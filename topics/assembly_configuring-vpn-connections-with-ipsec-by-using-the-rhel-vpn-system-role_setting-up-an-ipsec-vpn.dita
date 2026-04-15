@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role_setting-up-an-ipsec-vpn">
+   <title>Configuring IPsec VPN connections by using RHEL system roles</title>
+   <body>
+      <p>Configure IPsec VPN connections to establish encrypted tunnels over untrusted networks and ensure the integrity of data in transit. By using the RHEL system roles, you can automate the setup for use cases, such as connecting branch offices to headquarters.</p>
+      <note>
+         <p>The <codeph>vpn</codeph> RHEL system role can only create VPN configurations that use pre-shared keys (PSKs) or certificates to authenticate peers to each other.</p>
+      </note>
+   </body>
+</topic>

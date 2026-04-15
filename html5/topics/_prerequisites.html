@@ -1,0 +1,16 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Prerequisites</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="_prerequisites"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Prerequisites</h1>
+   <div class="body">
+      <ul class="ul">
+         <li class="li">
+            <p class="p">A clean installation of the <code class="ph codeph">freeradius</code> and <code class="ph codeph">freeradius-ldap</code> packages.</p>
+            <p class="p">If the packages are already installed, remove the <code class="ph codeph">/etc/raddb/</code> directory, uninstall and then install the packages again. Do not reinstall the packages by using the <code class="ph codeph">dnf reinstall</code> command, because the permissions and symbolic links in the <code class="ph codeph">/etc/raddb/</code> directory are then different.</p>
+         </li>
+         <li class="li">
+            <p class="p">The host on which you want to configure FreeRADIUS is a <a class="xref" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/installing_identity_management/index" target="_blank" rel="external noopener">client in an IdM domain</a>.</p>
+         </li>
+      </ul>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend_configuring-and-managing-networking.html">Setting up an 802.1x network authentication service for LAN clients by using hostapd with FreeRADIUS backend</a></div></div></nav></article></main></body></html>

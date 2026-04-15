@@ -1,0 +1,44 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Setting a NetworkManager-wide default DNS server priority value</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="setting-a-networkmanager-wide-default-dns-server-priority-value_configuring-the-order-of-dns-servers"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Setting a NetworkManager-wide default DNS server priority value</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">You can override NetworkManager’s system-wide DNS server priority default values to set custom defaults for IPv4 and IPv6 DNS servers.</p>
+         <p class="p">The default values are as follows:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">50</code> for VPN connections</p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">100</code> for other connections</p>
+            </li>
+         </ul>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Edit the <code class="ph codeph">/etc/NetworkManager/NetworkManager.conf</code> file:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Add the <code class="ph codeph">[connection]</code> section, if it does not exist:</p>
+                     <pre class="pre codeblock language-console"><code>[connection]</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Add the custom default values to the <code class="ph codeph">[connection]</code> section. For example, to set the new default for both IPv4 and IPv6 to <code class="ph codeph">200</code>, add:</p>
+                     <pre class="pre codeblock language-console"><code>ipv4.dns-priority=200
+ipv6.dns-priority=200</code></pre>
+                     <p class="p">You can set the parameters to a value between <code class="ph codeph">-2147483647</code> and <code class="ph codeph">2147483647</code>. Note that setting the parameters to <code class="ph codeph">0</code> enables the built-in defaults (<code class="ph codeph">50</code> for VPN connections and <code class="ph codeph">100</code> for other connections).</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reload the <code class="ph codeph">NetworkManager</code> service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl reload NetworkManager</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-the-order-of-dns-servers_configuring-and-managing-networking.html">Configuring the order of DNS servers</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>The nmstate systemd service</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="the-nmstate-systemd-service_assembly_introduction-to-nmstate"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">The <code class="ph codeph">nmstate</code> systemd service</h1>
+   <div class="body conbody">
+      <p class="p">With the <code class="ph codeph">nmstate</code> package installed, you can automatically apply new network settings when the system boots by configuring the <code class="ph codeph">nmstate</code> systemd service.</p>
+      <p class="p">The <code class="ph codeph">nmstate</code> service is a <code class="ph codeph">oneshot</code> systemd service. Consequently, systemd executes it only when the system boots and when you manually restart the service.</p>
+      <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+         <p class="p">By default, the <code class="ph codeph">nmstate</code> service is disabled. Use the <code class="ph codeph">systemctl enable nmstate</code> command to enable it. Afterwards, <code class="ph codeph">systemd</code> executes this service each time when the system starts.</p>
+      </div></div>
+      <p class="p">To use this service, store <code class="ph codeph">*.yml</code> files with Nmstate instructions in the <code class="ph codeph">/etc/nmstate/</code> directory. The <code class="ph codeph">nmstate</code> service then automatically applies the files on the next reboot or when you manually restart the service. By default, after Nmstate successfully applies a file, it renames the file’s <code class="ph codeph">.yml</code> suffix to <code class="ph codeph">.applied</code> to prevent the service from processing the same file again.</p>
+      <p class="p">You can configure the <code class="ph codeph">nmstate</code> service in the <code class="ph codeph">/etc/nmstate/nmstate.conf</code> file. For example, to preserve the original <code class="ph codeph">*.yml</code> file after it was applied and to create only a copy with the <code class="ph codeph">.applied</code> suffix, add the following lines to <code class="ph codeph">/etc/nmstate/nmstate.conf</code>:</p>
+      <pre class="pre codeblock language-console"><code>[service]
+keep_state_file_after_apply = false</code></pre>
+      <p class="p">For further details and other configuration options, see the <code class="ph codeph">nmstate.service(8)</code> man page on your system.</p>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_introduction-to-nmstate_configuring-and-managing-networking.html">Introduction to Nmstate</a></div></div></nav></article></main></body></html>

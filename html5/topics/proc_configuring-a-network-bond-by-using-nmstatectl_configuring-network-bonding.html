@@ -1,0 +1,124 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a network bond by using nmstatectl</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-network-bond-by-using-nmstatectl_configuring-network-bonding"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a network bond by using <code class="ph codeph">nmstatectl</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use Ethernet devices as ports in the bond, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use team, bridge, or VLAN devices as ports in the bond, set the interface name in the <code class="ph codeph">port</code> list, and define the corresponding interfaces.</p>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">nmstate</code> package is installed.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the declarative Nmstate API to configure a network bond. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+         <p class="p">Depending on your environment, adjust the YAML file accordingly. For example, to use different devices than Ethernet adapters in the bond, adapt the <code class="ph codeph">base-iface</code> attribute and <code class="ph codeph">type</code> attributes of the ports you use in the bond.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a YAML file, for example <code class="ph codeph">~/create-bond.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+interfaces:
+- name: bond0 # (1)
+  type: bond # (2)
+  state: up
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 24
+    dhcp: false
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+    autoconf: false
+    dhcp: false
+  link-aggregation:
+    mode: active-backup # (3)
+    port:
+    - enp1s0
+    - enp7s0 # (4)
+- name: enp1s0
+  type: ethernet
+  state: up
+- name: enp7s0
+  type: ethernet
+  state: up
+
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.0.2.254
+    next-hop-interface: bond0
+    metric: 300
+  - destination: ::/0
+    next-hop-address: 2001:db8:1::fffe
+    next-hop-interface: bond0
+    metric: 300
+
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb # (5)</code></pre>
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <code class="ph codeph">interfaces.name</code>: The name of the bond interface</li>
+                  <li class="li">
+                     <code class="ph codeph">interfaces.type</code>: The type of network interface</li>
+                  <li class="li">
+                     <code class="ph codeph">link-aggregation.mode</code>: The bonding mode, set to active-backup for failover</li>
+                  <li class="li">
+                     <code class="ph codeph">link-aggregation.port</code>: The list of physical interfaces used as bond ports</li>
+                  <li class="li">
+                     <code class="ph codeph">dns-resolver.config.server</code>: The DNS server IP addresses for name resolution</li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Apply the settings to the system:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl apply ~/create-bond.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the status of the devices and connections:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device status</strong>
+DEVICE      TYPE      STATE      CONNECTION
+bond0       bond      <strong class="ph b">connected</strong>  bond0</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display all settings of the connection profile:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show bond0</strong>
+connection.id:              bond0
+connection.uuid:            79cbc3bd-302e-4b1f-ad89-f12533b818ee
+connection.stable-id:       --
+connection.type:            bond
+connection.interface-name:  bond0
+...</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the connection settings in YAML format:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl show bond0</strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-bonding_configuring-and-managing-networking.html">Configuring a network bond</a></div></div></nav></article></main></body></html>

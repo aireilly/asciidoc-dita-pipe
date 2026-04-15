@@ -1,0 +1,112 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Blocking and allowing traffic based on hostapd authentication events</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_blocking-and-allowing-traffic-based-on-hostapd-authentication-events_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Blocking and allowing traffic based on <code class="ph codeph">hostapd</code> authentication events</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">hostapd</code> service has been configured, and the service is ready to authenticate clients.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">The <code class="ph codeph">hostapd</code> service does not interact with the traffic plane. The service acts only as an authenticator. However, you can write a script to allow and deny traffic based on the result of authentication events.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">This procedure is not supported and is no enterprise-ready solution. It only demonstrates how to block or allow traffic by evaluating events retrieved by <code class="ph codeph">hostapd_cli</code>.</p>
+         </div></div>
+         <p class="p">When the <code class="ph codeph">802-1x-tr-mgmt</code> systemd service starts, RHEL blocks all traffic on the listen port of <code class="ph codeph">hostapd</code> except extensible authentication protocol over LAN (EAPOL) packets and uses the <code class="ph codeph">hostapd_cli</code> utility to connect to the <code class="ph codeph">hostapd</code> control interface. The <code class="ph codeph">/usr/local/bin/802-1x-tr-mgmt</code> script then evaluates events. Depending on the different events received by <code class="ph codeph">hostapd_cli</code>, the script allows or blocks traffic for MAC addresses. Note that, when the <code class="ph codeph">802-1x-tr-mgmt</code> service stops, all traffic is automatically allowed again.</p>
+         <p class="p">Perform this procedure on the <code class="ph codeph">hostapd</code> server.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/usr/local/bin/802-1x-tr-mgmt</code> file with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-bash"><code>#!/bin/sh
+
+TABLE="tr-mgmt-${1}"
+read -r -d '' TABLE_DEF &lt;&lt; EOF
+table bridge ${TABLE} {
+    set allowed_macs {
+        type ether_addr
+    }
+
+    chain accesscontrol {
+        ether saddr @allowed_macs accept
+        ether daddr @allowed_macs accept
+        drop
+    }
+
+    chain forward {
+        type filter hook forward priority 0; policy accept;
+        meta ibrname "$1" jump accesscontrol
+    }
+}
+EOF
+
+case ${2:-NOTANEVENT} in
+    block_all)
+        nft destroy table bridge "$TABLE"
+        printf "$TABLE_DEF" | nft -f -
+        echo "$1: All the bridge traffic blocked. Traffic for a client with a given MAC will be allowed after 802.1x authentication"
+        ;;
+
+    AP-STA-CONNECTED | CTRL-EVENT-EAP-SUCCESS | CTRL-EVENT-EAP-SUCCESS2)
+        nft add element bridge tr-mgmt-br0 allowed_macs { $3 }
+        echo "$1: Allowed traffic from $3"
+        ;;
+
+    AP-STA-DISCONNECTED | CTRL-EVENT-EAP-FAILURE)
+        nft delete element bridge tr-mgmt-br0 allowed_macs { $3 }
+        echo "$1: Denied traffic from $3"
+        ;;
+
+    allow_all)
+        nft destroy table bridge "$TABLE"
+        echo "$1: Allowed all bridge traffic again"
+        ;;
+
+    NOTANEVENT)
+        echo "$0 was called incorrectly, usage: $0 interface event [mac_address]"
+        ;;
+esac</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/systemd/system/802-1x-tr-mgmt@.service</code> systemd service file with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code>[Unit]
+Description=Example 802.1x traffic management for hostapd
+After=hostapd.service
+After=sys-devices-virtual-net-%i.device
+
+[Service]
+Type=simple
+ExecStartPre=bash -c '/usr/sbin/hostapd_cli ping | grep PONG'
+ExecStartPre=/usr/local/bin/802-1x-tr-mgmt %i block_all
+ExecStart=/usr/sbin/hostapd_cli -i %i -a /usr/local/bin/802-1x-tr-mgmt
+ExecStopPost=/usr/local/bin/802-1x-tr-mgmt %i allow_all
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reload systemd:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl daemon-reload</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enable and start the <code class="ph codeph">802-1x-tr-mgmt</code> service with the interface name <code class="ph codeph">hostapd</code> is listening on:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl enable --now 802-1x-tr-mgmt@br0.service</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Authenticate with a client to the network. See <a class="xref" href="#proc_testing-eap-ttls-authentication-against-a-freeradius-server-or-authenticator_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend">Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator</a>.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend_configuring-and-managing-networking.html">Setting up an 802.1x network authentication service for LAN clients by using hostapd with FreeRADIUS backend</a></div></div></nav></article></main></body></html>

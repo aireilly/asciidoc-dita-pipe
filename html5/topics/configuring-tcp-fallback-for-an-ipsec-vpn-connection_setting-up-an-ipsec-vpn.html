@@ -1,0 +1,66 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring TCP fallback for an IPsec VPN connection</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-tcp-fallback-for-an-ipsec-vpn-connection_setting-up-an-ipsec-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring TCP fallback for an IPsec VPN connection</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The IPsec connection is configured.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Standard IPsec VPNs can fail on restrictive networks that block the UDP and Encapsulating Security Payload (ESP) protocols. To ensure connectivity in such environments, Libreswan can encapsulate all VPN traffic within a TCP connection.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">Encapsulating VPN packets within TCP can reduce throughput and increase latency. For this reason, use TCP encapsulation only as a fallback option or if UDP-based connections are consistently blocked in your environment.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Edit the <code class="ph codeph">/etc/ipsec.conf</code> file, and make the following changes in the <code class="ph codeph">config setup</code> section:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Configure Libreswan to listen on a TCP port:</p>
+                     <pre class="pre codeblock language-bash"><code>listen-tcp=yes</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">By default, Libreswan listens on port 4500. If you want to use a different port, enter:</p>
+                     <pre class="pre codeblock language-bash"><code>tcp-remoteport=<em class="ph i">&lt;port_number&gt;</em>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Decide whether TCP should be used as a fallback option if UDP is not available or permanent:</p>
+                     <ul class="ul">
+                        <li class="li">
+                           <p class="p">As a fallback option, enter:</p>
+                           <pre class="pre codeblock language-bash"><code>enable-tcp=fallback
+retransmit-timeout=5s</code></pre>
+                           <p class="p">By default, Libreswan waits 60 seconds after a failed attempt to connect by using UDP before retrying the connection over TCP. Lowering the <code class="ph codeph">retransmit-timeout</code> value shortens the delay, enabling the fallback protocol to initiate more quickly.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">As a permanent replacement for UDP, enter:</p>
+                           <pre class="pre codeblock language-bash"><code>enable-tcp=yes</code></pre>
+                        </li>
+                     </ul>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart the <code class="ph codeph">ipsec</code> service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl restart ipsec</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If you configured a TCP port other than the default 4500, open the port in the firewall:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">firewall-cmd --permanent --add-port=<em class="ph i">&lt;tcp_port&gt;</em>/tcp</strong>
+# <strong class="ph b">firewall-cmd --reload</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Repeat the procedure on the peers that use this gateway.</span>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="setting-up-an-ipsec-vpn_configuring-and-managing-networking.html">Setting up an IPsec VPN</a></div></div></nav></article></main></body></html>

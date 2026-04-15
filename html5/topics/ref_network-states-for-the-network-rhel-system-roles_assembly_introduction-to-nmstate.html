@@ -1,0 +1,103 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Network states for the network RHEL system role</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="ref_network-states-for-the-network-rhel-system-roles_assembly_introduction-to-nmstate"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Network states for the <code class="ph codeph">network</code> RHEL system role</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">The <code class="ph codeph">network</code> RHEL&nbsp;system&nbsp;role supports state configurations in playbooks to configure the devices. For this, use the <code class="ph codeph">network_state</code> variable followed by the state configurations.</p>
+         <p class="p">Benefits of using the <code class="ph codeph">network_state</code> variable in a playbook:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Using the declarative method with the state configurations, you can configure interfaces, and the NetworkManager creates a profile for these interfaces in the background.</p>
+            </li>
+            <li class="li">
+               <p class="p">With the <code class="ph codeph">network_state</code> variable, you can specify the options that you require to change, and all the other options will remain the same as they are. However, with the <code class="ph codeph">network_connections</code> variable, you must specify all settings to change the network connection profile.</p>
+            </li>
+         </ul>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">You can set only Nmstate YAML instructions in <code class="ph codeph">network_state</code>. These instructions differ from the variables you can set in <code class="ph codeph">network_connections</code>.</p>
+         </div></div>
+         <p class="p">For example, to create an Ethernet connection with dynamic IP address settings, use the following <code class="ph codeph">vars</code> block in your playbook:</p>
+      </section>
+      <table class="table frame-all"><caption></caption><colgroup><col style="width:50%"><col style="width:50%"></colgroup><tbody class="tbody">
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top">
+                     <p class="p">Playbook with state configurations</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top">
+                     <p class="p">Regular playbook</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 valign-top">
+                     <pre class="pre codeblock language-yaml"><code>vars:
+  network_state:
+    interfaces:
+    - name: enp7s0
+      type: ethernet
+      state: up
+      ipv4:
+        enabled: true
+        auto-dns: true
+        auto-gateway: true
+        auto-routes: true
+        dhcp: true
+      ipv6:
+        enabled: true
+        auto-dns: true
+        auto-gateway: true
+        auto-routes: true
+        autoconf: true
+        dhcp: true</code></pre>
+                  </td>
+                  <td class="entry align-left valign-top">
+                     <pre class="pre codeblock language-yaml"><code>vars:
+  network_connections:
+    - name: enp7s0
+      interface_name: enp7s0
+      type: ethernet
+      autoconnect: yes
+      ip:
+        dhcp4: yes
+        auto6: yes
+      state: up</code></pre>
+                  </td>
+               </tr>
+            </tbody></table>
+      <section class="section">
+         <p class="p">For example, to only change the connection status of dynamic IP address settings that you created as above, use the following <code class="ph codeph">vars</code> block in your playbook:</p>
+      </section>
+      <table class="table frame-all"><caption></caption><colgroup><col style="width:50%"><col style="width:50%"></colgroup><tbody class="tbody">
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top">
+                     <p class="p">Playbook with state configurations</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top">
+                     <p class="p">Regular playbook</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 valign-top">
+                     <pre class="pre codeblock language-yaml"><code>vars:
+  network_state:
+    interfaces:
+    - name: enp7s0
+      type: ethernet
+      state: down</code></pre>
+                  </td>
+                  <td class="entry align-left valign-top">
+                     <pre class="pre codeblock language-yaml"><code>vars:
+  network_connections:
+    - name: enp7s0
+      interface_name: enp7s0
+      type: ethernet
+      autoconnect: yes
+      ip:
+        dhcp4: yes
+        auto6: yes
+      state: down</code></pre>
+                  </td>
+               </tr>
+            </tbody></table>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_introduction-to-nmstate_configuring-and-managing-networking.html">Introduction to Nmstate</a></div></div></nav></article></main></body></html>

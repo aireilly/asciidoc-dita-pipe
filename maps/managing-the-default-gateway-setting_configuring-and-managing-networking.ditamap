@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Managing the default gateway setting</title>
+   <topicref href="../topics/managing-the-default-gateway-setting_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/setting-the-default-gateway-on-an-existing-connection-by-using-nmcli_managing-the-default-gateway-setting.dita"/>
+   <topicref href="../topics/setting-the-default-gateway-on-an-existing-connection-by-using-the-nmcli-interactive-mode_managing-the-default-gateway-setting.dita"/>
+   <topicref href="../topics/setting-the-default-gateway-on-an-existing-connection-by-using-nm-connection-editor_managing-the-default-gateway-setting.dita"/>
+   <topicref href="../topics/setting-the-default-gateway-on-an-existing-connection-by-using-control-center_managing-the-default-gateway-setting.dita"/>
+   <topicref href="../topics/proc_setting-the-default-gateway-on-an-existing-connection-by-using-nmstatectl_managing-the-default-gateway-setting.dita"/>
+   <topicref href="../topics/proc_setting-the-default-gateway-on-an-existing-connection-by-using-the-network-rhel-system-role_managing-the-default-gateway-setting.dita"/>
+   <topicref href="../topics/con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting.dita"/>
+   <topicref href="../topics/proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting.dita"/>
+   <topicref href="../topics/proc_fixing-unexpected-routing-behavior-due-to-multiple-default-gateways_managing-the-default-gateway-setting.dita"/>
+</map>

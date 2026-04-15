@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Setting up a WireGuard VPN</title>
+   <topicref href="../topics/assembly_setting-up-a-wireguard-vpn_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/ref_protocols-and-primitives-used-by-wireguard_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/con_how-wireguard-uses-tunnel-ip-addresses-public-keys-and-remote-endpoints_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/con_using-a-wireguard-client-behind-nat-and-firewalls_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/proc_creating-private-and-public-keys-to-be-used-in-wireguard-connections_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/proc_configuring-a-wireguard-by-using-nmcli_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/proc_configuring-a-wireguard-server-by-using-nmtui_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/configuring-a-wireguard-server-by-using-the-rhel-web-console_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/proc_configuring-a-wireguard-server-by-using-nm-connection-editor_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/proc_configuring-a-wireguard-server-by-using-the-wg-quick-service_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/proc_configuring-firewalld-on-a-wireguard-server-by-using-the-command-line_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/configuring-firewalld-on-a-wireguard-server-by-using-the-rhel-web-console_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/proc_configuring-firewalld-on-a-wireguard-server-by-using-the-graphical-interface_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/proc_configuring-a-wireguard-client-by-using-nmcli_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/proc_configuring-a-wireguard-client-by-using-nmtui_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/configuring-a-wireguard-client-by-using-the-rhel-web-console_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/proc_configuring-a-wireguard-client-by-using-nm-connection-editor_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/proc_configuring-a-wireguard-client-by-using-the-wg-quick-service_assembly_setting-up-a-wireguard-vpn.dita"/>
+   <topicref href="../topics/assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn.dita"/>
+</map>

@@ -1,0 +1,82 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a wifi connection with 802.1X network authentication in an existing profile by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-wifi-connection-with-802-1x-network-authentication-in-an-existing-profile-by-using-nmcli_assembly_managing-wifi-connections"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a wifi connection with 802.1X network authentication in an existing profile by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The network must have 802.1X network authentication.</p>
+            </li>
+            <li class="li">
+               <p class="p">The wifi connection profile exists in NetworkManager and has a valid IP configuration.</p>
+            </li>
+            <li class="li">
+               <p class="p">If the client is required to verify the certificate of the authenticator, the Certificate Authority (CA) certificate must be stored in the <code class="ph codeph">/etc/pki/ca-trust/source/anchors/</code> directory.</p>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">wpa_supplicant</code> package is installed.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the <code class="ph codeph">nmcli</code> utility to configure a client to authenticate itself to a network.</p>
+         <p class="p">For example, you can configure Protected Extensible Authentication Protocol (PEAP) authentication with Microsoft Challenge-Handshake Authentication Protocol version 2 (MSCHAPv2) in an existing NetworkManager wifi profile.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Set the wifi security mode to <code class="ph codeph">wpa-eap</code>, the Extensible Authentication Protocol (EAP) to <code class="ph codeph">peap</code>, the inner authentication protocol to <code class="ph codeph">mschapv2</code>, and the user name:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">wlp1s0</em> wireless-security.key-mgmt wpa-eap 802-1x.eap peap 802-1x.phase2-auth mschapv2 802-1x.identity <em class="ph i">user_name</em>
+                  </strong>
+               </code></pre>
+               <p class="p">Note that you must set the <code class="ph codeph">wireless-security.key-mgmt</code>, <code class="ph codeph">802-1x.eap</code>, <code class="ph codeph">802-1x.phase2-auth</code>, and <code class="ph codeph">802-1x.identity</code> parameters in a single command.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Store the password in the configuration:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">wlp1s0</em> 802-1x.password <em class="ph i">password</em>
+                  </strong>
+               </code></pre>
+               <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+                  <p class="p">By default, NetworkManager stores the password in plain text in the <code class="ph codeph">/etc/sysconfig/network-scripts/keys-<em class="ph i">connection_name</em>
+                     </code> file, which is readable only by the <code class="ph codeph">root</code> user. However, plain text passwords in a configuration file can be a security risk.</p>
+                  <p class="p">To increase the security, set the <code class="ph codeph">802-1x.password-flags</code> parameter to <code class="ph codeph">agent-owned</code>. With this setting, on servers with the GNOME desktop environment or the <code class="ph codeph">nm-applet</code> running, NetworkManager retrieves the password from these services, after you unlock the keyring first. In other cases, NetworkManager prompts for the password.</p>
+               </div></div>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If the client needs to verify the certificate of the authenticator, set the <code class="ph codeph">802-1x.ca-cert</code> parameter in the connection profile to the path of the CA certificate:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">wlp1s0</em> 802-1x.ca-cert <em class="ph i">/etc/pki/ca-trust/source/anchors/ca.crt</em>
+                  </strong>
+               </code></pre>
+               <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+                  <p class="p">For security reasons, clients should validate the certificate of the authenticator.</p>
+               </div></div>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the connection profile:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">wlp1s0</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Access resources on the network that require network authentication.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#assembly_managing-wifi-connections_configuring-and-managing-networking">Managing wifi connections</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_managing-wifi-connections_configuring-and-managing-networking.html">Managing wifi connections</a></div></div></nav></article></main></body></html>

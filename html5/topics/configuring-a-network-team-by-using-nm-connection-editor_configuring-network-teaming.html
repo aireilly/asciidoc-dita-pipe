@@ -1,0 +1,171 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a NIC team by using nm-connection-editor</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-network-team-by-using-nm-connection-editor_configuring-network-teaming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a NIC team by using nm-connection-editor</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">teamd</code> and <code class="ph codeph">NetworkManager-team</code> packages are installed.</p>
+            </li>
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use Ethernet devices as ports of the team, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use team, bond, or VLAN devices as ports of the team, ensure that these devices are not already configured.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">If you use Red&nbsp;Hat Enterprise&nbsp;Linux with a graphical interface, you can configure network interface controller (NIC) teams using the <code class="ph codeph">nm-connection-editor</code> application.</p>
+         <p class="p">Note that <code class="ph codeph">nm-connection-editor</code> can add only new ports to a team. To use an existing connection profile as a port, create the team using the <code class="ph codeph">nmcli</code> utility as described in <a class="xref" href="#configuring-a-network-team-by-using-nmcli_configuring-network-teaming">Configuring a NIC team by using nmcli</a>.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">NIC teaming is deprecated in Red&nbsp;Hat Enterprise&nbsp;Linux&nbsp;9. Consider using the network bonding driver as an alternative. For details, see
+<a class="xref" href="#configuring-network-bonding_configuring-and-managing-networking">Configuring a network bond</a>.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Open a terminal, and enter <code class="ph codeph">nm-connection-editor</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">nm-connection-editor</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click the <span class="ph uicontrol">+</span> button to add a new connection.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the <strong class="ph b">Team</strong> connection type, and click <span class="ph uicontrol">Create</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">On the <strong class="ph b">Team</strong> tab:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Optional: Set the name of the team interface in the <strong class="ph b">Interface name</strong> field.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click the <span class="ph uicontrol">Add</span> button to add a new connection profile for a network interface and add the profile as a port to the team.</p>
+                     <ol class="ol" type="i">
+                        <li class="li">
+                           <p class="p">Select the connection type of the interface. For example, select <strong class="ph b">Ethernet</strong> for a wired connection.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Optional: Set a connection name for the port.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">If you create a connection profile for an Ethernet device, open the <strong class="ph b">Ethernet</strong> tab, and select in the <strong class="ph b">Device</strong> field the network interface you want to add as a port to the team. If you selected a different device type, configure it accordingly. Note that you can only use Ethernet interfaces in a team that are not assigned to any connection.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Click <span class="ph uicontrol">Save</span>.</p>
+                        </li>
+                     </ol>
+                  </li>
+                  <li class="li">
+                     <p class="p">Repeat the previous step for each interface you want to add to the team.</p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/add-nic-to-team-in-nm-connection-editor.png" alt="Interfaces attached to a team"><br>
+                     </figure>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click the <span class="ph uicontrol">Advanced</span> button to set advanced options to the team connection.</p>
+                     <ol class="ol" type="i">
+                        <li class="li">
+                           <p class="p">On the <strong class="ph b">Runner</strong> tab, select the runner.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">On the <strong class="ph b">Link Watcher</strong> tab, set the link watcher and its optional settings.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Click <span class="ph uicontrol">OK</span>.</p>
+                        </li>
+                     </ol>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the IP address settings on both the <strong class="ph b">IPv4 Settings</strong> and <strong class="ph b">IPv6 Settings</strong> tabs:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">If you plan to use this bridge device as a port of other devices, set the <strong class="ph b">Method</strong> field to <strong class="ph b">Disabled</strong>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">To use DHCP, leave the <strong class="ph b">Method</strong> field at its default, <strong class="ph b">Automatic (DHCP)</strong>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">To use static IP settings, set the <strong class="ph b">Method</strong> field to <strong class="ph b">Manual</strong> and fill the fields accordingly:</p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/team-IP-settings-nm-connection-editor.png" alt="IP address settings in `nm-connection-editor`"><br>
+                     </figure>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Save</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Close <code class="ph codeph">nm-connection-editor</code>.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Display the status of the team:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">teamdctl team0 state</strong>
+setup:
+  runner: activebackup
+ports:
+  enp7s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+  enp8s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+runner:
+  active port: enp7s0</code></pre>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#configuring-a-network-bond-by-using-nm-connection-editor_configuring-network-bonding">Configuring a network bond by using nm-connection-editor</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#configuring-a-network-bridge-by-using-nm-connection-editor_configuring-a-network-bridge">Configuring a NIC team by using nm-connection-editor</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#configuring-vlan-tagging-by-using-nm-connection-editor_configuring-vlan-tagging">Configuring VLAN tagging by using nm-connection-editor</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting">Configuring NetworkManager to avoid using a specific profile to provide a default gateway</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming">Understanding the teamd service, runners, and link-watchers</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/solutions/3068421" target="_blank" rel="external noopener">NetworkManager duplicates a connection after restart of NetworkManager service (Red Hat Knowledgebase)</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-teaming_configuring-and-managing-networking.html">Configuring a NIC team</a></div></div></nav></article></main></body></html>

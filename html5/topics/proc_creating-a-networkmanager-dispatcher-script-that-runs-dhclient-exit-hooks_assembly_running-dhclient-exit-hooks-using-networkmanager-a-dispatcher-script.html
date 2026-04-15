@@ -1,0 +1,57 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Creating a NetworkManager dispatcher script that runs dhclient exit hooks</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_creating-a-networkmanager-dispatcher-script-that-runs-dhclient-exit-hooks_assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Creating a NetworkManager dispatcher script that runs dhclient exit hooks</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">dhclient</code> exit hooks are stored in the <code class="ph codeph">/etc/dhcp/dhclient-exit-hooks.d/</code> directory.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">When a DHCP server assigns or updates an IPv4 address, NetworkManager can run a dispatcher script stored in the <code class="ph codeph">/etc/dhcp/dhclient-exit-hooks.d/</code> directory. This dispatcher script can then, for example, run <code class="ph codeph">dhclient</code> exit hooks.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/NetworkManager/dispatcher.d/12-dhclient-down</code> file with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-bash"><code>#!/bin/bash
+# Run dhclient.exit-hooks.d scripts
+
+if [ -n "$DHCP4_DHCP_LEASE_TIME" ] ; then
+  if [ "$2" = "dhcp4-change" ] || [ "$2" = "up" ] ; then
+    if [ -d /etc/dhcp/dhclient-exit-hooks.d ] ; then
+      for f in /etc/dhcp/dhclient-exit-hooks.d/*.sh ; do
+        if [ -x "${f}" ]; then
+          . "${f}"
+        fi
+      done
+    fi
+  fi
+fi</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the <code class="ph codeph">root</code> user as owner of the file:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">chown root:root <em class="ph i">/etc/NetworkManager/dispatcher.d/12-dhclient-down</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the permissions so that only the root user can execute it:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">chmod 0700 <em class="ph i">/etc/NetworkManager/dispatcher.d/12-dhclient-down</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restore the SELinux context:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">restorecon <em class="ph i">/etc/NetworkManager/dispatcher.d/12-dhclient-down</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script_configuring-and-managing-networking.html">Running dhclient exit hooks using NetworkManager a dispatcher script</a></div></div></nav></article></main></body></html>

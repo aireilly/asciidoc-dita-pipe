@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Managing wifi connections</title>
+   <topicref href="../topics/assembly_managing-wifi-connections_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/ref_supported-wifi-security-types_assembly_managing-wifi-connections.dita"/>
+   <topicref href="../topics/proc_connecting-to-a-wifi-network-by-using-nmcli_assembly_managing-wifi-connections.dita"/>
+   <topicref href="../topics/proc_connecting-to-a-wifi-network-by-using-the-gnome-system-menu_assembly_managing-wifi-connections.dita"/>
+   <topicref href="../topics/proc_connecting-to-a-wifi-network-by-using-gnome-settings_assembly_managing-wifi-connections.dita"/>
+   <topicref href="../topics/proc_configuring-a-wifi-connection-by-using-nmtui_assembly_managing-wifi-connections.dita"/>
+   <topicref href="../topics/proc_configuring-a-wifi-connection-by-using-nm-connection-editor_assembly_managing-wifi-connections.dita"/>
+   <topicref href="../topics/proc_configuring-a-wifi-connection-with-802-1x-network-authentication-in-an-existing-profile-by-using-nmcli_assembly_managing-wifi-connections.dita"/>
+   <topicref href="../topics/proc_configuring-a-wifi-connection-with-802-1x-network-authentication-by-using-the-network-rhel-system-role_assembly_managing-wifi-connections.dita"/>
+   <topicref href="../topics/proc_manually-setting-the-wireless-regulatory-domain_assembly_managing-wifi-connections.dita"/>
+</map>

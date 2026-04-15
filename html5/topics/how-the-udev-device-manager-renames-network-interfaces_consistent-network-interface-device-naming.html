@@ -1,0 +1,47 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>How the udev device manager renames network interfaces</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="how-the-udev-device-manager-renames-network-interfaces_consistent-network-interface-device-naming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">How the udev device manager renames network interfaces</h1>
+   <div class="body conbody">
+      <p class="p">The <code class="ph codeph">udev</code> device manager processes a set of rules to implement a consistent naming scheme for network interfaces.</p>
+      <p class="p">Order of rule files:</p>
+      <ol class="ol">
+         <li class="li">
+            <p class="p">Optional: <code class="ph codeph">/usr/lib/udev/rules.d/60-net.rules</code>
+            </p>
+            <p class="p">This file exists only if you install the <code class="ph codeph">initscripts-rename-device</code> package.
+The <code class="ph codeph">/usr/lib/udev/rules.d/60-net.rules</code> file defines that the deprecated <code class="ph codeph">/usr/lib/udev/rename_device</code> helper utility searches for the <code class="ph codeph">HWADDR</code> parameter in <code class="ph codeph">/etc/sysconfig/network-scripts/ifcfg-*</code> files. If the value set in the variable matches the MAC address of an interface, the helper utility renames the interface to the name set in the <code class="ph codeph">DEVICE</code> parameter of the <code class="ph codeph">ifcfg</code> file.</p>
+            <p class="p">If the system uses only NetworkManager connection profiles in keyfile format, <code class="ph codeph">udev</code> skips this step.</p>
+         </li>
+         <li class="li">
+            <p class="p">Only on Dell systems: <code class="ph codeph">/usr/lib/udev/rules.d/71-biosdevname.rules</code>
+            </p>
+            <p class="p">This file exists only if the <code class="ph codeph">biosdevname</code> package is installed, and the rules file defines that the <code class="ph codeph">biosdevname</code> utility renames the interface according to its naming policy, if it was not renamed in the previous step.</p>
+            <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+               <p class="p">Install and use <code class="ph codeph">biosdevname</code> only on Dell systems.</p>
+            </div></div>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">/usr/lib/udev/rules.d/75-net-description.rules</code>
+            </p>
+            <p class="p">This file defines how <code class="ph codeph">udev</code> examines the network interface and sets the properties in <code class="ph codeph">udev</code>-internal variables. These variables are then processed in the next step by the <code class="ph codeph">/usr/lib/udev/rules.d/80-net-setup-link.rules</code> file. Some of the properties can be undefined.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">/usr/lib/udev/rules.d/80-net-setup-link.rules</code>
+            </p>
+            <p class="p">This file calls the <code class="ph codeph">net_setup_link</code> builtin of the <code class="ph codeph">udev</code> service, and <code class="ph codeph">udev</code> renames the interface based on the order of the policies in the <code class="ph codeph">NamePolicy</code> parameter in the <code class="ph codeph">/usr/lib/systemd/network/99-default.link</code> file. For further details, see <a class="xref" href="#network-interface-naming-policies_consistent-network-interface-device-naming">Network interface naming policies</a>.</p>
+            <p class="p">If none of the policies applies, <code class="ph codeph">udev</code> does not rename the interface.</p>
+         </li>
+      </ol>
+      <p class="p">Additional resources</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <a class="xref" href="https://access.redhat.com/solutions/5984311" target="_blank" rel="external noopener">Why are systemd network interface names different between major RHEL versions (Red Hat Knowledgebase)</a>
+            </p>
+         </li>
+      </ul>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="consistent-network-interface-device-naming_configuring-and-managing-networking.html">Implementing consistent network interface naming</a></div></div></nav></article></main></body></html>

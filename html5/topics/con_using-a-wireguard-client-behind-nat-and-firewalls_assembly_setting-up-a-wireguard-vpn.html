@@ -1,0 +1,12 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Using a WireGuard client behind NAT and firewalls</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="con_using-a-wireguard-client-behind-nat-and-firewalls_assembly_setting-up-a-wireguard-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Using a WireGuard client behind NAT and firewalls</h1>
+   <div class="body conbody">
+      <p class="p">WireGuard uses the UDP protocol and transmits data only when a peer sends packets. Stateful firewalls and network address translation (NAT) on routers track connections to enable a peer behind NAT or a firewall to receive packets.</p>
+      <p class="p">To keep the connection active, WireGuard supports <code class="ph codeph">persistent keepalives</code>. This means you can set an interval at which WireGuard sends keepalive packets. By default, the persistent keep-alive feature is disabled to reduce network traffic. Enable this feature on the client if you use the client in a network with NAT or if a firewall closes the connection after some time of inactivity.</p>
+      <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+         <p class="p">Note that you cannot configure keepalive packets in WireGuard connections by using the RHEL web console. To configure this feature, edit the connection profile by using the <code class="ph codeph">nmcli</code> utility.</p>
+      </div></div>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-a-wireguard-vpn_configuring-and-managing-networking.html">Setting up a WireGuard VPN</a></div></div></nav></article></main></body></html>

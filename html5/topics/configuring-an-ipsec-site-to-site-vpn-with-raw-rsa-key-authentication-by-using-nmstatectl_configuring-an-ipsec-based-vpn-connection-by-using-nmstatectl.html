@@ -1,0 +1,224 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring an IPsec site-to-site VPN with raw RSA key authentication by using nmstatectl</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-an-ipsec-site-to-site-vpn-with-raw-rsa-key-authentication-by-using-nmstatectl_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring an IPsec site-to-site VPN with raw RSA key authentication by using <code class="ph codeph">nmstatectl</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The remote gateway runs Libreswan IPsec and is prepared for a <a class="xref" href="#manually-configuring-an-ipsec-site-to-site-vpn-with-raw-rsa-key-authentication_setting-up-an-ipsec-vpn">site-to-site</a> connection.</p>
+               <p class="p">Due to the design of the <code class="ph codeph">NetworkManager-libreswan</code> plugin, Nmstate cannot communicate with other peers that also use this plugin for the same connection.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the declarative Nmstate API to configure a site-to-site VPN between two distinct networks, seamlessly linking them across an insecure network. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+         <p class="p">For authenticating the gateway devices, RSA keys are more secure than pre-shared keys (PSKs) because their asymmetric encryption eliminates the risk of a shared secret. Using RSA keys also simplifies deployment by avoiding the need for a certificate authority (CA), while still providing strong peer-to-peer authentication.</p>
+         <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+            <p class="p">In general, the choice which host is named <em class="ph i">left</em> and <em class="ph i">right</em> is arbitrary. However, NetworkManager always uses the term <em class="ph i">left</em> for the local host and <em class="ph i">right</em> for the remote host.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">If Libreswan is not yet installed, perform the following steps:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Install the required packages:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">dnf install nmstate libreswan NetworkManager-libreswan</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Restart the NetworkManager service:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">systemctl restart NetworkManager</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Initialize the Network Security Services (NSS) database:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ipsec initnss</strong>
+                     </code></pre>
+                     <p class="p">The command creates the database in the <code class="ph codeph">/var/lib/ipsec/nss/</code> directory.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Open the IPsec ports and protocols in the firewall:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">firewall-cmd --permanent --add-service="ipsec"</strong>
+# <strong class="ph b">firewall-cmd --reload</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create an RSA key pair:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ipsec newhostkey</strong>
+               </code></pre>
+               <p class="p">The <code class="ph codeph">ipsec</code> utility stores the key pair in the NSS database.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the Certificate Key Attribute ID (CKAID) on both the left and right peer:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ipsec showhostkey --list</strong>
+&lt; 1&gt; RSA keyid: <em class="ph i">&lt;key_id&gt;</em> ckaid: <em class="ph i">&lt;ckaid&gt;</em>
+               </code></pre>
+               <p class="p">You require the CKAIDs of both peers in the following steps.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the public keys:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">On the left peer, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ipsec showhostkey --left --ckaid <em class="ph i">&lt;ckaid_of_left_peer&gt;</em>
+                        </strong>
+        # rsakey AwEAAdKCx
+        leftrsasigkey=0sAwEAAdKCxpc9db48cehzQiQD...</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">On the right peer, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ipsec showhostkey --right --ckaid <em class="ph i">&lt;ckaid_of_right_peer&gt;</em>
+                        </strong>
+        # rsakey AwEAAcNWC
+        rightrsasigkey=0sAwEAAcNWCzZO+PR1j8WbO8X...</code></pre>
+                  </li>
+               </ol>
+               <p class="p">The commands display the public keys with the corresponding parameters that you must use in the configuration file.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create a YAML file, for example <code class="ph codeph">~/ipsec-site-to-site-rsa-auth.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+interfaces:
+- name: '<em class="ph i">&lt;connection_name&gt;</em>'
+  type: ipsec
+  libreswan:
+    ikev2: insist
+
+    left: <em class="ph i">&lt;ip_address_or_fqdn_of_left_peer&gt;</em>
+    leftid: peer_b
+    leftrsasigkey: <em class="ph i">&lt;public_key_of_left_peer&gt;</em>
+    leftmodecfgclient: false
+    leftsubnet: 198.51.100.0/24
+
+    right: <em class="ph i">&lt;ip_address_or_fqdn_of_right_peer&gt;</em>
+    rightid: peer_a
+    rightrsasigkey: <em class="ph i">&lt;public_key_of_right_peer&gt;</em>
+    rightsubnet: 192.0.2.0/24</code></pre>
+               <p class="p">The settings specified in the example include the following:</p>
+               <dl class="dl">
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">ikev2: insist</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines the modern IKEv2 protocol as the only allowed protocol without fallback to IKEv1. This setting is mandatory in a site-to-site configuration with Nmstate.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">left=<em class="ph i">&lt;ip_address_or_fqdn_of_left_peer&gt;</em>
+                        </code> and <code class="ph codeph">right=<em class="ph i">&lt;ip_address_or_fqdn_of_right_peer&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines the IP address or DNS name of the peers.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">leftid=<em class="ph i">&lt;id&gt;</em>
+                        </code> and <code class="ph codeph">rightid=<em class="ph i">&lt;id&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines how each peer is identified during the Internet Key Exchange (IKE) negotiation process. This can be an IP address or a literal string. Note that NetworkManager interprets all values other than IP addresses as a literal string and internally adds a leading <code class="ph codeph">@</code> sign. This requires that the Libreswan peer also uses literal strings as IDs or authentication fails.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">leftrsasigkey=<em class="ph i">&lt;public_key&gt;</em>
+                        </code> and <code class="ph codeph">rightrsasigkey=<em class="ph i">&lt;public_key&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Specifies the public key of the peers. Use the values displayed by the <code class="ph codeph">ipsec showhostkey</code> command in a previous step.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">leftmodecfgclient: false</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Disables dynamic configuration on this host. This setting is mandatory in a site-to-site configuration with Nmstate.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">leftsubnet=<em class="ph i">&lt;subnet&gt;</em>
+                        </code> and <code class="ph codeph">rightsubnet=<em class="ph i">&lt;subnet&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines subnets in classless inter-domain routing (CIDR) format that are connected through the tunnel.</p>
+                     </dd>
+                  
+               </dl>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enable packet forwarding:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">echo "net.ipv4.ip_forward=1" &gt; /etc/sysctl.d/95-IPv4-forwarding.conf</strong>
+# <strong class="ph b">sysctl -p /etc/sysctl.d/95-IPv4-forwarding.conf</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Apply the settings to the system:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl apply ~/ipsec-site-to-site-rsa-auth.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the IPsec status:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ipsec status</strong>
+               </code></pre>
+               <p class="p">If the connection is successfully established, the output contains lines as follows:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">Phase 1 of an Internet Key Exchange version 2 (IKEv2) negotiation has been successfully completed:</p>
+                     <pre class="pre codeblock language-txt"><code>000 #1: "<em class="ph i">&lt;connection_name&gt;</em>":500 STATE_V2_ESTABLISHED_IKE_SA (established IKE SA); REKEY in 27935s; REPLACE in 28610s; newest; idle;</code></pre>
+                     <p class="p">The Security Association (SA) is now ready to negotiate the actual data encryption tunnels, known as child SAs or Phase 2 SAs.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">A child SA has been established:</p>
+                     <pre class="pre codeblock language-txt"><code>000 #2: "<em class="ph i">&lt;connection_name&gt;</em>":500 STATE_V2_ESTABLISHED_CHILD_SA (established Child SA); REKEY in 27671s; REPLACE in 28610s; IKE SA #1; idle;</code></pre>
+                     <p class="p">This is the actual tunnel that your data traffic flows through.</p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">From a client in the local subnet, ping a client in the remote subnet.</p>
+            </li>
+         </ol>
+      </section>
+      <section class="section tasktroubleshooting">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">To display the actual configuration NetworkManager passes to Libreswan, enter:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection export <em class="ph i">&lt;connection_name&gt;</em>
+                  </strong>
+               </code></pre>
+               <p class="p">The output can help to identify deviating settings, such as IDs and keys, when you compare them with the Libreswan configuration on the remote host.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <a class="xref" href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</a>.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl_setting-up-an-ipsec-vpn.html">Configuring an IPsec based VPN connection by using nmstatectl</a></div></div></nav></article></main></body></html>

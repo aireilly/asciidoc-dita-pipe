@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_managing-the-mptcpd-service_configuring-and-managing-networking">
+   <title>Managing the mptcpd service</title>
+   <body>
+      <p>This section describes the basic management of the <codeph>mptcpd</codeph> service. The <codeph>mptcpd</codeph> package provides the <codeph>mptcpize</codeph> tool, which switches on the <codeph>mptcp</codeph> protocol in the <codeph>TCP</codeph> environment.</p>
+   </body>
+</topic>

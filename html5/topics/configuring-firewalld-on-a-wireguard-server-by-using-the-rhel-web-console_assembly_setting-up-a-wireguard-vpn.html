@@ -1,0 +1,67 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring firewalld on a WireGuard server by using the RHEL web console</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-firewalld-on-a-wireguard-server-by-using-the-rhel-web-console_assembly_setting-up-a-wireguard-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring <code class="ph codeph">firewalld</code> on a WireGuard server by using the RHEL web console</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You are logged in to the RHEL web console.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Configure the <code class="ph codeph">firewalld</code> service on the WireGuard server, allowing incoming connections from clients. If clients need to use the server as their default gateway and route all traffic through the tunnel, enable also masquerading.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Select the <strong class="ph b">Networking</strong> tab in the navigation on the left side of the screen.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <strong class="ph b">Edit rules and zones</strong> in the <strong class="ph b">Firewall</strong> section.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <strong class="ph b">Add services</strong>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter <code class="ph codeph">wireguard</code> into the <strong class="ph b">Filter services</strong> field.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the <code class="ph codeph">wireguard</code> entry from the list.</span>
+            <div class="itemgroup info">
+               <figure class="fig fignone">
+                  <br><img class="image" src="../images/wireguard-server-firewalld.png" alt="`firewalld` settings for a WireGuard server"><br>
+               </figure>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <strong class="ph b">Add services</strong>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If clients should route all traffic through the tunnel and use the WireGuard server as the default gateway, enable masquerading for the <code class="ph codeph">public</code> zone:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">firewall-cmd --permanent --zone=public --add-masquerade</strong>
+# <strong class="ph b">firewall-cmd --reload</strong>
+               </code></pre>
+               <p class="p">Note that you cannot enable masquerading in <code class="ph codeph">firewalld</code> zones in the web console.</p>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Select the <strong class="ph b">Networking</strong> tab in the navigation on the left side of the screen.</p>
+            </li>
+            <li class="li">
+               <p class="p">Click <strong class="ph b">Edit rules and zones</strong> in the <strong class="ph b">Firewall</strong> section.</p>
+            </li>
+            <li class="li">
+               <p class="p">The list contains an entry for the <code class="ph codeph">wireguard</code> service and displays the UDP port that you configured in the WireGuard connection profile.</p>
+            </li>
+            <li class="li">
+               <p class="p">To verify that masquerading is enabled in the <code class="ph codeph">public</code> zone of <code class="ph codeph">firewalld</code>, enter:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">firewall-cmd --list-all --zone=public</strong>
+public (active)
+  ...
+  services: ... wireguard
+  ports:
+  forward: yes
+  masquerade: yes
+  ...</code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-a-wireguard-vpn_configuring-and-managing-networking.html">Setting up a WireGuard VPN</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>IPVLAN modes</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="ipvlan-modes_getting-started-with-ipvlan"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">IPVLAN modes</h1>
+   <div class="body conbody">
+      <p class="p">The following modes are available for IPVLAN:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <strong class="ph b">L2 mode</strong>
+            </p>
+            <p class="p">In IPVLAN <strong class="ph b">L2 mode</strong>, virtual devices receive and respond to address resolution protocol (ARP) requests. The <code class="ph codeph">netfilter</code> framework runs only inside the container that owns the virtual device. No <code class="ph codeph">netfilter</code> chains are executed in the default namespace on the containerized traffic. Using <strong class="ph b">L2 mode</strong> provides good performance, but less control on the network traffic.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <strong class="ph b">L3 mode</strong>
+            </p>
+            <p class="p">In <strong class="ph b">L3 mode</strong>, virtual devices process only <strong class="ph b">L3</strong> traffic and above. Virtual devices do not respond to ARP requests and users must configure the neighbour entries for the IPVLAN IP addresses on the relevant peers manually. The egress traffic of a relevant container is landed on the <code class="ph codeph">netfilter</code> POSTROUTING and OUTPUT chains in the default namespace while the ingress traffic is threaded in the same way as <strong class="ph b">L2 mode</strong>. Using <strong class="ph b">L3 mode</strong> provides good control but decreases the network traffic performance.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <strong class="ph b">L3S mode</strong>
+            </p>
+            <p class="p">In <strong class="ph b">L3S mode</strong>, virtual devices process the same way as in <strong class="ph b">L3 mode</strong>, except that both egress and ingress traffics of a relevant container are landed on the <code class="ph codeph">netfilter</code> chain in the default namespace. <strong class="ph b">L3S mode</strong> behaves in a similar way to <strong class="ph b">L3 mode</strong> but provides greater control of the network.</p>
+         </li>
+      </ul>
+      <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+         <p class="p">The IPVLAN virtual device does not receive broadcast and multicast traffic in case of <strong class="ph b">L3</strong> and <strong class="ph b">L3S</strong> modes.</p>
+      </div></div>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="getting-started-with-ipvlan_configuring-and-managing-networking.html">Getting started with IPVLAN</a></div></div></nav></article></main></body></html>

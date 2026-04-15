@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="configuring-ip-tunnels_configuring-and-managing-networking">
+   <title>Configuring IP tunnels</title>
+   <body>
+      <p>Similar to a VPN, an IP tunnel directly connects two networks over a third network, such as the internet. However, not all tunnel protocols support encryption.</p>
+      <p>The routers in both networks that establish the tunnel requires at least two interfaces:</p>
+      <ul>
+         <li>
+            <p>One interface that is connected to the local network</p>
+         </li>
+         <li>
+            <p>One interface that is connected to the network through which the tunnel is established.</p>
+         </li>
+      </ul>
+      <p>To establish the tunnel, you create a virtual interface on both routers with an IP address from the remote subnet.</p>
+      <p>NetworkManager supports the following IP tunnels:</p>
+      <ul>
+         <li>
+            <p>Generic Routing Encapsulation (GRE)</p>
+         </li>
+         <li>
+            <p>Generic Routing Encapsulation over IPv6 (IP6GRE)</p>
+         </li>
+         <li>
+            <p>Generic Routing Encapsulation Terminal Access Point (GRETAP)</p>
+         </li>
+         <li>
+            <p>Generic Routing Encapsulation Terminal Access Point over IPv6 (IP6GRETAP)</p>
+         </li>
+         <li>
+            <p>IPv4 over IPv4 (IPIP)</p>
+         </li>
+         <li>
+            <p>IPv4 over IPv6 (IPIP6)</p>
+         </li>
+         <li>
+            <p>IPv6 over IPv6 (IP6IP6)</p>
+         </li>
+         <li>
+            <p>Simple Internet Transition (SIT)</p>
+         </li>
+      </ul>
+      <p>Depending on the type, these tunnels act either on layer 2 or 3 of the Open Systems Interconnection (OSI) model.</p>
+   </body>
+</topic>

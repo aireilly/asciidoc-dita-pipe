@@ -1,0 +1,96 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a wifi connection by using nmtui</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-wifi-connection-by-using-nmtui_assembly_managing-wifi-connections"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a wifi connection by using <code class="ph codeph">nmtui</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">The <code class="ph codeph">nmtui</code> application provides a text-based user interface for NetworkManager. You can use <code class="ph codeph">nmtui</code> to connect to a wifi network.</p>
+         <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+            <p class="p">In <code class="ph codeph">nmtui</code>:</p>
+            <ul class="ul">
+               <li class="li">
+                  <p class="p">Navigate by using the cursor keys.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Press a button by selecting it and hitting <span class="ph">Enter</span>.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Select and clear checkboxes by using <span class="ph">Space</span>.</p>
+               </li>
+               <li class="li">
+                  <p class="p">To return to the previous screen, use <span class="ph">ESC</span>.</p>
+               </li>
+            </ul>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Start <code class="ph codeph">nmtui</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmtui</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <code class="ph codeph">Edit a connection</code>, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press the <code class="ph codeph">Add</code> button.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <code class="ph codeph">Wi-Fi</code> from the list of network types, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Enter a name for the NetworkManager profile to be created.</span>
+            <div class="itemgroup info">
+               <p class="p">On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter the name of the Wi-Fi network, the Service Set Identifier (SSID), into the <code class="ph codeph">SSID</code> field.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Leave the <code class="ph codeph">Mode</code> field set to its default, <code class="ph codeph">Client</code>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the <code class="ph codeph">Security</code> field, press <span class="ph">Enter</span>, and set the authentication type of the network from the list.</span>
+            <div class="itemgroup info">
+               <p class="p">Depending on the authentication type you have selected, <code class="ph codeph">nmtui</code> displays different fields.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Fill the authentication type-related fields.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If the Wi-Fi network requires static IP addresses:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Press the <code class="ph codeph">Automatic</code> button next to the protocol, and select <code class="ph codeph">Manual</code> from the displayed list.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Press the <code class="ph codeph">Show</code> button next to the protocol you want to configure to display additional fields, and fill them.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press the <code class="ph codeph">OK</code> button to create and automatically activate the new connection.</span>
+            <div class="itemgroup info">
+               <figure class="fig fignone">
+                  <br><img class="image" src="../images/nmtui-wi-fi-dynamic-IP.png" alt="Dynamic IP address settings in `nmtui`"><br>
+               </figure>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press the <code class="ph codeph">Back</code> button to return to the main menu.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <code class="ph codeph">Quit</code>, and press <span class="ph">Enter</span> to close the <code class="ph codeph">nmtui</code> application.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the active connections:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show --active</strong>
+NAME    ID                                    TYPE  DEVICE
+Office  2501eb7e-7b16-4dc6-97ef-7cc460139a58  wifi  wlp0s20f3</code></pre>
+               <p class="p">If the output lists the wifi connection you have created, the connection is active.</p>
+            </li>
+            <li class="li">
+               <p class="p">Ping a hostname or IP address:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ping -c 3 example.com</strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_managing-wifi-connections_configuring-and-managing-networking.html">Managing wifi connections</a></div></div></nav></article></main></body></html>

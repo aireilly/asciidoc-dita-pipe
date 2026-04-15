@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_permanently-setting-the-current-qdisc-of-a-network-interface-using-networkmanager_linux-traffic-control">
+   <title>Permanently setting the current qdisc of a network interface using NetworkManager</title>
+   <taskbody>
+      <context>
+         <p>Changing the current <codeph>qdisc</codeph> can optimize how the kernel handles packets as they pass through a network interface. If you identified the optimal <codeph>qdisc</codeph> for your scenario, set it permanently in the NetworkManager connection profile.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: View the current <codeph>qdisc</codeph>:</cmd>
+            <info>
+               <codeblock># <b>tc qdisc show dev <i>enp0s1</i>
+                  </b>
+  qdisc fq_codel 0: root refcnt 2</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Update the current <codeph>qdisc</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>enp0s1</i> tc.qdiscs 'root pfifo_fast'</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: To add another <codeph>qdisc</codeph> over the existing <codeph>qdisc</codeph>, use the <codeph>+tc.qdisc</codeph> option:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>enp0s1</i> +tc.qdisc 'ingress handle ffff:'</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the changes:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>enp0s1</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>View current <codeph>qdisc</codeph> the network interface:</p>
+               <codeblock># <b>tc qdisc show dev <i>enp0s1</i>
+                  </b>
+qdisc <i>pfifo_fast</i> 8001: root refcnt 2 bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+qdisc ingress ffff: parent ffff:fff1 ----------------</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

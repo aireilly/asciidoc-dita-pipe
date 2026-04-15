@@ -1,0 +1,37 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Temporarily setting the current qdisc of a network interface using the tc utility</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="temporarily-setting-the-current-qdisc-of-a-network-interface-using-the-tc-utility_linux-traffic-control"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Temporarily setting the current qdisc of a network interface using the tc utility</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">Changing the current <code class="ph codeph">qdisc</code> can optimize how the kernel handles packets as they pass through a network interface. For testing and benchmarking purposes, you can change the <code class="ph codeph">qdisc</code> temporarily.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Optional: View the current <code class="ph codeph">qdisc</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">tc -s qdisc show dev <em class="ph i">enp0s1</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Update the current <code class="ph codeph">qdisc</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">tc qdisc replace dev <em class="ph i">enp0s1</em> root <em class="ph i">htb</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">View the updated current <code class="ph codeph">qdisc</code>:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">tc -s qdisc show dev <em class="ph i">enp0s1</em>
+                  </strong>
+qdisc htb 8001: root refcnt 2 r2q 10 default 0 direct_packets_stat 0 direct_qlen 1000
+Sent 0 bytes 0 pkt (dropped 0, overlimits 0 requeues 0)
+backlog 0b 0p requeues 0</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="linux-traffic-control_configuring-and-managing-networking.html">Linux traffic control</a></div></div></nav></article></main></body></html>

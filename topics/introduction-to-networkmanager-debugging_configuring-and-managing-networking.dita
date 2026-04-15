@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="introduction-to-networkmanager-debugging_configuring-and-managing-networking">
+   <title>Introduction to NetworkManager Debugging</title>
+   <body>
+      <p>Increasing the log levels for all or certain domains helps to log more details of the operations that NetworkManager performs. You can use this information to troubleshoot problems.</p>
+      <p>NetworkManager provides different levels and domains to produce logging information. The <codeph>/etc/NetworkManager/NetworkManager.conf</codeph> file is the main configuration file for NetworkManager. The logs are stored in the journal.</p>
+   </body>
+</topic>

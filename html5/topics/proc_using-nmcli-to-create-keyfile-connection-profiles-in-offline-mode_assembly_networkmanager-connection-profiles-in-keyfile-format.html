@@ -1,0 +1,88 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Using nmcli to create keyfile connection profiles in offline mode</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_using-nmcli-to-create-keyfile-connection-profiles-in-offline-mode_assembly_networkmanager-connection-profiles-in-keyfile-format"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Using <code class="ph codeph">nmcli</code> to create keyfile connection profiles in offline mode</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">You can use the <code class="ph codeph">nmcli</code> utility in offline mode to create and manage NetworkManager connection profiles. In this mode, <code class="ph codeph">nmcli</code> operates without the <code class="ph codeph">NetworkManager</code> service to produce keyfile connection profiles through standard output.</p>
+         <p class="p">This feature can be useful in the following scenarios:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You want to create your connection profiles that need to be pre-deployed somewhere. For example in a container image, or as an RPM package.</p>
+            </li>
+            <li class="li">
+               <p class="p">You want to create your connection profiles in an environment where the <code class="ph codeph">NetworkManager</code> service is not available, for example, when you want to use the <code class="ph codeph">chroot</code> utility. Alternatively, when you want to create or modify the network configuration of the RHEL system to be installed through the Kickstart <code class="ph codeph">%post</code> script.</p>
+            </li>
+         </ul>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a new connection profile in the keyfile format. For example, for a connection profile of an Ethernet device that does not use DHCP, run a similar <code class="ph codeph">nmcli</code> command:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli --offline connection add type ethernet con-name Example-Connection ipv4.addresses 192.0.2.1/24 ipv4.dns 192.0.2.200 ipv4.method manual &gt; /etc/NetworkManager/system-connections/example.nmconnection</strong>
+               </code></pre>
+               <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+                  <p class="p">The connection name you specified with the <code class="ph codeph">con-name</code> key is saved into the <code class="ph codeph">id</code> variable of the generated profile. When you use the <code class="ph codeph">nmcli</code> command to manage this connection later, specify the connection as follows:</p>
+                  <ul class="ul">
+                     <li class="li">
+                        <p class="p">When the <code class="ph codeph">id</code> variable is not omitted, use the connection name, for example <code class="ph codeph">Example-Connection</code>.</p>
+                     </li>
+                     <li class="li">
+                        <p class="p">When the <code class="ph codeph">id</code> variable is omitted, use the file name without the <code class="ph codeph">.nmconnection</code> suffix, for example <code class="ph codeph">output</code>.</p>
+                     </li>
+                  </ul>
+               </div></div>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set permissions to the configuration file so that only the <code class="ph codeph">root</code> user can read and update it:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">chmod 600 /etc/NetworkManager/system-connections/example.nmconnection</strong>
+# <strong class="ph b">chown root:root /etc/NetworkManager/system-connections/example.nmconnection</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Start the <code class="ph codeph">NetworkManager</code> service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl start NetworkManager.service</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If you set the <code class="ph codeph">autoconnect</code> variable in the profile to <code class="ph codeph">false</code>, activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up Example-Connection</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Verify that the <code class="ph codeph">NetworkManager</code> service is running:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl status NetworkManager.service</strong>
+● NetworkManager.service - Network Manager
+   Loaded: loaded (/usr/lib/systemd/system/NetworkManager.service; enabled; vendor preset: enabled)
+   Active: active (running) since Wed 2022-08-03 13:08:32 CEST; 1min 40s ago
+...</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Verify that NetworkManager can read the profile from the configuration file:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli -f TYPE,FILENAME,NAME connection</strong>
+TYPE      FILENAME                                                     NAME
+<strong class="ph b">ethernet  /etc/NetworkManager/system-connections/examaple.nmconnection  Example-Connection</strong>
+ethernet  /etc/sysconfig/network-scripts/ifcfg-enp1s0                  enp1s0
+...</code></pre>
+               <p class="p">If the output does not show the newly created connection, verify that the keyfile permissions and the syntax you used are correct.</p>
+            </li>
+            <li class="li">
+               <p class="p">Display the connection profile:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show Example-Connection</strong>
+connection.id:                          Example-Connection
+connection.uuid:                        232290ce-5225-422a-9228-cb83b22056b4
+connection.stable-id:                   --
+connection.type:                        802-3-ethernet
+connection.interface-name:              --
+connection.autoconnect:                 yes
+...</code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_networkmanager-connection-profiles-in-keyfile-format_configuring-and-managing-networking.html">NetworkManager connection profiles in keyfile format</a></div></div></nav></article></main></body></html>

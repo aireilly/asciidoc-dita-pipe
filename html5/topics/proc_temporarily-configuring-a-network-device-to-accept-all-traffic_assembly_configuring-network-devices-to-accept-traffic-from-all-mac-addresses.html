@@ -1,0 +1,49 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Temporarily configuring a device to accept all traffic</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_temporarily-configuring-a-network-device-to-accept-all-traffic_assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Temporarily configuring a device to accept all traffic</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">You can use the <code class="ph codeph">ip</code> utility to temporarily configure a network device to accept all traffic regardless of the MAC addresses.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Display the network interfaces to identify the one for which you want to receive all traffic:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ip address show</strong>
+1: enp1s0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc fq_codel state DOWN group default qlen 1000
+    link/ether 98:fa:9b:a4:34:09 brd ff:ff:ff:ff:ff:ff
+...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Modify the device to enable or disable this property:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To enable the <code class="ph codeph">accept-all-mac-addresses</code> mode for <code class="ph codeph">enp1s0</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip link set <em class="ph i">enp1s0</em> promisc <em class="ph i">on</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">To disable the <code class="ph codeph">accept-all-mac-addresses</code> mode for <code class="ph codeph">enp1s0</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip link set <em class="ph i">enp1s0</em> promisc <em class="ph i">off</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+               </ul>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Verify that the <code class="ph codeph">accept-all-mac-addresses</code> mode is enabled:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip link show <em class="ph i">enp1s0</em>
+                  </strong>
+1: enp1s0: &lt;NO-CARRIER,BROADCAST,MULTICAST,<strong class="ph b">PROMISC</strong>,UP&gt; mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 1000
+    link/ether 98:fa:9b:a4:34:09 brd ff:ff:ff:ff:ff:ff</code></pre>
+               <p class="p">The <code class="ph codeph">PROMISC</code> flag in the device description indicates that the mode is enabled.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses_configuring-and-managing-networking.html">Configuring network devices to accept traffic from all MAC addresses</a></div></div></nav></article></main></body></html>

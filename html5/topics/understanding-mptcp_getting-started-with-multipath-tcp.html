@@ -1,0 +1,36 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Understanding MPTCP</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="understanding-mptcp_getting-started-with-multipath-tcp"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Understanding MPTCP</h1>
+   <div class="body conbody">
+      <p class="p">The Multipath TCP (MPTCP) protocol provides simultaneous usage of multiple paths between connection endpoints. The protocol design improves connection stability and also brings other benefits compared to the single-path TCP.</p>
+      <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+         <p class="p">In MPTCP terminology, links are considered as paths.</p>
+      </div></div>
+      <p class="p">The following are some of the advantages of using MPTCP:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">It allows a connection to simultaneously use multiple network interfaces.</p>
+         </li>
+         <li class="li">
+            <p class="p">In case a connection is bound to a link speed, the usage of multiple links can increase the connection throughput. Note, that in case of the connection is bound to a CPU, the usage of multiple links causes the connection slowdown.</p>
+         </li>
+         <li class="li">
+            <p class="p">It increases the resilience to link failures.</p>
+         </li>
+      </ul>
+      <p class="p">Additional resources</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <a class="xref" href="https://www.redhat.com/en/blog/understanding-multipath-tcp-networking-highway-future" target="_blank" rel="external noopener">Understanding Multipath TCP: High availability for endpoints and the networking highway of the future</a>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <a class="xref" href="https://www.rfc-editor.org/rfc/rfc8684" target="_blank" rel="external noopener">RFC8684: TCP Extensions for Multipath Operation with Multiple Addresses</a>
+            </p>
+         </li>
+      </ul>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="getting-started-with-multipath-tcp_configuring-and-managing-networking.html">Getting started with Multipath TCP</a></div></div></nav></article></main></body></html>

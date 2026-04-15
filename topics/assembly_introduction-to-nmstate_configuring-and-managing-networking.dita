@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_introduction-to-nmstate_configuring-and-managing-networking">
+   <title>Introduction to Nmstate</title>
+   <body>
+      <p>Nmstate is a declarative network manager API. When you use Nmstate, you describe the expected networking state by using YAML or JSON-formatted instructions.</p>
+      <p>Nmstate has many benefits. For example, it:</p>
+      <ul>
+         <li>
+            <p>Provides a stable and extensible interface to manage RHEL network capabilities</p>
+         </li>
+         <li>
+            <p>Supports atomic and transactional operations at the host and cluster level</p>
+         </li>
+         <li>
+            <p>Supports partial editing of most properties and preserves existing settings that are not specified in the instructions</p>
+         </li>
+      </ul>
+      <p>Nmstate consists of the following packages:</p>
+      <table colsep="1" rowsep="1" frame="all">
+         <tgroup cols="2">
+            <colspec colname="col_1" colwidth="33.3333*"/>
+            <colspec colname="col_2" colwidth="66.6667*"/>
+            <thead>
+               <row>
+                  <entry align="left" valign="top">Packages</entry>
+                  <entry align="left" valign="top">Contents</entry>
+               </row>
+            </thead>
+            <tbody>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>nmstate</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>The <codeph>nmstatectl</codeph> command-line utility</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>python3-libnmstate</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>The <codeph>libnmstate</codeph> Python library</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>nmstate-libs</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>The Nmstate C library</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>nmstate-devel</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>The Nmstate C library headers</p>
+                  </entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+   </body>
+</topic>

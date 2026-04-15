@@ -1,0 +1,154 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a WireGuard server by using the RHEL web console</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-wireguard-server-by-using-the-rhel-web-console_assembly_setting-up-a-wireguard-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a WireGuard server by using the RHEL web console</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You are logged in to the RHEL web console.</p>
+            </li>
+            <li class="li">
+               <p class="p">You know the following information:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">The static tunnel IP addresses and subnet masks of both the server and client</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The public key of the client</p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can configure a WireGuard server by using the browser-based RHEL web console. Use this method to let NetworkManager manage the WireGuard connection.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Select the <strong class="ph b">Networking</strong> tab in the navigation on the left side of the screen.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <strong class="ph b">Add VPN</strong> in the <strong class="ph b">Interfaces</strong> section.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If the <code class="ph codeph">wireguard-tools</code> and <code class="ph codeph">systemd-resolved</code> packages are not already installed, the web console displays a corresponding notification. Click <strong class="ph b">Install</strong> to install these packages.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter the name of the WireGuard device that you want to create.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the key pair of this host:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">If you want use the keys that the web console has created:</p>
+                     <ol class="ol" type="a">
+                        <li class="li">
+                           <p class="p">Keep the pre-selected <strong class="ph b">Generated</strong> option in the <strong class="ph b">Private key</strong> area.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Note the <strong class="ph b">Public key</strong> value. You require this information when you configure the client.</p>
+                        </li>
+                     </ol>
+                  </li>
+                  <li class="li">
+                     <p class="p">If you want to use an existing private key:</p>
+                     <ol class="ol" type="a">
+                        <li class="li">
+                           <p class="p">Select <strong class="ph b">Paste existing key</strong> in the <strong class="ph b">Private key</strong> area.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Paste the private key into the text field. The web console automatically calculates the corresponding public key.</p>
+                        </li>
+                     </ol>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set a listen port number, such as <code class="ph codeph">51820</code>, for incoming WireGuard connections.</span>
+            <div class="itemgroup info">
+               <p class="p">Always set a fixed port number on hosts that receive incoming WireGuard connections. If you do not set a port, WireGuard uses a random free port each time you activate the interface.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the tunnel IPv4 address and subnet mask of the server.</span>
+            <div class="itemgroup info">
+               <p class="p">To also set an IPv6 address, you must edit the connection after you have created it.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Add peer configurations for each client that you want to allow to communicate with this server:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Click <strong class="ph b">Add peer</strong>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enter the public key of the client.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Leave the <strong class="ph b">Endpoint</strong> field empty.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Set the <strong class="ph b">Allowed IPs</strong> field to the tunnel IP addresses of the clients that are allowed to send data to this server.</p>
+                  </li>
+               </ol>
+               <figure class="fig fignone">
+                  <br><img class="image" src="../images/wireguard-server-settings.png" alt="WireGuard server settings"><br>
+               </figure>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <strong class="ph b">Add</strong> to create the WireGuard connection.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If you want to also set a tunnel IPv6 address:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Click on the WireGuard connection’s name in the <strong class="ph b">Interfaces</strong> section.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <strong class="ph b">edit</strong> next to <strong class="ph b">IPv6</strong>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Set the <strong class="ph b">Addresses</strong> field to <code class="ph codeph">Manual</code>, and enter the tunnel IPv6 address and prefix of the server.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <strong class="ph b">Save</strong>.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <a class="xref" href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</a>.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the interface configuration of the <code class="ph codeph">wg0</code> device:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">wg show wg0</strong>
+interface: wg0
+  public key: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  private key: (hidden)
+  listening port: 51820
+
+peer: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  allowed ips: 192.0.2.2/32, 2001:db8:1::2/128</code></pre>
+               <p class="p">To display the private key in the output, use the <code class="ph codeph">WG_HIDE_KEYS=never wg show wg0</code> command.</p>
+            </li>
+            <li class="li">
+               <p class="p">Display the IP configuration of the <code class="ph codeph">wg0</code> device:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip address show wg0</strong>
+20: wg0: &lt;POINTOPOINT,NOARP,UP,LOWERUP&gt; mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::3ef:8863:1ce2:844/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever</code></pre>
+            </li>
+         </ol>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#configuring-firewalld-on-a-wireguard-server-by-using-the-rhel-web-console_assembly_setting-up-a-wireguard-vpn">Configure the firewalld service on the WireGuard server</a>.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-a-wireguard-vpn_configuring-and-managing-networking.html">Setting up a WireGuard VPN</a></div></div></nav></article></main></body></html>

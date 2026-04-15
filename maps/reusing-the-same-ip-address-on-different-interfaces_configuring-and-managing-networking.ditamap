@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Reusing the same IP address on different interfaces</title>
+   <topicref href="../topics/reusing-the-same-ip-address-on-different-interfaces_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/permanently-reusing-the-same-ip-address-on-different-interfaces_reusing-the-same-ip-address-on-different-interfaces.dita"/>
+   <topicref href="../topics/temporarily-reusing-the-same-ip-address-on-different-interfaces_reusing-the-same-ip-address-on-different-interfaces.dita"/>
+</map>

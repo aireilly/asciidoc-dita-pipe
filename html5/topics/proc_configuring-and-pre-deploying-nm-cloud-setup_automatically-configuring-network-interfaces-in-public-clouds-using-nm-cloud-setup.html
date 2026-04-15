@@ -1,0 +1,101 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring and pre-deploying nm-cloud-setup</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-and-pre-deploying-nm-cloud-setup_automatically-configuring-network-interfaces-in-public-clouds-using-nm-cloud-setup"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring and pre-deploying nm-cloud-setup</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A network connection exists.</p>
+            </li>
+            <li class="li">
+               <p class="p">The connection uses DHCP.</p>
+               <p class="p">By default, NetworkManager creates a connection profile which uses DHCP. If no profile was created because you set the <code class="ph codeph">no-auto-default</code> parameter in <code class="ph codeph">/etc/NetworkManager/NetworkManager.conf</code>, create this initial connection manually.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">To enable and configure network interfaces in public clouds, run <code class="ph codeph">nm-cloud-setup</code> as a timer and service.</p>
+         <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+            <p class="p">On Red&nbsp;Hat Enterprise&nbsp;Linux On Demand and AWS golden images, <code class="ph codeph">nm-cloud-setup</code> is already enabled and no action is required.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Install the <code class="ph codeph">nm-cloud-setup</code> package:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">dnf install NetworkManager-cloud-setup</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create and run the snap-in file for the <code class="ph codeph">nm-cloud-setup</code> service:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Use the following command to start editing the snap-in file:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">systemctl edit nm-cloud-setup.service</strong>
+                     </code></pre>
+                     <p class="p">It is important to either start the service explicitly or reboot the system to make configuration settings effective.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Use the <code class="ph codeph">systemd</code> snap-in file to configure the cloud provider in <code class="ph codeph">nm-cloud-setup</code>. For example, to use Amazon EC2, enter:</p>
+                     <pre class="pre codeblock language-console"><code>[Service]
+Environment=NM_CLOUD_SETUP_EC2=yes</code></pre>
+                     <p class="p">You can set the following environment variables to enable the cloud provide you use:</p>
+                     <ul class="ul">
+                        <li class="li">
+                           <p class="p">
+                              <code class="ph codeph">NM_CLOUD_SETUP_ALIYUN</code> for Alibaba Cloud (Aliyun)</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">
+                              <code class="ph codeph">NM_CLOUD_SETUP_AZURE</code> for Microsoft Azure</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">
+                              <code class="ph codeph">NM_CLOUD_SETUP_EC2</code> for Amazon EC2 (AWS)</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">
+                              <code class="ph codeph">NM_CLOUD_SETUP_GCP</code> for Google Cloud</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">
+                              <code class="ph codeph">NM_CLOUD_SETUP_OCI</code> for Oracle Cloud Infrastructure (OCI)</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li class="li">
+                     <p class="p">Save the file and quit the editor.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reload the <code class="ph codeph">systemd</code> configuration:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl daemon-reload</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enable and start the <code class="ph codeph">nm-cloud-setup</code> service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl enable --now nm-cloud-setup.service</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enable and start the <code class="ph codeph">nm-cloud-setup</code> timer:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl enable --now nm-cloud-setup.timer</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/configuring_and_managing_networking/configuring-an-ethernet-connection_configuring-and-managing-networking" target="_blank" rel="external noopener">Configuring an Ethernet connection</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="automatically-configuring-network-interfaces-in-public-clouds-using-nm-cloud-setup_configuring-and-managing-networking.html">Automatically configuring network interfaces in public clouds using nm-cloud-setup</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-a-static-ethernet-connection-with-802-1x-network-authentication-by-using-the-network-rhel-system-role_authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system">
+   <title>Configuring a static Ethernet connection with 802.1X network authentication by using the <codeph>network</codeph> RHEL system role</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles"
+                        format="html"
+                        scope="external">You have prepared the control node and the managed nodes</xref>.</p>
+            </li>
+            <li>
+               <p>The account you use to connect to the managed nodes has <codeph>sudo</codeph> permissions for these nodes.</p>
+            </li>
+            <li>
+               <p>The network supports 802.1X network authentication.</p>
+            </li>
+            <li>
+               <p>The managed nodes use NetworkManager.</p>
+            </li>
+            <li>
+               <p>The following files required for the TLS authentication exist on the control node:</p>
+               <ul>
+                  <li>
+                     <p>The client key is stored in the <codeph>/srv/data/client.key</codeph> file.</p>
+                  </li>
+                  <li>
+                     <p>The client certificate is stored in the <codeph>/srv/data/client.crt</codeph> file.</p>
+                  </li>
+                  <li>
+                     <p>The Certificate Authority (CA) certificate is stored in the <codeph>/srv/data/ca.crt</codeph> file.</p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>By using the <codeph>network</codeph> RHEL system role, you can automate setting up Network Access Control (NAC) on remote hosts. You can define authentication details for clients in a playbook to ensure only authorized clients can access the network.</p>
+         <p>You can use an Ansible playbook to copy a private key, a certificate, and the CA certificate to the client, and then use the <codeph>network</codeph> RHEL system role to configure a connection profile with 802.1X network authentication.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Store your sensitive variables in an encrypted file:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Create the vault:</p>
+                     <codeblock>$ <b>ansible-vault create ~/vault.yml</b>
+New Vault password: <i>&lt;vault_password&gt;</i>
+Confirm New Vault password: <i>&lt;vault_password&gt;</i>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>After the <codeph>ansible-vault create</codeph> command opens an editor, enter the sensitive data in the <codeph>
+                           <i>&lt;key&gt;</i>: <i>&lt;value&gt;</i>
+                        </codeph> format:</p>
+                     <codeblock outputclass="language-ini">pwd: <i>&lt;password&gt;</i>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Save the changes, and close the editor. Ansible encrypts the data in the vault.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Create a playbook file, for example, <codeph>~/playbook.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+- name: Configure an Ethernet connection with 802.1X authentication
+  hosts: managed-node-01.example.com
+  vars_files:
+    - ~/vault.yml
+  tasks:
+    - name: Copy client key for 802.1X authentication
+      ansible.builtin.copy:
+        src: "/srv/data/client.key"
+        dest: "/etc/pki/tls/private/client.key"
+        mode: 0600
+
+    - name: Copy client certificate for 802.1X authentication
+      ansible.builtin.copy:
+        src: "/srv/data/client.crt"
+        dest: "/etc/pki/tls/certs/client.crt"
+
+    - name: Copy CA certificate for 802.1X authentication
+      ansible.builtin.copy:
+        src: "/srv/data/ca.crt"
+        dest: "/etc/pki/ca-trust/source/anchors/ca.crt"
+
+    - name: Ethernet connection profile with static IP address settings and 802.1X
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: enp1s0
+            type: ethernet
+            autoconnect: yes
+            ip:
+              address:
+                - 192.0.2.1/24
+                - 2001:db8:1::1/64
+              gateway4: 192.0.2.254
+              gateway6: 2001:db8:1::fffe
+              dns:
+                - 192.0.2.200
+                - 2001:db8:1::ffbb
+              dns_search:
+                - example.com
+            ieee802_1x:
+              identity: <i>&lt;user_name&gt;</i>
+              eap: tls
+              private_key: "/etc/pki/tls/private/client.key"
+              private_key_password: "{{ pwd }}"
+              client_cert: "/etc/pki/tls/certs/client.crt"
+              ca_cert: "/etc/pki/ca-trust/source/anchors/ca.crt"
+              domain_suffix_match: example.com
+            state: up</codeblock>
+               <p>The settings specified in the example playbook include the following:</p>
+               <dl>
+                  <dlentry>
+                     <dt>
+                        <codeph>ieee802_1x</codeph>
+                     </dt>
+                     <dd>
+                        <p>This variable contains the 802.1X-related settings.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>eap: tls</codeph>
+                     </dt>
+                     <dd>
+                        <p>Configures the profile to use the certificate-based <codeph>TLS</codeph> authentication method for the Extensible Authentication Protocol (EAP).</p>
+                     </dd>
+                  </dlentry>
+               </dl>
+               <p>For details about all variables used in the playbook, see the <codeph>/usr/share/ansible/roles/rhel-system-roles.network/README.md</codeph> file on the control node.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Validate the playbook syntax:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook --ask-vault-pass --syntax-check ~/playbook.yml</b>
+               </codeblock>
+               <p>Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Run the playbook:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook --ask-vault-pass ~/playbook.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Access resources on the network that require network authentication.</p>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/ansible-vault_automating-system-administration-by-using-rhel-system-roles"
+                        format="html"
+                        scope="external">Ansible vault</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

@@ -1,0 +1,249 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Routing traffic from a specific subnet to a different default gateway by using the network RHEL system role</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-the-network-rhel-system-role_configuring-policy-based-routing-to-define-alternative-routes"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Routing traffic from a specific subnet to a different default gateway by using the <code class="ph codeph">network</code> RHEL system role</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles" target="_blank" rel="external noopener">You have prepared the control node and the managed nodes</a>.</p>
+            </li>
+            <li class="li">
+               <p class="p">The account you use to connect to the managed nodes has <code class="ph codeph">sudo</code> permissions for these nodes.</p>
+            </li>
+            <li class="li">
+               <p class="p">The managed nodes use NetworkManager and the <code class="ph codeph">firewalld</code> service.</p>
+            </li>
+            <li class="li">
+               <p class="p">The managed nodes you want to configure has four network interfaces:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">The <code class="ph codeph">enp7s0</code> interface is connected to the network of provider A. The gateway IP in the provider’s network is <code class="ph codeph">198.51.100.2</code>, and the network uses a <code class="ph codeph">/30</code> network mask.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The <code class="ph codeph">enp1s0</code> interface is connected to the network of provider B. The gateway IP in the provider’s network is <code class="ph codeph">192.0.2.2</code>, and the network uses a <code class="ph codeph">/30</code> network mask.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The <code class="ph codeph">enp8s0</code> interface is connected to the <code class="ph codeph">10.0.0.0/24</code> subnet with internal workstations.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The <code class="ph codeph">enp9s0</code> interface is connected to the <code class="ph codeph">203.0.113.0/24</code> subnet with the company’s servers.</p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">Hosts in the internal workstations subnet use <code class="ph codeph">10.0.0.1</code> as the default gateway. In the procedure, you assign this IP address to the <code class="ph codeph">enp8s0</code> network interface of the router.</p>
+            </li>
+            <li class="li">
+               <p class="p">Hosts in the server subnet use <code class="ph codeph">203.0.113.1</code> as the default gateway. In the procedure, you assign this IP address to the <code class="ph codeph">enp9s0</code> network interface of the router.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use policy-based routing to configure a different default gateway for traffic from certain subnets. By using the <code class="ph codeph">network</code> RHEL system role, you can automate the creation of the connection profiles, including routing tables and rules.</p>
+         <p class="p">For example, you can configure RHEL as a router that, by default, routes all traffic to internet provider A using the default route. However, traffic received from the internal workstations subnet is routed to provider B. By using Ansible and the <code class="ph codeph">network</code> RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.</p>
+         <p class="p">This procedure assumes the following network topology:</p>
+         <figure class="fig fignone">
+            <br><img class="image" src="../images/policy-based-routing.png" alt="Example topology used for policy-based routing."><br>
+         </figure>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a playbook file, for example, <code class="ph codeph">~/playbook.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+- name: Configuring policy-based routing
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Routing traffic from a specific subnet to a different default gateway
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: Provider-A
+            interface_name: enp7s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 198.51.100.1/30
+              gateway4: 198.51.100.2
+              dns:
+                - 198.51.100.200
+            state: up
+            zone: external
+
+          - name: Provider-B
+            interface_name: enp1s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 192.0.2.1/30
+              route:
+                - network: 0.0.0.0
+                  prefix: 0
+                  gateway: 192.0.2.2
+                  table: 5000
+            state: up
+            zone: external
+
+          - name: Internal-Workstations
+            interface_name: enp8s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 10.0.0.1/24
+              route:
+                - network: 10.0.0.0
+                  prefix: 24
+                  table: 5000
+              routing_rule:
+                - priority: 5
+                  from: 10.0.0.0/24
+                  table: 5000
+            state: up
+            zone: trusted
+
+          - name: Servers
+            interface_name: enp9s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 203.0.113.1/24
+            state: up
+            zone: trusted</code></pre>
+               <p class="p">The settings specified in the example playbook include the following:</p>
+               <dl class="dl">
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">table: <em class="ph i">&lt;value&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Assigns the route from the same list entry as the <code class="ph codeph">table</code> variable to the specified routing table.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">routing_rule: <em class="ph i">&lt;list&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines the priority of the specified routing rule and from a connection profile to which routing table the rule is assigned.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">zone: <em class="ph i">&lt;zone_name&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Assigns the network interface from a connection profile to the specified <code class="ph codeph">firewalld</code> zone.</p>
+                     </dd>
+                  
+               </dl>
+               <p class="p">For details about all variables used in the playbook, see the <code class="ph codeph">/usr/share/ansible/roles/rhel-system-roles.network/README.md</code> file on the control node.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Validate the playbook syntax:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook --syntax-check ~/playbook.yml</strong>
+               </code></pre>
+               <p class="p">Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Run the playbook:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook ~/playbook.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">On a RHEL host in the internal workstation subnet:</p>
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Install the <code class="ph codeph">traceroute</code> package:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">dnf install traceroute</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Use the <code class="ph codeph">traceroute</code> utility to display the route to a host on the internet:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">traceroute redhat.com</strong>
+traceroute to redhat.com (209.132.183.105), 30 hops max, 60 byte packets
+ 1  10.0.0.1 (10.0.0.1)     0.337 ms  0.260 ms  0.223 ms
+ 2  192.0.2.2 (192.0.2.2)   0.884 ms  1.066 ms  1.248 ms
+ ...</code></pre>
+                     <p class="p">The output of the command displays that the router sends packets over <code class="ph codeph">192.0.2.1</code>, which is the network of provider B.</p>
+                  </li>
+               </ol>
+            </li>
+            <li class="li">
+               <p class="p">On a RHEL host in the server subnet:</p>
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Install the <code class="ph codeph">traceroute</code> package:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">dnf install traceroute</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Use the <code class="ph codeph">traceroute</code> utility to display the route to a host on the internet:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">traceroute redhat.com</strong>
+traceroute to redhat.com (209.132.183.105), 30 hops max, 60 byte packets
+ 1  203.0.113.1 (203.0.113.1)    2.179 ms  2.073 ms  1.944 ms
+ 2  198.51.100.2 (198.51.100.2)  1.868 ms  1.798 ms  1.549 ms
+ ...</code></pre>
+                     <p class="p">The output of the command displays that the router sends packets over <code class="ph codeph">198.51.100.2</code>, which is the network of provider A.</p>
+                  </li>
+               </ol>
+            </li>
+            <li class="li">
+               <p class="p">On the RHEL router that you configured using the RHEL&nbsp;system&nbsp;role:</p>
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Display the rule list:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip rule list</strong>
+0:      from all lookup local
+<strong class="ph b">5</strong>:    <strong class="ph b">from 10.0.0.0/24 lookup 5000</strong>
+32766:  from all lookup main
+32767:  from all lookup default</code></pre>
+                     <p class="p">By default, RHEL contains rules for the tables <code class="ph codeph">local</code>, <code class="ph codeph">main</code>, and <code class="ph codeph">default</code>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Display the routes in table <code class="ph codeph">5000</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip route list table 5000</strong>
+0.0.0.0/0 via 192.0.2.2 dev enp1s0 proto static metric 100
+10.0.0.0/24 dev enp8s0 proto static scope link src 192.0.2.1 metric 102</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Display the interfaces and firewall zones:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">firewall-cmd --get-active-zones</strong>
+external
+  interfaces: enp1s0 enp7s0
+trusted
+  interfaces: enp8s0 enp9s0</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Verify that the <code class="ph codeph">external</code> zone has masquerading enabled:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">firewall-cmd --info-zone=external</strong>
+external (active)
+  target: default
+  icmp-block-inversion: no
+  interfaces: enp1s0 enp7s0
+  sources:
+  services: ssh
+  ports:
+  protocols:
+  <strong class="ph b">masquerade: yes</strong>
+  ...</code></pre>
+                  </li>
+               </ol>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-static-routes_configuring-and-managing-networking.html">Configuring a static route</a></div></div></nav></article></main></body></html>

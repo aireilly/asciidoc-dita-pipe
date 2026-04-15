@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="permanently-reusing-the-same-ip-address-on-different-interfaces_reusing-the-same-ip-address-on-different-interfaces">
+   <title>Permanently reusing the same IP address on different interfaces</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You are logged in as the <codeph>root</codeph> user.</p>
+            </li>
+            <li>
+               <p>The network interfaces are not configured.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the virtual routing and forwarding (VRF) feature to permanently use the same IP address on different interfaces in one server.</p>
+         <note type="important">
+            <p>To enable remote peers to contact both VRF interfaces while reusing the same IP address, the network interfaces must belong to different broadcasting domains. A broadcast domain in a network is a set of nodes, which receive broadcast traffic sent by any of them. In most configurations, all nodes connected to the same switch belong to the same broadcasting domain.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create and configure the first VRF device:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Create a connection for the VRF device and assign it to a routing table. For example, to create a VRF device named <codeph>vrf0</codeph> that is assigned to the <codeph>1001</codeph> routing table:</p>
+                     <codeblock># <b>nmcli connection add type vrf ifname <i>vrf0</i> con-name <i>vrf0</i> table 1001 ipv4.method disabled ipv6.method disabled</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Enable the <codeph>vrf0</codeph> device:</p>
+                     <codeblock># <b>nmcli connection up <i>vrf0</i>
+                        </b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Assign a network device to the VRF just created. For example, to add the <codeph>enp1s0</codeph> Ethernet device to the <codeph>vrf0</codeph> VRF device and assign an IP address and the subnet mask to <codeph>enp1s0</codeph>, enter:</p>
+                     <codeblock># <b>nmcli connection add type ethernet con-name <i>vrf.enp1s0</i> ifname <i>enp1s0</i> controller vrf0 ipv4.method <i>manual</i> ipv4.address <i>192.0.2.1/24</i>
+                        </b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Activate the <codeph>vrf.enp1s0</codeph> connection:</p>
+                     <codeblock># <b>nmcli connection up <i>vrf.enp1s0</i>
+                        </b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Create and configure the next VRF device:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Create the VRF device and assign it to a routing table. For example, to create a VRF device named <codeph>vrf1</codeph> that is assigned to the <codeph>1002</codeph> routing table, enter:</p>
+                     <codeblock># <b>nmcli connection add type vrf ifname <i>vrf1</i> con-name <i>vrf1</i> table 1002 ipv4.method disabled ipv6.method disabled</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Activate the <codeph>vrf1</codeph> device:</p>
+                     <codeblock># <b>nmcli connection up <i>vrf1</i>
+                        </b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Assign a network device to the VRF just created. For example, to add the <codeph>enp7s0</codeph> Ethernet device to the <codeph>vrf1</codeph> VRF device and assign an IP address and the subnet mask to <codeph>enp7s0</codeph>, enter:</p>
+                     <codeblock># <b>nmcli connection add type ethernet con-name <i>vrf.enp7s0</i> ifname <i>enp7s0</i> controller <i>vrf1</i> ipv4.method <i>manual</i> ipv4.address <i>192.0.2.1/24</i>
+                        </b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Activate the <codeph>vrf.enp7s0</codeph> device:</p>
+                     <codeblock># <b>nmcli connection up <i>vrf.enp7s0</i>
+                        </b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

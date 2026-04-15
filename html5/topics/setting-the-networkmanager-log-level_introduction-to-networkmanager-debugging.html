@@ -1,0 +1,50 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Setting the NetworkManager log level</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="setting-the-networkmanager-log-level_introduction-to-networkmanager-debugging"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Setting the NetworkManager log level</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">By default, all the log domains are set to record the <code class="ph codeph">INFO</code> log level. Disable rate-limiting before collecting debug logs. With rate-limiting, <code class="ph codeph">systemd-journald</code> drops messages if there are too many of them in a short time. This can occur when the log level is <code class="ph codeph">TRACE</code>.</p>
+         <p class="p">This procedure disables rate-limiting and enables recording debug logs for the all (ALL) domains.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">To disable rate-limiting, edit the <code class="ph codeph">/etc/systemd/journald.conf</code> file, uncomment the <code class="ph codeph">RateLimitBurst</code> parameter in the <code class="ph codeph">[Journal]</code> section, and set its value as <code class="ph codeph">0</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code>RateLimitBurst=0</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart the <code class="ph codeph">systemd-journald</code> service.</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl restart systemd-journald</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/NetworkManager/conf.d/95-nm-debug.conf</code> file with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code>[logging]
+domains=ALL:TRACE</code></pre>
+               <p class="p">The <code class="ph codeph">domains</code> parameter can contain multiple comma-separated <code class="ph codeph">domain:level</code> pairs.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart the NetworkManager service.</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl restart NetworkManager</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Query the <code class="ph codeph">systemd</code> journal to display the journal entries of the <code class="ph codeph">NetworkManager</code> unit:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">journalctl -u NetworkManager</strong>
+...
+Jun 30 15:24:32 server NetworkManager[164187]: &lt;debug&gt; [1656595472.4939] active-connection[0x5565143c80a0]: update activation type from assume to managed
+Jun 30 15:24:32 server NetworkManager[164187]: &lt;trace&gt; [1656595472.4939] device[55b33c3bdb72840c] (enp1s0): sys-iface-state: assume -&gt; managed
+Jun 30 15:24:32 server NetworkManager[164187]: &lt;trace&gt; [1656595472.4939] l3cfg[4281fdf43e356454,ifindex=3]: commit type register (type "update", source "device", existing a369f23014b9ede3) -&gt; a369f23014b9ede3
+Jun 30 15:24:32 server NetworkManager[164187]: &lt;info&gt;  [1656595472.4940] manager: NetworkManager state is now CONNECTED_SITE
+...</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="introduction-to-networkmanager-debugging_configuring-and-managing-networking.html">Introduction to NetworkManager Debugging</a></div></div></nav></article></main></body></html>

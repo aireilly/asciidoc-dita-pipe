@@ -1,0 +1,759 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Overview of XDP features in RHEL 9 by network cards</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Overview of XDP features in RHEL 9 by network cards</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">The XDP features available in RHEL depend on the network card and their drivers.</p>
+         <p class="p">The following is an overview of XDP-enabled network cards and the XDP features you can use with them:</p>
+      </section>
+      <table class="table frame-all"><caption></caption><colgroup><col style="width:33.3333%"><col style="width:16.666600000000003%"><col style="width:8.333300000000001%"><col style="width:8.333300000000001%"><col style="width:8.333300000000001%"><col style="width:8.333300000000001%"><col style="width:8.333300000000001%"><col style="width:8.333600000000002%"></colgroup><thead class="thead">
+               <tr class="row">
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">Network card</th>
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">Driver</th>
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">Basic</th>
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">Redirect</th>
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">Target</th>
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">HW offload</th>
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">Zero-copy</th>
+                  <th class="entry align-left rowsep-1 valign-top" id="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">Large MTU</th>
+               </tr>
+            </thead><tbody class="tbody">
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Amazon Elastic Network Adapter</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">ena</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <div class="p">yes 
+                     </div>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">aQuantia AQtion Ethernet card</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">atlantic</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Broadcom NetXtreme-C/E 10/25/40/50 gigabit Ethernet</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">bnxt_en</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Cavium Thunder Virtual function</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">nicvf</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Google Virtual NIC (gVNIC) support</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">gve</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Intel® 10GbE PCI Express Virtual Function Ethernet</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">ixgbevf</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Intel® 10GbE PCI Express adapters</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">ixgbe</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <div class="p">yes 
+                     </div>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Intel® Ethernet Connection E800 Series</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">ice</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Intel® Ethernet Controller I225-LM/I225-V family</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">igc</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">yes </p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Intel® PCI Express Gigabit adapters</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">igb</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">yes </p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Intel® Ethernet Controller XL710 Family</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">i40e</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <div class="p">yes 
+                     </div>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Marvell OcteonTX2</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">rvu_nicpf</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Mellanox 5th generation network adapters (ConnectX series)</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">mlx5_core</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Mellanox Technologies 1/10/40Gbit Ethernet</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">mlx4_en</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Microsoft Azure Network Adapter</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">mana</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Microsoft Hyper-V virtual network</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">hv_netvsc</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <div class="p">Netronome® NFP4000/NFP6000 NIC 
+                     </div>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">nfp</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">QEMU Virtio network</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">virtio_net</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">QLogic QED 25/40/100Gb Ethernet NIC</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">qede</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">STMicroelectronics Multi-Gigabit Ethernet</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">stmmac</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Solarflare SFC9000/SFC9100/EF100-family</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">sfc</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Universal TUN/TAP device</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">tun</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Virtual Ethernet pair device</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">veth</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">yes</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">VMware VMXNET3 ethernet driver</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">vmxnet3</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes </p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__1">
+                     <p class="p">Xen paravirtual network device</p>
+                  </td>
+                  <td class="entry align-left colsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__2">
+                     <p class="p">
+                        <code class="ph codeph">xen-netfront</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left colsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__3">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__4">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__5">
+                     <p class="p">yes</p>
+                  </td>
+                  <td class="entry align-left colsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__6">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left colsep-1 valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__7">
+                     <p class="p">no</p>
+                  </td>
+                  <td class="entry align-left valign-top" headers="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9__entry__8">
+                     <p class="p">no</p>
+                  </td>
+               </tr>
+            </tbody></table>
+      <section class="section">
+         <p class="p">Legend:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Basic: Supports basic return codes: <code class="ph codeph">DROP</code>, <code class="ph codeph">PASS</code>, <code class="ph codeph">ABORTED</code>, and <code class="ph codeph">TX</code>.</p>
+            </li>
+            <li class="li">
+               <p class="p">Redirect: Supports the <code class="ph codeph">XDP_REDIRECT</code> return code.</p>
+            </li>
+            <li class="li">
+               <p class="p">Target: Can be a target of a <code class="ph codeph">XDP_REDIRECT</code> return code.</p>
+            </li>
+            <li class="li">
+               <p class="p">HW offload: Supports XDP hardware offload.</p>
+            </li>
+            <li class="li">
+               <p class="p">Zero-copy: Supports the zero-copy mode for the <code class="ph codeph">AF_XDP</code> protocol family.</p>
+            </li>
+            <li class="li">
+               <p class="p">Large MTU: Supports packets larger than page size.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_understanding-the-ebpf-features-in-rhel-9_configuring-and-managing-networking.html">Understanding the eBPF networking features in RHEL 9</a></div></div></nav><div class="fn"><sup>1</sup>  
+                           <p class="p">Only if an XDP program is loaded on the interface.</p>
+                        </div><div class="fn"><sup>2</sup>  
+                           <p class="p">Transmitting side only. Cannot receive large packets through XDP.</p>
+                        </div><div class="fn"><sup>3</sup>  
+                           <p class="p">Requires several XDP TX queues allocated that are larger or equal to the largest CPU index.</p>
+                        </div><div class="fn"><sup>4</sup>  
+                           <p class="p">Some of the listed features are not available for the Netronome® NFP3800 NIC.</p>
+                        </div></article></main></body></html>

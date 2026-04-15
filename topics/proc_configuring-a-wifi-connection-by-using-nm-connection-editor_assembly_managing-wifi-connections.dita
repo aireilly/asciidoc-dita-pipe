@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-wifi-connection-by-using-nm-connection-editor_assembly_managing-wifi-connections">
+   <title>Configuring a wifi connection by using nm-connection-editor</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A wifi device is installed on the host.</p>
+            </li>
+            <li>
+               <p>The wifi device is enabled. To verify, use the <codeph>nmcli radio</codeph> command.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the <codeph>nm-connection-editor</codeph> application to create a connection profile for a wireless network. In this application you can configure all wifi network authentication types that RHEL supports.</p>
+         <p>By default, NetworkManager enables the auto-connect feature for connection profiles and automatically connects to a saved network if it is available.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Open a terminal and enter:</cmd>
+            <info>
+               <codeblock># <b>nm-connection-editor</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Click the <uicontrol>+</uicontrol> button to add a new connection.</cmd>
+         </step>
+         <step>
+            <cmd>Select the <codeph>Wi-Fi</codeph> connection type, and click <uicontrol>Create</uicontrol>.</cmd>
+         </step>
+         <step>
+            <cmd>Optional: Set a name for the connection profile.</cmd>
+         </step>
+         <step>
+            <cmd>Optional: Configure the network profile on the <codeph>General</codeph> tab to not automatically connect.</cmd>
+            <info>
+               <p>If you deactivate this feature, you must always manually connect to the network, for example, by using GNOME Settings or the GNOME system menu.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>On the <codeph>Wi-Fi</codeph> tab, enter the service set identifier (SSID) in the <codeph>SSID</codeph> field.</cmd>
+         </step>
+         <step>
+            <cmd>On the <codeph>Wi-Fi Security</codeph> tab, select the authentication type for the network, such as <codeph>WPA3 Personal</codeph>, and enter the password.</cmd>
+            <info>
+               <p>Depending on the selected security, the application shows additional fields. Fill them accordingly. For details, ask the administrator of the wifi network.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure IPv4 settings on the <codeph>IPv4</codeph> tab, and IPv6 settings on the <codeph>IPv6</codeph> tab.</cmd>
+         </step>
+         <step>
+            <cmd>Click <codeph>Save</codeph>.</cmd>
+         </step>
+         <step>
+            <cmd>Close the <codeph>Network Connections</codeph> window.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Open the system menu on the right side of the top bar, and verify that the wifi network is connected:</p>
+               <fig>
+                  <image href="../images/gnome-wifi-connected.png" placement="break">
+                     <alt>The connected wifi entry in the system menu</alt>
+                  </image>
+               </fig>
+               <p>If the network appears in the list, it is connected.</p>
+            </li>
+            <li>
+               <p>Ping a hostname or IP address:</p>
+               <codeblock># <b>ping -c 3 <i>example.com</i>
+                  </b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

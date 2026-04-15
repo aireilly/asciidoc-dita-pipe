@@ -1,0 +1,17 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Displaying Libreswan logs</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="displaying-libreswan-logs"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Displaying Libreswan logs</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">Display Libreswan logs to diagnose and troubleshoot IPsec service events and issues. Access the journal for the <code class="ph codeph">ipsec</code> service to gain insights into connection status and potential problems.</p>
+         <p class="p">To display the journal, enter:</p>
+         <pre class="pre codeblock"><code># <strong class="ph b">journalctl -xeu ipsec</strong>
+         </code></pre>
+         <p class="p">If the default logging level does not provide enough details, enable comprehensive debug logging by adding the following settings to the <code class="ph codeph">config setup</code> section in the <code class="ph codeph">/etc/ipsec.conf</code> file:</p>
+         <pre class="pre codeblock language-bash"><code>plutodebug=all
+logfile=/var/log/pluto.log</code></pre>
+         <p class="p">Because debug logging can produce many entries, redirecting the messages to a dedicated log file can prevent the <code class="ph codeph">journald</code> and <code class="ph codeph">systemd</code> services from rate-limiting the messages.</p>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="troubleshooting-ipsec-configurations_setting-up-an-ipsec-vpn.html">Troubleshooting IPsec configurations</a></div></div></nav></article></main></body></html>

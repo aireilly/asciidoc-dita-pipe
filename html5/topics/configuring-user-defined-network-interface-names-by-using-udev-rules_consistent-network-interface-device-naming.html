@@ -1,0 +1,91 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring user-defined network interface names by using udev rules</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-user-defined-network-interface-names-by-using-udev-rules_consistent-network-interface-device-naming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring user-defined network interface names by using udev rules</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">You can use <code class="ph codeph">udev</code> rules to implement custom network interface names that reflect your organization’s requirements.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Identify the network interface that you want to rename:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ip link show</strong>
+...
+enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...</code></pre>
+               <p class="p">Record the MAC address of the interface.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the device type ID of the interface:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /sys/class/net/enp1s0/type</strong>
+1</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/udev/rules.d/70-persistent-net.rules</code> file, and add a rule for each interface that you want to rename:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code>SUBSYSTEM=="net",ACTION=="add",ATTR{address}=="<em class="ph i">&lt;MAC_address&gt;</em>",ATTR{type}=="<em class="ph i">&lt;device_type_id&gt;</em>",NAME="<em class="ph i">&lt;new_interface_name&gt;</em>"</code></pre>
+               <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+                  <p class="p">Use only <code class="ph codeph">70-persistent-net.rules</code> as a file name if you require consistent device names during the boot process. The <code class="ph codeph">dracut</code> utility adds a file with this name to the <code class="ph codeph">initrd</code> image if you regenerate the RAM disk image.</p>
+               </div></div>
+               <p class="p">For example, use the following rule to rename the interface with MAC address <code class="ph codeph">00:00:5e:00:53:1a</code> to <code class="ph codeph">provider0</code>:</p>
+               <pre class="pre codeblock language-console"><code>SUBSYSTEM=="net",ACTION=="add",ATTR{address}=="<em class="ph i">00:00:5e:00:53:1a</em>",ATTR{type}=="<em class="ph i">1</em>",NAME="<em class="ph i">provider0</em>"</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Regenerate the <code class="ph codeph">initrd</code> RAM disk image:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">dracut -f</strong>
+               </code></pre>
+               <p class="p">You require this step only if you need networking capabilities in the RAM disk. For example, this is the case if the root file system is stored on a network device, such as iSCSI.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Identify which NetworkManager connection profile uses the interface that you want to rename:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli -f device,name connection show</strong>
+DEVICE  NAME
+enp1s0  example_profile
+...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Unset the <code class="ph codeph">connection.interface-name</code> property in the connection profile:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify example_profile connection.interface-name ""</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Temporarily, configure the connection profile to match both the new and the previous interface name:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify example_profile match.interface-name "provider0 enp1s0"</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reboot the system:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">reboot</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Verify that the device with the MAC address that you specified in the link file has been renamed to <code class="ph codeph">provider0</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ip link show</strong>
+provider0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the connection profile to match only the new interface name:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify example_profile match.interface-name "provider0"</strong>
+               </code></pre>
+               <p class="p">You have now removed the old interface name from the connection profile.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reactivate the connection profile:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up example_profile</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="consistent-network-interface-device-naming_configuring-and-managing-networking.html">Implementing consistent network interface naming</a></div></div></nav></article></main></body></html>

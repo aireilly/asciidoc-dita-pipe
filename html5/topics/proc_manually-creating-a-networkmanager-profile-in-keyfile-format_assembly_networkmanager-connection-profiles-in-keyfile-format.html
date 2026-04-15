@@ -1,0 +1,70 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Manually creating a NetworkManager profile in keyfile format</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_manually-creating-a-networkmanager-profile-in-keyfile-format_assembly_networkmanager-connection-profiles-in-keyfile-format"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Manually creating a NetworkManager profile in keyfile format</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">You can manually create a NetworkManager connection profile in keyfile format. For example, this can be required if an external application generates the profiles.</p>
+         <div class="note attention note_attention"><span class="note__title">Attention:</span> <div class="note__body">
+            <p class="p">Manually creating or updating the configuration files can result in an unexpected or non-functional network configuration. As an alternative, you can use <code class="ph codeph">nmcli</code> in offline mode. See <a class="xref" href="#proc_using-nmcli-to-create-keyfile-connection-profiles-in-offline-mode_assembly_networkmanager-connection-profiles-in-keyfile-format">Using nmcli to create keyfile connection profiles in offline mode</a>
+            </p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a connection profile. For example, for a connection profile for the <code class="ph codeph">enp1s0</code> Ethernet device that uses DHCP, create the <code class="ph codeph">/etc/NetworkManager/system-connections/example.nmconnection</code> file with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code>[connection]
+id=Example-Connection
+type=ethernet
+autoconnect=true
+interface-name=enp1s0
+
+[ipv4]
+method=auto
+
+[ipv6]
+method=auto</code></pre>
+               <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+                  <p class="p">You can use any file name with a <code class="ph codeph">.nmconnection</code> suffix. However, when you later use <code class="ph codeph">nmcli</code> commands to manage the connection, you must use the connection name set in the <code class="ph codeph">id</code> variable when you refer to this connection. When you omit the <code class="ph codeph">id</code> variable, use the file name without the <code class="ph codeph">.nmconnection</code> to refer to this connection.</p>
+               </div></div>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set permissions on the configuration file so that only the <code class="ph codeph">root</code> user can read and update it:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">chown root:root /etc/NetworkManager/system-connections/example.nmconnection</strong>
+# <strong class="ph b">chmod 600 /etc/NetworkManager/system-connections/example.nmconnection</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reload the connection profiles:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection reload</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Verify that NetworkManager read the profile from the configuration file:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli -f NAME,UUID,FILENAME connection</strong>
+NAME                UUID                                  FILENAME
+Example-Connection  86da2486-068d-4d05-9ac7-957ec118afba  /etc/NetworkManager/system-connections/example.nmconnection
+...</code></pre>
+               <p class="p">If the command does not show the newly added connection, verify that the file permissions and the syntax you used in the file are correct.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If you set the <code class="ph codeph">autoconnect</code> variable in the profile to <code class="ph codeph">false</code>, activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up example_connection</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Display the connection profile:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show example_connection</strong>
+               </code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_networkmanager-connection-profiles-in-keyfile-format_configuring-and-managing-networking.html">NetworkManager connection profiles in keyfile format</a></div></div></nav></article></main></body></html>

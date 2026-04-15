@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="configuring-static-routes_configuring-and-managing-networking">
+   <title>Configuring a static route</title>
+   <body>
+      <p>Routing directs traffic between mutually-connected networks. In larger environments, administrators configure services so that routers dynamically learn about each other. In smaller ones, administrators often configure static routes to ensure traffic can reach its destination.</p>
+      <p>You need static routes to achieve a functioning communication among multiple networks if all of these conditions apply:</p>
+      <ul>
+         <li>
+            <p>The traffic has to pass multiple networks.</p>
+         </li>
+         <li>
+            <p>The exclusive traffic flow through the default gateways is not sufficient.</p>
+         </li>
+      </ul>
+      <p>The <xref href="#ref_example-of-a-network-that-requires-static-routes_configuring-static-routes">Example of a network that requires static routes</xref> section describes scenarios and how the traffic flows between different networks when you do not configure static routes.</p>
+   </body>
+</topic>

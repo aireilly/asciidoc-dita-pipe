@@ -1,0 +1,41 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Changing the DHCP client of NetworkManager</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_changing-the-dhcp-client-of-networkmanager_configuring-networkmanager-dhcp-settings"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Changing the DHCP client of NetworkManager</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">By default, NetworkManager uses its internal DHCP client. However, if you require a DHCP client with features that the built-in client does not provide, you can alternatively configure NetworkManager to use <code class="ph codeph">dhclient</code>.</p>
+         <p class="p">Note that RHEL does not provide <code class="ph codeph">dhcpcd</code> and, therefore, NetworkManager cannot use this client.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/NetworkManager/conf.d/dhcp-client.conf</code> file with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code>[main]
+dhcp=dhclient</code></pre>
+               <p class="p">You can set the <code class="ph codeph">dhcp</code> parameter to <code class="ph codeph">internal</code> (default) or <code class="ph codeph">dhclient</code>.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If you set the <code class="ph codeph">dhcp</code> parameter to <code class="ph codeph">dhclient</code>, install the <code class="ph codeph">dhcp-client</code> package:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">dnf install dhcp-client</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart NetworkManager:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl restart NetworkManager</strong>
+               </code></pre>
+               <p class="p">Note that the restart temporarily interrupts all network connections.</p>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Search in the <code class="ph codeph">/var/log/messages</code> log file for an entry similar to the following:</p>
+               <pre class="pre codeblock"><code>Apr 26 09:54:19 server NetworkManager[27748]: &lt;info&gt;  [1650959659.8483] dhcp-init: Using DHCP client 'dhclient'</code></pre>
+               <p class="p">This log entry confirms that NetworkManager uses <code class="ph codeph">dhclient</code> as DHCP client.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-networkmanager-dhcp-settings_configuring-and-managing-networking.html">Configuring NetworkManager DHCP settings</a></div></div></nav></article></main></body></html>

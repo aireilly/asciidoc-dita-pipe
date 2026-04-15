@@ -1,0 +1,161 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a MACsec connection by using nmstatectl</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-macsec-connection-using-nmstatectl_assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a MACsec connection by using <code class="ph codeph">nmstatectl</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A physical or virtual Ethernet Network Interface Controller (NIC) exists in the server configuration.</p>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">nmstate</code> package is installed.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the declarative Nmstate API to configure Ethernet interfaces to use MACsec. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">On the first host on which you configure MACsec, create the connectivity association key (CAK) and connectivity-association key name (CKN) for the pre-shared key:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create a 16-byte hexadecimal CAK:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">dd if=/dev/urandom count=16 bs=1 2&gt; /dev/null | hexdump -e '1/2 "%04x"'</strong>
+50b71a8ef0bd5751ea76de6d6c98c03a</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Create a 32-byte hexadecimal CKN:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">dd if=/dev/urandom count=32 bs=1 2&gt; /dev/null | hexdump -e '1/2 "%04x"'</strong>
+f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550</code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">On both hosts that you want to connect over a MACsec connection, complete the following steps:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create a YAML file, for example <code class="ph codeph">create-macsec-connection.yml</code>, with the following settings:</p>
+                     <pre class="pre codeblock"><code>---
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-interface: macsec0
+    next-hop-address: 192.0.2.2
+    table-id: 254
+  - destination: 192.0.2.2/32
+    next-hop-interface: macsec0
+    next-hop-address: 0.0.0.0
+    table-id: 254
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb
+interfaces:
+- name: macsec0
+  type: macsec
+  state: up
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 32
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+  macsec:
+    encrypt: true
+    base-iface: enp0s1
+    mka-cak: 50b71a8ef0bd5751ea76de6d6c98c03a
+    mka-ckn: f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550
+    port: 0
+    validation: strict
+    send-sci: true</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Use the CAK and CKN generated in the previous step in the <code class="ph codeph">mka-cak</code> and <code class="ph codeph">mka-ckn</code> parameters. The values must be the same on every host in the MACsec-protected network.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Optional: In the same YAML configuration file, you can also configure the following settings:</p>
+                     <ul class="ul">
+                        <li class="li">
+                           <p class="p">A static IPv4 address - <code class="ph codeph">192.0.2.1</code> with the <code class="ph codeph">/32</code> subnet mask</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">A static IPv6 address - <code class="ph codeph">2001:db8:1::1</code> with the <code class="ph codeph">/64</code> subnet mask</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">An IPv4 default gateway - <code class="ph codeph">192.0.2.2</code>
+                           </p>
+                        </li>
+                        <li class="li">
+                           <p class="p">An IPv4 DNS server - <code class="ph codeph">192.0.2.200</code>
+                           </p>
+                        </li>
+                        <li class="li">
+                           <p class="p">An IPv6 DNS server - <code class="ph codeph">2001:db8:1::ffbb</code>
+                           </p>
+                        </li>
+                        <li class="li">
+                           <p class="p">A DNS search domain - <code class="ph codeph">example.com</code>
+                           </p>
+                        </li>
+                     </ul>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Apply the settings to the system:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl apply create-macsec-connection.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the current state in YAML format:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl show macsec0</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Verify that the traffic is encrypted:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">tcpdump -nn -i enp0s1</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Optional: Display the unencrypted traffic:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">tcpdump -nn -i macsec0</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display MACsec statistics:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip macsec show</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display individual counters for each type of protection: integrity-only (encrypt off) and encryption (encrypt on)</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip -s macsec show</strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://developers.redhat.com/blog/2016/10/14/macsec-a-different-solution-to-encrypt-network-traffic" target="_blank" rel="external noopener">MACsec: a different solution to encrypt network traffic</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network_configuring-and-managing-networking.html">Using MACsec to encrypt layer-2 traffic in the same physical network</a></div></div></nav></article></main></body></html>

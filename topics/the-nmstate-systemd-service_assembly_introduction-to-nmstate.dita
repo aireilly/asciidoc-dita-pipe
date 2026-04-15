@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="the-nmstate-systemd-service_assembly_introduction-to-nmstate">
+   <title>The <codeph>nmstate</codeph> systemd service</title>
+   <conbody>
+      <p>With the <codeph>nmstate</codeph> package installed, you can automatically apply new network settings when the system boots by configuring the <codeph>nmstate</codeph> systemd service.</p>
+      <p>The <codeph>nmstate</codeph> service is a <codeph>oneshot</codeph> systemd service. Consequently, systemd executes it only when the system boots and when you manually restart the service.</p>
+      <note>
+         <p>By default, the <codeph>nmstate</codeph> service is disabled. Use the <codeph>systemctl enable nmstate</codeph> command to enable it. Afterwards, <codeph>systemd</codeph> executes this service each time when the system starts.</p>
+      </note>
+      <p>To use this service, store <codeph>*.yml</codeph> files with Nmstate instructions in the <codeph>/etc/nmstate/</codeph> directory. The <codeph>nmstate</codeph> service then automatically applies the files on the next reboot or when you manually restart the service. By default, after Nmstate successfully applies a file, it renames the file’s <codeph>.yml</codeph> suffix to <codeph>.applied</codeph> to prevent the service from processing the same file again.</p>
+      <p>You can configure the <codeph>nmstate</codeph> service in the <codeph>/etc/nmstate/nmstate.conf</codeph> file. For example, to preserve the original <codeph>*.yml</codeph> file after it was applied and to create only a copy with the <codeph>.applied</codeph> suffix, add the following lines to <codeph>/etc/nmstate/nmstate.conf</codeph>:</p>
+      <codeblock outputclass="language-console">[service]
+keep_state_file_after_apply = false</codeblock>
+      <p>For further details and other configuration options, see the <codeph>nmstate.service(8)</codeph> man page on your system.</p>
+   </conbody>
+</concept>

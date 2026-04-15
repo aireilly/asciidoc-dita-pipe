@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-802-1x-network-authentication-on-an-existing-ethernet-connection-by-using-nmcli_authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system">
+   <title>Configuring 802.1X network authentication on an existing Ethernet connection by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The network supports 802.1X network authentication.</p>
+            </li>
+            <li>
+               <p>The Ethernet connection profile exists in NetworkManager and has a valid IP configuration.</p>
+            </li>
+            <li>
+               <p>The following files required for TLS authentication exist on the client:</p>
+               <ul>
+                  <li>
+                     <p>The client key stored is in the <codeph>/etc/pki/tls/private/client.key</codeph> file, and the file is owned and only readable by the <codeph>root</codeph> user.</p>
+                  </li>
+                  <li>
+                     <p>The client certificate is stored in the <codeph>/etc/pki/tls/certs/client.crt</codeph> file.</p>
+                  </li>
+                  <li>
+                     <p>The Certificate Authority (CA) certificate is stored in the <codeph>/etc/pki/tls/certs/ca.crt</codeph> file.</p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>The <codeph>wpa_supplicant</codeph> package is installed.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the <codeph>nmcli</codeph> utility to configure an Ethernet connection with 802.1X network authentication on the command line.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Set the Extensible Authentication Protocol (EAP) to <codeph>tls</codeph> and the paths to the client certificate and key file:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>enp1s0</i> 802-1x.eap tls 802-1x.client-cert /etc/pki/tls/certs/client.crt 802-1x.private-key /etc/pki/tls/private/client.key</b>
+               </codeblock>
+               <p>Note that you must set the <codeph>802-1x.eap</codeph>, <codeph>802-1x.client-cert</codeph>, and <codeph>802-1x.private-key</codeph> parameters in a single command.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the path to the CA certificate:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>enp1s0</i> 802-1x.ca-cert /etc/pki/tls/certs/ca.crt</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the identity of the user used in the certificate:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>enp1s0</i> 802-1x.identity <i>user@example.com</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Store the password in the configuration:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>enp1s0</i> 802-1x.private-key-password <i>password</i>
+                  </b>
+               </codeblock>
+               <note type="important">
+                  <p>By default, NetworkManager stores the password in clear text in the connection profile on the disk, but the file is readable only by the <codeph>root</codeph> user. However, clear text passwords in a configuration file can be a security risk.</p>
+                  <p>To increase the security, set the <codeph>802-1x.password-flags</codeph> parameter to <codeph>agent-owned</codeph>. With this setting, on servers with the GNOME desktop environment or the <codeph>nm-applet</codeph> running, NetworkManager retrieves the password from these services, after you unlock the keyring. In other cases, NetworkManager prompts for the password.</p>
+               </note>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the connection profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>enp1s0</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Access resources on the network that require network authentication.</p>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#configuring-an-ethernet-connection_configuring-and-managing-networking">Configuring an Ethernet connection</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

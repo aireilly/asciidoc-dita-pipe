@@ -1,0 +1,73 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Setting up the bridge on the authenticator</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_setting-up-the-bridge-on-the-authenticator_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Setting up the bridge on the authenticator</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The server has multiple Ethernet interfaces.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">A network bridge is a link-layer device that forwards traffic between hosts and networks based on a table of MAC addresses. If you set up RHEL as an 802.1X authenticator, add both the interfaces on which to perform authentication and the LAN interface to the bridge.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">If the bridge interface does not exist, create it:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type bridge con-name br0 ifname br0</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Assign the Ethernet interfaces to the bridge:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ethernet port-type bridge con-name br0-port1 ifname enp1s0 controller br0</strong>
+# <strong class="ph b">nmcli connection add type ethernet port-type bridge con-name br0-port2 ifname enp7s0 controller br0</strong>
+# <strong class="ph b">nmcli connection add type ethernet port-type bridge con-name br0-port3 ifname enp8s0 controller br0</strong>
+# <strong class="ph b">nmcli connection add type ethernet port-type bridge con-name br0-port4 ifname enp9s0 controller br0</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enable the bridge to forward extensible authentication protocol over LAN (EAPOL) packets:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify br0 group-forward-mask 8</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Disable the Spanning Tree Protocol (STP) on the bridge device:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># *nmcli connection modify br0 stp off"</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the connection to automatically activate the ports:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify br0 connection.autoconnect-ports 1</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up br0</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the link status of Ethernet devices that are ports of a specific bridge:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip link show master br0</strong>
+3: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel master br0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:62:61:0e brd ff:ff:ff:ff:ff:ff
+...</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Verify if forwarding of EAPOL packets is enabled on the <code class="ph codeph">br0</code> device:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /sys/class/net/br0/bridge/group_fwd_mask</strong>
+0x8</code></pre>
+               <p class="p">If the command returns <code class="ph codeph">0x8</code>, forwarding is enabled.</p>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend_configuring-and-managing-networking.html">Setting up an 802.1x network authentication service for LAN clients by using hostapd with FreeRADIUS backend</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Disabling Multipath TCP in the kernel</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="disabling-multipath-tcp-in-the-kernel_getting-started-with-multipath-tcp"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Disabling Multipath TCP in the kernel</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">If you do not require MPTCP, you can explicitly disable the MPTCP option in the kernel.</p>
+      </section>
+      <section><div class="ul steps-unordered"><div class="li step p">
+            <span class="ph cmd">Disable the <code class="ph codeph">mptcp.enabled</code> option.</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">echo "net.mptcp.enabled=0" &gt; /etc/sysctl.d/90-enable-MPTCP.conf</strong>
+# <strong class="ph b">sysctl -p /etc/sysctl.d/90-enable-MPTCP.conf</strong>
+               </code></pre>
+            </div>
+         </div></div></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Verify whether the <code class="ph codeph">mptcp.enabled</code> is disabled in the kernel.</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">sysctl -a | grep mptcp.enabled</strong>
+net.mptcp.enabled = 0</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="getting-started-with-multipath-tcp_configuring-and-managing-networking.html">Getting started with Multipath TCP</a></div></div></nav></article></main></body></html>

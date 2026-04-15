@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="setting-up-an-ipsec-vpn_configuring-and-managing-networking">
+   <title>Setting up an IPsec VPN</title>
+   <body>
+      <p>Configure and manage a secure Virtual Private Network (VPN) by using the Libreswan implementation of the IPsec protocol suite to create encrypted tunnels for secure data transmission over the internet.</p>
+      <p>IPsec tunnels ensure the confidentiality and integrity of data in transit. Common use cases include connecting branch offices to headquarters or providing remote users with secure access to a corporate network.</p>
+      <p>RHEL provides different options to configure Libreswan:</p>
+      <ul>
+         <li>
+            <p>Manually edit the Libreswan configuration files for granular control over advanced options.</p>
+         </li>
+         <li>
+            <p>Use the <codeph>vpn</codeph> RHEL system role to automate the process of creating Libreswan VPN configurations.</p>
+         </li>
+         <li>
+            <p>Use Nmstate to configure a Libreswan connection through a declarative API.</p>
+         </li>
+      </ul>
+      <p>Libreswan does not use terms such as "client" and "server". Instead, IPsec refers to endpoints as "left" and "right". This design often enables you to use the same configuration on both hosts because Libreswan dynamically determines which role to adopt. As a convention, administrators typically use "left" for the local host and "right" for the remote host.</p>
+      <note>
+         <p>Libreswan is the only supported VPN technology in RHEL.</p>
+      </note>
+      <p>IPsec relies on standardized protocols, such as Internet Key Exchange (IKE), to ensure that different systems can communicate effectively. However, in practice, minor differences in how vendors implement these standards can lead to compatibility problems. If you encounter such interoperability issues when connecting Libreswan to a third-party IPsec peer, contact <xref href="https://access.redhat.com/support/"
+               format="html"
+               scope="external">Red Hat Support</xref>.</p>
+   </body>
+</topic>

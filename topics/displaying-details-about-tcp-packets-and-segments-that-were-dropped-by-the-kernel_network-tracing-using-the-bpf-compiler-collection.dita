@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="displaying-details-about-tcp-packets-and-segments-that-were-dropped-by-the-kernel_network-tracing-using-the-bpf-compiler-collection">
+   <title>Displaying details about TCP packets and segments that were dropped by the kernel</title>
+   <taskbody>
+      <context>
+         <p>The <codeph>tcpdrop</codeph> utility enables administrators to display details about TCP packets and segments that were dropped by the kernel. Use this utility to debug high rates of dropped packets that can cause the remote system to send timer-based retransmits.</p>
+         <p>High rates of dropped packets and segments can impact the performance of a server. Instead of capturing and filtering packets, which is resource-intensive, the <codeph>tcpdrop</codeph> utility uses eBPF features to retrieve the information directly from the kernel.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Enter the following command to start displaying details about dropped TCP packets and segments:</cmd>
+            <info>
+               <codeblock># <b>/usr/share/bcc/tools/tcpdrop</b>
+TIME     PID    IP SADDR:SPORT       &gt; DADDR:DPORT   STATE (FLAGS)
+13:28:39 32253  4  192.0.2.85:51616  &gt; 192.0.2.1:22  CLOSE_WAIT (FIN|ACK)
+	b'tcp_drop+0x1'
+	b'tcp_data_queue+0x2b9'
+	...
+
+13:28:39 1      4  192.0.2.85:51616  &gt; 192.0.2.1:22   CLOSE (ACK)
+	b'tcp_drop+0x1'
+	b'tcp_rcv_state_process+0xe2'
+	...</codeblock>
+               <p>Each time the kernel drops TCP packets and segments, <codeph>tcpdrop</codeph> displays the details of the connection, including the kernel stack trace that led to the dropped package.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Press <ph>Ctrl</ph>+<ph>C</ph> to stop the tracing process.</cmd>
+         </step>
+      </steps>
+   </taskbody>
+</task>

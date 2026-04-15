@@ -1,0 +1,65 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Manually setting the wireless regulatory domain</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_manually-setting-the-wireless-regulatory-domain_assembly_managing-wifi-connections"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Manually setting the wireless regulatory domain</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The driver of the wifi device supports changing the regulatory domain.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">On RHEL, a <code class="ph codeph">udev</code> rule executes the <code class="ph codeph">setregdomain</code> utility to set the wireless regulatory domain. The utility then provides this information to the kernel.</p>
+         <p class="p">By default, <code class="ph codeph">setregdomain</code> attempts to determine the country code automatically. If this fails, the wireless regulatory domain setting might be wrong. To work around this problem, you can manually set the country code.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">Manually setting the regulatory domain disables the automatic detection. Therefore, if you later use the computer in a different country, the previously configured setting might no longer be correct. In this case, remove the <code class="ph codeph">/etc/sysconfig/regdomain</code> file to switch back to automatic detection or use this procedure to manually update the regulatory domain setting again.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Display the current regulatory domain settings:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">iw reg get</strong>
+global
+country US: DFS-FCC
+...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/sysconfig/regdomain</code> file with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>
+                  <strong class="ph b">COUNTRY=<em class="ph i">&lt;country_code&gt;</em>
+                  </strong>
+               </code></pre>
+               <p class="p">Set the <code class="ph codeph">COUNTRY</code> variable to an ISO 3166-1 alpha2 country code, such as <code class="ph codeph">DE</code> for Germany or <code class="ph codeph">US</code> for the United States of America.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the regulatory domain:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">setregdomain</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Display the regulatory domain settings:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">iw reg get</strong>
+global
+country DE: DFS-ETSI
+...</code></pre>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://www.iso.org/iso-3166-country-codes.html" target="_blank" rel="external noopener">ISO 3166 Country Codes</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_managing-wifi-connections_configuring-and-managing-networking.html">Managing wifi connections</a></div></div></nav></article></main></body></html>

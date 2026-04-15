@@ -1,0 +1,48 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring mptcpd</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-mptcpd_assembly_managing-the-mptcpd-service"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring mptcpd</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">mptcpd</code> package installed</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">The <code class="ph codeph">mptcpd</code> service is a component of the <code class="ph codeph">mptcp</code> protocol which provides an instrument to configure <code class="ph codeph">mptcp</code> endpoints. The <code class="ph codeph">mptcpd</code> service creates a subflow endpoint for each address by default. The endpoint list is updated dynamically according to IP addresses modification on the running host. The <code class="ph codeph">mptcpd</code> service creates the list of endpoints automatically. It enables multiple paths as an alternative to using the <code class="ph codeph">ip</code> utility.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Enable <code class="ph codeph">mptcp.enabled</code> option in the kernel with the following command:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">echo "net.mptcp.enabled=1" &gt; /etc/sysctl.d/90-enable-MPTCP.conf</strong>
+# <strong class="ph b">sysctl -p /etc/sysctl.d/90-enable-MPTCP.conf</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Start the <code class="ph codeph">mptcpd</code> service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl start mptcp.service</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Verify endpoint creation:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ip mptcp endpoint</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">To stop the <code class="ph codeph">mptcpd</code> service, use the following command:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl stop mptcp.service</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">To configure <code class="ph codeph">mptcpd</code> service manually, modify the <code class="ph codeph">/etc/mptcpd/mptcpd.conf</code> configuration file.</span>
+            <div class="itemgroup info">
+               <p class="p">Note, that the endpoint, which mptcpd service creates, lasts till the host shutdown.</p>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_managing-the-mptcpd-service_configuring-and-managing-networking.html">Managing the mptcpd service</a></div></div></nav></article></main></body></html>

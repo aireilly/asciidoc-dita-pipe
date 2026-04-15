@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-a-static-route-by-using-nmcli_configuring-static-routes">
+   <title>Configuring a static route by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>LAN</codeph> connection profile exists and it configures this host to be in the same IP subnet as the gateways.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can add a static route to an existing NetworkManager connection profile using the <codeph>nmcli connection modify</codeph> command.</p>
+         <p>The procedure below configures the following routes:</p>
+         <ul>
+            <li>
+               <p>An IPv4 route to the remote <codeph>198.51.100.0/24</codeph> network. The corresponding gateway with the IP address <codeph>192.0.2.10</codeph> is reachable through the <codeph>LAN</codeph> connection profile.</p>
+            </li>
+            <li>
+               <p>An IPv6 route to the remote <codeph>2001:db8:2::/64</codeph> network. The corresponding gateway with the IP address <codeph>2001:db8:1::10</codeph> is reachable through the <codeph>LAN</codeph> connection profile.</p>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Add the static IPv4 route to the <codeph>LAN</codeph> connection profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify LAN +ipv4.routes "198.51.100.0/24 192.0.2.10"</b>
+               </codeblock>
+               <p>To set multiple routes in one step, pass the individual routes comma-separated to the command:</p>
+               <codeblock># <b>nmcli connection modify <i>&lt;connection_profile&gt;</i> +ipv4.routes "<i>&lt;remote_network_1&gt;</i>/<i>&lt;subnet_mask_1&gt;</i>
+                     <i>&lt;gateway_1&gt;</i>, <i>&lt;remote_network_n&gt;</i>/<i>&lt;subnet_mask_n&gt;</i>
+                     <i>&lt;gateway_n&gt;</i>, ..."</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Add the static IPv6 route to the <codeph>LAN</codeph> connection profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify LAN +ipv6.routes "2001:db8:2::/64 2001:db8:1::10"</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Re-activate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up LAN</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IPv4 routes:</p>
+               <codeblock># <b>ip -4 route</b>
+...
+198.51.100.0/24 via 192.0.2.10 dev enp1s0</codeblock>
+            </li>
+            <li>
+               <p>Display the IPv6 routes:</p>
+               <codeblock># <b>ip -6 route</b>
+...
+2001:db8:2::/64 via 2001:db8:1::10 dev enp1s0 metric 1024 pref medium</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_manually-creating-a-networkmanager-profile-in-keyfile-format_assembly_networkmanager-connection-profiles-in-keyfile-format">
+   <title>Manually creating a NetworkManager profile in keyfile format</title>
+   <taskbody>
+      <context>
+         <p>You can manually create a NetworkManager connection profile in keyfile format. For example, this can be required if an external application generates the profiles.</p>
+         <note type="attention">
+            <p>Manually creating or updating the configuration files can result in an unexpected or non-functional network configuration. As an alternative, you can use <codeph>nmcli</codeph> in offline mode. See <xref href="#proc_using-nmcli-to-create-keyfile-connection-profiles-in-offline-mode_assembly_networkmanager-connection-profiles-in-keyfile-format">Using nmcli to create keyfile connection profiles in offline mode</xref>
+            </p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a connection profile. For example, for a connection profile for the <codeph>enp1s0</codeph> Ethernet device that uses DHCP, create the <codeph>/etc/NetworkManager/system-connections/example.nmconnection</codeph> file with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-console">[connection]
+id=Example-Connection
+type=ethernet
+autoconnect=true
+interface-name=enp1s0
+
+[ipv4]
+method=auto
+
+[ipv6]
+method=auto</codeblock>
+               <note>
+                  <p>You can use any file name with a <codeph>.nmconnection</codeph> suffix. However, when you later use <codeph>nmcli</codeph> commands to manage the connection, you must use the connection name set in the <codeph>id</codeph> variable when you refer to this connection. When you omit the <codeph>id</codeph> variable, use the file name without the <codeph>.nmconnection</codeph> to refer to this connection.</p>
+               </note>
+            </info>
+         </step>
+         <step>
+            <cmd>Set permissions on the configuration file so that only the <codeph>root</codeph> user can read and update it:</cmd>
+            <info>
+               <codeblock># <b>chown root:root /etc/NetworkManager/system-connections/example.nmconnection</b>
+# <b>chmod 600 /etc/NetworkManager/system-connections/example.nmconnection</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Reload the connection profiles:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection reload</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Verify that NetworkManager read the profile from the configuration file:</cmd>
+            <info>
+               <codeblock># <b>nmcli -f NAME,UUID,FILENAME connection</b>
+NAME                UUID                                  FILENAME
+Example-Connection  86da2486-068d-4d05-9ac7-957ec118afba  /etc/NetworkManager/system-connections/example.nmconnection
+...</codeblock>
+               <p>If the command does not show the newly added connection, verify that the file permissions and the syntax you used in the file are correct.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>If you set the <codeph>autoconnect</codeph> variable in the profile to <codeph>false</codeph>, activate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up example_connection</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the connection profile:</p>
+               <codeblock># <b>nmcli connection show example_connection</b>
+               </codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

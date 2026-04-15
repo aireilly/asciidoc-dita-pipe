@@ -1,0 +1,191 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a network bond by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-network-bond-by-using-nmcli_configuring-network-bonding"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a network bond by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">The host runs on Red&nbsp;Hat Enterprise&nbsp;Linux 9.4 or later. This version introduced the <code class="ph codeph">port-type</code>, <code class="ph codeph">controller</code>, <code class="ph codeph">connection.autoconnect-ports</code> options used in this procedure. Previous RHEL versions instead use <code class="ph codeph">slave-type</code>, <code class="ph codeph">master</code>, and <code class="ph codeph">connection.autoconnect-slaves</code>.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use Ethernet devices as ports of the bond, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use team, bridge, or VLAN devices as ports of the bond, you can either create these devices while you create the bond or you can create them in advance as described in:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#configuring-a-network-team-by-using-nmcli_configuring-network-teaming">Configuring a network team by using nmcli</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#configuring-a-network-bridge-by-using-nmcli_configuring-a-network-bridge">Configuring a network bridge by using nmcli</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#configuring-vlan-tagging-by-using-nmcli_configuring-vlan-tagging">Configuring VLAN tagging by using nmcli</a>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">To configure a network bond on the command line, use the <code class="ph codeph">nmcli</code> utility.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a bond interface:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type bond con-name bond0 ifname bond0 bond.options "mode=active-backup"</strong>
+               </code></pre>
+               <p class="p">This command creates a bond named <code class="ph codeph">bond0</code> that uses the <code class="ph codeph">active-backup</code> mode.</p>
+               <p class="p">To additionally set a Media Independent Interface (MII) monitoring interval, add the <code class="ph codeph">miimon=interval</code> option to the <code class="ph codeph">bond.options</code> property, for example:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type bond con-name bond0 ifname bond0 bond.options "mode=active-backup,miimon=1000"</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the network interfaces, and note names of interfaces you plan to add to the bond:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device status</strong>
+DEVICE   TYPE      STATE         CONNECTION
+enp7s0   ethernet  disconnected  --
+enp8s0   ethernet  disconnected  --
+bridge0  bridge    connected     bridge0
+bridge1  bridge    connected     bridge1
+...</code></pre>
+               <p class="p">In this example:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">enp7s0</code> and <code class="ph codeph">enp8s0</code> are not configured. To use these devices as ports, add connection profiles in the next step.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">bridge0</code> and <code class="ph codeph">bridge1</code> have existing connection profiles. To use these devices as ports, modify their profiles in the next step.</p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Assign interfaces to the bond:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">If the interfaces you want to assign to the bond are not configured, create new connection profiles for them:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ethernet port-type bond con-name bond0-port1 ifname enp7s0 controller bond0</strong>
+# <strong class="ph b">nmcli connection add type ethernet port-type bond con-name bond0-port2 ifname enp8s0 controller bond0</strong>
+                     </code></pre>
+                     <p class="p">These commands create profiles for <code class="ph codeph">enp7s0</code> and <code class="ph codeph">enp8s0</code>, and add them to the <code class="ph codeph">bond0</code> connection.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">To assign an existing connection profile to the bond:</p>
+                     <ol class="ol" type="i">
+                        <li class="li">
+                           <p class="p">Set the <code class="ph codeph">controller</code> parameter of these connections to <code class="ph codeph">bond0</code>:</p>
+                           <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 controller bond0</strong>
+# <strong class="ph b">nmcli connection modify bridge1 controller bond0</strong>
+                           </code></pre>
+                           <p class="p">These commands assign the existing connection profiles named <code class="ph codeph">bridge0</code> and <code class="ph codeph">bridge1</code> to the <code class="ph codeph">bond0</code> connection.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Reactivate the connections:</p>
+                           <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up bridge0</strong>
+# <strong class="ph b">nmcli connection up bridge1</strong>
+                           </code></pre>
+                        </li>
+                     </ol>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the IPv4 settings:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To set a static IPv4 address, network mask, default gateway, and DNS server to the <code class="ph codeph">bond0</code> connection, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bond0 ipv4.addresses '192.0.2.1/24' ipv4.gateway '192.0.2.254' ipv4.dns '192.0.2.253' ipv4.dns-search 'example.com' ipv4.method manual</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">To use DHCP, no action is required.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If you plan to use this bond device as a port of other devices, no action is required.</p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the IPv6 settings:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To set a static IPv6 address, network mask, default gateway, and DNS server to the <code class="ph codeph">bond0</code> connection, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bond0 ipv6.addresses '2001:db8:1::1/64' ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffd' ipv6.dns-search 'example.com' ipv6.method manual</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">To use stateless address autoconfiguration (SLAAC), no action is required.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If you plan to use this bond device as a port of other devices, no action is required.</p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: If you want to set any parameters on the bond ports, use the following command:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bond0-port1 bond-port.<em class="ph i">&lt;parameter&gt;</em>
+                     <em class="ph i">&lt;value&gt;</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up bond0</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Verify that the ports are connected, and the <code class="ph codeph">CONNECTION</code> column displays the port’s connection name:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device</strong>
+DEVICE   TYPE      STATE      CONNECTION
+...
+enp7s0   ethernet  connected  bond0-port1
+enp8s0   ethernet  connected  bond0-port2</code></pre>
+               <p class="p">When you activate any port of the connection, NetworkManager also activates the bond, but not the other ports of it. You can configure that Red&nbsp;Hat Enterprise&nbsp;Linux enables all ports automatically when the bond is enabled:</p>
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Enable the <code class="ph codeph">connection.autoconnect-ports</code> parameter of the bond’s connection:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bond0 connection.autoconnect-ports 1</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Reactivate the bridge:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up bond0</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Temporarily remove the network cable from one of the network devices and check if the other device in the bond is handling the traffic.</p>
+               <p class="p">Note that there is no method to properly test link failure events using software utilities. Tools that deactivate connections, such as <code class="ph codeph">nmcli</code>, show only the bonding driver’s ability to handle port configuration changes and not actual link failure events.</p>
+            </li>
+            <li class="li">
+               <p class="p">Display the status of the bond:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /proc/net/bonding/bond0</strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-bonding_configuring-and-managing-networking.html">Configuring a network bond</a></div></div></nav></article></main></body></html>

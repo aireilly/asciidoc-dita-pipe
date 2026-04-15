@@ -1,0 +1,120 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>How NetworkManager manages multiple default gateways</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">How NetworkManager manages multiple default gateways</h1>
+   <div class="body conbody">
+      <p class="p">In certain situations, for example for fallback reasons, you set multiple default gateways on a host. However, to avoid asynchronous routing issues, each default gateway of the same protocol requires a separate metric value.</p>
+      <p class="p">Note that RHEL only uses the connection to the default gateway that has the lowest metric set.</p>
+      <p class="p">You can set the metric for both the IPv4 and IPv6 gateway of a connection using the following command:</p>
+      <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">&lt;connection_name&gt;</em> ipv4.route-metric &lt;value&gt; ipv6.route-metric &lt;value&gt;</strong>
+      </code></pre>
+      <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+         <p class="p">Do not set the same metric value for the same protocol in multiple connection profiles to avoid routing issues.</p>
+      </div></div>
+      <p class="p">If you set a default gateway without a metric value, NetworkManager automatically sets the metric value based on the interface type. For that, NetworkManager assigns the default value of this network type to the first connection that is activated, and sets an incremented value to each other connection of the same type in the order they are activated. For example, if two Ethernet connections with a default gateway exist, NetworkManager sets a metric of <code class="ph codeph">100</code> on the route to the default gateway of the connection that you activate first. For the second connection, NetworkManager sets <code class="ph codeph">101</code>.</p>
+      <p class="p">The following is an overview of frequently-used network types and their default metrics:</p>
+      <table class="table frame-all"><caption></caption><colgroup><col style="width:50%"><col style="width:50%"></colgroup><thead class="thead">
+               <tr class="row">
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">Connection type</th>
+                  <th class="entry align-left rowsep-1 valign-top" id="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">Default metric value</th>
+               </tr>
+            </thead><tbody class="tbody">
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">
+                     <p class="p">VPN</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">
+                     <p class="p">50</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">
+                     <p class="p">Ethernet</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">
+                     <p class="p">100</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">
+                     <p class="p">MACsec</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">
+                     <p class="p">125</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">
+                     <p class="p">InfiniBand</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">
+                     <p class="p">150</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">
+                     <p class="p">Bond</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">
+                     <p class="p">300</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">
+                     <p class="p">Team</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">
+                     <p class="p">350</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">
+                     <p class="p">VLAN</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">
+                     <p class="p">400</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">
+                     <p class="p">Bridge</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">
+                     <p class="p">425</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">
+                     <p class="p">TUN</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">
+                     <p class="p">450</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">
+                     <p class="p">Wi-Fi</p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">
+                     <p class="p">600</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__1">
+                     <p class="p">IP tunnel</p>
+                  </td>
+                  <td class="entry align-left valign-top" headers="con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting__entry__2">
+                     <p class="p">675</p>
+                  </td>
+               </tr>
+            </tbody></table>
+      <p class="p">Additional resources</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <a class="xref" href="#proc_configuring-a-static-route-by-using-the-network-rhel-system-role_configuring-static-routes__configuring-policy-based-routing-to-define-alternative-routes_configuring-and-managing-networking">Configuring policy-based routing to define alternative routes</a>
+            </p>
+         </li>
+      </ul>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="managing-the-default-gateway-setting_configuring-and-managing-networking.html">Managing the default gateway setting</a></div></div></nav></article></main></body></html>

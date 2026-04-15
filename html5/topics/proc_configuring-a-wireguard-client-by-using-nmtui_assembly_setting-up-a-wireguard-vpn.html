@@ -1,0 +1,215 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a WireGuard client by using nmtui</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-wireguard-client-by-using-nmtui_assembly_setting-up-a-wireguard-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a WireGuard client by using <code class="ph codeph">nmtui</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You have generated the public and private key for both the server and client.</p>
+            </li>
+            <li class="li">
+               <p class="p">You know the following information:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">The private key of the client</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The static tunnel IP addresses and subnet masks of the client</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The public key of the server</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The static tunnel IP addresses and subnet masks of the server</p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">You installed the <code class="ph codeph">NetworkManager-tui</code> package</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can configure a WireGuard client by creating a connection profile in NetworkManager. Use this method to let NetworkManager manage the WireGuard connection.</p>
+         <p class="p">This procedure assumes the following settings:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Client:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">Private key: <code class="ph codeph">aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A=</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Tunnel IPv4 address: <code class="ph codeph">192.0.2.2/24</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Tunnel IPv6 address: <code class="ph codeph">2001:db8:1::2/32</code>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">Server:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">Public key: <code class="ph codeph">UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Tunnel IPv4 address: <code class="ph codeph">192.0.2.1/24</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Tunnel IPv6 address: <code class="ph codeph">2001:db8:1::1/32</code>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Start the <code class="ph codeph">nmtui</code> application:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmtui</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <strong class="ph b">Edit a connection</strong>, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <span class="ph uicontrol">Add</span>, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the <strong class="ph b">WireGuard</strong> connection type in the list, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">In the <strong class="ph b">Edit connection</strong> window:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Enter the name of the connection and the virtual interface, such as <code class="ph codeph">wg0</code>, that NetworkManager should assign to the connection.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enter the private key of the client.</p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/nmtui-WireGuard-client-general.png" alt="WireGuard client settings in `nmtui`"><br>
+                     </figure>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <span class="ph uicontrol">Add</span> next to the <strong class="ph b">Peers</strong> pane:</p>
+                     <ol class="ol" type="i">
+                        <li class="li">
+                           <p class="p">Enter the public key of the server.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Set the <strong class="ph b">Allowed IPs</strong> field. For example, set it to:</p>
+                           <ul class="ul">
+                              <li class="li">
+                                 <p class="p">The tunnel IP addresses of the server to allow only the server to communicate with this client.</p>
+                              </li>
+                              <li class="li">
+                                 <p class="p">
+                                    <code class="ph codeph">0.0.0.0/0,::/0</code> to allow any remote IPv4 and IPv6 address to communicate with this client. Use this setting to route all traffic through the tunnel and use the WireGuard server as default gateway.</p>
+                              </li>
+                           </ul>
+                        </li>
+                        <li class="li">
+                           <p class="p">Enter the host name or IP address and port of the WireGuard server into the <strong class="ph b">Endpoint</strong> field. Use the following format: <code class="ph codeph">
+                                 <em class="ph i">&lt;hostname_or_IP&gt;</em>:<em class="ph i">&lt;port_number&gt;</em>
+                              </code>
+                           </p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Optional: If you use the client in a network with network address translation (NAT) or if a firewall closes the UDP connection after some time of inactivity, set a persistent keep alive interval in seconds. In this interval, the client sends a keepalive packet to the server.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Select <span class="ph uicontrol">OK</span>, and press <span class="ph">Enter</span>.</p>
+                           <figure class="fig fignone">
+                              <br><img class="image" src="../images/nmtui-WireGuard-client-peer-config.png" alt="WireGuard peer configuration in `nmtui`"><br>
+                           </figure>
+                        </li>
+                     </ol>
+                  </li>
+                  <li class="li">
+                     <p class="p">Select <span class="ph uicontrol">Show</span> next to <strong class="ph b">IPv4 Configuration</strong>, and press <span class="ph">Enter</span>.</p>
+                     <ol class="ol" type="i">
+                        <li class="li">
+                           <p class="p">Select the IPv4 configuration method <strong class="ph b">Manual</strong>.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Enter the tunnel IPv4 address and the subnet mask. Leave the <strong class="ph b">Gateway</strong> field empty.</p>
+                        </li>
+                     </ol>
+                  </li>
+                  <li class="li">
+                     <p class="p">Select <span class="ph uicontrol">Show</span> next to <strong class="ph b">IPv6 Configuration</strong>, and press <span class="ph">Enter</span>.</p>
+                     <ol class="ol" type="i">
+                        <li class="li">
+                           <p class="p">Select the IPv6 configuration method <strong class="ph b">Manual</strong>.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Enter the tunnel IPv6 address and the subnet mask. Leave the <strong class="ph b">Gateway</strong> field empty.</p>
+                        </li>
+                     </ol>
+                  </li>
+                  <li class="li">
+                     <p class="p">Optional: Select <strong class="ph b">Automatically connect</strong>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Select <span class="ph uicontrol">OK</span>, and press <span class="ph">Enter</span>
+                     </p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/nmtui-WireGuard-client-ip-config.png" alt="WireGuard client IP address settings in `nmtui`"><br>
+                     </figure>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">In the window with the list of connections, select <span class="ph uicontrol">Back</span>, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">In the <strong class="ph b">NetworkManager TUI</strong> main window, select <span class="ph uicontrol">Quit</span>, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <a class="xref" href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</a>.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Ping the IP addresses of the server:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ping 192.0.2.1</strong>
+# <strong class="ph b">ping6 2001:db8:1::1</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the interface configuration of the <code class="ph codeph">wg0</code> device:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">wg show wg0</strong>
+interface: wg0
+  public key: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  private key: (hidden)
+  listening port: 51820
+
+peer: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  endpoint: server.example.com:51820_
+  allowed ips: 192.0.2.1/32, 2001:db8:1::1/128
+  latest handshake: 1 minute, 41 seconds ago
+  transfer: 824 B received, 1.01 KiB sent
+  persistent keepalive: every 20 seconds</code></pre>
+               <p class="p">To display the private key in the output, use the <code class="ph codeph">WG_HIDE_KEYS=never wg show wg0</code> command.</p>
+               <p class="p">Note that the output contains only the <code class="ph codeph">latest handshake</code> and <code class="ph codeph">transfer</code> entries if you have already sent traffic through the VPN tunnel.</p>
+            </li>
+            <li class="li">
+               <p class="p">Display the IP configuration of the <code class="ph codeph">wg0</code> device:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip address show wg0</strong>
+10: wg0: &lt;POINTOPOINT,NOARP,UP,LOWER_UP&gt; mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.2/24 brd 192.0.2.255 scope global noprefixroute wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::2/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::73d9:6f51:ea6f:863e/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever</code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-a-wireguard-vpn_configuring-and-managing-networking.html">Setting up a WireGuard VPN</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Displaying TCP connections added to the Kernel’s accept queue</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="displaying-tcp-connections-added-to-the-kernels-accept-queue_network-tracing-using-the-bpf-compiler-collection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Displaying TCP connections added to the Kernel’s accept queue</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">By using the <code class="ph codeph">tcpaccept</code> utility, you can monitor newly accepted connections by tracing the kernel’s <code class="ph codeph">accept()</code> function.</p>
+         <p class="p">After the kernel receives the <code class="ph codeph">ACK</code> packet in a TCP 3-way handshake, the kernel moves the connection from the <code class="ph codeph">SYN</code> queue to the <code class="ph codeph">accept</code> queue after the connection’s state changes to <code class="ph codeph">ESTABLISHED</code>. Therefore, only successful TCP connections are visible in this queue.</p>
+         <p class="p">The <code class="ph codeph">tcpaccept</code> utility uses eBPF features to display all connections the kernel adds to the <code class="ph codeph">accept</code> queue. The utility is lightweight because it traces the <code class="ph codeph">accept()</code> function of the kernel instead of capturing packets and filtering them. For example, use <code class="ph codeph">tcpaccept</code> for general troubleshooting to display new connections the server has accepted.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Enter the following command to start the tracing the kernel <code class="ph codeph">accept</code> queue:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">/usr/share/bcc/tools/tcpaccept</strong>
+PID   COMM      IP RADDR         RPORT  LADDR    LPORT
+843   sshd      4  192.0.2.17    50598  192.0.2.1  22
+1107  ns-slapd  4  198.51.100.6  38772  192.0.2.1  389
+1107  ns-slapd  4  203.0.113.85  38774  192.0.2.1  389
+...</code></pre>
+               <p class="p">Each time the kernel accepts a connection, <code class="ph codeph">tcpaccept</code> displays the details of the connections.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press <span class="ph">Ctrl</span>+<span class="ph">C</span> to stop the tracing process.</span>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="network-tracing-using-the-bpf-compiler-collection_configuring-and-managing-networking.html">Network tracing using the BPF compiler collection</a></div></div></nav></article></main></body></html>

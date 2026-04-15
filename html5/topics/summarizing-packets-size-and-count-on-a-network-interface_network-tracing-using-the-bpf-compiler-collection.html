@@ -1,0 +1,60 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Summarizing packets size and count on a network interface</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="summarizing-packets-size-and-count-on-a-network-interface_network-tracing-using-the-bpf-compiler-collection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Summarizing packets size and count on a network interface</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">The <code class="ph codeph">netqtop</code> utility displays statistics about the attributes of received (RX) and transmitted (TX) packets on each network queue of a particular network interface.</p>
+         <p class="p">The statistics include:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Bytes per second (BPS)</p>
+            </li>
+            <li class="li">
+               <p class="p">Packets per second (PPS)</p>
+            </li>
+            <li class="li">
+               <p class="p">The average packet size</p>
+            </li>
+            <li class="li">
+               <p class="p">Total number of packets</p>
+            </li>
+         </ul>
+         <p class="p">To generate these statistics, <code class="ph codeph">netqtop</code> traces the kernel functions that perform events of transmitted packets <code class="ph codeph">net_dev_start_xmit</code> and received packets <code class="ph codeph">netif_receive_skb</code>.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Display the number of packets within the range of bytes size of the time interval of <code class="ph codeph">2</code> seconds:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">/usr/share/bcc/tools/netqtop -n enp1s0 -i 2</strong>
+
+Fri Jan 31 18:08:55 2023
+TX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	0      	0      	0      	0      	0      	0
+ Total  	0      	0      	0      	0      	0      	0
+
+RX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	38.0   	1      	0      	0      	0      	0
+ Total  	38.0   	1      	0      	0      	0      	0
+-----------------------------------------------------------------------------
+Fri Jan 31 18:08:57 2023
+TX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	0      	0      	0      	0      	0      	0
+ Total  	0      	0      	0      	0      	0      	0
+
+RX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	38.0   	1      	0      	0      	0      	0
+ Total  	38.0   	1      	0      	0      	0      	0
+-----------------------------------------------------------------------------</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press <span class="ph">
+                  <span class="ph">Ctrl</span>
+                  <span class="ph">C</span>
+               </span> to stop <code class="ph codeph">netqtop</code>.</span>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="network-tracing-using-the-bpf-compiler-collection_configuring-and-managing-networking.html">Network tracing using the BPF compiler collection</a></div></div></nav></article></main></body></html>

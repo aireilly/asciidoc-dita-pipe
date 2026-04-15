@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="ref_xmit-hash-policy-bonding-parameter_configuring-network-bonding">
+   <title>The xmit_hash_policy bonding parameter</title>
+   <refbody>
+      <section>
+         <p>The <codeph>xmit_hash_policy</codeph> load balancing parameter selects the transmit hash policy for a node selection in the <codeph>balance-xor</codeph>, <codeph>802.3ad</codeph>, <codeph>balance-alb</codeph>, and <codeph>balance-tlb</codeph> modes. It is only applicable to mode 5 and 6 if the <codeph>tlb_dynamic_lb</codeph> parameter is 0.</p>
+         <p>The possible values of <codeph>tlb_dynamic_lb</codeph> are <codeph>layer2</codeph>, <codeph>layer2+3</codeph>, <codeph>layer3+4</codeph>, <codeph>encap2+3</codeph>, <codeph>encap3+4</codeph>, and <codeph>vlan+srcmac</codeph>.</p>
+         <p>Refer the table for details:</p>
+      </section>
+      <table colsep="1" rowsep="1" frame="all">
+         <tgroup cols="7">
+            <colspec colname="col_1" colwidth="14.2857*"/>
+            <colspec colname="col_2" colwidth="14.2857*"/>
+            <colspec colname="col_3" colwidth="14.2857*"/>
+            <colspec colname="col_4" colwidth="14.2857*"/>
+            <colspec colname="col_5" colwidth="14.2857*"/>
+            <colspec colname="col_6" colwidth="14.2857*"/>
+            <colspec colname="col_7" colwidth="14.2858*"/>
+            <tbody>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>Policy or Network layers</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>Layer2</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>Layer2+3</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>Layer3+4</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>encap2+3</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>encap3+4</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>VLAN+srcmac</b>
+                     </p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>Uses</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>XOR of source and destination MAC addresses and Ethernet protocol type</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>XOR of source and destination MAC addresses and IP addresses</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>XOR of source and destination ports and IP addresses</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>XOR of source and destination MAC addresses and IP addresses inside a supported tunnel, for example, Virtual Extensible LAN (VXLAN). This mode relies on <codeph>skb_flow_dissect()</codeph> function to obtain the header fields</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>XOR of source and destination ports and IP addresses inside a supported tunnel, for example, VXLAN. This mode relies on <codeph>skb_flow_dissect()</codeph> function to obtain the header fields</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>XOR of VLAN ID and source MAC vendor and source MAC device</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>Placement of traffic</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>All traffic to a particular network peer on the same underlying network interface</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>All traffic to a particular IP address on the same underlying network interface</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>All traffic to a particular IP address and port on the same underlying network interface</p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+                  <entry align="left" valign="top"/>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>Primary choice</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>If network traffic is between this system and multiple other systems in the same broadcast domain</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>If network traffic between this system and multiple other systems goes through a default gateway</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>If network traffic between this system and another system uses the same IP addresses but goes through multiple ports</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>The encapsulated traffic is between the source system and multiple other systems using multiple IP addresses</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>The encapsulated traffic is between the source system and other systems using multiple port numbers</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>If the bond carries network traffic, from multiple containers or virtual machines (VM), that expose their MAC address directly to the external network such as the bridge network, and you cannot configure a switch for Mode 2 or Mode 4</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>Secondary choice</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>If network traffic is mostly between this system and multiple other systems behind a default gateway</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>If network traffic is mostly between this system and another system</p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+                  <entry align="left" valign="top"/>
+                  <entry align="left" valign="top"/>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>Compliant</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>802.3ad</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>802.3ad</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Not 802.3ad</p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+                  <entry align="left" valign="top"/>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <b>Default policy</b>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>This is the default policy if no configuration is provided</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>For non-IP traffic, the formula is the same as for the <codeph>layer2</codeph> transmit policy</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>For non-IP traffic, the formula is the same as for the <codeph>layer2</codeph> transmit policy</p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+                  <entry align="left" valign="top"/>
+                  <entry align="left" valign="top"/>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+   </refbody>
+</reference>

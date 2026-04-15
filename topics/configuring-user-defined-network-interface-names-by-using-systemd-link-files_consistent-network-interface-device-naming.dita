@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-user-defined-network-interface-names-by-using-systemd-link-files_consistent-network-interface-device-naming">
+   <title>Configuring user-defined network interface names by using systemd link files</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You must meet one of these conditions: NetworkManager does not manage this interface, or the corresponding connection profile uses the <xref href="#assembly_networkmanager-connection-profiles-in-keyfile-format_configuring-and-managing-networking">keyfile format</xref>.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use <codeph>systemd</codeph> link files to implement custom network interface names that reflect your organization’s requirements.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Identify the network interface that you want to rename:</cmd>
+            <info>
+               <codeblock># <b>ip link show</b>
+...
+enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...</codeblock>
+               <p>Record the MAC address of the interface.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>If it does not already exist, create the <codeph>/etc/systemd/network/</codeph> directory:</cmd>
+            <info>
+               <codeblock># <b>mkdir -p /etc/systemd/network/</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>For each interface that you want to rename, create a <codeph>70-*.link</codeph> file in the <codeph>/etc/systemd/network/</codeph> directory with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-console">[Match]
+MACAddress=<i>&lt;MAC_address&gt;</i>
+
+[Link]
+Name=<i>&lt;new_interface_name&gt;</i>
+               </codeblock>
+               <note type="important">
+                  <p>Use a file name with a <codeph>70-</codeph> prefix to keep the file names consistent with the <codeph>udev</codeph> rules-based solution.</p>
+               </note>
+               <p>For example, create the <codeph>/etc/systemd/network/70-provider0.link</codeph> file with the following content to rename the interface with MAC address <codeph>00:00:5e:00:53:1a</codeph> to <codeph>provider0</codeph>:</p>
+               <codeblock outputclass="language-console">[Match]
+MACAddress=00:00:5e:00:53:1a
+
+[Link]
+Name=provider0</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Regenerate the <codeph>initrd</codeph> RAM disk image:</cmd>
+            <info>
+               <codeblock># <b>dracut -f</b>
+               </codeblock>
+               <p>You require this step only if you need networking capabilities in the RAM disk. For example, this is the case if the root file system is stored on a network device, such as iSCSI.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Identify which NetworkManager connection profile uses the interface that you want to rename:</cmd>
+            <info>
+               <codeblock># <b>nmcli -f device,name connection show</b>
+DEVICE  NAME
+enp1s0  example_profile
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Unset the <codeph>connection.interface-name</codeph> property in the connection profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify example_profile connection.interface-name ""</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Temporarily, configure the connection profile to match both the new and the previous interface name:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify example_profile match.interface-name "provider0 enp1s0"</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Reboot the system:</cmd>
+            <info>
+               <codeblock># <b>reboot</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Verify that the device with the MAC address that you specified in the link file has been renamed to <codeph>provider0</codeph>:</cmd>
+            <info>
+               <codeblock># <b>ip link show</b>
+provider0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the connection profile to match only the new interface name:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify example_profile match.interface-name "provider0"</b>
+               </codeblock>
+               <p>You have now removed the old interface name from the connection profile.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Reactivate the connection profile.</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up example_profile</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

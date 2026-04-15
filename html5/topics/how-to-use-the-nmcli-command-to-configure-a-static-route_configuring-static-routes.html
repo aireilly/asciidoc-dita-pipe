@@ -1,0 +1,85 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>How to use the nmcli utility to configure a static route</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="how-to-use-the-nmcli-command-to-configure-a-static-route_configuring-static-routes"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">How to use the <code class="ph codeph">nmcli</code> utility to configure a static route</h1>
+   <div class="body conbody">
+      <p class="p">You can use the <code class="ph codeph">nmcli</code> utility to configure a static route on the command line.</p>
+      <p class="p">Use following syntax:</p>
+      <pre class="pre codeblock"><code>$ <strong class="ph b">nmcli connection modify <em class="ph i">connection_name</em> ipv4.routes "<em class="ph i">ip</em>[/<em class="ph i">prefix</em>] [<em class="ph i">next_hop</em>] [<em class="ph i">metric</em>] [<em class="ph i">attribute</em>=<em class="ph i">value</em>] [<em class="ph i">attribute</em>=<em class="ph i">value</em>] ..."</strong>
+      </code></pre>
+      <p class="p">The command supports the following route attributes:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">cwnd=<em class="ph i">n</em>
+               </code>: Sets the congestion window (CWND) size, defined in the number of packets.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">lock-cwnd=true|false</code>: Defines whether or not the kernel can update the CWND value.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">lock-mtu=true|false</code>: Defines whether or not the kernel can update the MTU to path MTU discovery.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">lock-window=true|false</code>: Defines whether or not the kernel can update the maximum window size for TCP packets.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">mtu=<em class="ph i">&lt;mtu_value&gt;</em>
+               </code>: Sets the maximum transfer unit (MTU) to use along the path to the destination.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">onlink=true|false</code>: Defines whether the next hop is directly attached to this link even if it does not match any interface prefix.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">scope=<em class="ph i">&lt;scope&gt;</em>
+               </code>: For an IPv4 route, this attribute sets the scope of the destinations covered by the route prefix. Set the value as an integer (0-255).</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">src=<em class="ph i">&lt;source_address&gt;</em>
+               </code>: Sets the source address to prefer when sending traffic to the destinations covered by the route prefix.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">table=<em class="ph i">&lt;table_id&gt;</em>
+               </code>: Sets the ID of the table the route should be added to. If you omit this parameter, NetworkManager uses the <code class="ph codeph">main</code> table.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">tos=<em class="ph i">&lt;type_of_service_key&gt;</em>
+               </code>: Sets the type of service (TOS) key. Set the value as an integer (0-255).</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">type=<em class="ph i">&lt;route_type&gt;</em>
+               </code>: Sets the route type. NetworkManager supports the <code class="ph codeph">unicast</code>, <code class="ph codeph">local</code>, <code class="ph codeph">blackhole</code>, <code class="ph codeph">unreachable</code>, <code class="ph codeph">prohibit</code>, and <code class="ph codeph">throw</code> route types. The default is <code class="ph codeph">unicast</code>.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">window=<em class="ph i">&lt;window_size&gt;</em>
+               </code>: Sets the maximal window size for TCP to advertise to these destinations, measured in bytes.</p>
+         </li>
+      </ul>
+      <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+         <p class="p">If you use the <code class="ph codeph">ipv4.routes</code> option without a preceding <code class="ph codeph">+</code> sign, <code class="ph codeph">nmcli</code> overrides all current settings of this parameter.</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">To create an additional route, enter:</p>
+               <pre class="pre codeblock"><code>$ <strong class="ph b">nmcli connection modify <em class="ph i">connection_name</em> +ipv4.routes "<em class="ph i">&lt;route&gt;</em>"</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">To remove a specific route, enter:</p>
+               <pre class="pre codeblock"><code>$ <strong class="ph b">nmcli connection modify <em class="ph i">connection_name</em> -ipv4.routes "<em class="ph i">&lt;route&gt;</em>"</strong>
+               </code></pre>
+            </li>
+         </ul>
+      </div></div>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-static-routes_configuring-and-managing-networking.html">Configuring a static route</a></div></div></nav></article></main></body></html>

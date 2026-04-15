@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Creating a dummy interface</title>
+   <topicref href="../topics/creating-a-dummy-interface_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/creating-a-dummy-interface-with-both-an-ipv4-and-ipv6-address-using-nmcli_creating-a-dummy-interface.dita"/>
+</map>

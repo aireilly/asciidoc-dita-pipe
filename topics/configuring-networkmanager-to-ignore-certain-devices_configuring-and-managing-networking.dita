@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="configuring-networkmanager-to-ignore-certain-devices_configuring-and-managing-networking">
+   <title>Configuring NetworkManager to ignore certain devices</title>
+   <body>
+      <p>By default, NetworkManager manages all devices except the ones described in the <codeph>/usr/lib/udev/rules.d/85-nm-unmanaged.rules</codeph> file. To ignore certain other devices, you can configure them in NetworkManager as <codeph>unmanaged</codeph>.</p>
+   </body>
+</topic>

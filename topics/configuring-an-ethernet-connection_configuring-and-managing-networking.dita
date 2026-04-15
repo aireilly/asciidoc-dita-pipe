@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="configuring-an-ethernet-connection_configuring-and-managing-networking">
+   <title>Configuring an Ethernet connection</title>
+   <body>
+      <p>NetworkManager creates a connection profile for each Ethernet adapter that is installed in a host. By default, this profile uses DHCP for both IPv4 and IPv6 connections.</p>
+      <p>Modify this automatically-created profile or add a new one in the following cases:</p>
+      <ul>
+         <li>
+            <p>The network requires custom settings, such as a static IP address configuration.</p>
+         </li>
+         <li>
+            <p>You require multiple profiles because the host roams among different networks.</p>
+         </li>
+      </ul>
+      <p>Red Hat Enterprise Linux provides administrators different options to configure Ethernet connections. For example:</p>
+      <ul>
+         <li>
+            <p>Use <codeph>nmcli</codeph> to configure connections on the command line.</p>
+         </li>
+         <li>
+            <p>Use <codeph>nmtui</codeph> to configure connections in a text-based user interface.</p>
+         </li>
+         <li>
+            <p>Use the GNOME Settings menu or <codeph>nm-connection-editor</codeph> application to configure connections in a graphical interface.</p>
+         </li>
+         <li>
+            <p>Use <codeph>nmstatectl</codeph> to configure connections through the <codeph>nmstate</codeph> API.</p>
+         </li>
+         <li>
+            <p>Use RHEL system roles to automate the configuration of connections on one or multiple hosts.</p>
+         </li>
+      </ul>
+      <note>
+         <p>If you want to manually configure Ethernet connections on hosts running in the Microsoft Azure cloud, disable the <codeph>cloud-init</codeph> service or configure it to ignore the network settings retrieved from the cloud environment. Otherwise, <codeph>cloud-init</codeph> will override on the next reboot the network settings that you have manually configured.</p>
+      </note>
+   </body>
+</topic>

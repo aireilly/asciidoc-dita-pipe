@@ -1,0 +1,46 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring IP tunnels</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-ip-tunnels_configuring-and-managing-networking"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring IP tunnels</h1>
+   <div class="body">
+      <p class="p">Similar to a VPN, an IP tunnel directly connects two networks over a third network, such as the internet. However, not all tunnel protocols support encryption.</p>
+      <p class="p">The routers in both networks that establish the tunnel requires at least two interfaces:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">One interface that is connected to the local network</p>
+         </li>
+         <li class="li">
+            <p class="p">One interface that is connected to the network through which the tunnel is established.</p>
+         </li>
+      </ul>
+      <p class="p">To establish the tunnel, you create a virtual interface on both routers with an IP address from the remote subnet.</p>
+      <p class="p">NetworkManager supports the following IP tunnels:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">Generic Routing Encapsulation (GRE)</p>
+         </li>
+         <li class="li">
+            <p class="p">Generic Routing Encapsulation over IPv6 (IP6GRE)</p>
+         </li>
+         <li class="li">
+            <p class="p">Generic Routing Encapsulation Terminal Access Point (GRETAP)</p>
+         </li>
+         <li class="li">
+            <p class="p">Generic Routing Encapsulation Terminal Access Point over IPv6 (IP6GRETAP)</p>
+         </li>
+         <li class="li">
+            <p class="p">IPv4 over IPv4 (IPIP)</p>
+         </li>
+         <li class="li">
+            <p class="p">IPv4 over IPv6 (IPIP6)</p>
+         </li>
+         <li class="li">
+            <p class="p">IPv6 over IPv6 (IP6IP6)</p>
+         </li>
+         <li class="li">
+            <p class="p">Simple Internet Transition (SIT)</p>
+         </li>
+      </ul>
+      <p class="p">Depending on the type, these tunnels act either on layer 2 or 3 of the Open Systems Interconnection (OSI) model.</p>
+   </div>
+<nav role="navigation" class="related-links"><ul class="ullinks"><li class="link ulchildlink"><strong><a href="configuring-an-ipip-tunnel-using-nmcli-to-encapsulate--ipv4-traffic-in-ipv4-packets_configuring-ip-tunnels.html">Configuring an IPIP tunnel to encapsulate IPv4 traffic in IPv4 packets</a></strong><br></li><li class="link ulchildlink"><strong><a href="configuring-a-gre-tunnel-using-nmcli-to-encapsulate-layer-3-traffic-in-ipv4-packets_configuring-ip-tunnels.html">Configuring a GRE tunnel to encapsulate layer-3 traffic in IPv4 packets</a></strong><br></li><li class="link ulchildlink"><strong><a href="configuring-a-gretap-tunnel-to-transfer-ethernet-frames-over-ipv4_configuring-ip-tunnels.html">Configuring a GRETAP tunnel to transfer Ethernet frames over IPv4</a></strong><br></li></ul></nav></article></main></body></html>

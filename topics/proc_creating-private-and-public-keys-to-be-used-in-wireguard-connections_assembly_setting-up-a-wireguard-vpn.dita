@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_creating-private-and-public-keys-to-be-used-in-wireguard-connections_assembly_setting-up-a-wireguard-vpn">
+   <title>Creating private and public keys to be used in WireGuard connections</title>
+   <taskbody>
+      <context>
+         <p>WireGuard uses base64-encoded private and public keys to authenticate hosts to each other. Therefore, you must create the keys on each host that participates in the WireGuard VPN.</p>
+         <note type="important">
+            <p>For secure connections, create different keys for each host, and ensure that you only share the public key with the remote WireGuard host. Do not use the example keys used in this documentation.</p>
+         </note>
+         <p>If you plan to use the RHEL web console to create a WireGuard VPN connection, you can, alternatively, generate the public and private key pairs in the web console.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Install the <codeph>wireguard-tools</codeph> package:</cmd>
+            <info>
+               <codeblock># <b>dnf install wireguard-tools</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Create a private key and a corresponding public key for the host:</cmd>
+            <info>
+               <codeblock># <b>wg genkey | tee /etc/wireguard/$HOSTNAME.private.key | wg pubkey &gt; /etc/wireguard/$HOSTNAME.public.key</b>
+               </codeblock>
+               <p>You will need the content of the key files, but not the files themselves. However, Red Hat recommends keeping the files in case that you need to remember the keys in future.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Set secure permissions on the key files:</cmd>
+            <info>
+               <codeblock># <b>chmod 600 /etc/wireguard/$HOSTNAME.private.key /etc/wireguard/$HOSTNAME.public.key</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Display the private key:</cmd>
+            <info>
+               <codeblock># <b>cat /etc/wireguard/$HOSTNAME.private.key</b>
+YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg=</codeblock>
+               <p>You will need the private key to configure the WireGuard connection on the local host. Do not share the private key.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Display the public key:</cmd>
+            <info>
+               <codeblock># <b>cat /etc/wireguard/$HOSTNAME.public.key</b>
+UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=</codeblock>
+               <p>You will need the public key to configure the WireGuard connection on the remote host.</p>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

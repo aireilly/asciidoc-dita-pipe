@@ -1,0 +1,20 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Firewall-related problems</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="firewall-related-problems"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Firewall-related problems</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">Diagnose IPsec connection failures caused by firewall-related problems.</p>
+         <p class="p">If a firewall on an endpoint or an intermediate route drops Internet Key Exchange version 2 (IKEv2) packets, the <code class="ph codeph">ipsec auto --up</code> command times out and shows repeated <em class="ph i">retransmission</em> messages:</p>
+         <pre class="pre codeblock language-text"><code>181 "vpn.example.com"[1] 192.0.2.2 #15: initiating IKEv2 IKE SA
+181 "vpn.example.com"[1] 192.0.2.2 #15: STATE_PARENT_I1: sent v2I1, expected v2R1
+010 "vpn.example.com"[1] 192.0.2.2 #15: STATE_PARENT_I1: retransmission; will wait 0.5 seconds for response
+010 "vpn.example.com"[1] 192.0.2.2 #15: STATE_PARENT_I1: retransmission; will wait 1 seconds for response
+010 "vpn.example.com"[1] 192.0.2.2 #15: STATE_PARENT_I1: retransmission; will wait 2 seconds for response
+...</code></pre>
+         <p class="p">You can use the <code class="ph codeph">tcpdump</code> utility to capture traffic and verify if IKE or IPsec packets are dropped by a firewall, for example:</p>
+         <pre class="pre codeblock"><code># tcpdump -i <em class="ph i">&lt;interface&gt;</em> -n -n esp or udp port 500 or udp port 4500 or tcp port 4500</code></pre>
+         <p class="p">Note that <code class="ph codeph">tcpdump</code> is of limited use for diagnosing other types of IPsec problems because the IKE protocol is encrypted.</p>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="troubleshooting-ipsec-configurations_setting-up-an-ipsec-vpn.html">Troubleshooting IPsec configurations</a></div></div></nav></article></main></body></html>

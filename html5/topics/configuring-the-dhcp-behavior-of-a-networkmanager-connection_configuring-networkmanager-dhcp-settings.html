@@ -1,0 +1,66 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring the DHCP timeout behavior of a NetworkManager connection</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-the-dhcp-behavior-of-a-networkmanager-connection_configuring-networkmanager-dhcp-settings"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring the DHCP timeout behavior of a NetworkManager connection</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A connection that uses DHCP is configured on the host.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">In a connection profile that uses DHCP, NetworkManager waits, by default, 45 seconds for the DHCP request to complete. You can customize timeout-related settings, to adjust the connection profile to your environment.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Set the <code class="ph codeph">ipv4.dhcp-timeout</code> and <code class="ph codeph">ipv6.dhcp-timeout</code> properties. For example, to set both options to <code class="ph codeph">30</code> seconds, enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">&lt;connection_name&gt;</em> ipv4.dhcp-timeout 30 ipv6.dhcp-timeout 30</strong>
+               </code></pre>
+               <p class="p">Alternatively, set the parameters to <code class="ph codeph">infinity</code> to configure that NetworkManager does not stop trying to request and renew an IP address until it is successful.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Configure the behavior if NetworkManager does not receive an IPv4 address before the timeout:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">&lt;connection_name&gt;</em> ipv4.may-fail <em class="ph i">&lt;value&gt;</em>
+                  </strong>
+               </code></pre>
+               <p class="p">If you set the <code class="ph codeph">ipv4.may-fail</code> option to:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">yes</code>, the status of the connection depends on the IPv6 configuration:</p>
+                     <ul class="ul">
+                        <li class="li">
+                           <p class="p">If the IPv6 configuration is enabled and successful, NetworkManager activates the IPv6 connection and no longer tries to activate the IPv4 connection.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">If the IPv6 configuration is disabled or not configured, the connection fails.</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">no</code>, the connection is deactivated. In this case:</p>
+                     <ul class="ul">
+                        <li class="li">
+                           <p class="p">If the <code class="ph codeph">autoconnect</code> property of the connection is enabled, NetworkManager retries to activate the connection as many times as set in the <code class="ph codeph">autoconnect-retries</code> property. The default is <code class="ph codeph">4</code>.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">If the connection still cannot acquire a DHCP address, auto-activation fails. Note that after 5 minutes, the auto-connection process starts again to acquire an IP address from the DHCP server.</p>
+                        </li>
+                     </ul>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Configure the behavior if NetworkManager does not receive an IPv6 address before the timeout:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">&lt;connection_name&gt;</em> ipv6.may-fail <em class="ph i">&lt;value&gt;</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-networkmanager-dhcp-settings_configuring-and-managing-networking.html">Configuring NetworkManager DHCP settings</a></div></div></nav></article></main></body></html>

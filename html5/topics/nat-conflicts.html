@@ -1,0 +1,20 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>NAT conflicts</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="nat-conflicts"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">NAT conflicts</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">Resolve NAT conflicts that occur when an IPsec host also acts as a NAT router. Incorrect NAT application can translate source IP addresses before encryption, causing packets to be sent unencrypted over the network.</p>
+         <p class="p">For example, if the source IP address of the packet is translated by a masquerade rule before IPsec encryption is applied, the packet’s source no longer matches the IPsec policy, and Libreswan sends it unencrypted over the network.</p>
+         <p class="p">To solve this problem, add a firewall rule that excludes traffic between the IPsec subnets from NAT. This rule should be inserted at the beginning of the <code class="ph codeph">POSTROUTING</code> chain to ensure it is processed before the general NAT rule.</p>
+      </section>
+      <div class="example"><h2 class="title sectiontitle">Solution by using the <code class="ph codeph">nftables</code> framework</h2>
+         
+         <p class="p">The following example uses <code class="ph codeph">nftables</code> to set up a basic NAT environment that excludes traffic between the 192.0.2.0/24 and 198.51.100.0/24 subnets from address translation:</p>
+         <pre class="pre codeblock"><code># <strong class="ph b">nft add table ip nat</strong>
+# <strong class="ph b">nft add chain ip nat postrouting { type nat hook postrouting priority 100 \; }</strong>
+# <strong class="ph b">nft add rule ip nat postrouting ip saddr 192.0.2.0/24 ip daddr 198.51.100.0/24 return</strong>
+         </code></pre>
+      </div>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="troubleshooting-ipsec-configurations_setting-up-an-ipsec-vpn.html">Troubleshooting IPsec configurations</a></div></div></nav></article></main></body></html>

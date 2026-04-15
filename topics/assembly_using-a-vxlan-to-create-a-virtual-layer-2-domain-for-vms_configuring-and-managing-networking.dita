@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms_configuring-and-managing-networking">
+   <title>Using a VXLAN to create a virtual layer-2 domain for VMs</title>
+   <body>
+      <p>A virtual extensible LAN (VXLAN) is a networking protocol that tunnels layer-2 traffic over an IP network using the UDP protocol. For example, certain virtual machines (VMs) that are running on different hosts can communicate over a VXLAN tunnel. The hosts can be in different subnets or even in different data centers around the world. From the perspective of the VMs, other VMs in the same VXLAN are within the same layer-2 domain:</p>
+      <fig>
+         <image href="../images/vxlan-tunnel.png" placement="break">
+            <alt>Using a VXLAN to create a virtual layer-2 domain for VMs.</alt>
+         </image>
+      </fig>
+      <p>In this example, RHEL-host-A and RHEL-host-B use a bridge, <codeph>br0</codeph>, to connect the virtual network of a VM on each host with a VXLAN named <codeph>vxlan10</codeph>. Due to this configuration, the VXLAN is invisible to the VMs, and the VMs do not require any special configuration. If you later connect more VMs to the same virtual network, the VMs are automatically members of the same virtual layer-2 domain.</p>
+      <note type="important">
+         <p>Just as normal layer-2 traffic, data in a VXLAN is not encrypted. For security reasons, use a VXLAN over a VPN or other types of encrypted connections.</p>
+      </note>
+   </body>
+</topic>

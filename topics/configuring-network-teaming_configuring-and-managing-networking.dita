@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="configuring-network-teaming_configuring-and-managing-networking">
+   <title>Configuring a NIC team</title>
+   <body>
+      <p>Network interface controller (NIC) teaming is a method to combine or aggregate physical and virtual network interfaces to provide a logical interface with higher throughput or redundancy. NIC teaming uses a small kernel module to implement fast handling of packet flows and a user-space service for other tasks. This way, NIC teaming is an easily extensible and scalable solution for load-balancing and redundancy requirements.</p>
+      <p>Red Hat Enterprise Linux provides administrators different options to configure team devices. For example:</p>
+      <ul>
+         <li>
+            <p>Use <codeph>nmcli</codeph> to configure teams connections using the command line.</p>
+         </li>
+         <li>
+            <p>Use the RHEL web console to configure team connections using a web browser.</p>
+         </li>
+         <li>
+            <p>Use the <codeph>nm-connection-editor</codeph> application to configure team connections in a graphical interface.</p>
+         </li>
+      </ul>
+      <note type="important">
+         <p>NIC teaming is deprecated in Red Hat Enterprise Linux 9. Consider using the network bonding driver as an alternative. For details, see
+<xref href="#configuring-network-bonding_configuring-and-managing-networking">Configuring a network bond</xref>.</p>
+      </note>
+   </body>
+</topic>

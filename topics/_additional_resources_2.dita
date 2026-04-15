@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="_additional_resources_2">
+   <title>Additional resources</title>
+   <body>
+      <ul>
+         <li>
+            <p>
+               <xref href="https://access.redhat.com/articles/3538141"
+                     format="html"
+                     scope="external">Network Adapter Fast Datapath Feature Support Matrix</xref>
+            </p>
+         </li>
+      </ul>
+   </body>
+</topic>

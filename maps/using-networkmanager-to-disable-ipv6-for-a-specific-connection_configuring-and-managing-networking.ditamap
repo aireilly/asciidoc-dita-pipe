@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Using NetworkManager to disable IPv6 for a specific connection</title>
+   <topicref href="../topics/using-networkmanager-to-disable-ipv6-for-a-specific-connection_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/disabling-ipv6-on-a-connection-using-nmcli_using-networkmanager-to-disable-ipv6-for-a-specific-connection.dita"/>
+</map>

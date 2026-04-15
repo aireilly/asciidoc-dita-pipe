@@ -1,0 +1,130 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring nested VLANs by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-nested-vlans-using-nmcli-commands_configuring-vlan-tagging"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring nested VLANs by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The interface you plan to use as a parent to the virtual VLAN interface supports VLAN tags.</p>
+            </li>
+            <li class="li">
+               <p class="p">If you configure the VLAN on top of a bond interface:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">The ports of the bond are up.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The bond is not configured with the <code class="ph codeph">fail_over_mac=follow</code> option. A VLAN virtual device cannot change its MAC address to match the parent’s new MAC address. In such a case, the traffic would still be sent with the incorrect source MAC address.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The bond is usually not expected to get IP addresses from a DHCP server or IPv6 auto-configuration. Ensure it by setting the <code class="ph codeph">ipv4.method=disable</code> and <code class="ph codeph">ipv6.method=ignore</code> options while creating the bond. Otherwise, if DHCP or IPv6 auto-configuration fails after some time, the interface might be brought down.</p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">The switch, the host is connected to, is configured to support VLAN tags. For details, see the documentation of your switch.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">802.1ad is a protocol used for Virtual Local Area Network (VLAN) tagging. It is also known as Q-in-Q tagging. You can use this technology to create multiple VLAN tags within a single Ethernet frame.</p>
+         <p class="p">Benefits of multiple VLAN tags within a single Ethernet frame:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Increased network scalability by creating multiple isolated network segments within a VLAN. This enables you to segment and organize large networks into smaller, manageable units.</p>
+            </li>
+            <li class="li">
+               <p class="p">Improved traffic management by isolating and controlling different types of network traffic. This can improve the network performance and reduce network congestion.</p>
+            </li>
+            <li class="li">
+               <p class="p">Efficient resource utilization by enabling the creation of smaller, more targeted network segments.</p>
+            </li>
+            <li class="li">
+               <p class="p">Enhanced security by isolating network traffic and reducing the risk of unauthorized access to sensitive data.</p>
+            </li>
+         </ul>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Display the physical network devices:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device status</strong>
+DEVICE   TYPE      STATE         CONNECTION
+enp1s0  ethernet  connected      enp1s0
+...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the base VLAN interface. For example, to create a base VLAN interface named <code class="ph codeph">vlan10</code> that uses <code class="ph codeph">enp1s0</code> as its parent interface and that tags packets with VLAN ID <code class="ph codeph">10</code>, enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type vlan con-name vlan10 dev enp1s0 vlan.id 10</strong>
+               </code></pre>
+               <p class="p">Note that the VLAN must be within the range from <code class="ph codeph">0</code> to <code class="ph codeph">4094</code>.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">By default, the VLAN connection inherits the maximum transmission unit (MTU) from the parent interface. Optionally, set a different MTU value:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify vlan10 ethernet.mtu 2000</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the nested VLAN interface on top of the base VLAN interface:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type vlan con-name vlan10.20 dev enp1s0.10 id 20 vlan.protocol 802.1ad</strong>
+               </code></pre>
+               <p class="p">This command creates a new VLAN connection with a name of <code class="ph codeph">vlan10.20</code> and a VLAN ID of <code class="ph codeph">20</code> on the parent VLAN connection <code class="ph codeph">vlan10</code>. The <code class="ph codeph">dev</code> option specifies the parent network device. In this case it is <code class="ph codeph">enp1s0.10</code>. The <code class="ph codeph">vlan.protocol</code> option specifies the VLAN encapsulation protocol. In this case it is <code class="ph codeph">802.1ad</code> (Q-in-Q).</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the IPv4 settings of the nested VLAN interface:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To use DHCP, no action is required.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">To set a static IPv4 address, network mask, default gateway, and DNS server to the <code class="ph codeph">vlan10.20</code> connection, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify vlan10.20 ipv4.method manual ipv4.addresses 192.0.2.1/24 ipv4.gateway 192.0.2.254 ipv4.dns 192.0.2.200</strong>
+                     </code></pre>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the IPv6 settings of the nested VLAN interface:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To use stateless address autoconfiguration (SLAAC), no action is required.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">To set a static IPv6 address, network mask, default gateway, and DNS server to the vlan10 connection, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 ipv6.addresses '2001:db8:1::1/64' ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffd' ipv6.dns-search 'example.com' ipv6.method manual</strong>
+                     </code></pre>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the profile:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up vlan10.20</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Verify the configuration of the nested VLAN interface:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip -d addr show enp1s0.10.20</strong>
+10: enp1s0.10.20@enp1s0.10: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 52:54:00:d2:74:3e brd ff:ff:ff:ff:ff:ff promiscuity 0 minmtu 0 maxmtu 65535
+    vlan protocol 802.1ad id 20 &lt;REORDER_HDR&gt; numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 65536 tso_max_segs 65535 gro_max_size 65536
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute enp1s0.10.20
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ce3b:84c5:9ef8:d0e6/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-vlan-tagging_configuring-and-managing-networking.html">Configuring VLAN tagging</a></div></div></nav></article></main></body></html>

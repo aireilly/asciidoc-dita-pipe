@@ -1,0 +1,277 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring FreeRADIUS to authenticate network clients securely by using EAP</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-freeradius-to-authenticate-network-clients-securely-using-eap_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring FreeRADIUS to authenticate network clients securely by using EAP</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You installed the <code class="ph codeph">freeradius</code> and <code class="ph codeph">freeradius-ldap</code> packages.</p>
+            </li>
+            <li class="li">
+               <p class="p">The configuration files in the <code class="ph codeph">/etc/raddb/</code> directory are unchanged and as provided by the <code class="ph codeph">freeradius</code> packages.</p>
+            </li>
+            <li class="li">
+               <p class="p">The host is enrolled in a Red&nbsp;Hat Enterprise&nbsp;Linux Identity Management (IdM) domain.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">FreeRADIUS supports different methods of the Extensible authentication protocol (EAP). However, for a supported and secure scenario, use EAP-TTLS (tunneled transport layer security).</p>
+         <p class="p">With EAP-TTLS, the clients use a secure TLS connection as the outer authentication protocol to set up the tunnel. The inner authentication then uses LDAP to authenticate to Identity Management. To use EAP-TTLS, you need a TLS server certificate.</p>
+         <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+            <p class="p">The default FreeRADIUS configuration files serve as documentation and describe all parameters and directives. If you want to disable certain features, comment them out instead of removing the corresponding parts in the configuration files. This enables you to preserve the structure of the configuration files and the included documentation.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a private key and request a certificate from IdM:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ipa-getcert request -w -k /etc/pki/tls/private/radius.key -f /etc/pki/tls/certs/radius.pem -o "root:radiusd" -m 640 -O "root:radiusd" -M 640 -T caIPAserviceCert -C 'systemctl restart radiusd.service' -N <em class="ph i">freeradius.idm.example.com</em> -D <em class="ph i">freeradius.idm.example.com</em> -K radius/<em class="ph i">freeradius.idm.example.com</em>
+                  </strong>
+               </code></pre>
+               <p class="p">The <code class="ph codeph">certmonger</code> service stores the private key in the <code class="ph codeph">/etc/pki/tls/private/radius.key</code> file and the certificate in the <code class="ph codeph">/etc/pki/tls/certs/radius.pem</code> file, and it sets secure permissions. Additionally, <code class="ph codeph">certmonger</code> will monitor the certificate, renew it before it expires, and restart the <code class="ph codeph">radiusd</code> service after the certificate was renewed.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Verify that the CA successfully issued the certificate:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ipa-getcert list -f /etc/pki/tls/certs/radius.pem</strong>
+...
+Number of certificates and requests being tracked: 1.
+Request ID '20240918142211':
+        status: MONITORING
+        stuck: no
+        key pair storage: type=FILE,location='/etc/pki/tls/private/radius.key'
+        certificate: type=FILE,location='/etc/pki/tls/certs/radius.crt'
+        ...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/raddb/certs/dh</code> file with Diffie-Hellman (DH) parameters. For example, to create a DH file with a 2048 bits prime, enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">openssl dhparam -out /etc/raddb/certs/dh 2048</strong>
+               </code></pre>
+               <p class="p">For security reasons, do not use a DH file with less than a 2048 bits prime. Depending on the number of bits, the creation of the file can take several minutes.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Edit the <code class="ph codeph">/etc/raddb/mods-available/eap</code> file:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Configure the TLS-related settings in the <code class="ph codeph">tls-config tls-common</code> directive:</p>
+                     <pre class="pre codeblock language-console"><code>eap {
+    ...
+    tls-config tls-common {
+        ...
+	private_key_file = /etc/pki/tls/private/radius.key
+	certificate_file = /etc/pki/tls/certs/radius.pem
+	ca_file = /etc/ipa/ca.crt
+        ...
+    }
+}</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Set the <code class="ph codeph">default_eap_type</code> parameter in the <code class="ph codeph">eap</code> directive to <code class="ph codeph">ttls</code>:</p>
+                     <pre class="pre codeblock language-console"><code>eap {
+    ...
+    default_eap_type = ttls
+    ...
+}</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Comment out the <code class="ph codeph">md5</code> directives to disable the insecure EAP-MD5 authentication method:</p>
+                     <pre class="pre codeblock language-console"><code>eap {
+    ...
+    # md5 {
+    # }
+    ...
+}</code></pre>
+                     <p class="p">Note that, in the default configuration file, other insecure EAP authentication methods are commented out by default.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Edit the <code class="ph codeph">/etc/raddb/sites-available/default</code> file, and comment out all authentication methods other than <code class="ph codeph">eap</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code>authenticate {
+    ...
+    # Auth-Type PAP {
+    #     pap
+    # }
+
+    # Auth-Type CHAP {
+    #     chap
+    # }
+
+    # Auth-Type MS-CHAP {
+    #     mschap
+    # }
+
+    # mschap
+
+    # digest
+    ...
+}</code></pre>
+               <p class="p">This leaves only EAP enabled for the outer authentication and disables plain-text authentication methods.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Edit the <code class="ph codeph">/etc/raddb/sites-available/inner-tunnel</code> file, and make the following changes:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Comment out the <code class="ph codeph">-ldap</code> entry and add the <code class="ph codeph">ldap</code> module configuration to the <code class="ph codeph">authorize</code> directive:</p>
+                     <pre class="pre codeblock language-console"><code>authorize {
+    ...
+
+    #-ldap
+    ldap
+    if ((ok || updated) &amp;&amp; User-Password) {
+        update {
+            control:Auth-Type := ldap
+        }
+    }
+
+    ...
+}</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Uncomment the LDAP authentication type in the <code class="ph codeph">authenticate</code> directive:</p>
+                     <pre class="pre codeblock language-console"><code>authenticate {
+    Auth-Type LDAP {
+        ldap
+    }
+}</code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enable the <code class="ph codeph">ldap</code> module:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ln -s /etc/raddb/mods-available/ldap /etc/raddb/mods-enabled/ldap</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Edit the <code class="ph codeph">/etc/raddb/mods-available/ldap</code> file, and make the following changes:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">In the <code class="ph codeph">ldap</code> directive, set the IdM LDAP server URL and the base distinguished name (DN):</p>
+                     <pre class="pre codeblock language-console"><code>ldap {
+    ...
+    server = 'ldaps://<em class="ph i">idm_server.idm.example.com</em>'
+    base_dn = 'cn=users,cn=accounts,<em class="ph i">dc=idm,dc=example,dc=com</em>'
+    ...
+}</code></pre>
+                     <p class="p">Specify the <code class="ph codeph">ldaps</code> protocol in the server URL to use TLS-encrypted connections between the FreeRADIUS host and the IdM server.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">In the <code class="ph codeph">ldap</code> directive, enable TLS certificate validation of the IdM LDAP server:</p>
+                     <pre class="pre codeblock language-console"><code>tls {
+    ...
+        require_cert = 'demand'
+    ...
+}</code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Edit the <code class="ph codeph">/etc/raddb/clients.conf</code> file:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Set a secure password in the <code class="ph codeph">localhost</code> and <code class="ph codeph">localhost_ipv6</code> client directives:</p>
+                     <pre class="pre codeblock language-console"><code>client localhost {
+    ipaddr = 127.0.0.1
+    ...
+    secret = <em class="ph i">localhost_client_password</em>
+    ...
+}
+
+client localhost_ipv6 {
+    ipv6addr = ::1
+    secret = <em class="ph i">localhost_client_password</em>
+}</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Add a client directive for the network authenticator:</p>
+                     <pre class="pre codeblock language-console"><code>client <em class="ph i">hostapd.example.org</em> {
+    ipaddr = <em class="ph i">192.0.2.2/32</em>
+    secret = <em class="ph i">hostapd_client_password</em>
+}</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Optional: If other hosts should also be able to access the FreeRADIUS service, add client directives for them as well, for example:</p>
+                     <pre class="pre codeblock language-console"><code>client <em class="ph i">&lt;hostname_or_description&gt;</em> {
+    ipaddr = <em class="ph i">&lt;IP_address_or_range&gt;</em>
+    secret = <em class="ph i">&lt;client_password&gt;</em>
+}</code></pre>
+                     <p class="p">The <code class="ph codeph">ipaddr</code> parameter accepts IPv4 and IPv6 addresses, and you can use the optional classless inter-domain routing (CIDR) notation to specify ranges. However, you can set only one value in this parameter. For example, to grant access to both an IPv4 and IPv6 address, you must add two client directives.</p>
+                     <p class="p">Use a descriptive name for the client directive, such as a hostname or a word that describes where the IP range is used.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Verify the configuration files:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">radiusd -XC</strong>
+...
+Configuration appears to be OK</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Open the RADIUS ports in the <code class="ph codeph">firewalld</code> service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">firewall-cmd --permanent --add-service=radius</strong>
+# <strong class="ph b">firewall-cmd --reload</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enable and start the <code class="ph codeph">radiusd</code> service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl enable --now radiusd</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#proc_testing-eap-ttls-authentication-against-a-freeradius-server-or-authenticator_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend">Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+      <section class="section tasktroubleshooting">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">If the <code class="ph codeph">radiusd</code> service fails to start, verify that you can resolve the IdM server host name:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">host -v idm_server.idm.example.com</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">For other problems, run <code class="ph codeph">radiusd</code> in debug mode:</p>
+               <ol class="ol">
+                  <li class="li">
+                     <p class="p">Stop the <code class="ph codeph">radiusd</code> service:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">systemctl stop radiusd</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Start the service in debug mode:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">radiusd -X</strong>
+...
+Ready to process requests</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Perform authentication tests on the FreeRADIUS host, as referenced in the <code class="ph codeph">Verification</code> section.</p>
+                  </li>
+               </ol>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Disable no longer required authentication methods and other features you do not use.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend_configuring-and-managing-networking.html">Setting up an 802.1x network authentication service for LAN clients by using hostapd with FreeRADIUS backend</a></div></div></nav></article></main></body></html>

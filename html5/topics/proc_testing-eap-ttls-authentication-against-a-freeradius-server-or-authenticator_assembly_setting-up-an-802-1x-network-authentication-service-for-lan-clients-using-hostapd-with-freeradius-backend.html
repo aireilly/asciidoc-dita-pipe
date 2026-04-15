@@ -1,0 +1,108 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_testing-eap-ttls-authentication-against-a-freeradius-server-or-authenticator_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You set up the FreeRADIUS server.</p>
+            </li>
+            <li class="li">
+               <p class="p">You set up the <code class="ph codeph">hostapd</code> service as an authenticator for 802.1X network authentication.</p>
+            </li>
+            <li class="li">
+               <p class="p">When you want to authenticate to:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">A FreeRADIUS server:</p>
+                     <ul class="ul">
+                        <li class="li">
+                           <p class="p">The <code class="ph codeph">eapol_test</code> utility, provided by the <code class="ph codeph">hostapd</code> package, is installed.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">The client, on which you run this procedure, has been authorized in the FreeRADIUS server’s client databases.</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li class="li">
+                     <p class="p">An authenticator, the <code class="ph codeph">wpa_supplicant</code> utility, provided by the same-named package, is installed.</p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">You stored the certificate authority (CA) certificate in the <code class="ph codeph">/etc/ipa/ca.cert</code> file.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">After you set up the FreeRADIUS server and the <code class="ph codeph">hostapd</code> service, test if authentication by using extensible authentication protocol (EAP) over tunneled transport layer security (EAP-TTLS) works as expected.</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">After you set up the FreeRADIUS server</p>
+            </li>
+            <li class="li">
+               <p class="p">After you set up the <code class="ph codeph">hostapd</code> service as an authenticator for 802.1X network authentication.</p>
+            </li>
+         </ul>
+         <p class="p">The output of the test utilities used in this procedure provide additional information about the EAP communication and help you to debug problems.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Create a user in Identity Management (IdM):</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ipa user-add --first "<em class="ph i">Test</em>" --last "<em class="ph i">User</em>" <em class="ph i">idm_user</em> --password</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/wpa_supplicant/wpa_supplicant-TTLS.conf</code> file with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code>ap_scan=0
+
+network={
+    eap=TTLS
+    eapol_flags=0
+    key_mgmt=IEEE8021X
+
+    # Anonymous identity (sent in unencrypted phase 1)
+    # Can be any string
+    anonymous_identity="<em class="ph i">anonymous</em>"
+
+    # Inner authentication (sent in TLS-encrypted phase 2)
+    phase2="auth=<em class="ph i">PAP</em>"
+    identity="<em class="ph i">idm_user</em>"
+    password="<em class="ph i">idm_user_password</em>"
+
+    # CA certificate to validate the RADIUS server's identity
+    ca_cert="<em class="ph i">/etc/ipa/ca.crt</em>"
+}</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">To authenticate to:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">A FreeRADIUS server, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">eapol_test -c <em class="ph i">/etc/wpa_supplicant/wpa_supplicant-TTLS.conf</em> -a <em class="ph i">192.0.2.1</em> -s <em class="ph i">&lt;client_password&gt;</em>
+                        </strong>
+...
+EAP: Status notification: remote certificate verification (param=success)
+...
+CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully
+...
+SUCCESS</code></pre>
+                     <p class="p">The <code class="ph codeph">-a</code> option defines the IP address of the FreeRADIUS server, and the <code class="ph codeph">-s</code> option specifies the password for the host on which you run the command in the FreeRADIUS server’s client configuration.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">An authenticator, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">wpa_supplicant -c <em class="ph i">/etc/wpa_supplicant/wpa_supplicant-TTLS.conf</em> -D wired -i enp0s31f6</strong>
+...
+enp0s31f6: CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully
+...</code></pre>
+                     <p class="p">The <code class="ph codeph">-i</code> option specifies the network interface name on which <code class="ph codeph">wpa_supplicant</code> sends out extended authentication protocol over LAN (EAPOL) packets.</p>
+                     <p class="p">For more debugging information, pass the <code class="ph codeph">-d</code> option to the command.</p>
+                  </li>
+               </ul>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend_configuring-and-managing-networking.html">Setting up an 802.1x network authentication service for LAN clients by using hostapd with FreeRADIUS backend</a></div></div></nav></article></main></body></html>

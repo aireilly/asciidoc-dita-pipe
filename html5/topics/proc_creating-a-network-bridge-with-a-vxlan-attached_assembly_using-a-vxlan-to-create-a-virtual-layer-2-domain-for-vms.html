@@ -1,0 +1,77 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Creating a network bridge with a VXLAN attached</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_creating-a-network-bridge-with-a-vxlan-attached_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Creating a network bridge with a VXLAN attached</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">To make a virtual extensible LAN (VXLAN) invisible to virtual machines (VMs), create a bridge on a host, and attach the VXLAN to the bridge. Use NetworkManager to create both the bridge and the VXLAN. You do not add any traffic access point (TAP) devices of the VMs, typically named <code class="ph codeph">vnet*</code> on the host, to the bridge. The <code class="ph codeph">libvirtd</code> service adds them dynamically when the VMs start.</p>
+         <p class="p">Run this procedure on both RHEL hosts, and adjust the IP addresses accordingly.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create the bridge <code class="ph codeph">br0</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type bridge con-name br0 ifname br0 ipv4.method disabled ipv6.method disabled</strong>
+               </code></pre>
+               <p class="p">This command sets no IPv4 and IPv6 addresses on the bridge device, because this bridge works on layer 2.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the VXLAN interface and attach it to <code class="ph codeph">br0</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type vxlan port-type bridge con-name <em class="ph i">br0-vxlan10</em> ifname <em class="ph i">vxlan10</em> id <em class="ph i">10</em> local <em class="ph i">198.51.100.2</em> remote <em class="ph i">203.0.113.1</em> controller <em class="ph i">br0</em>
+                  </strong>
+               </code></pre>
+               <p class="p">This command uses the following settings:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">id 10</code>: Sets the VXLAN identifier.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">local 198.51.100.2</code>: Sets the source IP address of outgoing packets.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">remote 203.0.113.1</code>: Sets the unicast or multicast IP address to use in outgoing packets when the destination link layer address is not known in the VXLAN device forwarding database.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">controller br0</code>: Sets this VXLAN connection to be created as a port in the <code class="ph codeph">br0</code> connection.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">ipv4.method disabled</code> and <code class="ph codeph">ipv6.method disabled</code>: Disables IPv4 and IPv6 on the bridge.</p>
+                  </li>
+               </ul>
+               <p class="p">By default, NetworkManager uses <code class="ph codeph">8472</code> as the destination port. If the destination port is different, additionally, pass the <code class="ph codeph">destination-port <em class="ph i">&lt;port_number&gt;</em>
+                  </code> option to the command.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the <code class="ph codeph">br0</code> connection profile:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">br0</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Open port <code class="ph codeph">8472</code> for incoming UDP connections in the local firewall:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">firewall-cmd --permanent --add-port=8472/udp</strong>
+# <strong class="ph b">firewall-cmd --reload</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Display the forwarding table:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">bridge fdb show dev <em class="ph i">vxlan10</em>
+                  </strong>
+2a:53:bd:d5:b3:0a master br0 permanent
+00:00:00:00:00:00 dst 203.0.113.1 self permanent
+...</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms_configuring-and-managing-networking.html">Using a VXLAN to create a virtual layer-2 domain for VMs</a></div></div></nav></article></main></body></html>

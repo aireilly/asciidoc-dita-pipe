@@ -1,0 +1,323 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Introduction to NetworkManager reapply() method</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="introduction-to-networkmanager-reapply-method_introduction-to-networkmanager-debugging"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Introduction to NetworkManager <code class="ph codeph">reapply()</code> method</h1>
+   <div class="body conbody">
+      <p class="p">NetworkManager uses profiles to manage device connection settings, which can be created, modified, or deleted through the D-Bus API. When a profile is changed, D-Bus clones the settings. To apply these changes, you must reactivate the connection’s settings or use the <code class="ph codeph">reapply()</code> method.</p>
+      <p class="p">The <code class="ph codeph">reapply()</code> method has the following features:</p>
+      <ol class="ol">
+         <li class="li">
+            <p class="p">Updating modified connection settings without deactivation or restart of a network interface.</p>
+         </li>
+         <li class="li">
+            <p class="p">Removing pending changes from the modified connection settings. As <code class="ph codeph">NetworkManager</code> does not revert the manual changes, you can reconfigure the device and revert external or manual parameters.</p>
+         </li>
+         <li class="li">
+            <p class="p">Creating different modified connection settings than that of the existing connection settings.</p>
+         </li>
+      </ol>
+      <p class="p">Also, <code class="ph codeph">reapply()</code> method supports the following attributes:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.ageing-time</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.forward-delay</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.group-address</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.group-forward-mask</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.hello-time</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.max-age</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-hash-max</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-last-member-count</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-last-member-interval</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-membership-interval</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-querier</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-querier-interval</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-query-interval</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-query-response-interval</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-query-use-ifaddr</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-router</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-snooping</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-startup-query-count</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.multicast-startup-query-interval</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.priority</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.stp</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.VLAN-filtering</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.VLAN-protocol</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">bridge.VLANs</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">802-3-ethernet.accept-all-mac-addresses</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">802-3-ethernet.cloned-mac-address</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.addresses</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.dhcp-client-id</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.dhcp-iaid</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.dhcp-timeout</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.DNS</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.DNS-priority</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.DNS-search</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.gateway</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.ignore-auto-DNS</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.ignore-auto-routes</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.may-fail</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.method</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.never-default</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.route-table</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.routes</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv4.routing-rules</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.addr-gen-mode</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.addresses</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.dhcp-duid</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.dhcp-iaid</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.dhcp-timeout</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.DNS</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.DNS-priority</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.DNS-search</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.gateway</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.ignore-auto-DNS</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.may-fail</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.method</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.never-default</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.ra-timeout</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.route-metric</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.route-table</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.routes</code>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">IPv6.routing-rules</code>
+            </p>
+         </li>
+      </ul>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="introduction-to-networkmanager-debugging_configuring-and-managing-networking.html">Introduction to NetworkManager Debugging</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="systemd-network-targets-and-services_configuring-and-managing-networking">
+   <title>Systemd network targets and services</title>
+   <body>
+      <p>RHEL uses the <codeph>network</codeph> and <codeph>network-online</codeph> targets and the <codeph>NetworkManager-wait-online</codeph> service while applying network settings. Configure <codeph>systemd</codeph> services to start after the network is fully available if those services cannot react dynamically to a change in the network state.</p>
+   </body>
+</topic>

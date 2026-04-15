@@ -1,0 +1,128 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring an IPIP tunnel to encapsulate IPv4 traffic in IPv4 packets</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-an-ipip-tunnel-using-nmcli-to-encapsulate--ipv4-traffic-in-ipv4-packets_configuring-ip-tunnels"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring an IPIP tunnel to encapsulate IPv4 traffic in IPv4 packets</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Each RHEL router has a network interface that is connected to its local subnet.</p>
+            </li>
+            <li class="li">
+               <p class="p">Each RHEL router has a network interface that is connected to the internet.</p>
+            </li>
+            <li class="li">
+               <p class="p">The traffic you want to send through the tunnel is IPv4 unicast.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">An IP over IP (IPIP) tunnel operates on OSI layer 3 and encapsulates IPv4 traffic in IPv4 packets as described in <a class="xref" href="https://tools.ietf.org/html/rfc2003" target="_blank" rel="external noopener">RFC 2003</a>.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">Data sent through an IPIP tunnel is not encrypted. For security reasons, use the tunnel only for data that is already encrypted, for example, by other protocols, such as HTTPS.</p>
+         </div></div>
+         <p class="p">Note that IPIP tunnels support only unicast packets. If you require an IPv4 tunnel that supports multicast, see <a class="xref" href="#configuring-a-gre-tunnel-using-nmcli-to-encapsulate-layer-3-traffic-in-ipv4-packets_configuring-ip-tunnels">Configuring a GRE tunnel to encapsulate layer-3 traffic in IPv4 packets</a>.</p>
+         <p class="p">For example, you can create an IPIP tunnel between two RHEL routers to connect two internal subnets over the internet as shown in the following diagram:</p>
+         <figure class="fig fignone">
+            <br><img class="image" src="../images/IPIP-tunnel.png" alt="Diagram of an IPIP tunnel to connect two internal subnets over the internet"><br>
+         </figure>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">On the RHEL router in network A:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create an IPIP tunnel interface named <code class="ph codeph">tun0</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ip-tunnel ip-tunnel.mode ipip con-name tun0 ifname tun0 remote 198.51.100.5 local 203.0.113.10</strong>
+                     </code></pre>
+                     <p class="p">The <code class="ph codeph">remote</code> and <code class="ph codeph">local</code> parameters set the public IP addresses of the remote and the local routers.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Set the IPv4 address to the <code class="ph codeph">tun0</code> device:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify tun0 ipv4.addresses '10.0.1.1/30'</strong>
+                     </code></pre>
+                     <p class="p">Note that a <code class="ph codeph">/30</code> subnet with two usable IP addresses is sufficient for the tunnel.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Configure the <code class="ph codeph">tun0</code> connection to use a manual IPv4 configuration:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify tun0 ipv4.method manual</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Add a static route that routes traffic to the <code class="ph codeph">172.16.0.0/24</code> network to the tunnel IP on router B:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify tun0 +ipv4.routes "172.16.0.0/24 10.0.1.2"</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enable the <code class="ph codeph">tun0</code> connection.</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up tun0</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enable packet forwarding:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">echo "net.ipv4.ip_forward=1" &gt; /etc/sysctl.d/95-IPv4-forwarding.conf</strong>
+# <strong class="ph b">sysctl -p /etc/sysctl.d/95-IPv4-forwarding.conf</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">On the RHEL router in network B:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create an IPIP tunnel interface named <code class="ph codeph">tun0</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ip-tunnel ip-tunnel.mode ipip con-name tun0 ifname tun0 remote 203.0.113.10 local 198.51.100.5</strong>
+                     </code></pre>
+                     <p class="p">The <code class="ph codeph">remote</code> and <code class="ph codeph">local</code> parameters set the public IP addresses of the remote and local routers.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Set the IPv4 address to the <code class="ph codeph">tun0</code> device:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify tun0 ipv4.addresses '10.0.1.2/30'</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Configure the <code class="ph codeph">tun0</code> connection to use a manual IPv4 configuration:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify tun0 ipv4.method manual</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Add a static route that routes traffic to the <code class="ph codeph">192.0.2.0/24</code> network to the tunnel IP on router A:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify tun0 +ipv4.routes "192.0.2.0/24 10.0.1.1"</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enable the <code class="ph codeph">tun0</code> connection.</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up tun0</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enable packet forwarding:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">echo "net.ipv4.ip_forward=1" &gt; /etc/sysctl.d/95-IPv4-forwarding.conf</strong>
+# <strong class="ph b">sysctl -p /etc/sysctl.d/95-IPv4-forwarding.conf</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">From each RHEL router, ping the IP address of the internal interface of the other router:</p>
+               <ol class="ol">
+                  <li class="li">
+                     <p class="p">On Router A, ping <code class="ph codeph">172.16.0.1</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ping 172.16.0.1</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">On Router B, ping <code class="ph codeph">192.0.2.1</code>:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ping 192.0.2.1</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-ip-tunnels_configuring-and-managing-networking.html">Configuring IP tunnels</a></div></div></nav></article></main></body></html>

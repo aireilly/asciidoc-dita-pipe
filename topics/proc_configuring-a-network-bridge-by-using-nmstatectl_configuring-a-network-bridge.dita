@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-network-bridge-by-using-nmstatectl_configuring-a-network-bridge">
+   <title>Configuring a network bridge by using <codeph>nmstatectl</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li>
+               <p>To use Ethernet devices as ports in the bridge, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+            <li>
+               <p>To use team, bond, or VLAN devices as ports in the bridge, set the interface name in the <codeph>port</codeph> list, and define the corresponding interfaces.</p>
+            </li>
+            <li>
+               <p>The <codeph>nmstate</codeph> package is installed.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the declarative Nmstate API to configure a network bridge. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+         <p>Depending on your environment, adjust the YAML file accordingly. For example, to use different devices than Ethernet adapters in the bridge, adapt the <codeph>base-iface</codeph> attribute and <codeph>type</codeph> attributes of the ports you use in the bridge.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a YAML file, for example <codeph>~/create-bridge.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+interfaces:
+- name: bridge0
+  type: linux-bridge
+  state: up
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 24
+    dhcp: false
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+    autoconf: false
+    dhcp: false
+  bridge:
+    options:
+      stp:
+        enabled: true
+    port:
+      - name: enp1s0
+      - name: enp7s0
+- name: enp1s0
+  type: ethernet
+  state: up
+- name: enp7s0
+  type: ethernet
+  state: up
+
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.0.2.254
+    next-hop-interface: bridge0
+  - destination: ::/0
+    next-hop-address: 2001:db8:1::fffe
+    next-hop-interface: bridge0
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb</codeblock>
+               <p>These settings define a network bridge with the following settings:</p>
+               <ul>
+                  <li>
+                     <p>Network interfaces in the bridge: <codeph>enp1s0</codeph> and <codeph>enp7s0</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Spanning Tree Protocol (STP): Enabled</p>
+                  </li>
+                  <li>
+                     <p>Static IPv4 address: <codeph>192.0.2.1</codeph> with the <codeph>/24</codeph> subnet mask</p>
+                  </li>
+                  <li>
+                     <p>Static IPv6 address: <codeph>2001:db8:1::1</codeph> with the <codeph>/64</codeph> subnet mask</p>
+                  </li>
+                  <li>
+                     <p>IPv4 default gateway: <codeph>192.0.2.254</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>IPv6 default gateway: <codeph>2001:db8:1::fffe</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>IPv4 DNS server: <codeph>192.0.2.200</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>IPv6 DNS server: <codeph>2001:db8:1::ffbb</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>DNS search domain: <codeph>example.com</codeph>
+                     </p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Apply the settings to the system:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl apply ~/create-bridge.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the status of the devices and connections:</p>
+               <codeblock># <b>nmcli device status</b>
+DEVICE      TYPE      STATE      CONNECTION
+bridge0     bridge    <b>connected</b>  bridge0</codeblock>
+            </li>
+            <li>
+               <p>Display all settings of the connection profile:</p>
+               <codeblock># <b>nmcli connection show bridge0</b>
+connection.id:              bridge0_
+connection.uuid:            e2cc9206-75a2-4622-89cf-1252926060a9
+connection.stable-id:       --
+connection.type:            bridge
+connection.interface-name:  bridge0
+...</codeblock>
+            </li>
+            <li>
+               <p>Display the connection settings in YAML format:</p>
+               <codeblock># <b>nmstatectl show bridge0</b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/solutions/5314671"
+                        format="html"
+                        scope="external">How to configure a bridge with VLAN information? (Red Hat Knowledgebase)</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

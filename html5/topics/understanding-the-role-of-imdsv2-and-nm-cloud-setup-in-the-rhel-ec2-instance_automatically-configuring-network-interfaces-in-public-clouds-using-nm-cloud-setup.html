@@ -1,0 +1,25 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Understanding the role of IMDSv2 and nm-cloud-setup in the RHEL EC2 instance</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="understanding-the-role-of-imdsv2-and-nm-cloud-setup-in-the-rhel-ec2-instance_automatically-configuring-network-interfaces-in-public-clouds-using-nm-cloud-setup"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Understanding the role of IMDSv2 and nm-cloud-setup in the RHEL EC2 instance</h1>
+   <div class="body conbody">
+      <p class="p">The instance metadata service (IMDS) in Amazon EC2 allows you to manage permissions to access instance metadata of a running Red&nbsp;Hat Enterprise&nbsp;Linux (RHEL) EC2 instance. The RHEL EC2 instance uses IMDS version 2 (IMDSv2), a session-oriented method. By using the <code class="ph codeph">nm-cloud-setup</code> utility, administrators can reconfigure the network and automatically update the configuration of running RHEL EC2 instances. The <code class="ph codeph">nm-cloud-setup</code> utility handles IMDSv2 API calls by using IMDSv2 tokens without any user intervention.</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">IMDS runs on a link-local address <code class="ph codeph">169.254.169.254</code> for providing access to native applications on a RHEL EC2 instance.</p>
+         </li>
+         <li class="li">
+            <p class="p">After you have specified and configured IMDSv2 for each RHEL EC2 instance for applications and users, you can no longer access IMDSv1.</p>
+         </li>
+         <li class="li">
+            <p class="p">By using IMDSv2, the RHEL EC2 instance maintains metadata without using the IAM role while remaining accessible through the IAM role.</p>
+         </li>
+         <li class="li">
+            <p class="p">When the RHEL EC2 instance boots, the <code class="ph codeph">nm-cloud-setup</code> utility automatically runs to fetch the EC2 instance API access token for using the RHEL EC2 instance API.</p>
+         </li>
+      </ul>
+      <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+         <p class="p">Use the IMDSv2 token as an HTTP header to check the details of the EC2 environment.</p>
+      </div></div>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="automatically-configuring-network-interfaces-in-public-clouds-using-nm-cloud-setup_configuring-and-managing-networking.html">Automatically configuring network interfaces in public clouds using nm-cloud-setup</a></div></div></nav></article></main></body></html>

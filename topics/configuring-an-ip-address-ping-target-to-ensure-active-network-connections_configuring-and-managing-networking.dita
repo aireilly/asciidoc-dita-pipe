@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-an-ip-address-ping-target-to-ensure-active-network-connections_configuring-and-managing-networking">
+   <title>Configuring an IP address ping target to ensure active network connections</title>
+   <taskbody>
+      <context>
+         <p>Configure the <codeph>connection.ip-ping-addresses</codeph> and <codeph>connection.ip-ping-timeout</codeph> settings to verify connectivity to a specific target.</p>
+         <p>The NetworkManager service starts after the system boots. Certain services, such as network file system (NFS), are dependent on the network connectivity. If the gateway IP or the target IP address does not return a response, NFS fails to mount because it cannot connect to its destination as the network is not completely up and running. Therefore, you can configure the <codeph>connection.ip-ping-addresses</codeph> and <codeph>connection.ip-ping-timeout</codeph> settings to verify connectivity to a specific target to avoid such problems. The <codeph>connection.ip-ping-addresses</codeph> setting supports configuration of IPv4 and IPv6 addresses.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a connection profile, if it does not already exist. For example, to create a profile for the <codeph>enp1s0</codeph> interface with dynamic IP address assignment, enter:</cmd>
+            <info>
+               <codeblock outputclass="language-console"># <b>nmcli connection add con-name enp1s0 ifname enp1s0 type ethernet</b>
+               </codeblock>
+               <note>
+                  <p>Configuration of <codeph>connection.ip-ping-addresses</codeph> can result in the delay of response from the <codeph>network-online</codeph> target service of <codeph>systemd</codeph>, because of waiting for either the ping operation completion or timeout period.</p>
+               </note>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the connection to ping the specified IP addresses with a defined timeout period:</cmd>
+            <info>
+               <codeblock outputclass="language-console"># <b>nmcli connection modify enp1s0 connection.ip-ping-addresses "192.0.2.56, 192.0.2.60" connection.ip-ping-timeout 10 ipv4.may-fail no</b>
+               </codeblock>
+               <p>Setting the <codeph>ipv4.may-fail</codeph> attribute to <codeph>no</codeph>, ensures that IPv4 configuration must complete successfully.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Re-activate the connection:</cmd>
+            <info>
+               <codeblock outputclass="language-console"># <b>nmcli connection up enp1s0</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

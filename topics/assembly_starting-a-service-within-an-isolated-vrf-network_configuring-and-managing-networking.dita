@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_starting-a-service-within-an-isolated-vrf-network_configuring-and-managing-networking">
+   <title>Starting a service within an isolated VRF network</title>
+   <body>
+      <p>With virtual routing and forwarding (VRF), you can create isolated networks with a routing table that is different to the main routing table of the operating system. You can then start services and applications so that they have only access to the network defined in that routing table.</p>
+   </body>
+</topic>

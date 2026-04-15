@@ -1,0 +1,36 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Overview of queuing disciplines</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="overview-of-queuing-disciplines_linux-traffic-control"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Overview of queuing disciplines</h1>
+   <div class="body conbody">
+      <p class="p">Queuing disciplines (<code class="ph codeph">qdiscs</code>) help with queuing up and, later, scheduling of traffic transmission by a network interface.</p>
+      <p class="p">A <code class="ph codeph">qdisc</code> has two operations;</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">enqueue requests so that a packet can be queued up for later transmission and</p>
+         </li>
+         <li class="li">
+            <p class="p">dequeue requests so that one of the queued-up packets can be chosen for immediate transmission.</p>
+         </li>
+      </ul>
+      <p class="p">Every <code class="ph codeph">qdisc</code> has a 16-bit hexadecimal identification number called a <code class="ph codeph">handle</code>, with an attached colon, such as <code class="ph codeph">1:</code> or <code class="ph codeph">abcd:</code>. This number is called the <code class="ph codeph">qdisc</code> major number. If a <code class="ph codeph">qdisc</code> has classes, then the identifiers are formed as a pair of two numbers with the major number before the minor, <code class="ph codeph">&lt;major&gt;:&lt;minor&gt;</code>, for example <code class="ph codeph">abcd:1</code>. The numbering scheme for the minor numbers depends on the <code class="ph codeph">qdisc</code> type.
+Sometimes the numbering is systematic, where the first-class has the ID <code class="ph codeph">&lt;major&gt;:1</code>, the second one <code class="ph codeph">&lt;major&gt;:2</code>, and so on. Some <code class="ph codeph">qdiscs</code> allow the user to set class minor numbers arbitrarily when creating the class.</p>
+      <dl class="dl">
+         
+            <dt class="dt dlterm">Classful <code class="ph codeph">qdiscs</code>
+            </dt>
+            <dd class="dd">
+               <p class="p">Different types of <code class="ph codeph">qdiscs</code> exist and help in the transfer of packets to and from a networking interface. You can configure <code class="ph codeph">qdiscs</code> with root, parent, or child classes. The point where children can be attached are called classes. Classes in <code class="ph codeph">qdisc</code> are flexible and can always contain either multiple children classes or a single child, <code class="ph codeph">qdisc</code>. There is no prohibition against a class containing a classful <code class="ph codeph">qdisc</code> itself, this facilitates complex traffic control scenarios.</p>
+               <p class="p">Classful <code class="ph codeph">qdiscs</code> do not store any packets themselves. Instead, they enqueue and dequeue requests down to one of their children according to criteria specific to the <code class="ph codeph">qdisc</code>. Eventually, this recursive packet passing ends up where the packets are stored (or picked up from in the case of dequeuing).</p>
+            </dd>
+         
+         
+            <dt class="dt dlterm">Classless <code class="ph codeph">qdiscs</code>
+            </dt>
+            <dd class="dd">
+               <p class="p">Some <code class="ph codeph">qdiscs</code> contain no child classes and they are called classless <code class="ph codeph">qdiscs</code>. Classless <code class="ph codeph">qdiscs</code> require less customization compared to classful <code class="ph codeph">qdiscs</code>. It is usually enough to attach them to an interface.</p>
+            </dd>
+         
+      </dl>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="linux-traffic-control_configuring-and-managing-networking.html">Linux traffic control</a></div></div></nav></article></main></body></html>

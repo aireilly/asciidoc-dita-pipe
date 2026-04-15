@@ -1,0 +1,31 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Protocols and primitives used by WireGuard</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="ref_protocols-and-primitives-used-by-wireguard_assembly_setting-up-a-wireguard-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Protocols and primitives used by WireGuard</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">Understanding the protocols and primitives used by WireGuard is important for evaluating its security and trustworthiness. Knowing these components enables a user to verify that the system uses modern and secure cryptographic standards.</p>
+         <p class="p">WireGuard uses the following protocols and primitives:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">ChaCha20 for symmetric encryption, authenticated with Poly1305, using Authenticated Encryption with Associated Data (AEAD) construction as described in <a class="xref" href="https://tools.ietf.org/html/rfc7539" target="_blank" rel="external noopener">RFC7539</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">Curve25519 for Elliptic-curve Diffie-Hellman (ECDH) key exchange</p>
+            </li>
+            <li class="li">
+               <p class="p">BLAKE2s for hashing and keyed hashing, as described in <a class="xref" href="https://tools.ietf.org/html/rfc7693" target="_blank" rel="external noopener">RFC7693</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">SipHash24 for hash table keys</p>
+            </li>
+            <li class="li">
+               <p class="p">HKDF for key derivation, as described in <a class="xref" href="https://tools.ietf.org/html/rfc5869" target="_blank" rel="external noopener">RFC5869</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-a-wireguard-vpn_configuring-and-managing-networking.html">Setting up a WireGuard VPN</a></div></div></nav></article></main></body></html>

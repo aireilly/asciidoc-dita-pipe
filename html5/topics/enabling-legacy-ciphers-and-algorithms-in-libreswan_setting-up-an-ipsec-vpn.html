@@ -1,0 +1,34 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Enabling legacy ciphers and algorithms in Libreswan</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="enabling-legacy-ciphers-and-algorithms-in-libreswan_setting-up-an-ipsec-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Enabling legacy ciphers and algorithms in Libreswan</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Libreswan is installed.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Enable legacy ciphers and algorithms in Libreswan for backward compatibility with other IPsec peers. This overrides the RHEL system-wide cryptographic policies which, by default, enforce strong encryption ciphers and algorithms for IPsec and Internet Key Exchange (IKE).</p>
+         <p class="p">The RHEL system-wide cryptographic policies create a special connection called <code class="ph codeph">%default</code>. This connection sets the default values for the <code class="ph codeph">keyexchange</code>, <code class="ph codeph">esp</code>, and <code class="ph codeph">ike</code> parameters.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">To override the defaults set by the RHEL system-wide cryptographic policies, add the <code class="ph codeph">keyexchange</code>, <code class="ph codeph">esp</code>, and <code class="ph codeph">ike</code> parameters to your connection configuration and set them to the values you require. For example:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-bash"><code>conn <em class="ph i">&lt;connection_name&gt;</em>
+    ikev2=no
+    ike=aes-sha2,aes-sha1;modp2048
+    esp=aes-sha2,aes-sha1
+    ...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart the <code class="ph codeph">ipsec</code> service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl restart ipsec</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="setting-up-an-ipsec-vpn_configuring-and-managing-networking.html">Setting up an IPsec VPN</a></div></div></nav></article></main></body></html>

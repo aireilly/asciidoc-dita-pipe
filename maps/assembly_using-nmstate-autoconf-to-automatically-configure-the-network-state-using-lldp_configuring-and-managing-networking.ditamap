@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Using nmstate-autoconf to automatically configure the network state using LLDP</title>
+   <topicref href="../topics/assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/proc_using-nmstate-autoconf-to-automatically-configure-network-interfaces_assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp.dita"/>
+</map>

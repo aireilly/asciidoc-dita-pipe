@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Configuring NetworkManager DHCP settings</title>
+   <topicref href="../topics/configuring-networkmanager-dhcp-settings_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/proc_changing-the-dhcp-client-of-networkmanager_configuring-networkmanager-dhcp-settings.dita"/>
+   <topicref href="../topics/configuring-the-dhcp-behavior-of-a-networkmanager-connection_configuring-networkmanager-dhcp-settings.dita"/>
+</map>

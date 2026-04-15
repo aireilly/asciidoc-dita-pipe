@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_using-lldp-to-debug-network-configuration-problems_configuring-and-managing-networking">
+   <title>Using LLDP to debug network configuration problems</title>
+   <body>
+      <p>You can use the Link Layer Discovery Protocol (LLDP) to debug network configuration problems in the topology. This means that, LLDP can report configuration inconsistencies with other hosts or routers and switches.</p>
+   </body>
+</topic>

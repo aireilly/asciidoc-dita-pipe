@@ -1,0 +1,180 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Migrating a NIC team configuration to network bond</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_migrating-a-network-team-configuration-to-network-bond_configuring-network-teaming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Migrating a NIC team configuration to network bond</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">team-team0</code> NetworkManager connection profile is configured and manages the <code class="ph codeph">team0</code> device.</p>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">teamd</code> package is installed.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Network interface controller (NIC) teaming is deprecated in Red&nbsp;Hat Enterprise&nbsp;Linux&nbsp;9. If you already have a working NIC team configured, for example because you upgraded from an earlier RHEL version, you can migrate the configuration to a network bond that is managed by NetworkManager.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">The <code class="ph codeph">team2bond</code> utility only converts the team configuration to a bond. Afterwards, you must manually configure further settings of the bond, such as IP addresses and DNS configuration.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Display the IP configuration of the <code class="ph codeph">team-team0</code> NetworkManager connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show <em class="ph i">team-team0</em> | grep -E "^ip"</strong>
+...
+ipv4.method:                            manual
+ipv4.dns:                               192.0.2.253
+ipv4.dns-search:                        example.com
+ipv4.addresses:                         192.0.2.1/24
+ipv4.gateway:                           192.0.2.254
+...
+ipv6.method:                            manual
+ipv6.dns:                               2001:db8:1::fffd
+ipv6.dns-search:                        example.com
+ipv6.addresses:                         2001:db8:1::1/64
+ipv6.gateway:                           2001:db8:1::fffe
+...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Export the configuration of the <code class="ph codeph">team0</code> device to a JSON file:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">teamdctl <em class="ph i">team0</em> config dump actual &gt; <em class="ph i">/tmp/team0.json</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Remove the NIC team. For example, if you configured the team in NetworkManager, remove the <code class="ph codeph">team-team0</code> connection profile and the profiles of associated ports:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection delete <em class="ph i">team-team0</em>
+                  </strong>
+# <strong class="ph b">nmcli connection delete <em class="ph i">team-team0-port1</em>
+                  </strong>
+# <strong class="ph b">nmcli connection delete <em class="ph i">team-team0-port2</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Run the <code class="ph codeph">team2bond</code> utility in dry-run mode to display <code class="ph codeph">nmcli</code> commands that set up a network bond with similar settings as the team device:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">team2bond --config=<em class="ph i">/tmp/team0.json</em> --rename=<em class="ph i">bond0</em>
+                  </strong>
+nmcli con add type bond ifname <em class="ph i">bond0</em> bond.options "<em class="ph i">mode=active-backup,num_grat_arp=1,num_unsol_na=1,resend_igmp=1,miimon=100,miimon=100</em>"
+nmcli con add type ethernet ifname <em class="ph i">enp7s0</em> controller <em class="ph i">bond0</em>
+nmcli con add type ethernet ifname <em class="ph i">enp8s0</em> controller <em class="ph i">bond0</em>
+               </code></pre>
+               <p class="p">The first command contains two <code class="ph codeph">miimon</code> options because the team configuration file contained two <code class="ph codeph">link_watch</code> entries. Note that this does not affect the creation of the bond.</p>
+               <p class="p">If you bound services to the device name of the team and want to avoid updating or breaking these services, omit the <code class="ph codeph">--rename=bond0</code> option. In this case, <code class="ph codeph">team2bond</code> uses the same interface name for the bond as for the team.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Verify that the options for the bond the <code class="ph codeph">team2bond</code> utility suggested are correct.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the bond. You can execute the suggested <code class="ph codeph">nmcli</code> commands or re-run the <code class="ph codeph">team2bond</code> command with the <code class="ph codeph">--exec-cmd</code> option:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">team2bond --config=<em class="ph i">/tmp/team0.json</em> --rename=<em class="ph i">bond0</em> --exec-cmd</strong>
+Connection '<strong class="ph b">
+                     <em class="ph i">bond-bond0</em>
+                  </strong>' (<em class="ph i">0241a531-0c72-4202-80df-73eadfc126b5</em>) successfully added.
+Connection '<em class="ph i">bond-port-enp7s0</em>' (<em class="ph i">38489729-b624-4606-a784-1ccf01e2f6d6</em>) successfully added.
+Connection '<em class="ph i">bond-port-enp8s0</em>' (<em class="ph i">de97ec06-7daa-4298-9a71-9d4c7909daa1</em>) successfully added.</code></pre>
+               <p class="p">You require the name of the bond connection profile (<code class="ph codeph">bond-bond0</code>) in the next steps.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the IPv4 settings that were previously configured on <code class="ph codeph">team-team0</code> to the <code class="ph codeph">bond-bond0</code> connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bond-bond0 ipv4.addresses '<em class="ph i">192.0.2.1/24</em>'</strong>
+# <strong class="ph b">nmcli connection modify bond-bond0 ipv4.gateway '<em class="ph i">192.0.2.254</em>'</strong>
+# <strong class="ph b">nmcli connection modify bond-bond0 ipv4.dns '<em class="ph i">192.0.2.253</em>'</strong>
+# <strong class="ph b">nmcli connection modify bond-bond0 ipv4.dns-search '<em class="ph i">example.com</em>'</strong>
+# <strong class="ph b">nmcli connection modify bond-bond0 ipv4.method <em class="ph i">manual</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the IPv6 settings that were previously configured on <code class="ph codeph">team-team0</code> to the <code class="ph codeph">bond-bond0</code> connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bond-bond0 ipv6.addresses '<em class="ph i">2001:db8:1::1/64</em>'</strong>
+# <strong class="ph b">nmcli connection modify bond-bond0 ipv6.gateway '<em class="ph i">2001:db8:1::fffe</em>'</strong>
+# <strong class="ph b">nmcli connection modify bond-bond0 ipv6.dns '<em class="ph i">2001:db8:1::fffd</em>'</strong>
+# <strong class="ph b">nmcli connection modify bond-bond0 ipv6.dns-search '<em class="ph i">example.com</em>'</strong>
+# <strong class="ph b">nmcli connection modify bond-bond0 ipv6.method <em class="ph i">manual</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">bond-bond0</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the IP configuration of the <code class="ph codeph">bond-bond0</code> NetworkManager connection:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show <em class="ph i">bond-bond0</em> | grep -E "^ip"</strong>
+...
+ipv4.method:                            manual
+ipv4.dns:                               192.0.2.253
+ipv4.dns-search:                        example.com
+ipv4.addresses:                         192.0.2.1/24
+ipv4.gateway:                           192.0.2.254
+...
+ipv6.method:                            manual
+ipv6.dns:                               2001:db8:1::fffd
+ipv6.dns-search:                        example.com
+ipv6.addresses:                         2001:db8:1::1/64
+ipv6.gateway:                           2001:db8:1::fffe
+...</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the status of the bond:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /proc/net/bonding/bond0</strong>
+Ethernet Channel Bonding Driver: v5.13.0-0.rc7.51.el9.x86_64
+
+Bonding Mode: fault-tolerance (active-backup)
+Primary Slave: None
+Currently Active Slave: enp7s0
+MII Status: up
+MII Polling Interval (ms): 100
+Up Delay (ms): 0
+Down Delay (ms): 0
+Peer Notification Delay (ms): 0
+
+Slave Interface: enp7s0
+MII Status: up
+Speed: Unknown
+Duplex: Unknown
+Link Failure Count: 0
+Permanent HW addr: 52:54:00:bf:b1:a9
+Slave queue ID: 0
+
+Slave Interface: enp8s0
+MII Status: up
+Speed: Unknown
+Duplex: Unknown
+Link Failure Count: 0
+Permanent HW addr: 52:54:00:04:36:0f
+Slave queue ID: 0</code></pre>
+               <p class="p">In this example, both ports are up.</p>
+            </li>
+            <li class="li">
+               <p class="p">To verify that bonding failover works:</p>
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Temporarily remove the network cable from the host. Note that there is no method to properly test link failure events using the command line.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Display the status of the bond:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">cat /proc/net/bonding/<em class="ph i">bond0</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-teaming_configuring-and-managing-networking.html">Configuring a NIC team</a></div></div></nav></article></main></body></html>

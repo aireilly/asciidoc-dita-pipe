@@ -1,0 +1,142 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring an Ethernet connection with a static IP address by using nmstatectl with a PCI address</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-an-ethernet-connection-with-a-static-ip-address-by-using-nmstatectl-with-a-pci-address_configuring-an-ethernet-connection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring an Ethernet connection with a static IP address by using <code class="ph codeph">nmstatectl</code> with a PCI address</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A physical Ethernet Network Interface Controller (NIC) exists in the server’s configuration.</p>
+            </li>
+            <li class="li">
+               <p class="p">You know the PCI address of the device. You can display the PCI address by using the <code class="ph codeph">ethtool -i <em class="ph i">&lt;interface_name&gt;</em> | grep bus-info</code> command.</p>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">nmstate</code> package is installed.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the declarative Nmstate API to configure an Ethernet connection with static IP addresses, gateways, and DNS settings, and assign them to a device based on its PCI address. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a YAML file, for example <code class="ph codeph">~/create-ethernet-profile.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+interfaces:
+- name: <em class="ph i">&lt;profile_name&gt;</em>
+  type: ethernet
+  state: up
+  identifier: pci-address
+  pci-address: 0000:00:14.3
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 24
+    dhcp: false
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+    autoconf: false
+    dhcp: false
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.0.2.254
+    next-hop-interface: <em class="ph i">&lt;profile_name&gt;</em>
+  - destination: ::/0
+    next-hop-address: 2001:db8:1::fffe
+    next-hop-interface: <em class="ph i">&lt;profile_name&gt;</em>
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb</code></pre>
+               <p class="p">These settings define an Ethernet connection profile for the device with the ID <code class="ph codeph">0000:00:14.3</code> with the following settings:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">A static IPv4 address - <code class="ph codeph">192.0.2.1</code> with the <code class="ph codeph">/24</code> subnet mask</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">A static IPv6 address - <code class="ph codeph">2001:db8:1::1</code> with the <code class="ph codeph">/64</code> subnet mask</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">An IPv4 default gateway - <code class="ph codeph">192.0.2.254</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">An IPv6 default gateway - <code class="ph codeph">2001:db8:1::fffe</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">An IPv4 DNS server - <code class="ph codeph">192.0.2.200</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">An IPv6 DNS server - <code class="ph codeph">2001:db8:1::ffbb</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">A DNS search domain - <code class="ph codeph">example.com</code>
+                     </p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Apply the settings to the system:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl apply ~/create-ethernet-profile.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the current state in YAML format:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl show <em class="ph i">&lt;interface_name&gt;</em>
+                  </strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the IP settings of the NIC:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip address show <em class="ph i">&lt;interface_name&gt;</em>
+                  </strong>
+2: :<em class="ph i">&lt;interface_name&gt;</em> &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:17:b8:b6 brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute <em class="ph i">&lt;interface_name&gt;</em>
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::fffe/64 scope global noprefixroute
+       valid_lft forever preferred_lft forever</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the IPv4 default gateway:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip route show default</strong>
+default via 192.0.2.254 dev <em class="ph i">&lt;interface_name&gt;</em> proto static metric 102</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the IPv6 default gateway:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip -6 route show default</strong>
+default via 2001:db8:1::fffe dev <em class="ph i">&lt;interface_name&gt;</em> proto static metric 102 pref medium</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the DNS settings:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /etc/resolv.conf</strong>
+search example.com
+nameserver 192.0.2.200
+nameserver 2001:db8:1::ffbb</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Use the <code class="ph codeph">ping</code> utility to verify that this host can send packets to other hosts:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ping <em class="ph i">&lt;host-name-or-IP-address&gt;</em>
+                  </strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-an-ethernet-connection_configuring-and-managing-networking.html">Configuring an Ethernet connection</a></div></div></nav></article></main></body></html>

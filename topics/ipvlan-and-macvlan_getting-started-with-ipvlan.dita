@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="ipvlan-and-macvlan_getting-started-with-ipvlan">
+   <title>Comparison of IPVLAN and MACVLAN</title>
+   <conbody>
+      <p>The following table shows the major differences between MACVLAN and IPVLAN:</p>
+      <table colsep="1" rowsep="1">
+         <tgroup cols="2">
+            <colspec colname="col_1" colwidth="50*"/>
+            <colspec colname="col_2" colwidth="50*"/>
+            <thead>
+               <row>
+                  <entry align="left" valign="top">MACVLAN</entry>
+                  <entry align="left" valign="top">IPVLAN</entry>
+               </row>
+            </thead>
+            <tbody>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Uses MAC address for each MACVLAN device.</p>
+                     <p>Note that, if a switch reaches the maximum number of MAC addresses it can store in its MAC table, connectivity can be lost.</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Uses a single MAC address which does not limit the number of IPVLAN devices.</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Netfilter rules for a global namespace cannot affect traffic to or from a MACVLAN device in a child namespace.</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>It is possible to control traffic to or from an IPVLAN device in <b>L3 mode</b> and <b>L3S mode</b>.</p>
+                  </entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+      <p>Both IPVLAN and MACVLAN do not require any level of encapsulation.</p>
+   </conbody>
+</concept>

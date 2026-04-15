@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Getting started with TIPC</title>
+   <topicref href="../topics/getting-started-with-tipc_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/the-architecture-of-tipc_getting-started-with-tipc.dita"/>
+   <topicref href="../topics/loading-the-tipc-module-when-the-system-boots_getting-started-with-tipc.dita"/>
+   <topicref href="../topics/creating-a-tipc-network_getting-started-with-tipc.dita"/>
+</map>

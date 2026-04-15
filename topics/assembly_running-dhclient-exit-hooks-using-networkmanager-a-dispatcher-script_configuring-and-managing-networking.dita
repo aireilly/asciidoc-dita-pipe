@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script_configuring-and-managing-networking">
+   <title>Running dhclient exit hooks using NetworkManager a dispatcher script</title>
+   <body>
+      <p>You can use a NetworkManager dispatcher script to execute <codeph>dhclient</codeph> exit hooks.</p>
+   </body>
+</topic>

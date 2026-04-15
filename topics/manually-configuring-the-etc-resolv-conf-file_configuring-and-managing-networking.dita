@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="manually-configuring-the-etc-resolv-conf-file_configuring-and-managing-networking">
+   <title>Manually configuring the /etc/resolv.conf file</title>
+   <body>
+      <p>By default, NetworkManager dynamically updates the <codeph>/etc/resolv.conf</codeph> file with the DNS settings from active NetworkManager connection profiles. However, you can disable this behavior and manually configure DNS settings in <codeph>/etc/resolv.conf</codeph>.</p>
+      <note>
+         <p>Alternatively, if you require a specific order of DNS servers in <codeph>/etc/resolv.conf</codeph>, see <xref href="#configuring-the-order-of-dns-servers_configuring-and-managing-networking">Configuring the order of DNS servers</xref>.</p>
+      </note>
+   </body>
+</topic>

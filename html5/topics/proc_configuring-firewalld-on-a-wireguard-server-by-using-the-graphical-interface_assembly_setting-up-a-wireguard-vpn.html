@@ -1,0 +1,62 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring firewalld on a WireGuard server by using the graphical interface</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-firewalld-on-a-wireguard-server-by-using-the-graphical-interface_assembly_setting-up-a-wireguard-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring <code class="ph codeph">firewalld</code> on a WireGuard server by using the graphical interface</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">Configure the <code class="ph codeph">firewalld</code> service on the WireGuard server, allowing incoming connections from clients. If clients need to use the server as their default gateway and route all traffic through the tunnel, enable also masquerading.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Press the <span class="ph">Super</span> key, enter <code class="ph codeph">firewall</code>, and select the <strong class="ph b">Firewall</strong> application from the results.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <code class="ph codeph">Permanent</code> in the <strong class="ph b">Configuration</strong> list.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the <code class="ph codeph">public</code> zone.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Allow incoming connections to the WireGuard port:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">On the <strong class="ph b">Ports</strong> tab, click <span class="ph uicontrol">Add</span>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enter the port number you set for incoming WireGuard connections:</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Select <code class="ph codeph">udp</code> from the <code class="ph codeph">Protocol</code> list.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <span class="ph uicontrol">OK</span>.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If clients should route all traffic through the tunnel and use the WireGuard server as the default gateway:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Navigate to the <strong class="ph b">Masquerading</strong> tab of the <strong class="ph b">public</strong> zone.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Select <code class="ph codeph">Masquerade zone</code>.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <span class="ph menucascade"><span class="ph uicontrol">Options</span><abbr title="and then"> &gt; </abbr><span class="ph uicontrol">Reload Firewalld</span></span>.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Display the configuration of the <code class="ph codeph">public</code> zone:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">firewall-cmd --list-all</strong>
+public (active)
+  ...
+  ports: 51820/udp
+  masquerade: yes
+  ...</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-a-wireguard-vpn_configuring-and-managing-networking.html">Setting up a WireGuard VPN</a></div></div></nav></article></main></body></html>

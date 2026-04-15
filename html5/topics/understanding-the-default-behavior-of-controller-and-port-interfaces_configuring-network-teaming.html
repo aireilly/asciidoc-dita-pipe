@@ -1,0 +1,32 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Understanding the default behavior of controller and port interfaces</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="understanding-the-default-behavior-of-controller-and-port-interfaces_configuring-network-teaming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Understanding the default behavior of controller and port interfaces</h1>
+   <div class="body conbody">
+      <p class="p">Understanding the default behavior of NetworkManager when managing bond port interfaces helps you to troubleshoot problems more effectively.</p>
+      <p class="p">Default behavior:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">Starting the controller interface does not automatically start the port interfaces.</p>
+         </li>
+         <li class="li">
+            <p class="p">Starting a port interface always starts the controller interface.</p>
+         </li>
+         <li class="li">
+            <p class="p">Stopping the controller interface also stops the port interface.</p>
+         </li>
+         <li class="li">
+            <p class="p">A controller without ports can start static IP connections.</p>
+         </li>
+         <li class="li">
+            <p class="p">A controller without ports waits for ports when starting DHCP connections.</p>
+         </li>
+         <li class="li">
+            <p class="p">A controller with a DHCP connection waiting for ports completes when you add a port with a carrier.</p>
+         </li>
+         <li class="li">
+            <p class="p">A controller with a DHCP connection waiting for ports continues waiting when you add a port without a carrier.</p>
+         </li>
+      </ul>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-teaming_configuring-and-managing-networking.html">Configuring a NIC team</a></div></div></nav></article></main></body></html>

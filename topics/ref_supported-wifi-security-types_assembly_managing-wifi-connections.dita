@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="ref_supported-wifi-security-types_assembly_managing-wifi-connections">
+   <title>Supported wifi security types</title>
+   <refbody>
+      <section>
+         <p>Depending on the security type a wifi network supports, you can transmit data more or less securely.</p>
+         <note type="attention">
+            <p>Do not connect to wifi networks that do not use encryption or which support only the insecure WEP or WPA standards.</p>
+         </note>
+         <p>RHEL 9 supports the following wifi security types:</p>
+         <ul>
+            <li>
+               <p>
+                  <codeph>None</codeph>: Encryption is disabled, and data is transferred in plain text over the network.</p>
+            </li>
+            <li>
+               <p>
+                  <codeph>Enhanced Open</codeph>: With opportunistic wireless encryption (OWE), devices negotiate unique pairwise master keys (PMK) to encrypt connections in wireless networks without authentication.</p>
+            </li>
+            <li>
+               <p>
+                  <codeph>LEAP</codeph>: The Lightweight Extensible Authentication Protocol, which was developed by Cisco, is a proprietary version of the extensible authentication protocol (EAP).</p>
+            </li>
+            <li>
+               <p>
+                  <codeph>WPA &amp; WPA2 Personal</codeph>: In personal mode, the Wi-Fi Protected Access (WPA) and Wi-Fi Protected Access 2 (WPA2) authentication methods use a pre-shared key.</p>
+            </li>
+            <li>
+               <p>
+                  <codeph>WPA &amp; WPA2 Enterprise</codeph>: In enterprise mode, WPA and WPA2 use the EAP framework and authenticate users to a remote authentication dial-in user service (RADIUS) server.</p>
+            </li>
+            <li>
+               <p>
+                  <codeph>WPA3 Personal</codeph>: Wi-Fi Protected Access 3 (WPA3) Personal uses simultaneous authentication of equals (SAE) instead of pre-shared keys (PSK) to prevent dictionary attacks. WPA3 uses perfect forward secrecy (PFS).</p>
+            </li>
+         </ul>
+      </section>
+   </refbody>
+</reference>

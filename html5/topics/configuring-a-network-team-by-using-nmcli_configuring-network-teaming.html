@@ -1,0 +1,206 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a NIC team by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-network-team-by-using-nmcli_configuring-network-teaming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a NIC team by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">teamd</code> and <code class="ph codeph">NetworkManager-team</code> packages are installed.</p>
+            </li>
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use Ethernet devices as ports of the team, the physical or virtual Ethernet devices must be installed on the server and connected to a switch.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use bond, bridge, or VLAN devices as ports of the team, you can either create these devices while you create the team or you can create them in advance as described in:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#configuring-a-network-bond-by-using-nmcli_configuring-network-bonding">Configuring a network bond by using nmcli</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#configuring-a-network-bridge-by-using-nmcli_configuring-a-network-bridge">Configuring a network bridge by using nmcli</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#configuring-vlan-tagging-by-using-nmcli_configuring-vlan-tagging">Configuring VLAN tagging by using nmcli</a>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">To configure a network interface controller (NIC) team on the command line, use the <code class="ph codeph">nmcli</code> utility.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">NIC teaming is deprecated in Red&nbsp;Hat Enterprise&nbsp;Linux&nbsp;9. Consider using the network bonding driver as an alternative. For details, see
+<a class="xref" href="#configuring-network-bonding_configuring-and-managing-networking">Configuring a network bond</a>.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a team interface:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type team con-name <em class="ph i">team0</em> ifname <em class="ph i">team0</em> team.runner <em class="ph i">activebackup</em>
+                  </strong>
+               </code></pre>
+               <p class="p">This command creates a NIC team named <code class="ph codeph">team0</code> that uses the <code class="ph codeph">activebackup</code> runner.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Set a link watcher. For example, to set the <code class="ph codeph">ethtool</code> link watcher in the <code class="ph codeph">team0</code> connection profile:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify team0 team.link-watchers "name=<em class="ph i">ethtool</em>"</strong>
+               </code></pre>
+               <p class="p">Link watchers support different parameters. To set parameters for a link watcher, specify them space-separated in the <code class="ph codeph">name</code> property. Note that the name property must be surrounded by quotation marks. For example, to use the <code class="ph codeph">ethtool</code> link watcher and set its <code class="ph codeph">delay-up</code> parameter to <code class="ph codeph">2500</code> milliseconds (2.5 seconds):</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify team0 team.link-watchers "name=<em class="ph i">ethtool</em> delay-up=<em class="ph i">2500</em>"</strong>
+               </code></pre>
+               <p class="p">To set multiple link watchers and each of them with specific parameters, the link watchers must be separated by a comma. The following example sets the <code class="ph codeph">ethtool</code> link watcher with the <code class="ph codeph">delay-up</code> parameter and the <code class="ph codeph">arp_ping</code> link watcher with the <code class="ph codeph">source-host</code> and <code class="ph codeph">target-host</code> parameter:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify team0 team.link-watchers "name=<em class="ph i">ethtool</em> delay-up=<em class="ph i">2</em>, name=<em class="ph i">arp_ping</em> source-host=<em class="ph i">192.0.2.1</em> target-host=<em class="ph i">192.0.2.2</em>"</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the network interfaces, and note the names of the interfaces you want to add to the team:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device status</strong>
+DEVICE  TYPE      STATE         CONNECTION
+enp7s0  ethernet  disconnected  --
+enp8s0  ethernet  disconnected  --
+bond0   bond      connected  bond0
+bond1   bond      connected  bond1
+...</code></pre>
+               <p class="p">In this example:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">enp7s0</code> and <code class="ph codeph">enp8s0</code> are not configured. To use these devices as ports, add connection profiles in the next step. Note that you can only use Ethernet interfaces in a team that are not assigned to any connection.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">bond0</code> and <code class="ph codeph">bond1</code> have existing connection profiles. To use these devices as ports, modify their profiles in the next step.</p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Assign the port interfaces to the team:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">If the interfaces you want to assign to the team are not configured, create new connection profiles for them:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ethernet port-type team con-name team0-port1 ifname enp7s0 controller team0</strong>
+# <strong class="ph b">nmcli connection add type ethernet port--type team con-name team0-port2 ifname enp8s0 controller team0</strong>
+                     </code></pre>
+                     <p class="p">These commands create profiles for <code class="ph codeph">enp7s0</code> and <code class="ph codeph">enp8s0</code>, and add them to the <code class="ph codeph">team0</code> connection.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">To assign an existing connection profile to the team:</p>
+                     <ol class="ol" type="i">
+                        <li class="li">
+                           <p class="p">Set the <code class="ph codeph">controller</code> parameter of these connections to <code class="ph codeph">team0</code>:</p>
+                           <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">bond0</em> controller team0</strong>
+# <strong class="ph b">nmcli connection modify <em class="ph i">bond1</em> controller team0</strong>
+                           </code></pre>
+                           <p class="p">These commands assign the existing connection profiles named <code class="ph codeph">bond0</code> and <code class="ph codeph">bond1</code> to the <code class="ph codeph">team0</code> connection.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Reactivate the connections:</p>
+                           <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">bond0</em>
+                              </strong>
+# <strong class="ph b">nmcli connection up <em class="ph i">bond1</em>
+                              </strong>
+                           </code></pre>
+                        </li>
+                     </ol>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the IPv4 settings:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To set a static IPv4 address, network mask, default gateway, and DNS server to the <code class="ph codeph">team0</code> connection, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify team0 ipv4.addresses '<em class="ph i">192.0.2.1/24</em>' ipv4.gateway '<em class="ph i">192.0.2.254</em>' ipv4.dns '<em class="ph i">192.0.2.253</em>' ipv4.dns-search '<em class="ph i">example.com</em>' ipv4.method manual</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">To use DHCP, no action is required.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If you plan to use this team device as a port of other devices, no action is required.</p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the IPv6 settings:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To set a static IPv6 address, network mask, default gateway, and DNS server to the <code class="ph codeph">team0</code> connection, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify team0 ipv6.addresses '<em class="ph i">2001:db8:1::1/64</em>' ipv6.gateway '<em class="ph i">2001:db8:1::fffe</em>' ipv6.dns '<em class="ph i">2001:db8:1::fffd</em>' ipv6.dns-search '<em class="ph i">example.com</em>' ipv6.method manual</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">If you plan to use this team device as a port of other devices, no action is required.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">To use stateless address autoconfiguration (SLAAC), no action is required.</p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up team0</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Display the status of the team:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">teamdctl team0 state</strong>
+setup:
+  runner: activebackup
+ports:
+  enp7s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+  enp8s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+runner:
+  active port: enp7s0</code></pre>
+               <p class="p">In this example, both ports are up.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting">Configuring NetworkManager to avoid using a specific profile to provide a default gateway</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming">Understanding the teamd service, runners, and link-watchers</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-teaming_configuring-and-managing-networking.html">Configuring a NIC team</a></div></div></nav></article></main></body></html>

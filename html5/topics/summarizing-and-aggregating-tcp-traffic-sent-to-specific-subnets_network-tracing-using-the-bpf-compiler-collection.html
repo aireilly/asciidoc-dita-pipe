@@ -1,0 +1,58 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Summarizing and aggregating TCP traffic sent to specific subnets</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="summarizing-and-aggregating-tcp-traffic-sent-to-specific-subnets_network-tracing-using-the-bpf-compiler-collection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Summarizing and aggregating TCP traffic sent to specific subnets</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">The <code class="ph codeph">tcpsubnet</code> utility summarizes and aggregates IPv4 TCP traffic that the local host sends to subnets and displays the output on a fixed interval. The utility uses eBPF features to collect and summarize the data to reduce the overhead.</p>
+         <p class="p">By default, <code class="ph codeph">tcpsubnet</code> summarizes traffic for the following subnets:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">127.0.0.1/32</code>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">10.0.0.0/8</code>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">172.16.0.0/12</code>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">192.0.2.0/24/16</code>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <code class="ph codeph">0.0.0.0/0</code>
+               </p>
+            </li>
+         </ul>
+         <p class="p">Note that the last subnet (<code class="ph codeph">0.0.0.0/0</code>) is a catch-all option. The <code class="ph codeph">tcpsubnet</code> utility counts all traffic for subnets different from the first four in this catch-all entry.</p>
+         <p class="p">Follow the procedure to count the traffic for the <code class="ph codeph">192.0.2.0/24</code> and <code class="ph codeph">198.51.100.0/24</code> subnets. Traffic to other subnets will be tracked in the <code class="ph codeph">0.0.0.0/0</code> catch-all subnet entry.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Start monitoring the amount of traffic sent to the <code class="ph codeph">192.0.2.0/24</code>, <code class="ph codeph">198.51.100.0/24</code>, and other subnets:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">/usr/share/bcc/tools/tcpsubnet 192.0.2.0/24,198.51.100.0/24,0.0.0.0/0</strong>
+Tracing... Output every 1 secs. Hit Ctrl-C to end
+[02/21/20 10:04:50]
+192.0.2.0/24           856
+198.51.100.0/24       7467
+[02/21/20 10:04:51]
+192.0.2.0/24          1200
+198.51.100.0/24       8763
+0.0.0.0/0              673
+...</code></pre>
+               <p class="p">This command displays the traffic in bytes for the specified subnets once per second.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press <span class="ph">Ctrl</span>+<span class="ph">C</span> to stop the tracing process.</span>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="network-tracing-using-the-bpf-compiler-collection_configuring-and-managing-networking.html">Network tracing using the BPF compiler collection</a></div></div></nav></article></main></body></html>

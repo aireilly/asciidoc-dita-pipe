@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="ref_overview-of-networking-ebpf-features-in-rhel-9_assembly_understanding-the-ebpf-features-in-rhel-9">
+   <title>Overview of networking eBPF features in RHEL 9</title>
+   <refbody>
+      <section>
+         <p>The Extended Berkeley Packet Filter (eBPF) lets developers run sandboxed programs in the Linux kernel. For networking, eBPF programs attach to hooks to inspect, modify, and filter traffic.</p>
+         <p>You can attach extended Berkeley Packet Filter (eBPF) networking programs to the following hooks in RHEL:</p>
+         <ul>
+            <li>
+               <p>eXpress Data Path (XDP): Provides early access to received packets before the kernel networking stack processes them.</p>
+            </li>
+            <li>
+               <p>
+                  <codeph>tc</codeph> eBPF classifier with a direct-action flag: Provides powerful packet processing on ingress and egress. Programs can be attached as an eBPF classifier with a direct-action flag in the <codeph>qdisc</codeph> hierarchy, or using the link-based <codeph>tcx</codeph> API.</p>
+            </li>
+            <li>
+               <p>Control Groups version 2 (cgroup v2): Enables filtering and overriding socket-based operations performed by programs in a control group.</p>
+            </li>
+            <li>
+               <p>Socket filtering: Enables filtering of packets received from sockets. This feature was also available in the classic Berkeley Packet Filter (cBPF), but has been extended to support eBPF programs.</p>
+            </li>
+            <li>
+               <p>Stream parser: Enables splitting up streams to individual messages, filtering, and redirecting them to sockets.</p>
+            </li>
+            <li>
+               <p>
+                  <codeph>SO_REUSEPORT</codeph> socket selection: Provides a programmable selection of a receiving socket from a <codeph>reuseport</codeph> socket group.</p>
+            </li>
+            <li>
+               <p>Flow dissector: Enables overriding the way the kernel parses packet headers in certain situations.</p>
+            </li>
+            <li>
+               <p>TCP congestion control callbacks: Enables implementing a custom TCP congestion control algorithm.</p>
+            </li>
+            <li>
+               <p>Routes with encapsulation: Enables creating custom tunnel encapsulation.</p>
+               <dl>
+                  <dlentry>
+                     <dt>XDP</dt>
+                     <dd>
+                        <p>You can attach programs of the <codeph>BPF_PROG_TYPE_XDP</codeph> type to a network interface. The kernel then executes the program on received packets before the kernel network stack starts processing them. This allows fast packet forwarding in certain situations, such as fast packet dropping to prevent distributed denial of service (DDoS) attacks and fast packet redirects for load balancing scenarios.</p>
+                        <p>You can also use XDP for different forms of packet monitoring and sampling. The kernel allows XDP programs to modify packets and to pass them for further processing to the kernel network stack.</p>
+                        <p>The following XDP modes are available:</p>
+                        <ul>
+                           <li>
+                              <p>Native (driver) XDP: The kernel executes the program from the earliest possible point during packet reception. At this moment, the kernel did not parse the packet and, therefore, no metadata provided by the kernel is available. This mode requires that the network interface driver supports XDP but not all drivers support this native mode.</p>
+                           </li>
+                           <li>
+                              <p>Generic XDP: The kernel network stack executes the XDP program early in the processing. At that time, kernel data structures have been allocated, and the packet has been pre-processed. If a packet should be dropped or redirected, it requires a significant overhead compared to the native mode. However, the generic mode does not require network interface driver support and works with all network interfaces.</p>
+                           </li>
+                           <li>
+                              <p>Offloaded XDP: The kernel executes the XDP program on the network interface instead of on the host CPU. Note that this requires specific hardware, and only certain eBPF features are available in this mode.</p>
+                           </li>
+                        </ul>
+                        <p>On RHEL, load all XDP programs using the <codeph>libxdp</codeph> library. This library enables system-controlled usage of XDP.</p>
+                        <note>
+                           <p>Currently, there are some system configuration limitations for XDP programs. For example, you must disable certain hardware offload features on the receiving interface. Additionally, not all features are available with all drivers that support the native mode.</p>
+                        </note>
+                        <p>In RHEL 9, Red Hat supports the XDP features only if you use the <codeph>libxdp</codeph> library to load the program into the kernel.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>AF_XDP</dt>
+                     <dd>
+                        <p>Using an XDP program that filters and redirects packets to a given <codeph>AF_XDP</codeph> socket, you can use one or more sockets from the <codeph>AF_XDP</codeph> protocol family to quickly copy packets from the kernel to the user space.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>Traffic Control</dt>
+                     <dd>
+                        <p>The Traffic Control (<codeph>tc</codeph>) subsystem offers the following types of eBPF programs:</p>
+                        <ul>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_SCHED_CLS</codeph>
+                              </p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_SCHED_ACT</codeph>
+                              </p>
+                           </li>
+                        </ul>
+                        <p>These types enable you to write custom <codeph>tc</codeph> classifiers and <codeph>tc</codeph> actions in eBPF. Together with the parts of the <codeph>tc</codeph> ecosystem, this provides the ability for powerful packet processing and is the core part of several container networking orchestration solutions.</p>
+                        <p>In most cases, only the classifier is used, as with the direct-action flag, the eBPF classifier can execute actions directly from the same eBPF program. The <codeph>clsact</codeph> Queueing Discipline (<codeph>qdisc</codeph>) has been designed to enable this on the ingress side.</p>
+                        <p>Note that using a flow dissector eBPF program can influence operation of some other <codeph>qdiscs</codeph> and <codeph>tc</codeph> classifiers, such as <codeph>flower</codeph>.</p>
+                        <p>The link-based <codeph>tcx</codeph> API is provided along with the <codeph>qdisc</codeph> API. It enables your applications to maintain ownership over a BPF program to prevent accidental removal of the BPF program. Also, the <codeph>tcx</codeph> API has multiprogram support that allows multiple applications to attach BPF programs in the <codeph>tc</codeph> layer in parallel.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>Socket filter</dt>
+                     <dd>
+                        <p>Several utilities use or have used the classic Berkeley Packet Filter (cBPF) for filtering packets received on a socket. For example, the <codeph>tcpdump</codeph> utility enables the user to specify expressions, which <codeph>tcpdump</codeph> then translates into cBPF code.</p>
+                        <p>As an alternative to cBPF, the kernel allows eBPF programs of the <codeph>BPF_PROG_TYPE_SOCKET_FILTER</codeph> type for the same purpose.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>Control Groups</dt>
+                     <dd>
+                        <p>In RHEL, you can use multiple types of eBPF programs that you can attach to a cgroup. The kernel executes these programs when a program in the given cgroup performs an operation. Note that you can use only cgroups version 2.</p>
+                        <p>The following networking-related cgroup eBPF programs are available in RHEL:</p>
+                        <ul>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_SOCK_OPS</codeph>: The kernel calls this program on various TCP events. The program can adjust the behavior of the kernel TCP stack, including custom TCP header options, and so on.</p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_CGROUP_SOCK_ADDR</codeph>: The kernel calls this program during <codeph>connect</codeph>, <codeph>bind</codeph>, <codeph>sendto</codeph>, <codeph>recvmsg</codeph>, <codeph>getpeername</codeph>, and <codeph>getsockname</codeph> operations. This program allows changing IP addresses and ports. This is useful when you implement socket-based network address translation (NAT) in eBPF.</p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_CGROUP_SOCKOPT</codeph>: The kernel calls this program during <codeph>setsockopt</codeph> and <codeph>getsockopt</codeph> operations and allows changing the options.</p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_CGROUP_SOCK</codeph>: The kernel calls this program during socket creation, socket releasing, and binding to addresses. You can use these programs to allow or deny the operation, or only to inspect socket creation for statistics.</p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_CGROUP_SKB</codeph>: This program filters individual packets on ingress and egress, and can accept or reject packets.</p>
+                           </li>
+                        </ul>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>Stream Parser</dt>
+                     <dd>
+                        <p>A stream parser operates on a group of sockets that are added to a special eBPF map. The eBPF program then processes packets that the kernel receives or sends on those sockets.</p>
+                        <p>The following stream parser eBPF programs are available in RHEL:</p>
+                        <ul>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_SK_SKB</codeph>: An eBPF program parses packets received on the socket into individual messages, and instructs the kernel to drop those messages, accept them, or send them to another socket.</p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_SK_MSG</codeph>: This program filters egress messages. An eBPF program parses the packets and either approves or rejects them.</p>
+                           </li>
+                        </ul>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>SO_REUSEPORT socket selection</dt>
+                     <dd>
+                        <p>Using this socket option, you can bind multiple sockets to the same IP address and port. Without eBPF, the kernel selects the receiving socket based on a connection hash. With the <codeph>BPF_PROG_TYPE_SK_REUSEPORT</codeph> program, the selection of the receiving socket is fully programmable.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>Flow dissector</dt>
+                     <dd>
+                        <p>When the kernel needs to process packet headers without going through the full protocol decode, they are <codeph>dissected</codeph>. For example, this happens in the <codeph>tc</codeph> subsystem, in multipath routing, in bonding, or when calculating a packet hash. In this situation the kernel parses the packet headers and fills internal structures with the information from the packet headers. You can replace this internal parsing using the <codeph>BPF_PROG_TYPE_FLOW_DISSECTOR</codeph> program. Note that you can only dissect TCP and UDP over IPv4 and IPv6 in eBPF in RHEL.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>TCP Congestion Control</dt>
+                     <dd>
+                        <p>You can write a custom TCP congestion control algorithm using a group of <codeph>BPF_PROG_TYPE_STRUCT_OPS</codeph> programs that implement <codeph>struct tcp_congestion_oops</codeph> callbacks. An algorithm that is implemented this way is available to the system alongside the built-in kernel algorithms.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>Routes with encapsulation</dt>
+                     <dd>
+                        <p>You can attach one of the following eBPF program types to routes in the routing table as a tunnel encapsulation attribute:</p>
+                        <ul>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_LWT_IN</codeph>
+                              </p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_LWT_OUT</codeph>
+                              </p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>BPF_PROG_TYPE_LWT_XMIT</codeph>
+                              </p>
+                           </li>
+                        </ul>
+                        <p>The functionality of such an eBPF program is limited to specific tunnel configurations and does not allow creating a generic encapsulation or decapsulation solution.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>Socket lookup</dt>
+                     <dd>
+                        <p>To bypass limitations of the <codeph>bind</codeph> system call, use an eBPF program of the <codeph>BPF_PROG_TYPE_SK_LOOKUP</codeph> type. Such programs can select a listening socket for new incoming TCP connections or an unconnected socket for UDP packets.</p>
+                     </dd>
+                  </dlentry>
+               </dl>
+            </li>
+         </ul>
+      </section>
+   </refbody>
+</reference>

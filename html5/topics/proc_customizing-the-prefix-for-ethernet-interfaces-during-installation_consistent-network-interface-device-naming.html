@@ -1,0 +1,79 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Customizing the prefix for Ethernet interfaces during installation</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_customizing-the-prefix-for-ethernet-interfaces-during-installation_consistent-network-interface-device-naming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Customizing the prefix for Ethernet interfaces during installation</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The prefix consists of ASCII characters.</p>
+            </li>
+            <li class="li">
+               <p class="p">The prefix is an alphanumeric string.</p>
+            </li>
+            <li class="li">
+               <p class="p">The prefix is shorter than 16 characters.</p>
+            </li>
+            <li class="li">
+               <p class="p">The prefix does not conflict with any other well-known network interface prefix, such as <code class="ph codeph">eth</code>, <code class="ph codeph">eno</code>, <code class="ph codeph">ens</code>, and <code class="ph codeph">em</code>.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">If you do not want to use the default device-naming policy for Ethernet interfaces, you can set a custom device prefix during the Red&nbsp;Hat Enterprise&nbsp;Linux (RHEL) installation.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">Red&nbsp;Hat supports systems with customized Ethernet prefixes only if you set the prefix during the RHEL installation. Using the <code class="ph codeph">prefixdevname</code> utility on already deployed systems is not supported.</p>
+         </div></div>
+         <p class="p">If you set a device prefix during the installation, the <code class="ph codeph">udev</code> service uses the <code class="ph codeph">
+               <em class="ph i">&lt;prefix&gt;&lt;index&gt;</em>
+            </code> format for Ethernet interfaces after the installation. For example, if you set the prefix <code class="ph codeph">net</code>, the service assigns the names <code class="ph codeph">net0</code>, <code class="ph codeph">net1</code>, and so on to the Ethernet interfaces.</p>
+         <p class="p">The <code class="ph codeph">udev</code> service appends the index to the custom prefix, and preserves the index values of known Ethernet interfaces. If you add an interface, <code class="ph codeph">udev</code> assigns an index value that is one greater than the previously-assigned index value to the new interface.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Boot the Red&nbsp;Hat Enterprise&nbsp;Linux installation media.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">In the boot manager, follow these steps:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Select the <code class="ph codeph">Install Red&nbsp;Hat Enterprise&nbsp;Linux <em class="ph i">&lt;version&gt;</em>
+                        </code> entry.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Press <span class="ph">Tab</span> to edit the entry.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Append <code class="ph codeph">net.ifnames.prefix=<em class="ph i">&lt;prefix&gt;</em>
+                        </code> to the kernel options.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Press <span class="ph">Enter</span> to start the installation program.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Install Red&nbsp;Hat Enterprise&nbsp;Linux.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">To verify the interface names, display the network interfaces:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip link show</strong>
+...
+2: net0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...</code></pre>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/interactively_installing_rhel_from_installation_media/index" target="_blank" rel="external noopener">Interactively installing RHEL from installation media</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="consistent-network-interface-device-naming_configuring-and-managing-networking.html">Implementing consistent network interface naming</a></div></div></nav></article></main></body></html>

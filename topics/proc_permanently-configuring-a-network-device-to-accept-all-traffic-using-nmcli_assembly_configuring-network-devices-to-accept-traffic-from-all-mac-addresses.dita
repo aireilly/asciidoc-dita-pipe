@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_permanently-configuring-a-network-device-to-accept-all-traffic-using-nmcli_assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses">
+   <title>Permanently configuring a network device to accept all traffic using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <context>
+         <p>You can use the <codeph>nmcli</codeph> utility to permanently configure a network device to accept all traffic regardless of the MAC addresses.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: Display the network interfaces to identify the one for which you want to receive all traffic:</cmd>
+            <info>
+               <codeblock># <b>ip address show</b>
+1: enp1s0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc fq_codel state DOWN group default qlen 1000
+    link/ether 98:fa:9b:a4:34:09 brd ff:ff:ff:ff:ff:ff
+...</codeblock>
+               <p>You can create a new connection, if you do not have any.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Modify the network device to enable or disable this property.</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>To enable the <codeph>ethernet.accept-all-mac-addresses</codeph> mode for <codeph>enp1s0</codeph>:</p>
+                     <codeblock># <b>nmcli connection modify <i>enp1s0</i> ethernet.accept-all-mac-addresses <i>yes</i>
+                        </b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>To disable the <codeph>accept-all-mac-addresses</codeph> mode for <codeph>enp1s0</codeph>:</p>
+                     <codeblock># <b>nmcli connection modify <i>enp1s0</i> ethernet.accept-all-mac-addresses <i>no</i>
+                        </b>
+                     </codeblock>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Apply the changes, reactivate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>enp1s0</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Verify that the <codeph>ethernet.accept-all-mac-addresses</codeph> mode is enabled:</p>
+               <codeblock># <b>nmcli connection show <i>enp1s0</i>
+                  </b>
+...
+802-3-ethernet.accept-all-mac-addresses:1     <b>(true)</b>
+               </codeblock>
+               <p>The <codeph>802-3-ethernet.accept-all-mac-addresses: true</codeph> indicates that the mode is enabled.</p>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

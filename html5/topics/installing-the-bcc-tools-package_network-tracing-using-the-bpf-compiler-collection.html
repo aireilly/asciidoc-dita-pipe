@@ -1,0 +1,37 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Installing the bcc-tools package</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="installing-the-bcc-tools-package_network-tracing-using-the-bpf-compiler-collection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Installing the bcc-tools package</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">Install the <code class="ph codeph">bcc-tools</code> package, which also installs the BPF Compiler Collection (BCC) library as a dependency.</p>
+      </section>
+      <section><div class="ul steps-unordered"><div class="li step p">
+            <span class="ph cmd">Install <code class="ph codeph">bcc-tools</code>.</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">dnf install bcc-tools</strong>
+               </code></pre>
+               <p class="p">The BCC tools are installed in the <code class="ph codeph">/usr/share/bcc/tools/</code> directory.</p>
+            </div>
+         </div></div></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Inspect the installed tools:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ls -l /usr/share/bcc/tools/</strong>
+...
+-rwxr-xr-x. 1 root root  4198 Dec 14 17:53 dcsnoop
+-rwxr-xr-x. 1 root root  3931 Dec 14 17:53 dcstat
+-rwxr-xr-x. 1 root root 20040 Dec 14 17:53 deadlock_detector
+-rw-r--r--. 1 root root  7105 Dec 14 17:53 deadlock_detector.c
+drwxr-xr-x. 3 root root  8192 Mar 11 10:28 doc
+-rwxr-xr-x. 1 root root  7588 Dec 14 17:53 execsnoop
+-rwxr-xr-x. 1 root root  6373 Dec 14 17:53 ext4dist
+-rwxr-xr-x. 1 root root 10401 Dec 14 17:53 ext4slower
+...</code></pre>
+               <p class="p">The <code class="ph codeph">doc</code> directory in the listing provides documentation for each tool.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="network-tracing-using-the-bpf-compiler-collection_configuring-and-managing-networking.html">Network tracing using the BPF compiler collection</a></div></div></nav></article></main></body></html>

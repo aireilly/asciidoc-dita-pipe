@@ -1,0 +1,97 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Increasing the ring buffer size to reduce a high packet drop rate by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="increasing-the-ring-buffers-to-reduce-a-high-packet-drop-rate_configuring-ethtool-settings-in-networkmanager-connection-profiles"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Increasing the ring buffer size to reduce a high packet drop rate by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">Increase the size of an Ethernet device’s ring buffers if the packet drop rate causes applications to report a loss of data, timeouts, or other issues.</p>
+         <p class="p">Receive ring buffers are shared between the device driver and network interface controller (NIC). The card assigns a transmit (TX) and receive (RX) ring buffer. As the name implies, the ring buffer is a circular buffer where an overflow overwrites existing data. There are two ways to move data from the NIC to the kernel, hardware interrupts and software interrupts, also called SoftIRQs.</p>
+         <p class="p">The kernel uses the RX ring buffer to store incoming packets until the device driver can process them. The device driver drains the RX ring, typically by using SoftIRQs, which puts the incoming packets into a kernel data structure called an <code class="ph codeph">sk_buff</code> or <code class="ph codeph">skb</code> to begin its journey through the kernel and up to the application that owns the relevant socket.</p>
+         <p class="p">The kernel uses the TX ring buffer to hold outgoing packets which should be sent to the network. These ring buffers reside at the bottom of the stack and are a crucial point at which packet drop can occur, which in turn will adversely affect network performance.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Display the packet drop statistics of the interface:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ethtool -S <em class="ph i">enp1s0</em>
+                  </strong>
+    ...
+    rx_queue_0_drops: <em class="ph i">97326</em>
+    rx_queue_1_drops: <em class="ph i">63783</em>
+    ...</code></pre>
+               <p class="p">Note that the output of the command depends on the network card and the driver.</p>
+               <p class="p">High values in <code class="ph codeph">discard</code> or <code class="ph codeph">drop</code> counters indicate that the available buffer fills up faster than the kernel can process the packets. Increasing the ring buffers can help to avoid such loss.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the maximum ring buffer sizes:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ethtool -g <em class="ph i">enp1s0</em>
+                  </strong>
+ Ring parameters for <em class="ph i">enp1s0</em>:
+ Pre-set maximums:
+ RX:             <em class="ph i">4096</em>
+ RX Mini:        <em class="ph i">0</em>
+ RX Jumbo:       <em class="ph i">16320</em>
+ TX:             <em class="ph i">4096</em>
+ Current hardware settings:
+ RX:             <em class="ph i">255</em>
+ RX Mini:        <em class="ph i">0</em>
+ RX Jumbo:       <em class="ph i">0</em>
+ TX:             <em class="ph i">255</em>
+               </code></pre>
+               <p class="p">If the values in the <code class="ph codeph">Pre-set maximums</code> section are higher than in the <code class="ph codeph">Current hardware settings</code> section, you can change the settings in the next steps.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Identify the NetworkManager connection profile that uses the interface:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show</strong>
+NAME                UUID                                  TYPE      DEVICE
+<em class="ph i">Example-Connection</em>
+                  <em class="ph i">a5eb6490-cc20-3668-81f8-0314a27f3f75</em>  ethernet  <em class="ph i">enp1s0</em>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Update the connection profile, and increase the ring buffers:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To increase the RX ring buffer, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">Example-Connection</em> ethtool.ring-rx <em class="ph i">4096</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">To increase the TX ring buffer, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">Example-Connection</em> ethtool.ring-tx <em class="ph i">4096</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Reload the NetworkManager connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">Example-Connection</em>
+                  </strong>
+               </code></pre>
+               <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+                  <p class="p">Depending on the driver your NIC uses, changing in the ring buffer can shortly interrupt the network connection.</p>
+               </div></div>
+            </div>
+         </li></ol></section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/solutions/2073223" target="_blank" rel="external noopener">ifconfig and ip commands report packet drops (Red Hat Knowledgebase)</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/solutions/742043" target="_blank" rel="external noopener">Should I be concerned about a 0.05% packet drop rate? (Red Hat Knowledgebase)</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-ethtool-settings-in-networkmanager-connection-profiles_configuring-and-managing-networking.html">Configuring ethtool settings in NetworkManager connection profiles</a></div></div></nav></article></main></body></html>

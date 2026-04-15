@@ -1,0 +1,240 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring an IPsec mesh VPN with certificate-based authentication by using the vpn RHEL system role</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-an-ipsec-mesh-vpn-with-certificate-based-authentication-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring an IPsec mesh VPN with certificate-based authentication by using the <code class="ph codeph">vpn</code> RHEL system role</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles" target="_blank" rel="external noopener">You have prepared the control node and the managed nodes</a>.</p>
+            </li>
+            <li class="li">
+               <p class="p">The account you use to connect to the managed nodes has <code class="ph codeph">sudo</code> permissions for these nodes.</p>
+            </li>
+            <li class="li">
+               <p class="p">You prepared a PKCS #12 file for each managed node:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">Each file contains:</p>
+                     <ul class="ul">
+                        <li class="li">
+                           <p class="p">The private key of the server</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">The server certificate</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">The CA certificate</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">If required, intermediate certificates</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li class="li">
+                     <p class="p">The files are named <code class="ph codeph">
+                           <em class="ph i">&lt;managed_node_name_as_in_the_inventory&gt;</em>.p12</code>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The files are stored in the same directory as the playbook.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The server certificate contains the following fields:</p>
+                     <ul class="ul">
+                        <li class="li">
+                           <p class="p">Extended Key Usage (EKU) is set to <code class="ph codeph">TLS Web Server Authentication</code>.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Common Name (CN) or Subject Alternative Name (SAN) is set to the fully-qualified domain name (FQDN) of the host.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">X509v3 CRL distribution points contain URLs to Certificate Revocation Lists (CRLs).</p>
+                        </li>
+                     </ul>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">An IPsec mesh creates a fully interconnected network where every server can communicate securely and directly with every other server. By using the <code class="ph codeph">vpn</code> RHEL system role, you can automate configuring a VPN mesh with certificate-based authentication among managed nodes.</p>
+         <p class="p">An IPsec mesh is ideal for distributed database clusters or high-availability environments that span multiple data centers or cloud providers. Establishing a direct, encrypted tunnel between each pair of servers ensures secure communication without a central bottleneck.</p>
+         <p class="p">For authentication, using digital certificates managed by a Certificate Authority (CA) offers a highly secure and scalable solution. Each host in the mesh presents a certificate signed by a trusted CA. This method provides strong, verifiable authentication and simplifies user management. Access can be granted or revoked centrally at the CA, and Libreswan enforces this by checking each certificate against a certificate revocation list (CRL), denying access if a certificate appears on the list.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Edit the <code class="ph codeph">~/inventory</code> file, and append the <code class="ph codeph">cert_name</code> variable:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-ini"><code>managed-node-01.example.com <strong class="ph b">cert_name=<em class="ph i">managed-node-01.example.com</em>
+                  </strong>
+managed-node-02.example.com <strong class="ph b">cert_name=<em class="ph i">managed-node-02.example.com</em>
+                  </strong>
+managed-node-03.example.com <strong class="ph b">cert_name=<em class="ph i">managed-node-03.example.com</em>
+                  </strong>
+               </code></pre>
+               <p class="p">Set the <code class="ph codeph">cert_name</code> variable to the value of the common name (CN) field used in the certificate for each host. Typically, the CN field is set to the fully-qualified domain name (FQDN).</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Store your sensitive variables in an encrypted file:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create the vault:</p>
+                     <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-vault create ~/vault.yml</strong>
+New Vault password: <em class="ph i">&lt;vault_password&gt;</em>
+Confirm New Vault password: <em class="ph i">&lt;vault_password&gt;</em>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">After the <code class="ph codeph">ansible-vault create</code> command opens an editor, enter the sensitive data in the <code class="ph codeph">
+                           <em class="ph i">&lt;key&gt;</em>: <em class="ph i">&lt;value&gt;</em>
+                        </code> format:</p>
+                     <pre class="pre codeblock language-ini"><code>pkcs12_pwd: <em class="ph i">&lt;password&gt;</em>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Save the changes, and close the editor. Ansible encrypts the data in the vault.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create a playbook file, for example, <code class="ph codeph">~/playbook.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>- name: Configuring VPN
+  hosts: managed-node-01.example.com, managed-node-02.example.com, managed-node-03.example.com
+  vars_files:
+    - ~/vault.yml
+  tasks:
+    - name: Install LibreSwan
+      ansible.builtin.package:
+        name: libreswan
+        state: present
+
+    - name: Identify the path to IPsec NSS database
+      ansible.builtin.set_fact:
+        nss_db_dir: "{{ '/etc/ipsec.d/' if
+          ansible_distribution in ['CentOS', 'RedHat']
+          and ansible_distribution_major_version is version('8', '=')
+          else '/var/lib/ipsec/nss/' }}"
+
+    - name: Locate IPsec NSS database files
+      ansible.builtin.find:
+        paths: "{{ nss_db_dir }}"
+        patterns: "*.db"
+      register: db_files
+
+    - name: Initialize IPsec NSS database if not initialized
+      ansible.builtin.command:
+        cmd: ipsec initnss
+      when: db_files.matched == 0
+
+    - name: Copy PKCS #12 file to the managed node
+      ansible.builtin.copy:
+        src: "~/{{ inventory_hostname }}.p12"
+        dest: "/etc/ipsec.d/{{ inventory_hostname }}.p12"
+        mode: 0600
+
+    - name: Import PKCS #12 file in IPsec NSS database
+      ansible.builtin.shell:
+        cmd: 'pk12util -d {{ nss_db_dir }} -i /etc/ipsec.d/{{ inventory_hostname }}.p12 -W "{{ pkcs12_pwd }}"'
+
+    - name: Remove PKCS #12 file
+      ansible.builtin.file:
+        path: "/etc/ipsec.d/{{ inventory_hostname }}.p12"
+        state: absent
+
+    - name: Opportunistic mesh IPsec VPN with certificate-based authentication
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.vpn
+      vars:
+        vpn_connections:
+          - opportunistic: true
+            auth_method: cert
+            policies:
+              - policy: private
+                cidr: default
+              - policy: private
+                cidr: 192.0.2.0/24
+              - policy: clear
+                cidr: 192.0.2.1/32
+        vpn_manage_firewall: true
+        vpn_manage_selinux: true</code></pre>
+               <p class="p">The settings specified in the example playbook include the following:</p>
+               <dl class="dl">
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">opportunistic: true</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Enables an opportunistic mesh among multiple hosts. The <code class="ph codeph">policies</code> variable defines for which subnets and hosts traffic must or can be encrypted and which of them should continue using plain text connections.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">auth_method: cert</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Enables certificate-based authentication. This requires that you specify the nickname of each managed node’s certificate in the inventory.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">policies: <em class="ph i">&lt;list_of_policies&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines the Libreswan policies in YAML list format.</p>
+                        <p class="p">The default policy is <code class="ph codeph">private-or-clear</code>. To change it to <code class="ph codeph">private</code>, the above playbook contains an according policy for the default <code class="ph codeph">cidr</code> entry.</p>
+                        <p class="p">To prevent a loss of the SSH connection during the execution of the playbook if the Ansible control node is in the same IP subnet as the managed nodes, add a <code class="ph codeph">clear</code> policy for the control node’s IP address. For example, if the mesh should be configured for the <code class="ph codeph">192.0.2.0/24</code> subnet and the control node uses the IP address <code class="ph codeph">192.0.2.1</code>, you require a <code class="ph codeph">clear</code> policy for <code class="ph codeph">192.0.2.1/32</code> as shown in the playbook.</p>
+                        <p class="p">For details about policies, see the <code class="ph codeph">ipsec.conf(5)</code> man page on a system with Libreswan installed.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">vpn_manage_firewall: true</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines that the role opens the required ports in the <code class="ph codeph">firewalld</code> service on the managed nodes.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">vpn_manage_selinux: true</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Defines that the role sets the required SELinux port type on the IPsec ports.</p>
+                     </dd>
+                  
+               </dl>
+               <p class="p">For details about all variables used in the playbook, see the <code class="ph codeph">/usr/share/ansible/roles/rhel-system-roles.vpn/README.md</code> file on the control node.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Validate the playbook syntax:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook --ask-vault-pass --syntax-check ~/playbook.yml</strong>
+               </code></pre>
+               <p class="p">Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Run the playbook:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook --ask-vault-pass ~/playbook.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">On a node in the mesh, ping another node to activate the connection:</p>
+               <pre class="pre codeblock"><code>[root@managed-node-01]# <strong class="ph b">ping managed-node-02.example.com</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Confirm that the connection is active:</p>
+               <pre class="pre codeblock"><code>[root@managed-node-01]# <strong class="ph b">ipsec trafficstatus</strong>
+006 #2: "private#192.0.2.0/24"[1] ...192.0.2.2, type=ESP, add_time=1741938929, inBytes=372408, outBytes=545728, maxBytes=2^63B, id='CN=managed-node-02.example.com'</code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role_setting-up-an-ipsec-vpn.html">Configuring IPsec VPN connections by using RHEL&nbsp;system&nbsp;roles</a></div></div></nav></article></main></body></html>

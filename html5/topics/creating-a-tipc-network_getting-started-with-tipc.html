@@ -1,0 +1,74 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Creating a TIPC network</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="creating-a-tipc-network_getting-started-with-tipc"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Creating a TIPC network</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">tipc</code> module has been loaded. For details,
+see <a class="xref" href="#loading-the-tipc-module-when-the-system-boots_getting-started-with-tipc">Loading the tipc module when the system boots</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">To create a TIPC network, perform this procedure on each host that should join the TIPC network.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">The commands configure the TIPC network only temporarily. To permanently configure TIPC on a node, use the commands of this procedure in a script, and configure RHEL to execute that script when the system boots.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Set a unique node identity, such as a UUID or the node’s host name:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">tipc node set identity <em class="ph i">host_name</em>
+                  </strong>
+               </code></pre>
+               <p class="p">The identity can be any unique string consisting of a maximum 16 letters and numbers.</p>
+               <p class="p">You cannot set or change an identity after this step.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Add a bearer. For example, to use Ethernet as media and <code class="ph codeph">enp0s1</code> device as physical bearer device, enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">tipc bearer enable media <em class="ph i">eth</em> device <em class="ph i">enp1s0</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: For redundancy and better performance, attach further bearers using the command from the previous step. You can configure up to three bearers, but not more than two on the same media.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Repeat all previous steps on each node that should join the TIPC network.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the link status for cluster members:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">tipc link list</strong>
+broadcast-link: up
+5254006b74be:enp1s0-525400df55d1:enp1s0: up</code></pre>
+               <p class="p">This output indicates that the link between bearer <code class="ph codeph">enp1s0</code> on node <code class="ph codeph">5254006b74be</code> and bearer <code class="ph codeph">enp1s0</code> on node <code class="ph codeph">525400df55d1</code> is <code class="ph codeph">up</code>.</p>
+            </li>
+            <li class="li">
+               <p class="p">Display the TIPC publishing table:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">tipc nametable show</strong>
+Type       Lower      Upper      Scope    Port       Node
+0          1795222054 1795222054 cluster  0          5254006b74be
+0          3741353223 3741353223 cluster  0          525400df55d1
+1          1          1          node     2399405586 5254006b74be
+2          3741353223 3741353223 node     0          5254006b74be</code></pre>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">The two entries with service type <code class="ph codeph">0</code> indicate that two nodes are members of this cluster.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The entry with service type <code class="ph codeph">1</code> represents the built-in topology service tracking service.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The entry with service type <code class="ph codeph">2</code> displays the link as seen from the issuing node. The range limit <code class="ph codeph">3741353223</code> represents the peer endpoint’s address (a unique 32-bit hash value based on the node identity) in decimal format.</p>
+                  </li>
+               </ul>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="getting-started-with-tipc_configuring-and-managing-networking.html">Getting started with TIPC</a></div></div></nav></article></main></body></html>

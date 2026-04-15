@@ -1,0 +1,87 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Connecting to a wifi network by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_connecting-to-a-wifi-network-by-using-nmcli_assembly_managing-wifi-connections"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Connecting to a wifi network by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A wifi device is installed on the host.</p>
+            </li>
+            <li class="li">
+               <p class="p">The wifi device is enabled. To verify, use the <code class="ph codeph">nmcli radio</code> command.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">When you first use the <code class="ph codeph">nmcli</code> utility to connect to a wifi network, it automatically creates a NetworkManager connection profile. You can then modify this profile to add specific settings, such as a static IP address.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">If the wifi radio has been disabled in NetworkManager, enable this feature:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli radio wifi on</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Display the available wifi networks:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device wifi list</strong>
+IN-USE  BSSID              SSID          MODE   CHAN  RATE        SIGNAL  BARS  SECURITY
+        00:53:00:2F:3B:08  Office        Infra  44    270 Mbit/s  57      ▂▄▆_  WPA2 WPA3
+        00:53:00:15:03:BF  --            Infra  1     130 Mbit/s  48      ▂▄__  WPA2 WPA3</code></pre>
+               <p class="p">The service set identifier (<code class="ph codeph">SSID</code>) column contains the names of the networks. If the column shows <code class="ph codeph">--</code>, the access point of this network does not broadcast an SSID.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Connect to the wifi network:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device wifi connect Office --ask</strong>
+Password: <strong class="ph b">wifi-password</strong>
+               </code></pre>
+               <p class="p">If you prefer to set the password in the command instead of entering it interactively, use the <code class="ph codeph">password <em class="ph i">&lt;wifi_password&gt;</em>
+                  </code> option in the command instead of <code class="ph codeph">--ask</code>:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device wifi connect Office password &lt;wifi_password&gt;</strong>
+               </code></pre>
+               <p class="p">Note that, if the network requires static IP addresses, NetworkManager fails to activate the connection at this point. You can configure the IP addresses in later steps.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If the network requires static IP addresses:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Configure the IPv4 address settings, for example:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify Office ipv4.method manual ipv4.addresses 192.0.2.1/24 ipv4.gateway 192.0.2.254 ipv4.dns 192.0.2.200 ipv4.dns-search example.com</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Configure the IPv6 address settings, for example:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify Office ipv6.method manual ipv6.addresses 2001:db8:1::1/64 ipv6.gateway 2001:db8:1::fffe ipv6.dns 2001:db8:1::ffbb ipv6.dns-search example.com</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Re-activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up Office</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the active connections:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show --active</strong>
+NAME    ID                                    TYPE  DEVICE
+Office  2501eb7e-7b16-4dc6-97ef-7cc460139a58  wifi  wlp0s20f3</code></pre>
+               <p class="p">If the output lists the wifi connection you have created, the connection is active.</p>
+            </li>
+            <li class="li">
+               <p class="p">Ping a hostname or IP address:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ping -c 3 example.com</strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_managing-wifi-connections_configuring-and-managing-networking.html">Managing wifi connections</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-wifi-connection-with-802-1x-network-authentication-in-an-existing-profile-by-using-nmcli_assembly_managing-wifi-connections">
+   <title>Configuring a wifi connection with 802.1X network authentication in an existing profile by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The network must have 802.1X network authentication.</p>
+            </li>
+            <li>
+               <p>The wifi connection profile exists in NetworkManager and has a valid IP configuration.</p>
+            </li>
+            <li>
+               <p>If the client is required to verify the certificate of the authenticator, the Certificate Authority (CA) certificate must be stored in the <codeph>/etc/pki/ca-trust/source/anchors/</codeph> directory.</p>
+            </li>
+            <li>
+               <p>The <codeph>wpa_supplicant</codeph> package is installed.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the <codeph>nmcli</codeph> utility to configure a client to authenticate itself to a network.</p>
+         <p>For example, you can configure Protected Extensible Authentication Protocol (PEAP) authentication with Microsoft Challenge-Handshake Authentication Protocol version 2 (MSCHAPv2) in an existing NetworkManager wifi profile.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Set the wifi security mode to <codeph>wpa-eap</codeph>, the Extensible Authentication Protocol (EAP) to <codeph>peap</codeph>, the inner authentication protocol to <codeph>mschapv2</codeph>, and the user name:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>wlp1s0</i> wireless-security.key-mgmt wpa-eap 802-1x.eap peap 802-1x.phase2-auth mschapv2 802-1x.identity <i>user_name</i>
+                  </b>
+               </codeblock>
+               <p>Note that you must set the <codeph>wireless-security.key-mgmt</codeph>, <codeph>802-1x.eap</codeph>, <codeph>802-1x.phase2-auth</codeph>, and <codeph>802-1x.identity</codeph> parameters in a single command.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Store the password in the configuration:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>wlp1s0</i> 802-1x.password <i>password</i>
+                  </b>
+               </codeblock>
+               <note type="important">
+                  <p>By default, NetworkManager stores the password in plain text in the <codeph>/etc/sysconfig/network-scripts/keys-<i>connection_name</i>
+                     </codeph> file, which is readable only by the <codeph>root</codeph> user. However, plain text passwords in a configuration file can be a security risk.</p>
+                  <p>To increase the security, set the <codeph>802-1x.password-flags</codeph> parameter to <codeph>agent-owned</codeph>. With this setting, on servers with the GNOME desktop environment or the <codeph>nm-applet</codeph> running, NetworkManager retrieves the password from these services, after you unlock the keyring first. In other cases, NetworkManager prompts for the password.</p>
+               </note>
+            </info>
+         </step>
+         <step>
+            <cmd>If the client needs to verify the certificate of the authenticator, set the <codeph>802-1x.ca-cert</codeph> parameter in the connection profile to the path of the CA certificate:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>wlp1s0</i> 802-1x.ca-cert <i>/etc/pki/ca-trust/source/anchors/ca.crt</i>
+                  </b>
+               </codeblock>
+               <note>
+                  <p>For security reasons, clients should validate the certificate of the authenticator.</p>
+               </note>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the connection profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>wlp1s0</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Access resources on the network that require network authentication.</p>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#assembly_managing-wifi-connections_configuring-and-managing-networking">Managing wifi connections</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

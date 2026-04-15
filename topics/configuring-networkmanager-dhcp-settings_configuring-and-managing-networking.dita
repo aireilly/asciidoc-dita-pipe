@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="configuring-networkmanager-dhcp-settings_configuring-and-managing-networking">
+   <title>Configuring NetworkManager DHCP settings</title>
+   <body>
+      <p>NetworkManager provides different configuration options related to DHCP. For example, you can configure NetworkManager to use the built-in DHCP client (default) or an external client, and you can influence DHCP settings of individual profiles.</p>
+   </body>
+</topic>

@@ -1,0 +1,96 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Example of a network that requires static routes</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="ref_example-of-a-network-that-requires-static-routes_configuring-static-routes"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Example of a network that requires static routes</h1>
+   <div class="body conbody">
+      <p class="p">You require static routes in this example because not all IP networks are directly connected through one router. Without the static routes, some networks cannot communicate with each other. Additionally, traffic from some networks flows only in one direction.</p>
+      <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+         <p class="p">The network topology in this example is artificial and only used to explain the concept of static routing. It is not a recommended topology in production environments.</p>
+      </div></div>
+      <p class="p">For a functioning communication among all networks in this example, configure a static route to Raleigh (<code class="ph codeph">198.51.100.0/24</code>) with next the hop Router 2 (<code class="ph codeph">203.0.113.10</code>). The IP address of the next hop is the one of Router 2 in the data center network (<code class="ph codeph">203.0.113.0/24</code>).</p>
+      <p class="p">You can configure the static route as follows:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">For a simplified configuration, set this static route only on Router 1. However, this increases the traffic on Router 1 because hosts from the data center (<code class="ph codeph">203.0.113.0/24</code>) send traffic to Raleigh (<code class="ph codeph">198.51.100.0/24</code>) always through Router 1 to Router 2.</p>
+         </li>
+         <li class="li">
+            <p class="p">For a more complex configuration, configure this static route on all hosts in the data center (<code class="ph codeph">203.0.113.0/24</code>). All hosts in this subnet then send traffic directly to Router 2 (<code class="ph codeph">203.0.113.10</code>) that is closer to Raleigh (<code class="ph codeph">198.51.100.0/24</code>).</p>
+         </li>
+      </ul>
+      <p class="p">For more details between which networks traffic flows or not, see the explanations below the diagram.</p>
+      <figure class="fig fignone">
+         <br><img class="image" src="../images/routing-example.png" alt="Multiple networks connected by two RHEL routers"><br>
+      </figure>
+      <p class="p">
+         <strong class="ph b">In case that the required static routes are not configured</strong>, the following are the situations in which the communication works and when it does not:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">Hosts in the Berlin network (<code class="ph codeph">192.0.2.0/24</code>):</p>
+            <ul class="ul">
+               <li class="li">
+                  <p class="p">Can communicate with other hosts in the same subnet because they are directly connected.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Can communicate with the internet because Router 1 is in the Berlin network (<code class="ph codeph">192.0.2.0/24</code>) and has a default gateway, which leads to the internet.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Can communicate with the data center network (<code class="ph codeph">203.0.113.0/24</code>) because Router 1 has interfaces in both the Berlin (<code class="ph codeph">192.0.2.0/24</code>) and the data center (<code class="ph codeph">203.0.113.0/24</code>) networks.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Cannot communicate with the Raleigh network (<code class="ph codeph">198.51.100.0/24</code>) because Router 1 has no interface in this network. Therefore, Router 1 sends the traffic to its own default gateway (internet).</p>
+               </li>
+            </ul>
+         </li>
+         <li class="li">
+            <p class="p">Hosts in the data center network (<code class="ph codeph">203.0.113.0/24</code>):</p>
+            <ul class="ul">
+               <li class="li">
+                  <p class="p">Can communicate with other hosts in the same subnet because they are directly connected.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Can communicate with the internet because they have their default gateway set to Router 1, and Router 1 has interfaces in both networks, the data center (<code class="ph codeph">203.0.113.0/24</code>) and to the internet.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Can communicate with the Berlin network (<code class="ph codeph">192.0.2.0/24</code>) because they have their default gateway set to Router 1, and Router 1 has interfaces in both the data center (<code class="ph codeph">203.0.113.0/24</code>) and the Berlin (<code class="ph codeph">192.0.2.0/24</code>) networks.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Cannot communicate with the Raleigh network (<code class="ph codeph">198.51.100.0/24</code>) because the data center network has no interface in this network. Therefore, hosts in the data center (<code class="ph codeph">203.0.113.0/24</code>) send traffic to their default gateway (Router 1). Router 1 also has no interface in the Raleigh network (<code class="ph codeph">198.51.100.0/24</code>)  and, as a result, Router 1 sends this traffic to its own default gateway (internet).</p>
+               </li>
+            </ul>
+         </li>
+         <li class="li">
+            <p class="p">Hosts in the Raleigh network (<code class="ph codeph">198.51.100.0/24</code>):</p>
+            <ul class="ul">
+               <li class="li">
+                  <p class="p">Can communicate with other hosts in the same subnet because they are directly connected.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Cannot communicate with hosts on the internet. Router 2 sends the traffic to Router 1 because of the default gateway settings. The actual behavior of Router 1 depends on the reverse path filter (<code class="ph codeph">rp_filter</code>) system control (<code class="ph codeph">sysctl</code>) setting. By default on RHEL, Router 1 drops the outgoing traffic instead of routing it to the internet. However, regardless of the configured behavior, communication is not possible without the static route.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Cannot communicate with the data center network (<code class="ph codeph">203.0.113.0/24</code>). The outgoing traffic reaches the destination through Router 2 because of the default gateway setting. However, replies to packets do not reach the sender because hosts in the data center network (<code class="ph codeph">203.0.113.0/24</code>) send replies to their default gateway (Router 1). Router 1 then sends the traffic to the internet.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Cannot communicate with the Berlin network (<code class="ph codeph">192.0.2.0/24</code>). Router 2 sends the traffic to Router 1 because of the default gateway settings. The actual behavior of Router 1 depends on the <code class="ph codeph">sysctl</code> setting <code class="ph codeph">rp_filter</code>. By default on RHEL, Router 1 drops the outgoing traffic instead of sending it to the Berlin network (<code class="ph codeph">192.0.2.0/24</code>). However, regardless of the configured behavior, communication is not possible without the static route.</p>
+               </li>
+            </ul>
+         </li>
+      </ul>
+      <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+         <p class="p">In addition to configuring the static routes, you must enable IP forwarding on both routers.</p>
+      </div></div>
+      <p class="p">Additional resources</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <a class="xref" href="https://access.redhat.com/solutions/32261" target="_blank" rel="external noopener">Why cannot a server be pinged if net.ipv4.conf.all.rp_filter is set on the server? (Red Hat Knowledgebase)</a>
+            </p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <a class="xref" href="https://access.redhat.com/solutions/2854141" target="_blank" rel="external noopener">Enabling IP forwarding (Red Hat Knowledgebase)</a>
+            </p>
+         </li>
+      </ul>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-static-routes_configuring-and-managing-networking.html">Configuring a static route</a></div></div></nav></article></main></body></html>

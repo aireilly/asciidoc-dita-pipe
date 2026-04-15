@@ -1,0 +1,142 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring an Ethernet connection by using nm-connection-editor</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-an-ethernet-connection-by-using-nm-connection-editor_configuring-an-ethernet-connection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring an Ethernet connection by using nm-connection-editor</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A physical or virtual Ethernet Network Interface Controller (NIC) exists in the server’s configuration.</p>
+            </li>
+            <li class="li">
+               <p class="p">GNOME is installed.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">If you connect a host to the network over Ethernet, you can manage the connection’s settings with a graphical interface by using the <strong class="ph b">nm-connection-editor</strong> application.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Open a terminal, and enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">nm-connection-editor</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Choose whether to add a new connection profile or to modify an existing one:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To create a new profile:</p>
+                     <ol class="ol" type="a">
+                        <li class="li">
+                           <p class="p">Click the <span class="ph uicontrol">+</span> button</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Select <strong class="ph b">Ethernet</strong> as connection type, and click <span class="ph uicontrol">Create</span>.</p>
+                        </li>
+                     </ol>
+                  </li>
+                  <li class="li">
+                     <p class="p">To modify an existing profile, double-click the profile entry.</p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Update the name of the profile in the <strong class="ph b">Connection Name</strong> field.</span>
+            <div class="itemgroup info">
+               <p class="p">On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If you create a new profile, select the device on the <code class="ph codeph">Ethernet</code> tab.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Depending on your environment, configure the IP address settings on the <strong class="ph b">IPv4 Settings</strong> and <strong class="ph b">IPv6 Settings</strong> tabs accordingly:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To use DHCP or IPv6 stateless address autoconfiguration (SLAAC), select <code class="ph codeph">Automatic (DHCP)</code> as method (default).</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">To set a static IP address, network mask, default gateway, DNS servers, and search domain, select <code class="ph codeph">Manual</code> as method, and fill the fields on the tabs:</p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/IP-settings-nm-connection-editor.png" alt="IP address settings in `nm-connection-editor`"><br>
+                     </figure>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Save</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Close <strong class="ph b">nm-connection-editor</strong>.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the IP settings of the NIC:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip address show <em class="ph i">enp1s0</em>
+                  </strong>
+2: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:17:b8:b6 brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute enp1s0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::fffe/64 scope global noprefixroute
+       valid_lft forever preferred_lft forever</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the IPv4 default gateway:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip route show default</strong>
+default via 192.0.2.254 dev enp1s0 proto static metric 102</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the IPv6 default gateway:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip -6 route show default</strong>
+default via 2001:db8:1::fffe dev enp1s0 proto static metric 102 pref medium</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the DNS settings:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /etc/resolv.conf</strong>
+search example.com
+nameserver 192.0.2.200
+nameserver 2001:db8:1::ffbb</code></pre>
+               <p class="p">If multiple connection profiles are active at the same time, the order of <code class="ph codeph">nameserver</code> entries depend on the DNS priority values in these profiles and the connection types.</p>
+            </li>
+            <li class="li">
+               <p class="p">Use the <code class="ph codeph">ping</code> utility to verify that this host can send packets to other hosts:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ping <em class="ph i">&lt;host-name-or-IP-address&gt;</em>
+                  </strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+      <section class="section tasktroubleshooting">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Verify that the network cable is plugged-in to the host and a switch.</p>
+            </li>
+            <li class="li">
+               <p class="p">Check whether the link failure exists only on this host or also on other hosts connected to the same switch.</p>
+            </li>
+            <li class="li">
+               <p class="p">Verify that the network cable and the network interface are working as expected. Perform hardware diagnosis steps and replace defective cables and network interface cards.</p>
+            </li>
+            <li class="li">
+               <p class="p">If the configuration on the disk does not match the configuration on the device, starting or restarting NetworkManager creates an in-memory connection that reflects the configuration of the device. For further details and how to avoid this problem, see the Red Hat Knowledgebase solution <a class="xref" href="https://access.redhat.com/solutions/3068421" target="_blank" rel="external noopener">NetworkManager duplicates a connection after restart of NetworkManager service</a>.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting">Configuring NetworkManager to avoid using a specific profile to provide a default gateway</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#configuring-the-order-of-dns-servers_configuring-and-managing-networking">Configuring the order of DNS servers</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-an-ethernet-connection_configuring-and-managing-networking.html">Configuring an Ethernet connection</a></div></div></nav></article></main></body></html>

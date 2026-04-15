@@ -1,0 +1,117 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a network bridge by using the RHEL web console</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-network-bridge-by-using-the-rhel-web-console_configuring-a-network-bridge"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a network bridge by using the RHEL web console</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use Ethernet devices as ports of the bridge, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use team, bond, or VLAN devices as ports of the bridge, you can either create these devices while you create the bridge or you can create them in advance as described in:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#proc_configuring-a-network-team-by-using-the-rhel-web-console_configuring-network-teaming">Configuring a network team using the RHEL web console</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#proc_configuring-a-network-bond-by-using-the-rhel-web-console_configuring-network-bonding">Configuring a network bond by using the RHEL web console</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#proc_configuring-vlan-tagging-by-using-the-rhel-web-console_configuring-vlan-tagging">Configuring VLAN tagging by using the RHEL web console</a>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You have installed the RHEL&nbsp;9 web console.</p>
+            </li>
+            <li class="li">
+               <p class="p">You have enabled the cockpit service.</p>
+            </li>
+            <li class="li">
+               <p class="p">Your user account is allowed to log in to the web console.</p>
+               <p class="p">For instructions, see
+<a class="xref" href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_systems_using_the_rhel_9_web_console/getting-started-with-the-rhel-9-web-console_system-management-using-the-rhel-9-web-console#installing-the-web-console_getting-started-with-the-rhel-9-web-console" target="_blank" rel="external noopener">Installing and enabling the web console</a>.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Use the RHEL web console to configure a network bridge if you prefer to manage network settings using a web browser-based interface.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Log in to the RHEL&nbsp;9 web console.</span>
+            <div class="itemgroup info">
+               <p class="p">For details, see <a class="xref" href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_systems_using_the_rhel_9_web_console/getting-started-with-the-rhel-9-web-console_system-management-using-the-rhel-9-web-console#logging-in-to-the-web-console_getting-started-with-the-rhel-9-web-console" target="_blank" rel="external noopener">Logging in to the web console</a>.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the <strong class="ph b">Networking</strong> tab in the navigation on the left side of the screen.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Add bridge</span> in the <strong class="ph b">Interfaces</strong> section.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter the name of the bridge device you want to create.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the interfaces that should be ports of the bridge.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Enable the <strong class="ph b">Spanning tree protocol (STP)</strong> feature to avoid bridge loops and broadcast radiation.</span>
+            <div class="itemgroup info">
+               <figure class="fig fignone">
+                  <br><img class="image" src="../images/bridge-settings.png" alt="The bridge settings dialog in the RHEL web console"><br>
+               </figure>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Apply</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">By default, the bridge uses a dynamic IP address. If you want to set a static IP address:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Click the name of the bridge in the <strong class="ph b">Interfaces</strong> section.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <strong class="ph b">Edit</strong> next to the protocol you want to configure.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Select <strong class="ph b">Manual</strong> next to <strong class="ph b">Addresses</strong>, and enter the IP address, prefix, and default gateway.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">In the <strong class="ph b">DNS</strong> section, click the <span class="ph uicontrol">+</span> button, and enter the IP address of the DNS server. Repeat this step to set multiple DNS servers.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">In the <strong class="ph b">DNS search domains</strong> section, click the <span class="ph uicontrol">+</span> button, and enter the search domain.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If the interface requires static routes, configure them in the <strong class="ph b">Routes</strong> section.</p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/bond-team-bridge-vlan.ipv4.png" alt="The IPv4 settings in the RHEL web console"><br>
+                     </figure>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <span class="ph uicontrol">Apply</span>
+                     </p>
+                  </li>
+               </ol>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Select the <strong class="ph b">Networking</strong> tab in the navigation on the left side of the screen, and check if there is incoming and outgoing traffic on the interface:</p>
+               <figure class="fig fignone">
+                  <br><img class="image" src="../images/bridge-verify.png" alt="Bridge interface statistics"><br>
+               </figure>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-a-network-bridge_configuring-and-managing-networking.html">Configuring a network bridge</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Configuring an Ethernet connection</title>
+   <topicref href="../topics/configuring-an-ethernet-connection_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-by-using-nmcli_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-by-using-the-nmcli-interactive-editor_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-by-using-nmtui_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-by-using-control-center_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-by-using-nm-connection-editor_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-with-a-static-ip-address-by-using-nmstatectl-with-an-interface-name_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-with-a-static-ip-address-by-using-nmstatectl-with-a-pci-address_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-with-a-static-ip-address-by-using-the-network-rhel-system-role-with-an-interface-name_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-with-a-static-ip-address-by-using-the-network-rhel-system-role-with-a-device-path_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-nmstatectl-with-an-interface-name_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-nmstatectl-with-a-pci-address_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-the-network-rhel-system-role-with-an-interface-name_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-the-network-rhel-system-role-with-a-device-path_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/proc_configuring-multiple-ethernet-interfaces-by-using-a-single-connection-profile-by-interface-name_configuring-an-ethernet-connection.dita"/>
+   <topicref href="../topics/proc_configuring-a-single-connection-profile-for-multiple-ethernet-interfaces-using-pci-ids_configuring-an-ethernet-connection.dita"/>
+</map>

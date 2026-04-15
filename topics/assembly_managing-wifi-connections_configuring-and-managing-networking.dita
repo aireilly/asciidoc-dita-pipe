@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_managing-wifi-connections_configuring-and-managing-networking">
+   <title>Managing wifi connections</title>
+   <body>
+      <p>If your host contains a wifi adapter, you can connect it to a wifi network.</p>
+      <ul>
+         <li>
+            <p>Use the <codeph>nmcli</codeph> utility to configure connections by using the command line.</p>
+         </li>
+         <li>
+            <p>Use the <codeph>nmtui</codeph> application to configure connections in a text-based user interface.</p>
+         </li>
+         <li>
+            <p>Use the GNOME system menu to quickly connect to wifi networks that do not require any configuration.</p>
+         </li>
+         <li>
+            <p>Use the <codeph>GNOME Settings</codeph> application to configure connections by using the GNOME application.</p>
+         </li>
+         <li>
+            <p>Use the <codeph>nm-connection-editor</codeph> application to configure connections in a graphical user interface.</p>
+         </li>
+         <li>
+            <p>Use the <codeph>network</codeph> RHEL system role to automate the configuration of connections on one or multiple hosts.</p>
+         </li>
+      </ul>
+   </body>
+</topic>

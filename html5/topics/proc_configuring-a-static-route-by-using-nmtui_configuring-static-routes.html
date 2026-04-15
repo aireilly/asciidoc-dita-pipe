@@ -1,0 +1,110 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a static route by using nmtui</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-static-route-by-using-nmtui_configuring-static-routes"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a static route by using <code class="ph codeph">nmtui</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The network is configured.</p>
+            </li>
+            <li class="li">
+               <p class="p">The gateway for the static route must be directly reachable on the interface.</p>
+            </li>
+            <li class="li">
+               <p class="p">If the user is logged in on a physical console, user permissions are sufficient. Otherwise, the command requires root permissions.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">The <code class="ph codeph">nmtui</code> application provides a text-based user interface for NetworkManager. You can use <code class="ph codeph">nmtui</code> to configure static routes on a host without a graphical interface.</p>
+         <p class="p">For example, the procedure below adds a route to the <code class="ph codeph">192.0.2.0/24</code> network that uses the gateway running on <code class="ph codeph">198.51.100.1</code>, which is reachable through an existing connection profile.</p>
+         <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+            <p class="p">In <code class="ph codeph">nmtui</code>:</p>
+            <ul class="ul">
+               <li class="li">
+                  <p class="p">Navigate by using the cursor keys.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Press a button by selecting it and hitting <span class="ph">Enter</span>.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Select and clear checkboxes by using <span class="ph">Space</span>.</p>
+               </li>
+               <li class="li">
+                  <p class="p">To return to the previous screen, use <span class="ph">ESC</span>.</p>
+               </li>
+            </ul>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Start <code class="ph codeph">nmtui</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmtui</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <strong class="ph b">Edit a connection</strong>, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the connection profile through which you can reach the next hop to the destination network, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Depending on whether it is an IPv4 or IPv6 route, press the <strong class="ph b">Show</strong> button next to the protocol’s configuration area.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press the <strong class="ph b">Edit</strong> button next to <strong class="ph b">Routing</strong>. This opens a new window where you configure static routes:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Press the <strong class="ph b">Add</strong> button and fill in:</p>
+                     <ul class="ul">
+                        <li class="li">
+                           <p class="p">The destination network, including the prefix in Classless Inter-Domain Routing (CIDR) format</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">The IP address of the next hop</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">A metric value, if you add multiple routes to the same network and want to prioritize the routes by efficiency</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li class="li">
+                     <p class="p">Repeat the previous step for every route you want to add and that is reachable through this connection profile.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Press the <strong class="ph b">OK</strong> button to return to the window with the connection settings.</p>
+                     <figure class="fig fignone">
+                        <p class="p">Example of a static route without metric</p>
+                        <br><img class="image" src="../images/nmtui-add-static-route.png" alt="Setting the destination, next hop, and metric, for a static route in `nmtui`"><br>
+                     </figure>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press the OK button to return to the <code class="ph codeph">nmtui</code> main menu.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <strong class="ph b">Activate a connection</strong> and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the connection profile that you edited, and press <span class="ph">Enter</span> twice to deactivate and activate it again.</span>
+            <div class="itemgroup info">
+               <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+                  <p class="p">Skip this step if you run <code class="ph codeph">nmtui</code> over a remote connection, such as SSH, that uses the connection profile you want to reactivate. In this case, if you deactivate it in <code class="ph codeph">nmtui</code>, the connection is terminated and, consequently, you cannot activate it again. To avoid this problem, use the <code class="ph codeph">nmcli connection <em class="ph i">&lt;connection_profile&gt;</em> up</code> command to reactivate the connection in the mentioned scenario.</p>
+               </div></div>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press the <strong class="ph b">Back</strong> button to return to the main menu.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <strong class="ph b">Quit</strong>, and press <span class="ph">Enter</span> to close the <code class="ph codeph">nmtui</code> application.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Verify that the route is active:</p>
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ip route</strong>
+...
+192.0.2.0/24 via 198.51.100.1 dev <em class="ph i">example</em> proto static metric 100</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-static-routes_configuring-and-managing-networking.html">Configuring a static route</a></div></div></nav></article></main></body></html>

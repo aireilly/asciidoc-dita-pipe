@@ -1,0 +1,60 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a single connection profile for multiple Ethernet interfaces using PCI IDs</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-single-connection-profile-for-multiple-ethernet-interfaces-using-pci-ids_configuring-an-ethernet-connection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a single connection profile for multiple Ethernet interfaces using PCI IDs</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Multiple physical or virtual Ethernet devices exist in the server’s configuration.</p>
+            </li>
+            <li class="li">
+               <p class="p">A DHCP server is available in the network.</p>
+            </li>
+            <li class="li">
+               <p class="p">No connection profile exists on the host.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">A PCI ID uniquely identifies devices on a system. A connection profile can add multiple devices by matching interfaces to a list of PCI IDs. With this feature, you can link multiple devices to one connection profile.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Identify the device path. For example, to display the device paths of all interfaces starting with <code class="ph codeph">enp</code>, enter :</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">udevadm info /sys/class/net/enp* | grep ID_PATH=</strong>
+...
+E: ID_PATH=pci-0000:07:00.0
+E: ID_PATH=pci-0000:08:00.0</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Add a connection profile that applies to all PCI IDs matching the <code class="ph codeph">0000:00:0[7-8].0</code> expression:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ethernet connection.multi-connect multiple match.path "pci-0000:07:00.0 pci-0000:08:00.0" con-name "Wired connection 1"</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the status of the connection:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show</strong>
+NAME                 UUID                                  TYPE      DEVICE
+Wired connection 1   9cee0958-512f-4203-9d3d-b57af1d88466  ethernet  enp7s0
+Wired connection 1   9cee0958-512f-4203-9d3d-b57af1d88466  ethernet  enp8s0
+...</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">To display all settings of the connection profile:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show "Wired connection 1"</strong>
+connection.id:               Wired connection 1
+...
+connection.multi-connect:    3 (multiple)
+match.path:                  pci-0000:07:00.0,pci-0000:08:00.0
+...</code></pre>
+               <p class="p">This connection profile uses all devices with a PCI ID which match the pattern in the <code class="ph codeph">match.path</code> parameter and, therefore, the connection profiles have the same Universally Unique Identifier (UUID).</p>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-an-ethernet-connection_configuring-and-managing-networking.html">Configuring an Ethernet connection</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Configuring VLAN tagging</title>
+   <topicref href="../topics/configuring-vlan-tagging_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/configuring-vlan-tagging-by-using-nmcli_configuring-vlan-tagging.dita"/>
+   <topicref href="../topics/configuring-nested-vlans-using-nmcli-commands_configuring-vlan-tagging.dita"/>
+   <topicref href="../topics/proc_configuring-vlan-tagging-by-using-the-rhel-web-console_configuring-vlan-tagging.dita"/>
+   <topicref href="../topics/proc_configuring-vlan-tagging-by-using-nmtui_configuring-vlan-tagging.dita"/>
+   <topicref href="../topics/configuring-vlan-tagging-by-using-nm-connection-editor_configuring-vlan-tagging.dita"/>
+   <topicref href="../topics/proc_configuring-vlan-tagging-by-using-nmstatectl_configuring-vlan-tagging.dita"/>
+   <topicref href="../topics/configuring-vlan-tagging-by-using-the-network-rhel-system-role_configuring-vlan-tagging.dita"/>
+</map>

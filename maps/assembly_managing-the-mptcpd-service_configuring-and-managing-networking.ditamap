@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Managing the mptcpd service</title>
+   <topicref href="../topics/assembly_managing-the-mptcpd-service_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/proc_configuring-mptcpd_assembly_managing-the-mptcpd-service.dita"/>
+   <topicref href="../topics/proc_managing-applications-with-mptcpize-tool_assembly_managing-the-mptcpd-service.dita"/>
+   <topicref href="../topics/proc_enabling-mptcp-sockets-for-a-services-using-the-mptcpize-utility_assembly_managing-the-mptcpd-service.dita"/>
+</map>

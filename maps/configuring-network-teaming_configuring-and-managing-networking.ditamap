@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Configuring a NIC team</title>
+   <topicref href="../topics/configuring-network-teaming_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/proc_migrating-a-network-team-configuration-to-network-bond_configuring-network-teaming.dita"/>
+   <topicref href="../topics/understanding-the-default-behavior-of-controller-and-port-interfaces_configuring-network-teaming.dita"/>
+   <topicref href="../topics/understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming.dita"/>
+   <topicref href="../topics/configuring-a-network-team-by-using-nmcli_configuring-network-teaming.dita"/>
+   <topicref href="../topics/proc_configuring-a-network-team-by-using-the-rhel-web-console_configuring-network-teaming.dita"/>
+   <topicref href="../topics/configuring-a-network-team-by-using-nm-connection-editor_configuring-network-teaming.dita"/>
+</map>

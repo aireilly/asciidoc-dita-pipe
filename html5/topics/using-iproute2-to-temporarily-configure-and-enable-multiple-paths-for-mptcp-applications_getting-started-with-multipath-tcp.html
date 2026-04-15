@@ -1,0 +1,110 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Using iproute2 to temporarily configure and enable multiple paths for MPTCP applications</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="using-iproute2-to-temporarily-configure-and-enable-multiple-paths-for-mptcp-applications_getting-started-with-multipath-tcp"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Using iproute2 to temporarily configure and enable multiple paths for MPTCP applications</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">mptcpd</code> package is installed</p>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">iperf3</code> package is installed</p>
+            </li>
+            <li class="li">
+               <p class="p">Server network interface settings:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">enp4s0:  <code class="ph codeph">192.0.2.1/24</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">enp1s0: <code class="ph codeph">198.51.100.1/24</code>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">Client network interface settings:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">enp4s0f0:  <code class="ph codeph">192.0.2.2/24</code>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">enp4s0f1: <code class="ph codeph">198.51.100.2/24</code>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Each MPTCP connection uses a single subflow similar to plain TCP. To get the MPTCP benefits, specify a higher limit for maximum number of subflows for each MPTCP connection. Then configure additional endpoints to create those subflows.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">The configuration in this procedure will not persist after rebooting your machine.</p>
+         </div></div>
+         <p class="p">Note that MPTCP does not yet support mixed IPv6 and IPv4 endpoints for the same socket. Use endpoints belonging to the same address family.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Configure the client to accept up to 1 additional remote address, as provided by the server:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ip mptcp limits set add_addr_accepted <em class="ph i">1</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Add IP address <code class="ph codeph">198.51.100.1</code> as a new MPTCP endpoint on the server:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ip mptcp endpoint add <em class="ph i">198.51.100.1</em> dev <em class="ph i">enp1s0</em>
+                     <em class="ph i">signal</em>
+                  </strong>
+               </code></pre>
+               <p class="p">The <code class="ph codeph">signal</code> option ensures that the <code class="ph codeph">ADD_ADDR</code> packet is sent after the three-way-handshake.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Start the <code class="ph codeph">iperf3</code> server, and force it to create MPTCP sockets instead of TCP sockets:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">mptcpize run iperf3 -s</strong>
+
+Server listening on 5201</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Connect the client to the server, and force it to create MPTCP sockets instead of TCP sockets:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">mptcpize iperf3 -c 192.0.2.1 -t 3</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Verify the connection is established:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ss -nti '(  sport :5201 )'</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Verify the connection and IP address limit:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip mptcp limit show</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Verify the newly added endpoint:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip mptcp endpoint show</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Verify MPTCP counters by using the <code class="ph codeph">nstat MPTcp*</code> command on a server:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nstat MPTcp</strong>*
+
+#kernel
+MPTcpExtMPCapableSYNRX          2                  0.0
+MPTcpExtMPCapableACKRX          2                  0.0
+MPTcpExtMPJoinSynRx             2                  0.0
+MPTcpExtMPJoinAckRx             2                  0.0
+MPTcpExtEchoAdd                 2                  0.0</code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="getting-started-with-multipath-tcp_configuring-and-managing-networking.html">Getting started with Multipath TCP</a></div></div></nav></article></main></body></html>

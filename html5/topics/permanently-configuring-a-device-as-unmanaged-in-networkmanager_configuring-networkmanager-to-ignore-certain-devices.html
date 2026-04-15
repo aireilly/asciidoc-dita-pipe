@@ -1,0 +1,88 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Permanently configuring a device as unmanaged in NetworkManager</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="permanently-configuring-a-device-as-unmanaged-in-networkmanager_configuring-networkmanager-to-ignore-certain-devices"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Permanently configuring a device as unmanaged in NetworkManager</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">You can configure devices as <code class="ph codeph">unmanaged</code> based on several criteria, such as the interface name or MAC address. If you use a device section in the configuration to set a device as unmanaged, NetworkManager does not manage the device until you start using it in a connection profile.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Display the list of devices to identify the device or MAC address you want to set as <code class="ph codeph">unmanaged</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ip link show</strong>
+...
+2: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:74:79:56 brd ff:ff:ff:ff:ff:ff
+...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create a <code class="ph codeph">*.conf</code> file in the <code class="ph codeph">/etc/NetworkManager/conf.d/</code> directory, for example, <code class="ph codeph">/etc/NetworkManager/conf.d/99-unmanaged-devices.conf</code>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">For each device you want to configure as unmanaged, add a section with a unique name to the file.</span>
+            <div class="itemgroup info">
+               <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+                  <p class="p">The section name must begin with <code class="ph codeph">device-</code>.</p>
+               </div></div>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To configure a specific interface as unmanaged, add:</p>
+                     <pre class="pre codeblock language-console"><code>[device-enp1s0-unmanaged]
+match-device=interface-name:enp1s0
+managed=0</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">To configure a device with a specific MAC address as unmanaged, add:</p>
+                     <pre class="pre codeblock language-console"><code>[device-mac525400747956-unmanaged]
+match-device=mac:52:54:00:74:79:56
+managed=0</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">To configure all devices of a specific type as unmanaged, add:</p>
+                     <pre class="pre codeblock language-console"><code>[device-ethernet-unmanaged]
+match-device=type:ethernet
+managed=0</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">To set multiple devices as unmanaged, separate the entries in the <code class="ph codeph">unmanaged-devices</code> parameter with a semicolon, for example:</p>
+                     <pre class="pre codeblock language-console"><code>[device-multiple-devices-unmanaged]
+match-device=interface-name:enp1s0;interface-name:enp7s0
+managed=0</code></pre>
+                     <p class="p">Alternatively, you can add separate sections for each device in this file or create additional <code class="ph codeph">*.conf</code> files in the <code class="ph codeph">/etc/NetworkManager/conf.d/</code> directory.</p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart the host system:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">reboot</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Display the list of devices:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device status</strong>
+DEVICE  TYPE      STATE      CONNECTION
+enp1s0  ethernet  <strong class="ph b">unmanaged</strong>  --
+...</code></pre>
+               <p class="p">The <code class="ph codeph">unmanaged</code> state next to the <code class="ph codeph">enp1s0</code> device indicates that NetworkManager does not manage this device.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section tasktroubleshooting">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">If the output of the <code class="ph codeph">nmcli device status</code> command does not list the device as <code class="ph codeph">unmanaged</code>, display the NetworkManager configuration:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">NetworkManager --print-config</strong>
+...
+[device-enp1s0-unmanaged]
+match-device=interface-name:enp1s0
+managed=0
+...</code></pre>
+               <p class="p">If the output does not match the settings that you configured, ensure that no configuration file with a higher priority overrides your settings. For details on how NetworkManager merges multiple configuration files, see the <code class="ph codeph">NetworkManager.conf(5)</code> man page on your system.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-networkmanager-to-ignore-certain-devices_configuring-and-managing-networking.html">Configuring NetworkManager to ignore certain devices</a></div></div></nav></article></main></body></html>

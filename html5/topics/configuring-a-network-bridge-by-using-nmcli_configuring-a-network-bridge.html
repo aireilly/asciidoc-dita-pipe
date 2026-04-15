@@ -1,0 +1,211 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a network bridge by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-network-bridge-by-using-nmcli_configuring-a-network-bridge"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a network bridge by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">The host runs on Red&nbsp;Hat Enterprise&nbsp;Linux 9.4 or later. This version introduced the <code class="ph codeph">port-type</code>, <code class="ph codeph">controller</code>, <code class="ph codeph">connection.autoconnect-ports</code> options used in this procedure. Previous RHEL versions instead use <code class="ph codeph">slave-type</code>, <code class="ph codeph">master</code>, and <code class="ph codeph">connection.autoconnect-slaves</code>.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use Ethernet devices as ports of the bridge, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use team, bond, or VLAN devices as ports of the bridge, you can either create these devices while you create the bridge or you can create them in advance as described in:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#configuring-a-network-team-by-using-nmcli_configuring-network-teaming">Configuring a network team by using nmcli</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#configuring-a-network-bond-by-using-nmcli_configuring-network-bonding">Configuring a network bond by using nmcli</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#configuring-vlan-tagging-by-using-nmcli_configuring-vlan-tagging">Configuring VLAN tagging by using nmcli</a>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">To configure a network bridge on the command line, use the <code class="ph codeph">nmcli</code> utility.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a bridge interface:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type bridge con-name bridge0 ifname bridge0</strong>
+               </code></pre>
+               <p class="p">This command creates a bridge named <code class="ph codeph">bridge0</code>.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the network interfaces, and note the names of the interfaces you want to add to the bridge:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device status</strong>
+DEVICE  TYPE      STATE         CONNECTION
+enp7s0  ethernet  disconnected  --
+enp8s0  ethernet  disconnected  --
+bond0   bond      connected     bond0
+bond1   bond      connected     bond1
+...</code></pre>
+               <p class="p">In this example:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">enp7s0</code> and <code class="ph codeph">enp8s0</code> are not configured. To use these devices as ports, add connection profiles in the next step.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">bond0</code> and <code class="ph codeph">bond1</code> have existing connection profiles. To use these devices as ports, modify their profiles in the next step.</p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Assign the interfaces to the bridge.</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">If the interfaces you want to assign to the bridge are not configured, create new connection profiles for them:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ethernet port-type bridge con-name bridge0-port1 ifname enp7s0 controller bridge0</strong>
+# <strong class="ph b">nmcli connection add type ethernet port-type bridge con-name bridge0-port2 ifname enp8s0 controller bridge0</strong>
+                     </code></pre>
+                     <p class="p">These commands create profiles for <code class="ph codeph">enp7s0</code> and <code class="ph codeph">enp8s0</code>, and add them to the <code class="ph codeph">bridge0</code> connection.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If you want to assign an existing connection profile to the bridge:</p>
+                     <ol class="ol" type="i">
+                        <li class="li">
+                           <p class="p">Set the <code class="ph codeph">controller</code> parameter of these connections to <code class="ph codeph">bridge0</code>:</p>
+                           <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bond0 controller bridge0</strong>
+# <strong class="ph b">nmcli connection modify bond1 controller bridge0</strong>
+                           </code></pre>
+                           <p class="p">These commands assign the existing connection profiles named <code class="ph codeph">bond0</code> and <code class="ph codeph">bond1</code> to the <code class="ph codeph">bridge0</code> connection.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Reactivate the connections:</p>
+                           <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up bond0</strong>
+# <strong class="ph b">nmcli connection up bond1</strong>
+                           </code></pre>
+                        </li>
+                     </ol>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the IPv4 settings:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To set a static IPv4 address, network mask, default gateway, and DNS server to the <code class="ph codeph">bridge0</code> connection, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 ipv4.addresses '192.0.2.1/24' ipv4.gateway '192.0.2.254' ipv4.dns '192.0.2.253' ipv4.dns-search 'example.com' ipv4.method manual</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">To use DHCP, no action is required.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If you plan to use this bridge device as a port of other devices, no action is required.</p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the IPv6 settings:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">To set a static IPv6 address, network mask, default gateway, and DNS server to the <code class="ph codeph">bridge0</code> connection, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 ipv6.addresses '2001:db8:1::1/64' ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffd' ipv6.dns-search 'example.com' ipv6.method manual</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">To use stateless address autoconfiguration (SLAAC), no action is required.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If you plan to use this bridge device as a port of other devices, no action is required.</p>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Configure further properties of the bridge. For example, to set the Spanning Tree Protocol (STP) priority of <code class="ph codeph">bridge0</code> to <code class="ph codeph">16384</code>, enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 bridge.priority '16384'</strong>
+               </code></pre>
+               <p class="p">By default, STP is enabled.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up bridge0</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Verify that the ports are connected, and the <code class="ph codeph">CONNECTION</code> column displays the port’s connection name:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli  device</strong>
+DEVICE   TYPE      STATE      CONNECTION
+...
+enp7s0   ethernet  connected  bridge0-port1
+enp8s0   ethernet  connected  bridge0-port2</code></pre>
+               <p class="p">When you activate any port of the connection, NetworkManager also activates the bridge, but not the other ports of it. You can configure that Red&nbsp;Hat Enterprise&nbsp;Linux enables all ports automatically when the bridge is enabled:</p>
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Enable the <code class="ph codeph">connection.autoconnect-ports</code> parameter of the bridge connection:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify bridge0 connection.autoconnect-ports 1</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Reactivate the bridge:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up bridge0</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Use the <code class="ph codeph">ip</code> utility to display the link status of Ethernet devices that are ports of a specific bridge:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip link show master bridge0</strong>
+3: enp7s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel master bridge0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:62:61:0e brd ff:ff:ff:ff:ff:ff
+4: enp8s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel master bridge0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:9e:f1:ce brd ff:ff:ff:ff:ff:ff</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Use the <code class="ph codeph">bridge</code> utility to display the status of Ethernet devices that are ports of any bridge device:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">bridge link show</strong>
+3: enp7s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 master bridge0 state forwarding priority 32 cost 100
+4: enp8s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 master bridge0 state listening priority 32 cost 100
+5: enp9s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 master bridge1 state forwarding priority 32 cost 100
+6: enp11s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 master bridge1 state blocking priority 32 cost 100
+...</code></pre>
+               <p class="p">To display the status for a specific Ethernet device, use the <code class="ph codeph">bridge link show dev <em class="ph i">&lt;ethernet_device_name&gt;</em>
+                  </code> command.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/solutions/3068421" target="_blank" rel="external noopener">NetworkManager duplicates a connection after restart of NetworkManager service (Red Hat Knowledgebase)</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/solutions/5314671" target="_blank" rel="external noopener">How to configure a bridge with VLAN information? (Red Hat Knowledgebase)</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-a-network-bridge_configuring-and-managing-networking.html">Configuring a network bridge</a></div></div></nav></article></main></body></html>

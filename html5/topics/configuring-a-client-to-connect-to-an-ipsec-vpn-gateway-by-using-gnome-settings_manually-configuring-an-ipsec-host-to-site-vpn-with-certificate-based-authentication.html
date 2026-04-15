@@ -1,0 +1,330 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a client to connect to an IPsec VPN gateway by using GNOME Settings</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a client to connect to an IPsec VPN gateway by using GNOME Settings</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#setting-up-an-ipsec-gateway-manually_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication">You configured the IPsec VPN gateway</a>.</p>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">NetworkManager-libreswan-gnome</code> package is installed.</p>
+            </li>
+            <li class="li">
+               <p class="p">The PKCS #12 file <code class="ph codeph">~/file.p12</code> exists on the client with the following contents:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">The private key of the user</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The user certificate</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The CA certificate</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If required, intermediate certificates</p>
+                  </li>
+               </ul>
+               <p class="p">For details about creating a private key and certificate signing request (CSR), as well as about requesting a certificate from a CA, see your CA’s documentation.</p>
+            </li>
+            <li class="li">
+               <p class="p">The Extended Key Usage (EKU) in the certificate is set to <code class="ph codeph">TLS Web Client Authentication</code>.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">To access resources on a remote private network, users must first configure an IPsec VPN connection. The GNOME Settings application provides a graphical solution to create an IPsec VPN connection profile in NetworkManager and to establish the tunnel.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Initialize the Network Security Services (NSS) database:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ipsec initnss</strong>
+               </code></pre>
+               <p class="p">The command creates the database in the <code class="ph codeph">/var/lib/ipsec/nss/</code> directory.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Import the PKCS #12 file into the NSS database:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ipsec import ~/file.p12</strong>
+Enter password for PKCS12 file: <em class="ph i">&lt;password&gt;</em>
+pk12util: PKCS12 IMPORT SUCCESSFUL
+correcting trust bits for Example-CA</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Display the nicknames of the user and CA certificates:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">certutil -L -d  /var/lib/ipsec/nss/</strong>
+Certificate Nickname     Trust Attributes
+                         SSL,S/MIME,JAR/XPI
+
+user                     u,u,u
+Example-CA               CT,,
+...</code></pre>
+               <p class="p">You require this information in the configuration file.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press the <span class="ph">Super</span> key, type <strong class="ph b">Settings</strong>, and press <span class="ph">Enter</span> to open the GNOME <strong class="ph b">Settings</strong> application.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click the <span class="ph uicontrol">+</span> button next to the <strong class="ph b">VPN</strong> entry.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <strong class="ph b">IPsec based VPN</strong> from the list.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">On the <strong class="ph b">Identity</strong> tab, fill the fields as follows:</span>
+            <div class="itemgroup info">
+               <table class="table frame-all"><caption><span class="table--title-label">Table 1. </span><span class="title">
+                     <strong class="ph b">Identity</strong> tab settings</span></caption><colgroup><col style="width:33.3333%"><col style="width:50%"><col style="width:16.6667%"></colgroup><thead class="thead">
+                        <tr class="row">
+                           <th class="entry align-left colsep-1 rowsep-1 valign-top" id="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__1">Field name</th>
+                           <th class="entry align-left colsep-1 rowsep-1 valign-top" id="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__2">Value</th>
+                           <th class="entry align-left rowsep-1 valign-top" id="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__3">Corresponding <code class="ph codeph">ipsec.conf</code> parameter</th>
+                        </tr>
+                     </thead><tbody class="tbody">
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__1">
+                              <p class="p">
+                                 <strong class="ph b">Name</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__2">
+                              <p class="p">
+                                 <code class="ph codeph">
+                                    <em class="ph i">&lt;networkmanager_profile_name&gt;</em>
+                                 </code>
+                              </p>
+                           </td>
+                           <td class="entry align-left rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__3">
+                              <p class="p">N/A</p>
+                           </td>
+                        </tr>
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__1">
+                              <p class="p">
+                                 <strong class="ph b">Gateway</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__2">
+                              <p class="p">
+                                 <code class="ph codeph">
+                                    <em class="ph i">&lt;ip_address_or_fqdn_of_the_gateway&gt;</em>
+                                 </code>
+                              </p>
+                           </td>
+                           <td class="entry align-left rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__3">
+                              <p class="p">
+                                 <code class="ph codeph">right</code>
+                              </p>
+                           </td>
+                        </tr>
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__1">
+                              <p class="p">
+                                 <strong class="ph b">Type</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__2">
+                              <p class="p">
+                                 <code class="ph codeph">IKEv2 (certificate)</code>
+                              </p>
+                           </td>
+                           <td class="entry align-left rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__3">
+                              <p class="p">
+                                 <code class="ph codeph">authby</code>
+                              </p>
+                           </td>
+                        </tr>
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__1">
+                              <p class="p">
+                                 <strong class="ph b">Group name</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__2">
+                              <p class="p">
+                                 <code class="ph codeph">%fromcert</code>
+                              </p>
+                           </td>
+                           <td class="entry align-left rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__3">
+                              <p class="p">
+                                 <code class="ph codeph">leftid</code>
+                              </p>
+                           </td>
+                        </tr>
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__1">
+                              <p class="p">
+                                 <strong class="ph b">Certificate name</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__2">
+                              <p class="p">
+                                 <code class="ph codeph">
+                                    <em class="ph i">&lt;user_certificate_nickname&gt;</em>
+                                 </code>
+                              </p>
+                           </td>
+                           <td class="entry align-left rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__3">
+                              <p class="p">
+                                 <code class="ph codeph">leftcert</code>
+                              </p>
+                           </td>
+                        </tr>
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__1">
+                              <p class="p">
+                                 <strong class="ph b">Remote ID</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__2">
+                              <p class="p">
+                                 <code class="ph codeph">%fromcert</code>
+                              </p>
+                           </td>
+                           <td class="entry align-left valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__3">
+                              <p class="p">
+                                 <code class="ph codeph">rightid</code>
+                              </p>
+                           </td>
+                        </tr>
+                     </tbody></table>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <strong class="ph b">Advanced</strong>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">In the <strong class="ph b">Advanced properties</strong> window, fill the fields of the <strong class="ph b">Connectivity</strong> tab as follows:</span>
+            <div class="itemgroup info">
+               <table class="table frame-all"><caption><span class="table--title-label">Table 2. </span><span class="title">
+                     <strong class="ph b">Connectivity</strong> tab settings</span></caption><colgroup><col style="width:33.3333%"><col style="width:50%"><col style="width:16.6667%"></colgroup><thead class="thead">
+                        <tr class="row">
+                           <th class="entry align-left colsep-1 rowsep-1 valign-top" id="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__22">Field name</th>
+                           <th class="entry align-left colsep-1 rowsep-1 valign-top" id="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__23">Value</th>
+                           <th class="entry align-left rowsep-1 valign-top" id="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__24">Corresponding <code class="ph codeph">ipsec.conf</code> parameter</th>
+                        </tr>
+                     </thead><tbody class="tbody">
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__22">
+                              <p class="p">
+                                 <strong class="ph b">Remote Network</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__23">
+                              <p class="p">
+                                 <code class="ph codeph">192.0.2.0/24</code>
+                              </p>
+                           </td>
+                           <td class="entry align-left rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__24">
+                              <p class="p">
+                                 <code class="ph codeph">rightsubnet</code>
+                              </p>
+                           </td>
+                        </tr>
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__22">
+                              <p class="p">
+                                 <strong class="ph b">Narrowing</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__23">
+                              <p class="p">Selected</p>
+                           </td>
+                           <td class="entry align-left rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__24">
+                              <p class="p">
+                                 <code class="ph codeph">narrowing</code>
+                              </p>
+                           </td>
+                        </tr>
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__22">
+                              <p class="p">
+                                 <strong class="ph b">Enable MOBIKE</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__23">
+                              <p class="p">
+                                 <code class="ph codeph">yes</code>
+                              </p>
+                           </td>
+                           <td class="entry align-left rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__24">
+                              <p class="p">
+                                 <code class="ph codeph">mobike</code>
+                              </p>
+                           </td>
+                        </tr>
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__22">
+                              <p class="p">
+                                 <strong class="ph b">Delay</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__23">
+                              <p class="p">
+                                 <code class="ph codeph">30</code>
+                              </p>
+                           </td>
+                           <td class="entry align-left rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__24">
+                              <p class="p">
+                                 <code class="ph codeph">dpddelay</code>
+                              </p>
+                           </td>
+                        </tr>
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__22">
+                              <p class="p">
+                                 <strong class="ph b">Timeout</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__23">
+                              <p class="p">
+                                 <code class="ph codeph">120</code>
+                              </p>
+                           </td>
+                           <td class="entry align-left rowsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__24">
+                              <p class="p">
+                                 <code class="ph codeph">dpdtimeout</code>
+                              </p>
+                           </td>
+                        </tr>
+                        <tr class="row">
+                           <td class="entry align-left colsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__22">
+                              <p class="p">
+                                 <strong class="ph b">Action</strong>
+                              </p>
+                           </td>
+                           <td class="entry align-left colsep-1 valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__23">
+                              <p class="p">
+                                 <code class="ph codeph">Clear</code>
+                              </p>
+                           </td>
+                           <td class="entry align-left valign-top" headers="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication__entry__24">
+                              <p class="p">
+                                 <code class="ph codeph">dpdaction</code>
+                              </p>
+                           </td>
+                        </tr>
+                     </tbody></table>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Apply</span> to return to the connection settings.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Apply</span> to save the connection.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">In the <strong class="ph b">Network</strong> tab of the <strong class="ph b">Settings</strong> application, toggle the switch next to the VPN profile to activate the connection.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Establish a connection to a host in the remote network or ping it.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <a class="xref" href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</a>.</p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication_setting-up-an-ipsec-vpn.html">Manually configuring an IPsec host-to-site VPN with certificate-based authentication</a></div></div></nav></article></main></body></html>

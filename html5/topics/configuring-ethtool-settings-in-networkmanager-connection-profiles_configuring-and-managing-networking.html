@@ -1,0 +1,53 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring ethtool settings in NetworkManager connection profiles</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-ethtool-settings-in-networkmanager-connection-profiles_configuring-and-managing-networking"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring <code class="ph codeph">ethtool</code> settings in NetworkManager connection profiles</h1>
+   <div class="body">
+      <p class="p">NetworkManager can configure certain network driver and hardware settings persistently. Compared to using the <code class="ph codeph">ethtool</code> utility to manage these settings, this has the benefit of not losing the settings after a reboot.</p>
+      <p class="p">You can set the following <code class="ph codeph">ethtool</code> settings in NetworkManager connection profiles:</p>
+      <dl class="dl">
+         
+            <dt class="dt dlterm">Offload features</dt>
+            <dd class="dd">
+               <p class="p">Network interface controllers can use the TCP offload engine (TOE) to offload processing certain operations to the network controller. This improves the network throughput.</p>
+            </dd>
+         
+         
+            <dt class="dt dlterm">Interrupt coalesce settings</dt>
+            <dd class="dd">
+               <p class="p">By using interrupt coalescing, the system collects network packets and generates a single interrupt for multiple packets. This increases the amount of data sent to the kernel with one hardware interrupt, which reduces the interrupt load, and maximizes the throughput.</p>
+            </dd>
+         
+         
+            <dt class="dt dlterm">Ring buffers</dt>
+            <dd class="dd">
+               <p class="p">These buffers store incoming and outgoing network packets. You can  increase the ring buffer sizes to reduce a high packet drop rate.</p>
+            </dd>
+         
+         
+            <dt class="dt dlterm">Channel settings</dt>
+            <dd class="dd">
+               <p class="p">A network interface manages its associated number of channels along with hardware settings and network drivers. All devices associated with a network interface communicate with each other through interrupt requests (IRQ). Each device queue holds pending IRQ and communicates with each other over a data line known as channel. Types of queues are associated with specific channel types. These channel types include:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">rx</code> for receiving queues</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">tx</code> for transmit queues</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">other</code> for link interrupts or single root input/output virtualization (SR-IOV) coordination</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">combined</code> for hardware capacity-based multipurpose channels</p>
+                  </li>
+               </ul>
+            </dd>
+         
+      </dl>
+   </div>
+<nav role="navigation" class="related-links"><ul class="ullinks"><li class="link ulchildlink"><strong><a href="configuring-an-ethtool-offload-feature-by-using-nmcli_configuring-ethtool-settings-in-networkmanager-connection-profiles.html">Configuring an ethtool offload feature by using nmcli</a></strong><br></li><li class="link ulchildlink"><strong><a href="proc_configuring-an-ethtool-offload-feature-by-using-the-network-rhel-system-role_configuring-ethtool-settings-in-networkmanager-connection-profiles.html">Configuring an ethtool offload feature by using the network RHEL&nbsp;system&nbsp;role</a></strong><br></li><li class="link ulchildlink"><strong><a href="proc_configuring-an-ethtool-coalesce-settings-by-using-nmcli_configuring-ethtool-settings-in-networkmanager-connection-profiles.html">Configuring an ethtool coalesce settings by using nmcli</a></strong><br></li><li class="link ulchildlink"><strong><a href="proc_configuring-an-ethtool-coalesce-settings-by-using-the-network-rhel-system-role_configuring-ethtool-settings-in-networkmanager-connection-profiles.html">Configuring an ethtool coalesce settings by using the network RHEL&nbsp;system&nbsp;role</a></strong><br></li><li class="link ulchildlink"><strong><a href="increasing-the-ring-buffers-to-reduce-a-high-packet-drop-rate_configuring-ethtool-settings-in-networkmanager-connection-profiles.html">Increasing the ring buffer size to reduce a high packet drop rate by using nmcli</a></strong><br></li><li class="link ulchildlink"><strong><a href="proc_increasing-the-ring-buffer-size-to-reduce-a-high-packet-drop-rate-using-the-network-rhel-system-role_configuring-ethtool-settings-in-networkmanager-connection-profiles.html">Increasing the ring buffer size to reduce a high packet drop rate by using the network RHEL&nbsp;system&nbsp;role</a></strong><br></li><li class="link ulchildlink"><strong><a href="configuring-an-ethtool-channels-settings-by-using-nmcli_configuring-ethtool-settings-in-networkmanager-connection-profiles.html">Configuring an ethtool channels settings by using nmcli</a></strong><br></li></ul></nav></article></main></body></html>

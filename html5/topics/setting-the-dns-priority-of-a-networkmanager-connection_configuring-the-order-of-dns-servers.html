@@ -1,0 +1,55 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Setting the DNS priority of a NetworkManager connection</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="setting-the-dns-priority-of-a-networkmanager-connection_configuring-the-order-of-dns-servers"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Setting the DNS priority of a NetworkManager connection</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The system has multiple NetworkManager connections configured.</p>
+            </li>
+            <li class="li">
+               <p class="p">The system either has no <code class="ph codeph">dns</code> parameter set in the <code class="ph codeph">/etc/NetworkManager/NetworkManager.conf</code> file or the parameter is set to <code class="ph codeph">default</code>.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">If you require a specific order of DNS servers you can set priority values in connection profiles. NetworkManager uses these values to order the servers when the service creates or updates the <code class="ph codeph">/etc/resolv.conf</code> file.</p>
+         <p class="p">Note that setting DNS priorities makes only sense if you have multiple connections with different DNS servers configured. If you have only one connection with multiple DNS servers configured, manually set the DNS servers in the preferred order in the connection profile.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Display the available connections:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show</strong>
+NAME           UUID                                  TYPE      DEVICE
+Example_con_1  d17ee488-4665-4de2-b28a-48befab0cd43  ethernet  enp1s0
+Example_con_2  916e4f67-7145-3ffa-9f7b-e7cada8f6bf7  ethernet  enp7s0
+...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the <code class="ph codeph">ipv4.dns-priority</code> and <code class="ph codeph">ipv6.dns-priority</code> parameters. For example, to set both parameters to <code class="ph codeph">10</code>, enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">&lt;connection_name&gt;</em> ipv4.dns-priority 10 ipv6.dns-priority 10</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Repeat the previous step for other connections.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Re-activate the connection you updated:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">&lt;connection_name&gt;</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Display the contents of the <code class="ph codeph">/etc/resolv.conf</code> file to verify that the DNS server order is correct:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /etc/resolv.conf</strong>
+               </code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-the-order-of-dns-servers_configuring-and-managing-networking.html">Configuring the order of DNS servers</a></div></div></nav></article></main></body></html>

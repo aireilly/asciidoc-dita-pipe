@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Implementing consistent network interface naming</title>
+   <topicref href="../topics/consistent-network-interface-device-naming_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/how-the-udev-device-manager-renames-network-interfaces_consistent-network-interface-device-naming.dita"/>
+   <topicref href="../topics/network-interface-naming-policies_consistent-network-interface-device-naming.dita"/>
+   <topicref href="../topics/network-interface-naming-schemes_consistent-network-interface-device-naming.dita"/>
+   <topicref href="../topics/switching-to-a-different-network-interface-naming-scheme_consistent-network-interface-device-naming.dita"/>
+   <topicref href="../topics/proc_customizing-the-prefix-for-ethernet-interfaces-during-installation_consistent-network-interface-device-naming.dita"/>
+   <topicref href="../topics/configuring-user-defined-network-interface-names-by-using-udev-rules_consistent-network-interface-device-naming.dita"/>
+   <topicref href="../topics/configuring-user-defined-network-interface-names-by-using-systemd-link-files_consistent-network-interface-device-naming.dita"/>
+   <topicref href="../topics/assigning-alternative-names-to-a-network-interface-by-using-systemd-link-files_consistent-network-interface-device-naming.dita"/>
+</map>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_networkmanager-connection-profiles-in-keyfile-format_configuring-and-managing-networking">
+   <title>NetworkManager connection profiles in keyfile format</title>
+   <body>
+      <p>By default, NetworkManager in Red Hat Enterprise Linux 9 and later stores connection profiles in keyfile format. Unlike the deprecated <codeph>ifcfg</codeph> format, the keyfile format supports all connection settings that NetworkManager provides.</p>
+   </body>
+</topic>

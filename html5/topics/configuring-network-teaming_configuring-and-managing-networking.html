@@ -1,0 +1,24 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a NIC team</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-network-teaming_configuring-and-managing-networking"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a NIC team</h1>
+   <div class="body">
+      <p class="p">Network interface controller (NIC) teaming is a method to combine or aggregate physical and virtual network interfaces to provide a logical interface with higher throughput or redundancy. NIC teaming uses a small kernel module to implement fast handling of packet flows and a user-space service for other tasks. This way, NIC teaming is an easily extensible and scalable solution for load-balancing and redundancy requirements.</p>
+      <p class="p">Red&nbsp;Hat Enterprise&nbsp;Linux provides administrators different options to configure team devices. For example:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">Use <code class="ph codeph">nmcli</code> to configure teams connections using the command line.</p>
+         </li>
+         <li class="li">
+            <p class="p">Use the RHEL web console to configure team connections using a web browser.</p>
+         </li>
+         <li class="li">
+            <p class="p">Use the <code class="ph codeph">nm-connection-editor</code> application to configure team connections in a graphical interface.</p>
+         </li>
+      </ul>
+      <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+         <p class="p">NIC teaming is deprecated in Red&nbsp;Hat Enterprise&nbsp;Linux&nbsp;9. Consider using the network bonding driver as an alternative. For details, see
+<a class="xref" href="#configuring-network-bonding_configuring-and-managing-networking">Configuring a network bond</a>.</p>
+      </div></div>
+   </div>
+<nav role="navigation" class="related-links"><ul class="ullinks"><li class="link ulchildlink"><strong><a href="proc_migrating-a-network-team-configuration-to-network-bond_configuring-network-teaming.html">Migrating a NIC team configuration to network bond</a></strong><br></li><li class="link ulchildlink"><strong><a href="understanding-the-default-behavior-of-controller-and-port-interfaces_configuring-network-teaming.html">Understanding the default behavior of controller and port interfaces</a></strong><br></li><li class="link ulchildlink"><strong><a href="understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming.html">Understanding the teamd service, runners, and link-watchers</a></strong><br></li><li class="link ulchildlink"><strong><a href="configuring-a-network-team-by-using-nmcli_configuring-network-teaming.html">Configuring a NIC team by using nmcli</a></strong><br></li><li class="link ulchildlink"><strong><a href="proc_configuring-a-network-team-by-using-the-rhel-web-console_configuring-network-teaming.html">Configuring a NIC team by using the RHEL web console</a></strong><br></li><li class="link ulchildlink"><strong><a href="configuring-a-network-team-by-using-nm-connection-editor_configuring-network-teaming.html">Configuring a NIC team by using nm-connection-editor</a></strong><br></li></ul></nav></article></main></body></html>

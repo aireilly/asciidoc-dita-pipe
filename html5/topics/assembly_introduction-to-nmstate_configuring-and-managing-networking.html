@@ -1,0 +1,68 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Introduction to Nmstate</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="assembly_introduction-to-nmstate_configuring-and-managing-networking"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Introduction to Nmstate</h1>
+   <div class="body">
+      <p class="p">Nmstate is a declarative network manager API. When you use Nmstate, you describe the expected networking state by using YAML or JSON-formatted instructions.</p>
+      <p class="p">Nmstate has many benefits. For example, it:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">Provides a stable and extensible interface to manage RHEL network capabilities</p>
+         </li>
+         <li class="li">
+            <p class="p">Supports atomic and transactional operations at the host and cluster level</p>
+         </li>
+         <li class="li">
+            <p class="p">Supports partial editing of most properties and preserves existing settings that are not specified in the instructions</p>
+         </li>
+      </ul>
+      <p class="p">Nmstate consists of the following packages:</p>
+      <table class="table frame-all"><caption></caption><colgroup><col style="width:33.3333%"><col style="width:66.6667%"></colgroup><thead class="thead">
+               <tr class="row">
+                  <th class="entry align-left colsep-1 rowsep-1 valign-top" id="assembly_introduction-to-nmstate_configuring-and-managing-networking__entry__1">Packages</th>
+                  <th class="entry align-left rowsep-1 valign-top" id="assembly_introduction-to-nmstate_configuring-and-managing-networking__entry__2">Contents</th>
+               </tr>
+            </thead><tbody class="tbody">
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="assembly_introduction-to-nmstate_configuring-and-managing-networking__entry__1">
+                     <p class="p">
+                        <code class="ph codeph">nmstate</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="assembly_introduction-to-nmstate_configuring-and-managing-networking__entry__2">
+                     <p class="p">The <code class="ph codeph">nmstatectl</code> command-line utility</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="assembly_introduction-to-nmstate_configuring-and-managing-networking__entry__1">
+                     <p class="p">
+                        <code class="ph codeph">python3-libnmstate</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="assembly_introduction-to-nmstate_configuring-and-managing-networking__entry__2">
+                     <p class="p">The <code class="ph codeph">libnmstate</code> Python library</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 rowsep-1 valign-top" headers="assembly_introduction-to-nmstate_configuring-and-managing-networking__entry__1">
+                     <p class="p">
+                        <code class="ph codeph">nmstate-libs</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left rowsep-1 valign-top" headers="assembly_introduction-to-nmstate_configuring-and-managing-networking__entry__2">
+                     <p class="p">The Nmstate C library</p>
+                  </td>
+               </tr>
+               <tr class="row">
+                  <td class="entry align-left colsep-1 valign-top" headers="assembly_introduction-to-nmstate_configuring-and-managing-networking__entry__1">
+                     <p class="p">
+                        <code class="ph codeph">nmstate-devel</code>
+                     </p>
+                  </td>
+                  <td class="entry align-left valign-top" headers="assembly_introduction-to-nmstate_configuring-and-managing-networking__entry__2">
+                     <p class="p">The Nmstate C library headers</p>
+                  </td>
+               </tr>
+            </tbody></table>
+   </div>
+<nav role="navigation" class="related-links"><ul class="ullinks"><li class="link ulchildlink"><strong><a href="con_using-the-libnmstate-library-in-a-python-application_assembly_introduction-to-nmstate.html">Using the libnmstate library in a Python application</a></strong><br></li><li class="link ulchildlink"><strong><a href="proc_updating-the-current-network-configuration-using-nmstatectl_assembly_introduction-to-nmstate.html">Updating the current network configuration by using nmstatectl</a></strong><br></li><li class="link ulchildlink"><strong><a href="the-nmstate-systemd-service_assembly_introduction-to-nmstate.html">The nmstate systemd service</a></strong><br></li><li class="link ulchildlink"><strong><a href="ref_network-states-for-the-network-rhel-system-roles_assembly_introduction-to-nmstate.html">Network states for the network RHEL system role</a></strong><br></li></ul></nav></article></main></body></html>

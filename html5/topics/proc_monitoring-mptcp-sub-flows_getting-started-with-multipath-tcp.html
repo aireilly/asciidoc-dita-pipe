@@ -1,0 +1,149 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Monitoring MPTCP sub-flows</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_monitoring-mptcp-sub-flows_getting-started-with-multipath-tcp"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Monitoring MPTCP sub-flows</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A RHEL client with two network interfaces, such as a laptop with Ethernet and WiFi</p>
+            </li>
+            <li class="li">
+               <p class="p">The client can connect to the server via both interfaces</p>
+            </li>
+            <li class="li">
+               <p class="p">A RHEL server</p>
+            </li>
+            <li class="li">
+               <p class="p">Both the client and the server run RHEL 9.0 or later</p>
+            </li>
+            <li class="li">
+               <p class="p">You installed the <code class="ph codeph">mptcpd</code> package on both the client and the server</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Monitoring MPTCP (Multipath TCP) subflows is crucial for optimizing performance, ensuring reliability, and maintaining control over multi-path network communication.</p>
+         <p class="p">The life cycle of a multipath TCP (MPTCP) socket can be complex: The main MPTCP socket is created, the MPTCP path is validated, one or more sub-flows are created and eventually removed. Finally, the MPTCP socket is terminated.</p>
+         <p class="p">The MPTCP protocol allows monitoring MPTCP-specific events related to socket and sub-flow creation and deletion, using the <code class="ph codeph">ip</code> utility provided by the <code class="ph codeph">iproute</code> package. This utility uses the <code class="ph codeph">netlink</code> interface to monitor MPTCP events.</p>
+         <p class="p">This procedure demonstrates how to monitor MPTCP events. For that, it simulates a MPTCP server application, and a client connects to this service. The involved clients in this example use the following interfaces and IP addresses:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Server: <code class="ph codeph">192.0.2.1</code>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">Client (Ethernet connection): <code class="ph codeph">192.0.2.2</code>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">Client (WiFi connection): <code class="ph codeph">192.0.2.3</code>
+               </p>
+            </li>
+         </ul>
+         <p class="p">To simplify this example, all interfaces are within the same subnet. This is not a requirement. However, it is important that routing has been configured correctly, and the client can reach the server via both interfaces.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Set the per connection additional subflow limits to <code class="ph codeph">1</code> on both client and server:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">ip mptcp limits set add_addr_accepted 0 subflows 1</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">On the server, to simulate a MPTCP server application, start <code class="ph codeph">netcat</code> (<code class="ph codeph">nc</code>) in listen mode with enforced MPTCP sockets instead of TCP sockets:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">mptcpize run nc -l -k -p <em class="ph i">12345</em>
+                  </strong>
+               </code></pre>
+               <p class="p">The <code class="ph codeph">-k</code> option causes that <code class="ph codeph">nc</code> does not close the listener after the first accepted connection. This is required to demonstrate the monitoring of sub-flows.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">On the client:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Identify the interface with the lowest metric:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip -4 route</strong>
+192.0.2.0/24 dev enp1s0 proto kernel scope link src 192.0.2.2 metric 100
+192.0.2.0/24 dev wlp1s0 proto kernel scope link src 192.0.2.3 metric 600</code></pre>
+                     <p class="p">The <code class="ph codeph">enp1s0</code> interface has a lower metric than <code class="ph codeph">wlp1s0</code>. Therefore, RHEL uses <code class="ph codeph">enp1s0</code> by default.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">On the first terminal, start the monitoring:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip mptcp monitor</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">On the second terminal, start a MPTCP connection to the server:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">mptcpize run nc 192.0.2.1 12345</strong>
+                     </code></pre>
+                     <p class="p">RHEL uses the <code class="ph codeph">enp1s0</code> interface and its associated IP address as a source for this connection.</p>
+                     <p class="p">On the monitoring terminal, the <code class="ph codeph">ip mptcp monitor</code> command now logs:</p>
+                     <pre class="pre codeblock"><code>[       CREATED] token=63c070d2 remid=0 locid=0 saddr4=192.0.2.2 daddr4=192.0.2.1 sport=36444 dport=12345</code></pre>
+                     <p class="p">The token identifies the MPTCP socket as an unique ID, and later it enables you to correlate MPTCP events on the same socket.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">On the terminal with the running <code class="ph codeph">nc</code> connection to the server, press <span class="ph">Enter</span>. This first data packet fully establishes the connection. Note that, as long as no data has been sent, the connection is not established.</p>
+                     <p class="p">On the monitoring terminal, <code class="ph codeph">ip mptcp monitor</code> now logs:</p>
+                     <pre class="pre codeblock"><code>[   ESTABLISHED] token=63c070d2 remid=0 locid=0 saddr4=192.0.2.2 daddr4=192.0.2.1 sport=36444 dport=12345</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Optional: Display the connections to port <code class="ph codeph">12345</code> on the server:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ss -taunp | grep ":12345"</strong>
+tcp ESTAB  0  0         192.0.2.2:36444 192.0.2.1:12345</code></pre>
+                     <p class="p">At this point, only one connection to the server has been established.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">On a third terminal, create another endpoint:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip mptcp endpoint add dev wlp1s0 192.0.2.3 subflow</strong>
+                     </code></pre>
+                     <p class="p">This command sets the name and IP address of the WiFi interface of the client in this command.</p>
+                     <p class="p">On the monitoring terminal, <code class="ph codeph">ip mptcp monitor</code> now logs:</p>
+                     <pre class="pre codeblock"><code>[SF_ESTABLISHED] token=63c070d2 remid=0 locid=2 saddr4=192.0.2.3 daddr4=192.0.2.1 sport=53345 dport=12345 backup=0 ifindex=3</code></pre>
+                     <p class="p">The <code class="ph codeph">locid</code> field displays the local address ID of the new sub-flow and identifies this sub-flow even if the connection uses network address translation (NAT). The <code class="ph codeph">saddr4</code> field matches the endpoint’s IP address from the <code class="ph codeph">ip mptcp endpoint add</code> command.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Optional: Display the connections to port <code class="ph codeph">12345</code> on the server:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ss -taunp | grep ":12345"</strong>
+tcp ESTAB  0  0         192.0.2.2:36444 192.0.2.1:12345
+tcp ESTAB  0  0  192.0.2.3%wlp1s0:53345 192.0.2.1:12345</code></pre>
+                     <p class="p">The command now displays two connections:</p>
+                     <ul class="ul">
+                        <li class="li">
+                           <p class="p">The connection with source address <code class="ph codeph">192.0.2.2</code> corresponds to the first MPTCP sub-flow that you established previously.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">The connection from the sub-flow over the <code class="ph codeph">wlp1s0</code> interface with source address <code class="ph codeph">192.0.2.3</code>.</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li class="li">
+                     <p class="p">On the third terminal, delete the endpoint:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ip mptcp endpoint delete id 2</strong>
+                     </code></pre>
+                     <p class="p">Use the ID from the <code class="ph codeph">locid</code> field from the <code class="ph codeph">ip mptcp monitor</code> output, or retrieve the endpoint ID using the <code class="ph codeph">ip mptcp endpoint show</code> command.</p>
+                     <p class="p">On the monitoring terminal, <code class="ph codeph">ip mptcp monitor</code> now logs:</p>
+                     <pre class="pre codeblock"><code>[     SF_CLOSED] token=63c070d2 remid=0 locid=2 saddr4=192.0.2.3 daddr4=192.0.2.1 sport=53345 dport=12345 backup=0 ifindex=3</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">On the first terminal with the <code class="ph codeph">nc</code> client, press <span class="ph">
+                           <span class="ph">Ctrl</span>
+                           <span class="ph">C</span>
+                        </span> to terminate the session.</p>
+                     <p class="p">On the monitoring terminal, <code class="ph codeph">ip mptcp monitor</code> now logs:</p>
+                     <pre class="pre codeblock"><code>[        CLOSED] token=63c070d2</code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li></ol></section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting">How NetworkManager manages multiple default gateways</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="getting-started-with-multipath-tcp_configuring-and-managing-networking.html">Getting started with Multipath TCP</a></div></div></nav></article></main></body></html>

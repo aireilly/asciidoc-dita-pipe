@@ -1,0 +1,15 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Network interface naming schemes</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="network-interface-naming-schemes_consistent-network-interface-device-naming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Network interface naming schemes</h1>
+   <div class="body conbody">
+      <p class="p">The <code class="ph codeph">udev</code> device manager uses certain stable interface attributes that device drivers provide to generate consistent device names.</p>
+      <p class="p">If a new <code class="ph codeph">udev</code> version changes how the service creates names for certain interfaces, Red&nbsp;Hat adds a new scheme version and documents the details in the <code class="ph codeph">systemd.net-naming-scheme(7)</code> man page on your system. By default, Red&nbsp;Hat Enterprise&nbsp;Linux (RHEL) 9 uses the <code class="ph codeph">rhel-9.0</code> naming scheme, even if you install or update to a later minor version of RHEL.</p>
+      <p class="p">To prevent new drivers from providing more or other attributes for a network interface, the <code class="ph codeph">rhel-net-naming-sysattrs</code> package provides the <code class="ph codeph">/usr/lib/udev/hwdb.d/50-net-naming-sysattr-allowlist.hwdb</code> database. This database defines which <code class="ph codeph">sysfs</code> values the <code class="ph codeph">udev</code> service can use to create network interface names. The entries in the database are also versioned and influenced by the scheme version.</p>
+      <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+         <p class="p">On RHEL 9.4 and later, you can also use all <code class="ph codeph">rhel-8.*</code> naming schemes.</p>
+      </div></div>
+      <p class="p">If you want to use a scheme other than the default, you can <a class="xref" href="#switching-to-a-different-network-interface-naming-scheme_consistent-network-interface-device-naming">switch the network interface naming scheme</a>.</p>
+      <p class="p">For further details about the naming schemes for different device types and platforms, see the <code class="ph codeph">systemd.net-naming-scheme(7)</code> man page on your system.</p>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="consistent-network-interface-device-naming_configuring-and-managing-networking.html">Implementing consistent network interface naming</a></div></div></nav></article></main></body></html>

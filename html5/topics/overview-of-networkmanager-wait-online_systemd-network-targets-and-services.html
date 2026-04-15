@@ -1,0 +1,32 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Overview of NetworkManager-wait-online</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="overview-of-networkmanager-wait-online_systemd-network-targets-and-services"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Overview of <code class="ph codeph">NetworkManager-wait-online</code>
+   </h1>
+   <div class="body conbody">
+      <p class="p">The <code class="ph codeph">NetworkManager-wait-online</code> service delays reaching the <code class="ph codeph">network-online</code> target until NetworkManager reports that the startup is complete.</p>
+      <p class="p">During boot, NetworkManager activates all profiles with the <code class="ph codeph">connection.autoconnect</code> parameter set to <code class="ph codeph">yes</code>. However, the activation of profiles is not complete as long as NetworkManager profiles are in an activating state. If activation fails, NetworkManager retries the activation depending on the value of the <code class="ph codeph">connection.autoconnect-retries</code>.</p>
+      <p class="p">When a device reaches the activated state depends on its configuration. For example, if a profile contains both IPv4 and IPv6 configuration, by default, NetworkManager considers the device as fully activated when only one of the Address families is ready. The <code class="ph codeph">ipv4.may-fail</code> and <code class="ph codeph">ipv6.may-fail</code> parameters in a connection profile control this behavior.</p>
+      <p class="p">For Ethernet devices, NetworkManager waits for the carrier with a timeout. Consequently, if the Ethernet cable is not connected, this can further delay <code class="ph codeph">NetworkManager-wait-online.service</code>.</p>
+      <p class="p">When the startup completes, either all profiles are in a disconnected state or are successfully activated. You can configure profiles to auto-connect. The following are a few examples of parameters that set timeouts or define when the connection is considered active:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">connection.wait-device-timeout</code>: Sets the timeout for the driver to detect the device.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">ipv4.may-fail</code> and <code class="ph codeph">ipv6.may-fail</code>: Sets activation with one IP address family ready, or whether a particular address family must have completed configuration.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">ipv4.gateway-ping-timeout</code>: Delays network activation until NetworkManager receives a ping response from the IPv4 gateway. The system waits up to the specified number of seconds before proceeding.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">ip-ping-timeout</code> and <code class="ph codeph">ip-ping-addresses</code>: Delays network activation until NetworkManager receives a ping response from the hosts defined in <code class="ph codeph">ip-ping-addresses</code>. The system waits up to the specified number of seconds before proceeding.</p>
+         </li>
+      </ul>
+      <p class="p">For further details, see the <code class="ph codeph">nm-settings(5)</code>, <code class="ph codeph">systemd.special(7)</code>, <code class="ph codeph">NetworkManager-wait-online.service(8)</code> man pages on your system.</p>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="systemd-network-targets-and-services_configuring-and-managing-networking.html">Systemd network targets and services</a></div></div></nav></article></main></body></html>

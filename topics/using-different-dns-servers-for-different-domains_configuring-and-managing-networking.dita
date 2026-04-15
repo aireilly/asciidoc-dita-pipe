@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="using-different-dns-servers-for-different-domains_configuring-and-managing-networking">
+   <title>Using different DNS servers for different domains</title>
+   <body>
+      <p>By default, Red Hat Enterprise Linux (RHEL) sends all DNS requests to the first DNS server specified in the <codeph>/etc/resolv.conf</codeph> file. If this server does not reply, RHEL tries the next server in this file until it finds a working one. In environments where one DNS server cannot resolve all domains, administrators can configure RHEL to send DNS requests for a specific domain to a selected DNS server.</p>
+      <p>For example, you connect a server to a Virtual Private Network (VPN), and hosts in the VPN use the <codeph>example.com</codeph> domain. In this case, you can configure RHEL to process DNS queries in the following way:</p>
+      <ul>
+         <li>
+            <p>Send only DNS requests for <codeph>example.com</codeph> to the DNS server in the VPN network.</p>
+         </li>
+         <li>
+            <p>Send all other requests to the DNS server that is configured in the connection profile with the default gateway.</p>
+         </li>
+      </ul>
+   </body>
+</topic>

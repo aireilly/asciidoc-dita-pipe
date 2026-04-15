@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Configuring a network bridge</title>
+   <topicref href="../topics/configuring-a-network-bridge_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/configuring-a-network-bridge-by-using-nmcli_configuring-a-network-bridge.dita"/>
+   <topicref href="../topics/proc_configuring-a-network-bridge-by-using-the-rhel-web-console_configuring-a-network-bridge.dita"/>
+   <topicref href="../topics/proc_configuring-a-network-bridge-by-using-nmtui_configuring-a-network-bridge.dita"/>
+   <topicref href="../topics/configuring-a-network-bridge-by-using-nm-connection-editor_configuring-a-network-bridge.dita"/>
+   <topicref href="../topics/proc_configuring-a-network-bridge-by-using-nmstatectl_configuring-a-network-bridge.dita"/>
+   <topicref href="../topics/configuring-a-network-bridge-by-using-the-network-rhel-system-role_configuring-a-network-bridge.dita"/>
+</map>

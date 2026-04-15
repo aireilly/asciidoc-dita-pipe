@@ -1,0 +1,60 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Disabling IPv6 on a connection using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="disabling-ipv6-on-a-connection-using-nmcli_using-networkmanager-to-disable-ipv6-for-a-specific-connection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Disabling IPv6 on a connection using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The system uses NetworkManager to manage network interfaces.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the <code class="ph codeph">nmcli</code> utility to disable the <code class="ph codeph">IPv6</code> protocol on the command line.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Display the list of network connections:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection show</strong>
+NAME    UUID                                  TYPE      DEVICE
+Example 7a7e0151-9c18-4e6f-89ee-65bb2d64d365  ethernet  enp1s0
+...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the <code class="ph codeph">ipv6.method</code> parameter of the connection to <code class="ph codeph">disabled</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">Example</em> ipv6.method "disabled"</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Restart the network connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">Example</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the IP settings of the device:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip address show <em class="ph i">enp1s0</em>
+                  </strong>
+2: <em class="ph i">enp1s0</em>: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:6b:74:be brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.10.2.255 scope global noprefixroute <em class="ph i">enp1s0</em>
+       valid_lft forever preferred_lft forever</code></pre>
+               <p class="p">If no <code class="ph codeph">inet6</code> entry is displayed, <code class="ph codeph">IPv6</code> is disabled on the device.</p>
+            </li>
+            <li class="li">
+               <p class="p">Verify that the <code class="ph codeph">/proc/sys/net/ipv6/conf/<em class="ph i">enp1s0</em>/disable_ipv6</code> file now contains the value <code class="ph codeph">1</code>:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /proc/sys/net/ipv6/conf/<em class="ph i">enp1s0</em>/disable_ipv6</strong>
+1</code></pre>
+               <p class="p">The value <code class="ph codeph">1</code> means that <code class="ph codeph">IPv6</code> is disabled for the device.</p>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="using-networkmanager-to-disable-ipv6-for-a-specific-connection_configuring-and-managing-networking.html">Using NetworkManager to disable IPv6 for a specific connection</a></div></div></nav></article></main></body></html>

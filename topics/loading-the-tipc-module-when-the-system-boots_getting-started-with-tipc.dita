@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="loading-the-tipc-module-when-the-system-boots_getting-started-with-tipc">
+   <title>Loading the tipc module when the system boots</title>
+   <taskbody>
+      <context>
+         <p>Before you can use the TIPC protocol, you must load the <codeph>tipc</codeph> kernel module. You can configure Red Hat Enterprise Linux to automatically load this kernel module automatically when the system boots.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create the <codeph>/etc/modules-load.d/tipc.conf</codeph> file with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-console">tipc</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Restart the <codeph>systemd-modules-load</codeph> service to load the module without rebooting the system:</cmd>
+            <info>
+               <codeblock># <b>systemctl start systemd-modules-load</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Use the following command to verify that RHEL loaded the <codeph>tipc</codeph> module:</p>
+               <codeblock># <b>lsmod | grep tipc</b>
+tipc    <i>311296</i>  0</codeblock>
+               <p>If the command shows no entry for the <codeph>tipc</codeph> module, RHEL failed to load it.</p>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

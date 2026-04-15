@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="con_the-keyfile-format-of-networkmanager-profiles_assembly_networkmanager-connection-profiles-in-keyfile-format">
+   <title>The keyfile format of NetworkManager profiles</title>
+   <conbody>
+      <p>The keyfile format is an INI-like configuration for network connections.</p>
+      <p>For example, the following is an Ethernet connection profile in keyfile format:</p>
+      <codeblock outputclass="language-console">[connection]
+id=<i>example_connection</i>
+uuid=<i>82c6272d-1ff7-4d56-9c7c-0eb27c300029</i>
+type=<i>ethernet</i>
+autoconnect=<i>true</i>
+
+[ipv4]
+method=<i>auto</i>
+
+[ipv6]
+method=<i>auto</i>
+
+[ethernet]
+mac-address=<i>00:53:00:8f:fa:66</i>
+      </codeblock>
+      <note type="attention">
+         <p>Typos or incorrect placements of parameters can lead to unexpected behavior. Therefore, do not manually edit or create NetworkManager profiles.</p>
+         <p>Use the <codeph>nmcli</codeph> utility, the <codeph>network</codeph> RHEL system role, or the <codeph>nmstate</codeph> API to manage NetworkManager connections. For example, you can use the <xref href="#proc_using-nmcli-to-create-keyfile-connection-profiles-in-offline-mode_assembly_networkmanager-connection-profiles-in-keyfile-format">
+               <codeph>nmcli</codeph> utility in offline mode</xref> to create connection profiles.</p>
+      </note>
+      <p>Each section corresponds to a NetworkManager setting name as described in the <codeph>nm-settings(5)</codeph> man page. Each key-value-pair in a section is one of the properties listed in the settings specification of the man page.</p>
+      <p>Most variables in NetworkManager keyfiles have a one-to-one mapping. This means that a NetworkManager property is stored in the keyfile as a variable of the same name and in the same format. However, there are exceptions, mainly to make the keyfile syntax easier to read. For a list of these exceptions, see the <codeph>nm-settings-keyfile(5)</codeph> man page on your system.</p>
+      <note type="important">
+         <p>For security reasons, because connection profiles can contain sensitive information, such as private keys and passphrases, NetworkManager uses only configuration files owned by the <codeph>root</codeph> user and that are only readable and writable by <codeph>root</codeph>.</p>
+      </note>
+      <p>Save the connection profile with a <codeph>.nmconnection</codeph> suffix in the <codeph>/etc/NetworkManager/system-connections/</codeph> directory. This directory contains persistent profiles. If you modify a persistent profile by using the NetworkManager API, NetworkManager writes and overwrites files in this directory.</p>
+      <p>NetworkManager does not automatically reload profiles from disk. When you create or update a connection profile in keyfile format, use the <codeph>nmcli connection reload</codeph> command to inform NetworkManager about the changes.</p>
+   </conbody>
+</concept>

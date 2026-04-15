@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="tracing-outgoing-tcp-connection-attempts_network-tracing-using-the-bpf-compiler-collection">
+   <title>Tracing outgoing TCP connection attempts</title>
+   <taskbody>
+      <context>
+         <p>The <codeph>tcpconnect</codeph> utility uses eBPF features to trace outgoing TCP connection attempts. The output of the utility also includes connections that failed.</p>
+         <p>The <codeph>tcpconnect</codeph> utility is lightweight because it traces, for example, the <codeph>connect()</codeph> function of the kernel instead of capturing packets and filtering them.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Enter the following command to start the tracing process that displays all outgoing connections:</cmd>
+            <info>
+               <codeblock># <b>/usr/share/bcc/tools/tcpconnect</b>
+PID    COMM         IP SADDR      DADDR          DPORT
+31346  curl         4  192.0.2.1  198.51.100.16  80
+31348  telnet       4  192.0.2.1  203.0.113.231  23
+31361  isc-worker00 4  192.0.2.1  192.0.2.254    53
+...</codeblock>
+               <p>Each time the kernel processes an outgoing connection, <codeph>tcpconnect</codeph> displays the details of the connections.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Press <ph>Ctrl</ph>+<ph>C</ph> to stop the tracing process.</cmd>
+         </step>
+      </steps>
+   </taskbody>
+</task>

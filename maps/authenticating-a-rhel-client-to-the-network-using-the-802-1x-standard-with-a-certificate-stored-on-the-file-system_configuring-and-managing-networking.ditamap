@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Authenticating a RHEL client to the network by using the 802.1X standard with a certificate stored on the file system</title>
+   <topicref href="../topics/authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/configuring-802-1x-network-authentication-on-an-existing-ethernet-connection-by-using-nmcli_authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system.dita"/>
+   <topicref href="../topics/proc_configuring-a-static-ethernet-connection-with-802-1x-network-authentication-by-using-nmstatectl_authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system.dita"/>
+   <topicref href="../topics/configuring-a-static-ethernet-connection-with-802-1x-network-authentication-by-using-the-network-rhel-system-role_authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system.dita"/>
+   <topicref href="../topics/proc_configuring-a-wifi-connection-with-802-1x-network-authentication-by-using-the-network-rhel-system-role_authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system.dita"/>
+</map>

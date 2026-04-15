@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Starting a service within an isolated VRF network</title>
+   <topicref href="../topics/assembly_starting-a-service-within-an-isolated-vrf-network_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/proc_configuring-a-vrf-device_assembly_starting-a-service-within-an-isolated-vrf-network.dita"/>
+   <topicref href="../topics/proc_starting-a-service-within-an-isolated-vrf-network_assembly_starting-a-service-within-an-isolated-vrf-network.dita"/>
+</map>

@@ -1,0 +1,109 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring an Ethernet connection with a dynamic IP address by using nmstatectl with an interface name</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-nmstatectl-with-an-interface-name_configuring-an-ethernet-connection"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring an Ethernet connection with a dynamic IP address by using <code class="ph codeph">nmstatectl</code> with an interface name</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A physical or virtual Ethernet Network Interface Controller (NIC) exists in the server’s configuration.</p>
+            </li>
+            <li class="li">
+               <p class="p">A DHCP server is available in the network.</p>
+            </li>
+            <li class="li">
+               <p class="p">The <code class="ph codeph">nmstate</code> package is installed.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the declarative Nmstate API to configure an Ethernet connection with static IP addresses, gateways, and DNS settings, and assign the configuration to a device based on its PCI address. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a YAML file, for example <code class="ph codeph">~/create-ethernet-profile.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+interfaces:
+- name: enp1s0
+  type: ethernet
+  state: up
+  ipv4:
+    enabled: true
+    auto-dns: true
+    auto-gateway: true
+    auto-routes: true
+    dhcp: true
+  ipv6:
+    enabled: true
+    auto-dns: true
+    auto-gateway: true
+    auto-routes: true
+    autoconf: true
+    dhcp: true</code></pre>
+               <p class="p">These settings define an Ethernet connection profile for the <code class="ph codeph">enp1s0</code> device. The connection retrieves IPv4 addresses, IPv6 addresses, default gateway, routes, DNS servers, and search domains from a DHCP server and IPv6 stateless address autoconfiguration (SLAAC).</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: You can define the <code class="ph codeph">identifier: mac-address</code> and <code class="ph codeph">mac-address: <em class="ph i">&lt;mac_address&gt;</em>
+               </code> properties in the <code class="ph codeph">interfaces</code> property to identify the network interface card by its MAC address instead of its name, for example:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+interfaces:
+- name: <em class="ph i">&lt;profile_name&gt;</em>
+  type: ethernet
+  <strong class="ph b">identifier: mac-address</strong>
+                  <strong class="ph b">mac-address: <em class="ph i">&lt;mac_address&gt;</em>
+                  </strong>
+  ...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Apply the settings to the system:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl apply ~/create-ethernet-profile.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the current state in YAML format:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">nmstatectl show enp1s0</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the IP settings of the NIC:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip address show enp1s0</strong>
+2: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:17:b8:b6 brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute enp1s0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::fffe/64 scope global noprefixroute
+       valid_lft forever preferred_lft forever</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the IPv4 default gateway:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip route show default</strong>
+default via 192.0.2.254 dev enp1s0 proto static metric 102</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the IPv6 default gateway:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip -6 route show default</strong>
+default via 2001:db8:1::fffe dev enp1s0 proto static metric 102 pref medium</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the DNS settings:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /etc/resolv.conf</strong>
+search example.com
+nameserver 192.0.2.200
+nameserver 2001:db8:1::ffbb</code></pre>
+               <p class="p">If multiple connection profiles are active at the same time, the order of <code class="ph codeph">nameserver</code> entries depend on the DNS priority values in these profiles and the connection types.</p>
+            </li>
+            <li class="li">
+               <p class="p">Use the <code class="ph codeph">ping</code> utility to verify that this host can send packets to other hosts:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ping <em class="ph i">&lt;host-name-or-IP-address&gt;</em>
+                  </strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-an-ethernet-connection_configuring-and-managing-networking.html">Configuring an Ethernet connection</a></div></div></nav></article></main></body></html>

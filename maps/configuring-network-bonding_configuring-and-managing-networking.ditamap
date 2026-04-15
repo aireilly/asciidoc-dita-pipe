@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Configuring a network bond</title>
+   <topicref href="../topics/configuring-network-bonding_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/understanding-the-default-behavior-of-controller-and-port-interfaces_configuring-network-bonding.dita"/>
+   <topicref href="../topics/upstream-switch-configuration-depending-on-the-bonding-modes_configuring-network-bonding.dita"/>
+   <topicref href="../topics/configuring-a-network-bond-by-using-nmcli_configuring-network-bonding.dita"/>
+   <topicref href="../topics/proc_configuring-a-network-bond-by-using-the-rhel-web-console_configuring-network-bonding.dita"/>
+   <topicref href="../topics/proc_configuring-a-network-by-bond-using-nmtui_configuring-network-bonding.dita"/>
+   <topicref href="../topics/configuring-a-network-bond-by-using-nm-connection-editor_configuring-network-bonding.dita"/>
+   <topicref href="../topics/proc_configuring-a-network-bond-by-using-nmstatectl_configuring-network-bonding.dita"/>
+   <topicref href="../topics/proc_configuring-a-network-bond-by-using-network-rhel-system-role_configuring-network-bonding.dita"/>
+   <topicref href="../topics/creating-a-network-bond-to-enable-switching-between-an-ethernet-and-wireless-connection-without-interrupting-the-vpn_configuring-network-bonding.dita"/>
+   <topicref href="../topics/the-different-network-bonding-modes_configuring-network-bonding.dita"/>
+   <topicref href="../topics/ref_xmit-hash-policy-bonding-parameter_configuring-network-bonding.dita"/>
+</map>

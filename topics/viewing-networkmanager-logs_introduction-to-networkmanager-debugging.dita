@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="viewing-networkmanager-logs_introduction-to-networkmanager-debugging">
+   <title>Viewing NetworkManager logs</title>
+   <taskbody>
+      <context>
+         <p>You can view the NetworkManager logs for troubleshooting.</p>
+      </context>
+      <steps-unordered>
+         <step>
+            <cmd>To view the logs, enter:</cmd>
+            <info>
+               <codeblock># <b>journalctl -u NetworkManager -b</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps-unordered>
+   </taskbody>
+</task>

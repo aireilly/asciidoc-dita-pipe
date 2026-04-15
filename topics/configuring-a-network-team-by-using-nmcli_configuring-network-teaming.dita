@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-a-network-team-by-using-nmcli_configuring-network-teaming">
+   <title>Configuring a NIC team by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>teamd</codeph> and <codeph>NetworkManager-team</codeph> packages are installed.</p>
+            </li>
+            <li>
+               <p>Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li>
+               <p>To use Ethernet devices as ports of the team, the physical or virtual Ethernet devices must be installed on the server and connected to a switch.</p>
+            </li>
+            <li>
+               <p>To use bond, bridge, or VLAN devices as ports of the team, you can either create these devices while you create the team or you can create them in advance as described in:</p>
+               <ul>
+                  <li>
+                     <p>
+                        <xref href="#configuring-a-network-bond-by-using-nmcli_configuring-network-bonding">Configuring a network bond by using nmcli</xref>
+                     </p>
+                  </li>
+                  <li>
+                     <p>
+                        <xref href="#configuring-a-network-bridge-by-using-nmcli_configuring-a-network-bridge">Configuring a network bridge by using nmcli</xref>
+                     </p>
+                  </li>
+                  <li>
+                     <p>
+                        <xref href="#configuring-vlan-tagging-by-using-nmcli_configuring-vlan-tagging">Configuring VLAN tagging by using nmcli</xref>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>To configure a network interface controller (NIC) team on the command line, use the <codeph>nmcli</codeph> utility.</p>
+         <note type="important">
+            <p>NIC teaming is deprecated in Red Hat Enterprise Linux 9. Consider using the network bonding driver as an alternative. For details, see
+<xref href="#configuring-network-bonding_configuring-and-managing-networking">Configuring a network bond</xref>.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a team interface:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type team con-name <i>team0</i> ifname <i>team0</i> team.runner <i>activebackup</i>
+                  </b>
+               </codeblock>
+               <p>This command creates a NIC team named <codeph>team0</codeph> that uses the <codeph>activebackup</codeph> runner.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Set a link watcher. For example, to set the <codeph>ethtool</codeph> link watcher in the <codeph>team0</codeph> connection profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify team0 team.link-watchers "name=<i>ethtool</i>"</b>
+               </codeblock>
+               <p>Link watchers support different parameters. To set parameters for a link watcher, specify them space-separated in the <codeph>name</codeph> property. Note that the name property must be surrounded by quotation marks. For example, to use the <codeph>ethtool</codeph> link watcher and set its <codeph>delay-up</codeph> parameter to <codeph>2500</codeph> milliseconds (2.5 seconds):</p>
+               <codeblock># <b>nmcli connection modify team0 team.link-watchers "name=<i>ethtool</i> delay-up=<i>2500</i>"</b>
+               </codeblock>
+               <p>To set multiple link watchers and each of them with specific parameters, the link watchers must be separated by a comma. The following example sets the <codeph>ethtool</codeph> link watcher with the <codeph>delay-up</codeph> parameter and the <codeph>arp_ping</codeph> link watcher with the <codeph>source-host</codeph> and <codeph>target-host</codeph> parameter:</p>
+               <codeblock># <b>nmcli connection modify team0 team.link-watchers "name=<i>ethtool</i> delay-up=<i>2</i>, name=<i>arp_ping</i> source-host=<i>192.0.2.1</i> target-host=<i>192.0.2.2</i>"</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Display the network interfaces, and note the names of the interfaces you want to add to the team:</cmd>
+            <info>
+               <codeblock># <b>nmcli device status</b>
+DEVICE  TYPE      STATE         CONNECTION
+enp7s0  ethernet  disconnected  --
+enp8s0  ethernet  disconnected  --
+bond0   bond      connected  bond0
+bond1   bond      connected  bond1
+...</codeblock>
+               <p>In this example:</p>
+               <ul>
+                  <li>
+                     <p>
+                        <codeph>enp7s0</codeph> and <codeph>enp8s0</codeph> are not configured. To use these devices as ports, add connection profiles in the next step. Note that you can only use Ethernet interfaces in a team that are not assigned to any connection.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>bond0</codeph> and <codeph>bond1</codeph> have existing connection profiles. To use these devices as ports, modify their profiles in the next step.</p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Assign the port interfaces to the team:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>If the interfaces you want to assign to the team are not configured, create new connection profiles for them:</p>
+                     <codeblock># <b>nmcli connection add type ethernet port-type team con-name team0-port1 ifname enp7s0 controller team0</b>
+# <b>nmcli connection add type ethernet port--type team con-name team0-port2 ifname enp8s0 controller team0</b>
+                     </codeblock>
+                     <p>These commands create profiles for <codeph>enp7s0</codeph> and <codeph>enp8s0</codeph>, and add them to the <codeph>team0</codeph> connection.</p>
+                  </li>
+                  <li>
+                     <p>To assign an existing connection profile to the team:</p>
+                     <ol>
+                        <li>
+                           <p>Set the <codeph>controller</codeph> parameter of these connections to <codeph>team0</codeph>:</p>
+                           <codeblock># <b>nmcli connection modify <i>bond0</i> controller team0</b>
+# <b>nmcli connection modify <i>bond1</i> controller team0</b>
+                           </codeblock>
+                           <p>These commands assign the existing connection profiles named <codeph>bond0</codeph> and <codeph>bond1</codeph> to the <codeph>team0</codeph> connection.</p>
+                        </li>
+                        <li>
+                           <p>Reactivate the connections:</p>
+                           <codeblock># <b>nmcli connection up <i>bond0</i>
+                              </b>
+# <b>nmcli connection up <i>bond1</i>
+                              </b>
+                           </codeblock>
+                        </li>
+                     </ol>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the IPv4 settings:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>To set a static IPv4 address, network mask, default gateway, and DNS server to the <codeph>team0</codeph> connection, enter:</p>
+                     <codeblock># <b>nmcli connection modify team0 ipv4.addresses '<i>192.0.2.1/24</i>' ipv4.gateway '<i>192.0.2.254</i>' ipv4.dns '<i>192.0.2.253</i>' ipv4.dns-search '<i>example.com</i>' ipv4.method manual</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>To use DHCP, no action is required.</p>
+                  </li>
+                  <li>
+                     <p>If you plan to use this team device as a port of other devices, no action is required.</p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the IPv6 settings:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>To set a static IPv6 address, network mask, default gateway, and DNS server to the <codeph>team0</codeph> connection, enter:</p>
+                     <codeblock># <b>nmcli connection modify team0 ipv6.addresses '<i>2001:db8:1::1/64</i>' ipv6.gateway '<i>2001:db8:1::fffe</i>' ipv6.dns '<i>2001:db8:1::fffd</i>' ipv6.dns-search '<i>example.com</i>' ipv6.method manual</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>If you plan to use this team device as a port of other devices, no action is required.</p>
+                  </li>
+                  <li>
+                     <p>To use stateless address autoconfiguration (SLAAC), no action is required.</p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up team0</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the status of the team:</p>
+               <codeblock># <b>teamdctl team0 state</b>
+setup:
+  runner: activebackup
+ports:
+  enp7s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+  enp8s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+runner:
+  active port: enp7s0</codeblock>
+               <p>In this example, both ports are up.</p>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting">Configuring NetworkManager to avoid using a specific profile to provide a default gateway</xref>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <xref href="#understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming">Understanding the teamd service, runners, and link-watchers</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

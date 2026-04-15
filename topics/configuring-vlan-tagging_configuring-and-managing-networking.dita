@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="configuring-vlan-tagging_configuring-and-managing-networking">
+   <title>Configuring VLAN tagging</title>
+   <body>
+      <p>A Virtual Local Area Network (VLAN) is a logical network within a physical network. The VLAN interface tags packets with the VLAN ID as they pass through the interface, and removes tags of returning packets.</p>
+      <p>You create VLAN interfaces on top of another interface, such as Ethernet, bond, or bridge devices. These interfaces are called the <codeph>parent interface</codeph>.</p>
+      <p>Red Hat Enterprise Linux provides administrators different options to configure VLAN devices. For example:</p>
+      <ul>
+         <li>
+            <p>Use <codeph>nmcli</codeph> to configure VLAN tagging using the command line.</p>
+         </li>
+         <li>
+            <p>Use the RHEL web console to configure VLAN tagging using a web browser.</p>
+         </li>
+         <li>
+            <p>Use <codeph>nmtui</codeph> to configure VLAN tagging in a text-based user interface.</p>
+         </li>
+         <li>
+            <p>Use the <codeph>nm-connection-editor</codeph> application to configure connections in a graphical interface.</p>
+         </li>
+         <li>
+            <p>Use <codeph>nmstatectl</codeph> to configure connections through the Nmstate API.</p>
+         </li>
+         <li>
+            <p>Use RHEL system roles to automate the VLAN configuration on one or multiple hosts.</p>
+         </li>
+      </ul>
+   </body>
+</topic>

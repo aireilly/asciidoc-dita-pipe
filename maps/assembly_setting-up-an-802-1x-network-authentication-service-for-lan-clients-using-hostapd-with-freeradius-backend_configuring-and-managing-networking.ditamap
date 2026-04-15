@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Setting up an 802.1x network authentication service for LAN clients by using hostapd with FreeRADIUS backend</title>
+   <topicref href="../topics/assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/_prerequisites.dita"/>
+   <topicref href="../topics/proc_setting-up-the-bridge-on-the-authenticator_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend.dita"/>
+   <topicref href="../topics/proc_configuring-freeradius-to-authenticate-network-clients-securely-using-eap_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend.dita"/>
+   <topicref href="../topics/proc_configuring-hostapd-as-an-authenticator-in-a-wired-network_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend.dita"/>
+   <topicref href="../topics/proc_testing-eap-ttls-authentication-against-a-freeradius-server-or-authenticator_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend.dita"/>
+   <topicref href="../topics/proc_blocking-and-allowing-traffic-based-on-hostapd-authentication-events_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend.dita"/>
+</map>

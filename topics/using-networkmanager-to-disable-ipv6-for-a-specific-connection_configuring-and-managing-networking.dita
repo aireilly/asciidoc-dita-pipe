@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="using-networkmanager-to-disable-ipv6-for-a-specific-connection_configuring-and-managing-networking">
+   <title>Using NetworkManager to disable IPv6 for a specific connection</title>
+   <body>
+      <p>On a system that uses NetworkManager to manage network interfaces, you can disable the IPv6 protocol if the network only uses IPv4. If you disable <codeph>IPv6</codeph>, NetworkManager automatically sets the corresponding <codeph>sysctl</codeph> values in the Kernel.</p>
+      <note>
+         <p>If disabling IPv6 using kernel tunables or kernel boot parameters, additional consideration must be given to system configuration. For more information, see the Red Hat Knowledgebase solution <xref href="https://access.redhat.com/solutions/8709"
+                  format="html"
+                  scope="external">How do I disable or enable the IPv6 protocol in RHEL</xref>.</p>
+      </note>
+   </body>
+</topic>

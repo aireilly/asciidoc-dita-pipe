@@ -1,0 +1,128 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a network bridge by using the network RHEL&nbsp;system&nbsp;role</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-network-bridge-by-using-the-network-rhel-system-role_configuring-a-network-bridge"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a network bridge by using the <code class="ph codeph">network</code> RHEL&nbsp;system&nbsp;role</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles" target="_blank" rel="external noopener">You have prepared the control node and the managed nodes</a>.</p>
+            </li>
+            <li class="li">
+               <p class="p">The account you use to connect to the managed nodes has <code class="ph codeph">sudo</code> permissions for these nodes.</p>
+            </li>
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the <code class="ph codeph">network</code> RHEL system role to configure a bridge and, if a connection profile for the bridge’s parent device does not exist, the role can create it as well.</p>
+         <p class="p">You can connect multiple networks on layer 2 of the Open Systems Interconnection (OSI) model by creating a network bridge. To configure a bridge, create a connection profile in NetworkManager. By using Ansible and the <code class="ph codeph">network</code> RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.</p>
+         <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+            <p class="p">If you want to assign IP addresses, gateways, and DNS settings to a bridge, configure them on the bridge and not on its ports.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a playbook file, for example, <code class="ph codeph">~/playbook.yml</code>, with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-yaml"><code>---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Bridge connection profile with two Ethernet ports
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          # Bridge profile
+          - name: bridge0
+            type: bridge
+            interface_name: bridge0
+            ip:
+              dhcp4: yes
+              auto6: yes
+            state: up
+
+          # Port profile for the 1st Ethernet device
+          - name: bridge0-port1
+            interface_name: enp7s0
+            type: ethernet
+            controller: bridge0
+            port_type: bridge
+            state: up
+
+          # Port profile for the 2nd Ethernet device
+          - name: bridge0-port2
+            interface_name: enp8s0
+            type: ethernet
+            controller: bridge0
+            port_type: bridge
+            state: up</code></pre>
+               <p class="p">The settings specified in the example playbook include the following:</p>
+               <dl class="dl">
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">type: <em class="ph i">&lt;profile_type&gt;</em>
+                        </code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Sets the type of the profile to create. The example playbook creates three connection profiles: One for the bridge and two for the Ethernet devices.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">dhcp4: yes</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Enables automatic IPv4 address assignment from DHCP, PPP, or similar services.</p>
+                     </dd>
+                  
+                  
+                     <dt class="dt dlterm">
+                        <code class="ph codeph">auto6: yes</code>
+                     </dt>
+                     <dd class="dd">
+                        <p class="p">Enables IPv6 auto-configuration. By default, NetworkManager uses Router Advertisements. If the router announces the <code class="ph codeph">managed</code> flag, NetworkManager requests an IPv6 address and prefix from a DHCPv6 server.</p>
+                     </dd>
+                  
+               </dl>
+               <p class="p">For details about all variables used in the playbook, see the <code class="ph codeph">/usr/share/ansible/roles/rhel-system-roles.network/README.md</code> file on the control node.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Validate the playbook syntax:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook --syntax-check ~/playbook.yml</strong>
+               </code></pre>
+               <p class="p">Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Run the playbook:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">ansible-playbook ~/playbook.yml</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the link status of Ethernet devices that are ports of a specific bridge:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ansible managed-node-01.example.com -m command -a 'ip link show master bridge0'</strong>
+managed-node-01.example.com | CHANGED | rc=0 &gt;&gt;
+3: enp7s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel master bridge0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:62:61:0e brd ff:ff:ff:ff:ff:ff
+4: enp8s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel master bridge0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:9e:f1:ce brd ff:ff:ff:ff:ff:ff</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the status of Ethernet devices that are ports of any bridge device:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ansible managed-node-01.example.com -m command -a 'bridge link show'</strong>
+managed-node-01.example.com | CHANGED | rc=0 &gt;&gt;
+3: enp7s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 master bridge0 state forwarding priority 32 cost 100
+4: enp8s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 master bridge0 state listening priority 32 cost 100</code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-a-network-bridge_configuring-and-managing-networking.html">Configuring a network bridge</a></div></div></nav></article></main></body></html>

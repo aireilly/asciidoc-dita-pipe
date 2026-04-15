@@ -1,0 +1,52 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Understanding the teamd service, runners, and link-watchers</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Understanding the teamd service, runners, and link-watchers</h1>
+   <div class="body conbody">
+      <p class="p">The team service, <code class="ph codeph">teamd</code>, controls one instance of the team driver. This instance of the driver adds instances of a hardware device driver to form a team of network interfaces. The team driver presents a network interface, for example <code class="ph codeph">team0</code>, to the kernel.</p>
+      <p class="p">The <code class="ph codeph">teamd</code> service implements the common logic to all methods of teaming. Those functions are unique to the different load sharing and backup methods, such as round-robin, and implemented by separate units of code referred to as <code class="ph codeph">runners</code>. Administrators specify runners in JavaScript Object Notation (JSON) format, and the JSON code is compiled into an instance of <code class="ph codeph">teamd</code> when the instance is created. Alternatively, when using <code class="ph codeph">NetworkManager</code>, you can set the runner in the <code class="ph codeph">team.runner</code> parameter, and <code class="ph codeph">NetworkManager</code> auto-creates the corresponding JSON code.</p>
+      <p class="p">The following runners are available:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">broadcast</code>: Transmits data over all ports.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">roundrobin</code>: Transmits data over all ports in turn.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">activebackup</code>: Transmits data over one port while the others are kept as a backup.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">loadbalance</code>: Transmits data over all ports with active Tx load balancing and Berkeley Packet Filter (BPF)-based Tx port selectors.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">random</code>: Transmits data on a randomly selected port.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">lacp</code>: Implements the 802.3ad Link Aggregation Control Protocol (LACP).</p>
+         </li>
+      </ul>
+      <p class="p">The <code class="ph codeph">teamd</code> services use a link watcher to monitor the state of subordinate devices. The following link-watchers are available:</p>
+      <ul class="ul">
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">ethtool</code>: The <code class="ph codeph">libteam</code> library uses the <code class="ph codeph">ethtool</code> utility to watch for link state changes. This is the default link-watcher.</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">arp_ping</code>: The <code class="ph codeph">libteam</code> library uses the <code class="ph codeph">arp_ping</code> utility to monitor the presence of a far-end hardware address using Address Resolution Protocol (ARP).</p>
+         </li>
+         <li class="li">
+            <p class="p">
+               <code class="ph codeph">nsna_ping</code>: On IPv6 connections, the <code class="ph codeph">libteam</code> library uses the Neighbor Advertisement and Neighbor Solicitation features from the IPv6 Neighbor Discovery protocol to monitor the presence of a neighbor’s interface.</p>
+         </li>
+      </ul>
+      <p class="p">Each runner can use any link watcher, with the exception of <code class="ph codeph">lacp</code>. This runner can only use the <code class="ph codeph">ethtool</code> link watcher.</p>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-teaming_configuring-and-managing-networking.html">Configuring a NIC team</a></div></div></nav></article></main></body></html>

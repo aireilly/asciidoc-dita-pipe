@@ -1,0 +1,67 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Connecting to a wifi network by using GNOME Settings</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_connecting-to-a-wifi-network-by-using-gnome-settings_assembly_managing-wifi-connections"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Connecting to a wifi network by using GNOME Settings</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A wifi device is installed on the host.</p>
+            </li>
+            <li class="li">
+               <p class="p">The wifi device is enabled. To verify, use the <code class="ph codeph">nmcli radio</code> command.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the GNOME Settings application, also named <code class="ph codeph">gnome-control-center</code>, to connect to a wifi network and configure the connection. When you connect to the network for the first time, GNOME creates a NetworkManager connection profile for it.</p>
+         <p class="p">In GNOME Settings, you can configure wifi connections for all wifi network security types that RHEL supports.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Press the <span class="ph">Super</span> key, type <code class="ph codeph">Wi-Fi</code>, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click on the name of the wifi network you want to connect to.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter the password for the network, and click <code class="ph codeph">Connect</code>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">If the network requires additional settings, such as static IP addresses or a security type other than WPA2 Personal:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Click the gear icon next to the network’s name.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Optional: Configure the network profile on the <code class="ph codeph">Details</code> tab to not automatically connect.</p>
+                     <p class="p">If you deactivate this feature, you must always manually connect to the network, for example, by using GNOME Settings or the GNOME system menu.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Configure IPv4 settings on the <code class="ph codeph">IPv4</code> tab, and IPv6 settings on the <code class="ph codeph">IPv6</code> tab.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">On the <code class="ph codeph">Security</code> tab, select the authentication of the network, such as <code class="ph codeph">WPA3 Personal</code>, and enter the password.</p>
+                     <p class="p">Depending on the selected security, the application shows additional fields. Fill them accordingly. For details, ask the administrator of the wifi network.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <code class="ph codeph">Apply</code>.</p>
+                  </li>
+               </ol>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Open the system menu on the right side of the top bar, and verify that the wifi network is connected:</p>
+               <figure class="fig fignone">
+                  <br><img class="image" src="../images/gnome-wifi-connected.png" alt="The connected wifi entry in the system menu"><br>
+               </figure>
+               <p class="p">If the network appears in the list, it is connected.</p>
+            </li>
+            <li class="li">
+               <p class="p">Ping a hostname or IP address:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ping -c 3 example.com</strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_managing-wifi-connections_configuring-and-managing-networking.html">Managing wifi connections</a></div></div></nav></article></main></body></html>

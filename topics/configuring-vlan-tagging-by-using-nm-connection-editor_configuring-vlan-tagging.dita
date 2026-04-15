@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-vlan-tagging-by-using-nm-connection-editor_configuring-vlan-tagging">
+   <title>Configuring VLAN tagging by using nm-connection-editor</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The interface you plan to use as a parent to the virtual VLAN interface supports VLAN tags.</p>
+            </li>
+            <li>
+               <p>If you configure the VLAN on top of a bond interface:</p>
+               <ul>
+                  <li>
+                     <p>The ports of the bond are up.</p>
+                  </li>
+                  <li>
+                     <p>The bond is not configured with the <codeph>fail_over_mac=follow</codeph> option. A VLAN virtual device cannot change its MAC address to match the parent’s new MAC address. In such a case, the traffic would still be
+sent with the incorrect source MAC address.</p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>The switch, the host is connected to, is configured to support VLAN tags. For details, see the documentation of your switch.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can configure Virtual Local Area Network (VLAN) tagging in a graphical interface using the <codeph>nm-connection-editor</codeph> application.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Open a terminal, and enter <codeph>nm-connection-editor</codeph>:</cmd>
+            <info>
+               <codeblock>$ <b>nm-connection-editor</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Click the <uicontrol>+</uicontrol> button to add a new connection.</cmd>
+         </step>
+         <step>
+            <cmd>Select the <b>VLAN</b> connection type, and click <uicontrol>Create</uicontrol>.</cmd>
+         </step>
+         <step>
+            <cmd>On the <b>VLAN</b> tab:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Select the parent interface.</p>
+                  </li>
+                  <li>
+                     <p>Select the VLAN id. Note that the VLAN must be within the range from <b>0</b> to <b>4094</b>.</p>
+                  </li>
+                  <li>
+                     <p>By default, the VLAN connection inherits the maximum transmission unit (MTU) from the parent interface. Optionally, set a different MTU value.</p>
+                  </li>
+                  <li>
+                     <p>Optional: Set the name of the VLAN interface and further VLAN-specific options.</p>
+                     <fig>
+                        <image href="../images/vlan-settings-nm-connection-editor.png"
+                               placement="break">
+                           <alt>Interfaces attached to a VLAN</alt>
+                        </image>
+                     </fig>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the IP address settings on both the <b>IPv4 Settings</b> and <b>IPv6 Settings</b> tabs:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>If you plan to use this bridge device as a port of other devices, set the <b>Method</b> field to <b>Disabled</b>.</p>
+                  </li>
+                  <li>
+                     <p>To use DHCP, leave the <b>Method</b> field at its default, <b>Automatic (DHCP)</b>.</p>
+                  </li>
+                  <li>
+                     <p>To use static IP settings, set the <b>Method</b> field to <b>Manual</b> and fill the fields accordingly:</p>
+                     <fig>
+                        <image href="../images/vlan-IP-settings-nm-connection-editor.png"
+                               placement="break">
+                           <alt>IP address settings in `nm-connection-editor`</alt>
+                        </image>
+                     </fig>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>Save</uicontrol>.</cmd>
+         </step>
+         <step>
+            <cmd>Close <codeph>nm-connection-editor</codeph>.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Verify the settings:</p>
+               <codeblock># <b>ip -d addr show <i>vlan10</i>
+                  </b>
+4: vlan10@enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 52:54:00:d5:e0:fb brd ff:ff:ff:ff:ff:ff promiscuity 0
+    vlan protocol 802.1Q id 10 &lt;REORDER_HDR&gt; numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute vlan10
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::8dd7:9030:6f8e:89e6/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever</codeblock>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting">Configuring NetworkManager to avoid using a specific profile to provide a default gateway</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

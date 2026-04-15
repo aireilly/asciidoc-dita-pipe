@@ -1,0 +1,43 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Libreswan authentication methods</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="libreswan-authentication-methods_setting-up-an-ipsec-vpn"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Libreswan authentication methods</h1>
+   <div class="body refbody">
+      <section class="section">
+         <p class="p">Select the appropriate authentication method to establish a secure VPN connection based on your security needs and network environment.</p>
+         <p class="p">Libreswan supports the following authentication methods:</p>
+         <dl class="dl">
+            
+               <dt class="dt dlterm">Pre-Shared key</dt>
+               <dd class="dd">
+                  <p class="p">The Pre-Shared Key (PSK) method involves both endpoints by using the same secret to authenticate each other. PSKs offer simplicity and broad compatibility, making them suitable for small-scale deployments. However, managing PSKs is risky if the key is reused or not rotated frequently. For security, PSKs should consist of more than 64 random characters and must meet FIPS strength requirements if your host operates in FIPS mode.</p>
+               </dd>
+            
+            
+               <dt class="dt dlterm">Raw RSA key</dt>
+               <dd class="dd">
+                  <p class="p">This method uses an RSA public and private key pair on each peer for mutual identification. Raw RSA keys provide stronger security than PSKs and are ideal for environments where a full certificate infrastructure is not required.</p>
+               </dd>
+            
+            
+               <dt class="dt dlterm">X.509 certificates</dt>
+               <dd class="dd">
+                  <p class="p">This method uses X.509 certificates issued by a trusted Certificate Authority (CA). Each peer proves its identity by using its certificate and private key, which the other peer verifies against the trusted CA. While providing the highest level of security and scalability for large enterprises, this method is more complex as it requires deploying and maintaining a public key infrastructure (PKI).</p>
+               </dd>
+            
+            
+               <dt class="dt dlterm">NULL authentication</dt>
+               <dd class="dd">
+                  <p class="p">This method provides only encryption with no authentication between peers. Because it does not verify the identity of the remote endpoint, NULL authentication is insecure and offers no protection against man-in-the-middle attacks.</p>
+               </dd>
+            
+            
+               <dt class="dt dlterm">Protection against quantum computers</dt>
+               <dd class="dd">
+                  <p class="p">While not a standalone authentication method, Libreswan offers Post-quantum Pre-shared Keys (PPKs) to protect modern IKEv2 connections from future attacks by quantum computers. This feature is necessary because neither the older IKEv1 protocol nor standard IKEv2 is inherently quantum-resistant on its own. A PPK adds another layer of security on top of the primary authentication method, and its security relies on using a cryptographically strong key that has been distributed securely through an external communication channel.</p>
+               </dd>
+            
+         </dl>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="setting-up-an-ipsec-vpn_configuring-and-managing-networking.html">Setting up an IPsec VPN</a></div></div></nav></article></main></body></html>

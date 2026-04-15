@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-a-static-route-by-using-nm-connection-editor_configuring-static-routes">
+   <title>Configuring a static route by using nm-connection-editor</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The network is configured.</p>
+            </li>
+            <li>
+               <p>This host is in the same IP subnet as the gateways.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the <codeph>nm-connection-editor</codeph> application to add a static route to the configuration of a network connection.</p>
+         <p>The procedure below configures the following routes:</p>
+         <ul>
+            <li>
+               <p>An IPv4 route to the remote <codeph>198.51.100.0/24</codeph> network. The corresponding gateway with the IP address <codeph>192.0.2.10</codeph> is reachable through the <codeph>example</codeph> connection.</p>
+            </li>
+            <li>
+               <p>An IPv6 route to the remote <codeph>2001:db8:2::/64</codeph> network. The corresponding gateway with the IP address <codeph>2001:db8:1::10</codeph> is reachable through the <codeph>example</codeph> connection.</p>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Open a terminal, and enter <codeph>nm-connection-editor</codeph>:</cmd>
+            <info>
+               <codeblock>$ <b>nm-connection-editor</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Select the <codeph>example</codeph> connection profile, and click the gear wheel icon to edit the existing connection.</cmd>
+         </step>
+         <step>
+            <cmd>On the <codeph>IPv4 Settings</codeph> tab:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Click the <uicontrol>Routes</uicontrol> button.</p>
+                  </li>
+                  <li>
+                     <p>Click the <uicontrol>Add</uicontrol> button and enter the address, netmask, gateway, and optionally a metric value.</p>
+                     <fig>
+                        <image href="../images/IPv4-static-route-in-nm-connection-editor.png"
+                               placement="break">
+                           <alt>Static IPv4 address settings in `nm-connection-editor`</alt>
+                        </image>
+                     </fig>
+                  </li>
+                  <li>
+                     <p>Click <uicontrol>OK</uicontrol>.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>On the <codeph>IPv6 Settings</codeph> tab:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Click the <uicontrol>Routes</uicontrol> button.</p>
+                  </li>
+                  <li>
+                     <p>Click the <uicontrol>Add</uicontrol> button and enter the address, netmask, gateway, and optionally a metric value.</p>
+                     <fig>
+                        <image href="../images/IPv6-static-route-in-nm-connection-editor.png"
+                               placement="break">
+                           <alt>Static IPv4 address settings in `nm-connection-editor`</alt>
+                        </image>
+                     </fig>
+                  </li>
+                  <li>
+                     <p>Click <uicontrol>OK</uicontrol>.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>Save</uicontrol>.</cmd>
+         </step>
+         <step>
+            <cmd>Restart the network connection for changes to take effect. For example, to restart the <codeph>example</codeph> connection using the command line:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>example</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IPv4 routes:</p>
+               <codeblock># <b>ip -4 route</b>
+...
+<i>198.51.100.0/24</i> via <i>192.0.2.10</i> dev <i>enp1s0</i>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display the IPv6 routes:</p>
+               <codeblock># <b>ip -6 route</b>
+...
+<i>2001:db8:2::/64</i> via <i>2001:db8:1::10</i> dev <i>enp1s0</i> metric <i>1024</i> pref <i>medium</i>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

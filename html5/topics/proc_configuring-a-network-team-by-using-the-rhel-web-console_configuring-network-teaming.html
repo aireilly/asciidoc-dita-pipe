@@ -1,0 +1,170 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a NIC team by using the RHEL web console</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-a-network-team-by-using-the-rhel-web-console_configuring-network-teaming"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a NIC team by using the RHEL web console</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The <code class="ph codeph">teamd</code> and <code class="ph codeph">NetworkManager-team</code> packages are installed.</p>
+            </li>
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use Ethernet devices as ports of the team, the physical or virtual Ethernet devices must be installed on the server and connected to a switch.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use bond, bridge, or VLAN devices as ports of the team, create them in advance as described in:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#proc_configuring-a-network-bond-by-using-the-rhel-web-console_configuring-network-bonding">Configuring a network bond by using the RHEL web console</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#proc_configuring-a-network-bridge-by-using-the-rhel-web-console_configuring-a-network-bridge">Configuring a network bridge by using the RHEL web console</a>
+                     </p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <a class="xref" href="#proc_configuring-vlan-tagging-by-using-the-rhel-web-console_configuring-vlan-tagging">Configuring VLAN tagging by using the RHEL web console</a>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You have installed the RHEL&nbsp;9 web console.</p>
+            </li>
+            <li class="li">
+               <p class="p">You have enabled the cockpit service.</p>
+            </li>
+            <li class="li">
+               <p class="p">Your user account is allowed to log in to the web console.</p>
+               <p class="p">For instructions, see
+<a class="xref" href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_systems_using_the_rhel_9_web_console/getting-started-with-the-rhel-9-web-console_system-management-using-the-rhel-9-web-console#installing-the-web-console_getting-started-with-the-rhel-9-web-console" target="_blank" rel="external noopener">Installing and enabling the web console</a>.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Use the RHEL web console to configure a network interface controller (NIC) team if you prefer to manage network settings using a web browser-based interface.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">NIC teaming is deprecated in Red&nbsp;Hat Enterprise&nbsp;Linux&nbsp;9. Consider using the network bonding driver as an alternative. For details, see
+<a class="xref" href="#configuring-network-bonding_configuring-and-managing-networking">Configuring a network bond</a>.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Log in to the RHEL&nbsp;9 web console.</span>
+            <div class="itemgroup info">
+               <p class="p">For details, see <a class="xref" href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_systems_using_the_rhel_9_web_console/getting-started-with-the-rhel-9-web-console_system-management-using-the-rhel-9-web-console#logging-in-to-the-web-console_getting-started-with-the-rhel-9-web-console" target="_blank" rel="external noopener">Logging in to the web console</a>.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the <code class="ph codeph">Networking</code> tab in the navigation on the left side of the screen.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Add team</span> in the <code class="ph codeph">Interfaces</code> section.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter the name of the team device you want to create.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the interfaces that should be ports of the team.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the runner of the team.</span>
+            <div class="itemgroup info">
+               <p class="p">If you select <code class="ph codeph">Load balancing</code> or <code class="ph codeph">802.3ad LACP</code>, the web console shows the additional field <code class="ph codeph">Balancer</code>.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Set the link watcher:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">If you select <code class="ph codeph">Ethtool</code>, additionally, set a link up and link down delay.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If you set <code class="ph codeph">ARP ping</code> or <code class="ph codeph">NSNA ping</code>, additionally, set a ping interval and ping target.</p>
+                  </li>
+               </ul>
+               <figure class="fig fignone">
+                  <br><img class="image" src="../images/team-settings.png" alt="The team settings dialog in the RHEL web console"><br>
+               </figure>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Apply</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">By default, the team uses a dynamic IP address. If you want to set a static IP address:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Click the name of the team in the <code class="ph codeph">Interfaces</code> section.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <code class="ph codeph">Edit</code> next to the protocol you want to configure.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Select <code class="ph codeph">Manual</code> next to <code class="ph codeph">Addresses</code>, and enter the IP address, prefix, and default gateway.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">In the <code class="ph codeph">DNS</code> section, click the <span class="ph uicontrol">+</span> button, and enter the IP address of the DNS server. Repeat this step to set multiple DNS servers.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">In the <code class="ph codeph">DNS search domains</code> section, click the <span class="ph uicontrol">+</span> button, and enter the search domain.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">If the interface requires static routes, configure them in the <code class="ph codeph">Routes</code> section.</p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/bond-team-bridge-vlan.ipv4.png" alt="The IPv4 settings in the RHEL web console"><br>
+                     </figure>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click <span class="ph uicontrol">Apply</span>
+                     </p>
+                  </li>
+               </ol>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Select the <code class="ph codeph">Networking</code> tab in the navigation on the left side of the screen, and check if there is incoming and outgoing traffic on the interface.</p>
+               <figure class="fig fignone">
+                  <br><img class="image" src="../images/team-verify.png" alt="Team interface statistics"><br>
+               </figure>
+            </li>
+            <li class="li">
+               <p class="p">Display the status of the team:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">teamdctl team0 state</strong>
+setup:
+  runner: activebackup
+ports:
+  enp7s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+  enp8s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+runner:
+  active port: enp7s0</code></pre>
+               <p class="p">In this example, both ports are up.</p>
+            </li>
+         </ol>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming">Understanding the teamd service, runners, and link-watchers</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-teaming_configuring-and-managing-networking.html">Configuring a NIC team</a></div></div></nav></article></main></body></html>

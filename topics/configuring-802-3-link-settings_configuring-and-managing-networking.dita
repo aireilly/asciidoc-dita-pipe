@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="configuring-802-3-link-settings_configuring-and-managing-networking">
+   <title>Configuring 802.3 link settings</title>
+   <body>
+      <p>By using the auto-negotiation protocol, you have optimal performance of data transfer over the Ethernet.</p>
+      <p>Auto-negotiation is a feature of the IEEE 802.3u Fast Ethernet protocol. It targets the device ports to provide an optimal performance of speed, duplex mode, and flow control for information exchange over a link.</p>
+      <note>
+         <p>To utilize maximum performance of auto-negotiation, use the same configuration on both sides of a link.</p>
+      </note>
+   </body>
+</topic>

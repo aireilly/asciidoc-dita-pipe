@@ -1,0 +1,147 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring VLAN tagging by using nmtui</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-vlan-tagging-by-using-nmtui_configuring-vlan-tagging"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring VLAN tagging by using <code class="ph codeph">nmtui</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The interface you plan to use as a parent to the virtual VLAN interface supports VLAN tags.</p>
+            </li>
+            <li class="li">
+               <p class="p">If you configure the VLAN on top of a bond interface:</p>
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">The ports of the bond are up.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The bond is not configured with the <code class="ph codeph">fail_over_mac=follow</code> option. A VLAN virtual device cannot change its MAC address to match the parent’s new MAC address. In such a case, the traffic would still be sent with the then incorrect source MAC address.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">The bond is usually not expected to get IP addresses from a DHCP server or IPv6 auto-configuration. Ensure it by setting the <code class="ph codeph">ipv4.method=disable</code> and <code class="ph codeph">ipv6.method=ignore</code> options while creating the bond. Otherwise, if DHCP or IPv6 auto-configuration fails after some time, the interface might be brought down.</p>
+                  </li>
+               </ul>
+            </li>
+            <li class="li">
+               <p class="p">The switch the host is connected to is configured to support VLAN tags. For details, see the documentation of your switch.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">The <code class="ph codeph">nmtui</code> application provides a text-based user interface for NetworkManager. You can use <code class="ph codeph">nmtui</code> to configure VLAN tagging on a host without a graphical interface.</p>
+         <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+            <p class="p">In <code class="ph codeph">nmtui</code>:</p>
+            <ul class="ul">
+               <li class="li">
+                  <p class="p">Navigate by using the cursor keys.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Press a button by selecting it and hitting <span class="ph">Enter</span>.</p>
+               </li>
+               <li class="li">
+                  <p class="p">Select and clear checkboxes by using <span class="ph">Space</span>.</p>
+               </li>
+               <li class="li">
+                  <p class="p">To return to the previous screen, use <span class="ph">ESC</span>.</p>
+               </li>
+            </ul>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">If you do not know the network device name on which you want configure VLAN tagging, display the available devices:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device status</strong>
+DEVICE     TYPE      STATE                   CONNECTION
+enp1s0     ethernet  unavailable             --
+...</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Start <code class="ph codeph">nmtui</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmtui</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <strong class="ph b">Edit a connection</strong>, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press <strong class="ph b">Add</strong>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <strong class="ph b">VLAN</strong> from the list of network types, and press <span class="ph">Enter</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Enter a name for the NetworkManager profile to be created.</span>
+            <div class="itemgroup info">
+               <p class="p">On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter the VLAN device name to be created into the <strong class="ph b">Device</strong> field.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter the name of the device on which you want to configure VLAN tagging into the <strong class="ph b">Parent</strong> field.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enter the VLAN ID. The ID must be within the range from <code class="ph codeph">0</code> to <code class="ph codeph">4094</code>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Depending on your environment, configure the IP address settings in the <strong class="ph b">IPv4 configuration</strong> and <strong class="ph b">IPv6 configuration</strong> areas accordingly. For this, press the button next to these areas, and select:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">Disabled</code>, if this VLAN device does not require an IP address or you want to use it as a port of other devices.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">Automatic</code>, if a DHCP server or stateless address autoconfiguration (SLAAC) dynamically assigns an IP address to the VLAN device.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">
+                        <code class="ph codeph">Manual</code>, if the network requires static IP address settings. In this case, you must fill further fields:</p>
+                     <ol class="ol" type="a">
+                        <li class="li">
+                           <p class="p">Press <strong class="ph b">Show</strong> next to the protocol you want to configure to display additional fields.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Press <strong class="ph b">Add</strong> next to <strong class="ph b">Addresses</strong>, and enter the IP address and the subnet mask in Classless Inter-Domain Routing (CIDR) format.</p>
+                           <p class="p">If you do not specify a subnet mask, NetworkManager sets a <code class="ph codeph">/32</code> subnet mask for IPv4 addresses and <code class="ph codeph">/64</code> for IPv6 addresses.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Enter the address of the default gateway.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Press <strong class="ph b">Add</strong> next to <strong class="ph b">DNS servers</strong>, and enter the DNS server address.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Press <strong class="ph b">Add</strong> next to <strong class="ph b">Search domains</strong>, and enter the DNS search domain.</p>
+                        </li>
+                     </ol>
+                  </li>
+               </ul>
+               <figure class="fig fignone">
+                  <p class="p">Example of a VLAN connection with static IP address settings</p>
+                  <br><img class="image" src="../images/nmtui-vlan-static-IP.png" alt="Static IP address settings in `nmtui`"><br>
+               </figure>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press <strong class="ph b">OK</strong> to create and automatically activate the new connection.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Press <strong class="ph b">Back</strong> to return to the main menu.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select <strong class="ph b">Quit</strong>, and press <span class="ph">Enter</span> to close the <code class="ph codeph">nmtui</code> application.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Verify the settings:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip -d addr show vlan10</strong>
+4: vlan10@enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 52:54:00:72:2f:6e brd ff:ff:ff:ff:ff:ff promiscuity 0
+    vlan protocol 802.1Q id 10 &lt;REORDER_HDR&gt; numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute vlan10
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::8dd7:9030:6f8e:89e6/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever</code></pre>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-vlan-tagging_configuring-and-managing-networking.html">Configuring VLAN tagging</a></div></div></nav></article></main></body></html>

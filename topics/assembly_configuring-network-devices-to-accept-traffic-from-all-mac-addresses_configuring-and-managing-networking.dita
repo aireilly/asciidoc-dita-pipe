@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses_configuring-and-managing-networking">
+   <title>Configuring network devices to accept traffic from all MAC addresses</title>
+   <body>
+      <p>Network devices usually intercept and read packets that their controller is programmed to receive. You can configure the network devices to accept traffic from all MAC addresses in a virtual switch or at the port group level.</p>
+      <p>You can use this network mode to:</p>
+      <ul>
+         <li>
+            <p>Diagnose network connectivity issues</p>
+         </li>
+         <li>
+            <p>Monitor network activity for security reasons</p>
+         </li>
+         <li>
+            <p>Intercept private data-in-transit or intrusion in the network</p>
+         </li>
+      </ul>
+      <p>You can enable this mode for any kind of network device, except <codeph>InfiniBand</codeph>.</p>
+   </body>
+</topic>

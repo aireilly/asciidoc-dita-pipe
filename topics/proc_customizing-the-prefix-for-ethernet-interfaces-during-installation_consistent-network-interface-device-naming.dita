@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_customizing-the-prefix-for-ethernet-interfaces-during-installation_consistent-network-interface-device-naming">
+   <title>Customizing the prefix for Ethernet interfaces during installation</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The prefix consists of ASCII characters.</p>
+            </li>
+            <li>
+               <p>The prefix is an alphanumeric string.</p>
+            </li>
+            <li>
+               <p>The prefix is shorter than 16 characters.</p>
+            </li>
+            <li>
+               <p>The prefix does not conflict with any other well-known network interface prefix, such as <codeph>eth</codeph>, <codeph>eno</codeph>, <codeph>ens</codeph>, and <codeph>em</codeph>.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>If you do not want to use the default device-naming policy for Ethernet interfaces, you can set a custom device prefix during the Red Hat Enterprise Linux (RHEL) installation.</p>
+         <note type="important">
+            <p>Red Hat supports systems with customized Ethernet prefixes only if you set the prefix during the RHEL installation. Using the <codeph>prefixdevname</codeph> utility on already deployed systems is not supported.</p>
+         </note>
+         <p>If you set a device prefix during the installation, the <codeph>udev</codeph> service uses the <codeph>
+               <i>&lt;prefix&gt;&lt;index&gt;</i>
+            </codeph> format for Ethernet interfaces after the installation. For example, if you set the prefix <codeph>net</codeph>, the service assigns the names <codeph>net0</codeph>, <codeph>net1</codeph>, and so on to the Ethernet interfaces.</p>
+         <p>The <codeph>udev</codeph> service appends the index to the custom prefix, and preserves the index values of known Ethernet interfaces. If you add an interface, <codeph>udev</codeph> assigns an index value that is one greater than the previously-assigned index value to the new interface.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Boot the Red Hat Enterprise Linux installation media.</cmd>
+         </step>
+         <step>
+            <cmd>In the boot manager, follow these steps:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Select the <codeph>Install Red Hat Enterprise Linux <i>&lt;version&gt;</i>
+                        </codeph> entry.</p>
+                  </li>
+                  <li>
+                     <p>Press <ph>Tab</ph> to edit the entry.</p>
+                  </li>
+                  <li>
+                     <p>Append <codeph>net.ifnames.prefix=<i>&lt;prefix&gt;</i>
+                        </codeph> to the kernel options.</p>
+                  </li>
+                  <li>
+                     <p>Press <ph>Enter</ph> to start the installation program.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Install Red Hat Enterprise Linux.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>To verify the interface names, display the network interfaces:</p>
+               <codeblock># <b>ip link show</b>
+...
+2: net0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...</codeblock>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/interactively_installing_rhel_from_installation_media/index"
+                        format="html"
+                        scope="external">Interactively installing RHEL from installation media</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

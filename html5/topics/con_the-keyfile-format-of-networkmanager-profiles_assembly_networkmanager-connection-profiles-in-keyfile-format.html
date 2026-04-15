@@ -1,0 +1,36 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>The keyfile format of NetworkManager profiles</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="con_the-keyfile-format-of-networkmanager-profiles_assembly_networkmanager-connection-profiles-in-keyfile-format"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">The keyfile format of NetworkManager profiles</h1>
+   <div class="body conbody">
+      <p class="p">The keyfile format is an INI-like configuration for network connections.</p>
+      <p class="p">For example, the following is an Ethernet connection profile in keyfile format:</p>
+      <pre class="pre codeblock language-console"><code>[connection]
+id=<em class="ph i">example_connection</em>
+uuid=<em class="ph i">82c6272d-1ff7-4d56-9c7c-0eb27c300029</em>
+type=<em class="ph i">ethernet</em>
+autoconnect=<em class="ph i">true</em>
+
+[ipv4]
+method=<em class="ph i">auto</em>
+
+[ipv6]
+method=<em class="ph i">auto</em>
+
+[ethernet]
+mac-address=<em class="ph i">00:53:00:8f:fa:66</em>
+      </code></pre>
+      <div class="note attention note_attention"><span class="note__title">Attention:</span> <div class="note__body">
+         <p class="p">Typos or incorrect placements of parameters can lead to unexpected behavior. Therefore, do not manually edit or create NetworkManager profiles.</p>
+         <p class="p">Use the <code class="ph codeph">nmcli</code> utility, the <code class="ph codeph">network</code> RHEL system role, or the <code class="ph codeph">nmstate</code> API to manage NetworkManager connections. For example, you can use the <a class="xref" href="#proc_using-nmcli-to-create-keyfile-connection-profiles-in-offline-mode_assembly_networkmanager-connection-profiles-in-keyfile-format">
+               <code class="ph codeph">nmcli</code> utility in offline mode</a> to create connection profiles.</p>
+      </div></div>
+      <p class="p">Each section corresponds to a NetworkManager setting name as described in the <code class="ph codeph">nm-settings(5)</code> man page. Each key-value-pair in a section is one of the properties listed in the settings specification of the man page.</p>
+      <p class="p">Most variables in NetworkManager keyfiles have a one-to-one mapping. This means that a NetworkManager property is stored in the keyfile as a variable of the same name and in the same format. However, there are exceptions, mainly to make the keyfile syntax easier to read. For a list of these exceptions, see the <code class="ph codeph">nm-settings-keyfile(5)</code> man page on your system.</p>
+      <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+         <p class="p">For security reasons, because connection profiles can contain sensitive information, such as private keys and passphrases, NetworkManager uses only configuration files owned by the <code class="ph codeph">root</code> user and that are only readable and writable by <code class="ph codeph">root</code>.</p>
+      </div></div>
+      <p class="p">Save the connection profile with a <code class="ph codeph">.nmconnection</code> suffix in the <code class="ph codeph">/etc/NetworkManager/system-connections/</code> directory. This directory contains persistent profiles. If you modify a persistent profile by using the NetworkManager API, NetworkManager writes and overwrites files in this directory.</p>
+      <p class="p">NetworkManager does not automatically reload profiles from disk. When you create or update a connection profile in keyfile format, use the <code class="ph codeph">nmcli connection reload</code> command to inform NetworkManager about the changes.</p>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_networkmanager-connection-profiles-in-keyfile-format_configuring-and-managing-networking.html">NetworkManager connection profiles in keyfile format</a></div></div></nav></article></main></body></html>

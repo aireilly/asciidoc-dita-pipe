@@ -1,0 +1,125 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring hostapd as an authenticator in a wired network</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-hostapd-as-an-authenticator-in-a-wired-network_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring <code class="ph codeph">hostapd</code> as an authenticator in a wired network</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You installed the <code class="ph codeph">hostapd</code> package.</p>
+            </li>
+            <li class="li">
+               <p class="p">The FreeRADIUS server has been configured, and it is ready to authenticate clients.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">The host access point daemon (<code class="ph codeph">hostapd</code>) service can act as an authenticator in a wired network to provide 802.1X authentication. For this, the <code class="ph codeph">hostapd</code> service requires a RADIUS server that authenticates the clients.</p>
+         <p class="p">The <code class="ph codeph">hostapd</code> service provides an integrated RADIUS server. However, use the integrated RADIUS server only for testing purposes. For production environments, use FreeRADIUS server, which supports additional features, such as different authentication methods and access control.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">The <code class="ph codeph">hostapd</code> service does not interact with the traffic plane. The service acts only as an authenticator. For example, use a script or service that uses the <code class="ph codeph">hostapd</code> control interface to allow or deny traffic based on the result of authentication events.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create the <code class="ph codeph">/etc/hostapd/hostapd.conf</code> file with the following content:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code># General settings of hostapd
+# ===========================
+
+# Control interface settings
+ctrl_interface=<em class="ph i">/var/run/hostapd</em>
+ctrl_interface_group=<em class="ph i">wheel</em>
+
+# Enable logging for all modules
+logger_syslog=<em class="ph i">-1</em>
+logger_stdout=<em class="ph i">-1</em>
+
+# Log level
+logger_syslog_level=<em class="ph i">2</em>
+logger_stdout_level=<em class="ph i">2</em>
+
+
+# Wired 802.1X authentication
+# ===========================
+
+# Driver interface type
+driver=wired
+
+# Enable IEEE 802.1X authorization
+ieee8021x=1
+
+# Use port access entry (PAE) group address
+# (01:80:c2:00:00:03) when sending EAPOL frames
+use_pae_group_addr=1
+
+
+# Network interface for authentication requests
+interface=<em class="ph i">br0</em>
+
+
+# RADIUS client configuration
+# ===========================
+
+# Local IP address used as NAS-IP-Address
+own_ip_addr=<em class="ph i">192.0.2.2</em>
+
+# Unique NAS-Identifier within scope of RADIUS server
+nas_identifier=<em class="ph i">hostapd.example.org</em>
+
+# RADIUS authentication server
+auth_server_addr=<em class="ph i">192.0.2.1</em>
+auth_server_port=<em class="ph i">1812</em>
+auth_server_shared_secret=<em class="ph i">hostapd_client_password</em>
+
+# RADIUS accounting server
+acct_server_addr=<em class="ph i">192.0.2.1</em>
+acct_server_port=<em class="ph i">1813</em>
+acct_server_shared_secret=<em class="ph i">hostapd_client_password</em>
+               </code></pre>
+               <p class="p">For further details about the parameters used in this configuration, see their descriptions in the <code class="ph codeph">/usr/share/doc/hostapd/hostapd.conf</code> example configuration file.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Enable and start the <code class="ph codeph">hostapd</code> service:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">systemctl enable --now hostapd</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#proc_testing-eap-ttls-authentication-against-a-freeradius-server-or-authenticator_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend">Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+      <section class="section tasktroubleshooting">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">If the <code class="ph codeph">hostapd</code> service fails to start, verify that the bridge interface you use in the <code class="ph codeph">/etc/hostapd/hostapd.conf</code> file is present on the system:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip link show br0</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">For other problems, run <code class="ph codeph">hostapd</code> in debug mode:</p>
+               <ol class="ol">
+                  <li class="li">
+                     <p class="p">Stop the <code class="ph codeph">hostapd</code> service:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">systemctl stop hostapd</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Start the service in debug mode:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">hostapd -d /etc/hostapd/hostapd.conf</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Perform authentication tests on the FreeRADIUS host, as referenced in the <code class="ph codeph">Verification</code> section.</p>
+                  </li>
+               </ol>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend_configuring-and-managing-networking.html">Setting up an 802.1x network authentication service for LAN clients by using hostapd with FreeRADIUS backend</a></div></div></nav></article></main></body></html>

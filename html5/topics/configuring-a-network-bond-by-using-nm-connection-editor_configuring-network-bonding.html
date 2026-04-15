@@ -1,0 +1,130 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring a network bond by using nm-connection-editor</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-a-network-bond-by-using-nm-connection-editor_configuring-network-bonding"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring a network bond by using nm-connection-editor</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use Ethernet devices as ports of the bond, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+            <li class="li">
+               <p class="p">To use team, bond, or VLAN devices as ports of the bond, ensure that these devices are not already configured.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">If you use Red&nbsp;Hat Enterprise&nbsp;Linux with a graphical interface, you can configure network bonds using the <code class="ph codeph">nm-connection-editor</code> application.</p>
+         <p class="p">Note that <code class="ph codeph">nm-connection-editor</code> can add only new ports to a bond. To use an existing connection profile as a port, create the bond by using the <code class="ph codeph">nmcli</code> utility as described in <a class="xref" href="#configuring-a-network-bond-by-using-nmcli_configuring-network-bonding">Configuring a network bond by using nmcli</a>.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Open a terminal, and enter <code class="ph codeph">nm-connection-editor</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code>$ <strong class="ph b">nm-connection-editor</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click the <span class="ph uicontrol">+</span> button to add a new connection.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Select the <strong class="ph b">Bond</strong> connection type, and click <span class="ph uicontrol">Create</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">On the <strong class="ph b">Bond</strong> tab:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Optional: Set the name of the bond interface in the <strong class="ph b">Interface name</strong> field.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Click the <span class="ph uicontrol">Add</span> button to add a network interface as a port to the bond.</p>
+                     <ol class="ol" type="i">
+                        <li class="li">
+                           <p class="p">Select the connection type of the interface. For example, select <strong class="ph b">Ethernet</strong> for a wired connection.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Optional: Set a connection name for the port.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">If you create a connection profile for an Ethernet device, open the <strong class="ph b">Ethernet</strong> tab, and select in the <strong class="ph b">Device</strong> field the network interface you want to add as a port to the bond. If you selected a different device type, configure it accordingly. Note that you can only use Ethernet interfaces in a bond that are not configured.</p>
+                        </li>
+                        <li class="li">
+                           <p class="p">Click <span class="ph uicontrol">Save</span>.</p>
+                        </li>
+                     </ol>
+                  </li>
+                  <li class="li">
+                     <p class="p">Repeat the previous step for each interface you want to add to the bond:</p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/add-nic-to-bond-in-nm-connection-editor.png" alt="Interfaces attached to a bond"><br>
+                     </figure>
+                  </li>
+                  <li class="li">
+                     <p class="p">Optional: Set other options, such as the Media Independent Interface (MII) monitoring interval.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the IP address settings on both the <strong class="ph b">IPv4 Settings</strong> and <strong class="ph b">IPv6 Settings</strong> tabs:</span>
+            <div class="itemgroup info">
+               <ul class="ul">
+                  <li class="li">
+                     <p class="p">If you plan to use this bridge device as a port of other devices, set the <strong class="ph b">Method</strong> field to <strong class="ph b">Disabled</strong>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">To use DHCP, leave the <strong class="ph b">Method</strong> field at its default, <strong class="ph b">Automatic (DHCP)</strong>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">To use static IP settings, set the <strong class="ph b">Method</strong> field to <strong class="ph b">Manual</strong> and fill the fields accordingly:</p>
+                     <figure class="fig fignone">
+                        <br><img class="image" src="../images/bond-IP-settings-nm-connection-editor.png" alt="IP address settings in `nm-connection-editor`"><br>
+                     </figure>
+                  </li>
+               </ul>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Click <span class="ph uicontrol">Save</span>.</span>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Close <code class="ph codeph">nm-connection-editor</code>.</span>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Temporarily remove the network cable from one of the network devices and check if the other device in the bond is handling the traffic.</p>
+               <p class="p">Note that there is no method to properly test link failure events using software utilities. Tools that deactivate connections, such as <code class="ph codeph">nmcli</code>, show only the bonding driver’s ability to handle port configuration changes and not actual link failure events.</p>
+            </li>
+            <li class="li">
+               <p class="p">Display the status of the bond:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /proc/net/bonding/<em class="ph i">bond0</em>
+                  </strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting">Configuring NetworkManager to avoid using a specific profile to provide a default gateway</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#configuring-a-network-team-by-using-nm-connection-editor_configuring-network-teaming">Configuring a network team by using nm-connection-editor</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#configuring-a-network-bridge-by-using-nm-connection-editor_configuring-a-network-bridge">Configuring a network bridge by using nm-connection-editor</a>
+               </p>
+            </li>
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="#configuring-vlan-tagging-by-using-nm-connection-editor_configuring-vlan-tagging">Configuring VLAN tagging by using nm-connection-editor</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="configuring-network-bonding_configuring-and-managing-networking.html">Configuring a network bond</a></div></div></nav></article></main></body></html>

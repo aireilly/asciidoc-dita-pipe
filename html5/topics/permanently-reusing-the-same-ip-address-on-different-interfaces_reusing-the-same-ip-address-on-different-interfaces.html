@@ -1,0 +1,82 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Permanently reusing the same IP address on different interfaces</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="permanently-reusing-the-same-ip-address-on-different-interfaces_reusing-the-same-ip-address-on-different-interfaces"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Permanently reusing the same IP address on different interfaces</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">You are logged in as the <code class="ph codeph">root</code> user.</p>
+            </li>
+            <li class="li">
+               <p class="p">The network interfaces are not configured.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">You can use the virtual routing and forwarding (VRF) feature to permanently use the same IP address on different interfaces in one server.</p>
+         <div class="note important note_important"><span class="note__title">Important:</span> <div class="note__body">
+            <p class="p">To enable remote peers to contact both VRF interfaces while reusing the same IP address, the network interfaces must belong to different broadcasting domains. A broadcast domain in a network is a set of nodes, which receive broadcast traffic sent by any of them. In most configurations, all nodes connected to the same switch belong to the same broadcasting domain.</p>
+         </div></div>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create and configure the first VRF device:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create a connection for the VRF device and assign it to a routing table. For example, to create a VRF device named <code class="ph codeph">vrf0</code> that is assigned to the <code class="ph codeph">1001</code> routing table:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type vrf ifname <em class="ph i">vrf0</em> con-name <em class="ph i">vrf0</em> table 1001 ipv4.method disabled ipv6.method disabled</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Enable the <code class="ph codeph">vrf0</code> device:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">vrf0</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Assign a network device to the VRF just created. For example, to add the <code class="ph codeph">enp1s0</code> Ethernet device to the <code class="ph codeph">vrf0</code> VRF device and assign an IP address and the subnet mask to <code class="ph codeph">enp1s0</code>, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ethernet con-name <em class="ph i">vrf.enp1s0</em> ifname <em class="ph i">enp1s0</em> controller vrf0 ipv4.method <em class="ph i">manual</em> ipv4.address <em class="ph i">192.0.2.1/24</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Activate the <code class="ph codeph">vrf.enp1s0</code> connection:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">vrf.enp1s0</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create and configure the next VRF device:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Create the VRF device and assign it to a routing table. For example, to create a VRF device named <code class="ph codeph">vrf1</code> that is assigned to the <code class="ph codeph">1002</code> routing table, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type vrf ifname <em class="ph i">vrf1</em> con-name <em class="ph i">vrf1</em> table 1002 ipv4.method disabled ipv6.method disabled</strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Activate the <code class="ph codeph">vrf1</code> device:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">vrf1</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Assign a network device to the VRF just created. For example, to add the <code class="ph codeph">enp7s0</code> Ethernet device to the <code class="ph codeph">vrf1</code> VRF device and assign an IP address and the subnet mask to <code class="ph codeph">enp7s0</code>, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ethernet con-name <em class="ph i">vrf.enp7s0</em> ifname <em class="ph i">enp7s0</em> controller <em class="ph i">vrf1</em> ipv4.method <em class="ph i">manual</em> ipv4.address <em class="ph i">192.0.2.1/24</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Activate the <code class="ph codeph">vrf.enp7s0</code> device:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">vrf.enp7s0</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </div>
+         </li></ol></section>
+   </div>
+<nav role="navigation" class="related-links"><div class="familylinks"><div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="reusing-the-same-ip-address-on-different-interfaces_configuring-and-managing-networking.html">Reusing the same IP address on different interfaces</a></div></div></nav></article></main></body></html>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Automatically configuring network interfaces in public clouds using nm-cloud-setup</title>
+   <topicref href="../topics/automatically-configuring-network-interfaces-in-public-clouds-using-nm-cloud-setup_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/proc_configuring-and-pre-deploying-nm-cloud-setup_automatically-configuring-network-interfaces-in-public-clouds-using-nm-cloud-setup.dita"/>
+   <topicref href="../topics/understanding-the-role-of-imdsv2-and-nm-cloud-setup-in-the-rhel-ec2-instance_automatically-configuring-network-interfaces-in-public-clouds-using-nm-cloud-setup.dita"/>
+</map>

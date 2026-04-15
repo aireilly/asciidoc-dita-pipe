@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Setting up an IPsec VPN</title>
+   <topicref href="../topics/setting-up-an-ipsec-vpn_configuring-and-managing-networking.dita"/>
+   <topicref href="../topics/components-in-an-ipsec-vpn_setting-up-an-ipsec-vpn.dita"/>
+   <topicref href="../topics/libreswan-authentication-methods_setting-up-an-ipsec-vpn.dita"/>
+   <topicref href="../topics/manually-configuring-an-ipsec-host-to-host-vpn-with-raw-rsa-key-authentication_setting-up-an-ipsec-vpn.dita"/>
+   <topicref href="../topics/manually-configuring-an-ipsec-site-to-site-vpn-with-raw-rsa-key-authentication_setting-up-an-ipsec-vpn.dita"/>
+   <topicref href="../topics/manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication_setting-up-an-ipsec-vpn.dita">
+      <topicref href="../topics/setting-up-an-ipsec-gateway-manually_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication.dita"/>
+      <topicref href="../topics/configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication.dita"/>
+   </topicref>
+   <topicref href="../topics/manually-configuring-an-ipsec-mesh-vpn-with-certificate-based-authentication.dita"/>
+   <topicref href="../topics/protecting-the-ipsec-nss-database-with-a-password_setting-up-an-ipsec-vpn.dita"/>
+   <topicref href="../topics/using-ipsec-on-a-system-with-fips-mode-enabled.dita"/>
+   <topicref href="../topics/configuring-tcp-fallback-for-an-ipsec-vpn-connection_setting-up-an-ipsec-vpn.dita"/>
+   <topicref href="../topics/enabling-legacy-ciphers-and-algorithms-in-libreswan_setting-up-an-ipsec-vpn.dita"/>
+   <topicref href="../topics/assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn.dita"/>
+   <topicref href="../topics/assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role_setting-up-an-ipsec-vpn.dita">
+      <topicref href="../topics/configuring-an-ipsec-host-to-host-vpn-with-psk-authentication-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+      <topicref href="../topics/configuring-an-ipsec-host-to-host-vpn-with-psk-authentication-and-separate-data-and-control-planes-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+      <topicref href="../topics/configuring-an-ipsec-site-to-site-vpn-with-psk-authentication-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+      <topicref href="../topics/configuring-an-ipsec-mesh-vpn-with-certificate-based-authentication-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+   </topicref>
+   <topicref href="../topics/configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl_setting-up-an-ipsec-vpn.dita">
+      <topicref href="../topics/configuring-an-ipsec-host-to-host-vpn-with-raw-rsa-key-authentication-by-using-nmstatectl_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl.dita"/>
+      <topicref href="../topics/configuring-an-ipsec-site-to-site-vpn-with-raw-rsa-key-authentication-by-using-nmstatectl_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl.dita"/>
+      <topicref href="../topics/configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-nmstatectl_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl.dita"/>
+   </topicref>
+   <topicref href="../topics/troubleshooting-ipsec-configurations_setting-up-an-ipsec-vpn.dita">
+      <topicref href="../topics/basic-connection-issues.dita"/>
+      <topicref href="../topics/firewall-related-problems.dita"/>
+      <topicref href="../topics/mismatched-configurations.dita"/>
+      <topicref href="../topics/mtu-issues.dita"/>
+      <topicref href="../topics/nat-conflicts.dita"/>
+      <topicref href="../topics/kernel-level-ipsec-issues.dita"/>
+      <topicref href="../topics/kernel-ipsec-subsystem-bugs.dita"/>
+      <topicref href="../topics/displaying-libreswan-logs.dita"/>
+   </topicref>
+</map>
