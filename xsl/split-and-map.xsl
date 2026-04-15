@@ -18,6 +18,9 @@
     <xsl:result-document href="{$outdir}/master.ditamap" method="xml" indent="yes" encoding="UTF-8"
                          doctype-public="{if ($dita-version = '1.3') then '-//OASIS//DTD DITA Map//EN' else ''}"
                          doctype-system="{if ($dita-version = '1.3') then 'map.dtd' else ''}">
+      <xsl:if test="$dita-version = '2.0'">
+        <xsl:processing-instruction name="xml-model">href="urn:pubid:oasis:names:tc:dita:rng:map.rng:2.0" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:processing-instruction>
+      </xsl:if>
       <map>
         <title>
           <xsl:value-of select="(topic|concept|task|reference)[1]/title"/>
@@ -63,6 +66,9 @@
         <xsl:result-document href="{$outdir}/maps/{$map-filename}" method="xml" indent="yes" encoding="UTF-8"
                              doctype-public="{if ($dita-version = '1.3') then '-//OASIS//DTD DITA Map//EN' else ''}"
                              doctype-system="{if ($dita-version = '1.3') then 'map.dtd' else ''}">
+          <xsl:if test="$dita-version = '2.0'">
+            <xsl:processing-instruction name="xml-model">href="urn:pubid:oasis:names:tc:dita:rng:map.rng:2.0" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:processing-instruction>
+          </xsl:if>
           <map>
             <title><xsl:value-of select="title"/></title>
             <xsl:if test="body/node() | conbody/node() | taskbody/node() | refbody/node()">
@@ -125,10 +131,22 @@
         <xsl:otherwise>topic.dtd</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
+    <!-- DITA 2.0 RNG schema URN per topic type -->
+    <xsl:variable name="rng-urn">
+      <xsl:choose>
+        <xsl:when test="$element-name = 'concept'">urn:pubid:oasis:names:tc:dita:rng:concept.rng:2.0</xsl:when>
+        <xsl:when test="$element-name = 'task'">urn:pubid:oasis:names:tc:dita:rng:task.rng:2.0</xsl:when>
+        <xsl:when test="$element-name = 'reference'">urn:pubid:oasis:names:tc:dita:rng:reference.rng:2.0</xsl:when>
+        <xsl:otherwise>urn:pubid:oasis:names:tc:dita:rng:topic.rng:2.0</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
 
     <xsl:result-document href="{$outdir}/topics/{$filename}" method="xml" indent="yes" encoding="UTF-8"
                          doctype-public="{if ($dita-version = '1.3') then $dt-public else ''}"
                          doctype-system="{if ($dita-version = '1.3') then $dt-system else ''}">
+      <xsl:if test="$dita-version = '2.0'">
+        <xsl:processing-instruction name="xml-model">href="<xsl:value-of select="$rng-urn"/>" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:processing-instruction>
+      </xsl:if>
       <xsl:element name="{$element-name}">
         <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
         <xsl:if test="@xml:lang">
