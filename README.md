@@ -20,6 +20,17 @@ podman run --rm \
   path/to/your-assembly.adoc
 ```
 
+To produce DITA 2.0 output (no DOCTYPE declarations, `xml-model` processing instructions for RNG schema association):
+
+```bash
+podman run --rm \
+  -v "$PWD":/input:ro,z \
+  -v "$PWD"/out:/output:z \
+  quay.io/rhn_support_aireilly/asciidoc-dita-pipe \
+  --dita-version 2.0 \
+  path/to/your-assembly.adoc
+```
+
 The input file's content type is detected automatically from the `:_mod-docs-content-type:` attribute or filename prefix (`assembly_`, `proc_`, `con_`, `ref_`). Assemblies are processed directly; standalone modules are wrapped in a minimal document structure.
 
 Mount the root of your docs repo at `/input` so that `include::` directives resolve correctly.
@@ -112,7 +123,7 @@ Also cleans up:
 
 `xsl/split-and-map.xsl` splits the composite into individual files:
 
-- Each topic -> `topics/{id}.dita` with proper DOCTYPE declaration
+- Each topic -> `topics/{id}.dita` with proper DOCTYPE declaration (DITA 1.3) or `xml-model` processing instruction (DITA 2.0)
 - Assembly topics with children -> `maps/{id}.ditamap` (sub-maps)
 - Top-level -> `master.ditamap` with `<mapref>` to sub-maps and `<topicref>` to standalone topics
 
@@ -180,6 +191,25 @@ The pipeline achieves **97% word coverage** compared to direct `asciidoctor` HTM
 
 Run `scripts/compare-content.sh` to verify coverage after changes.
 
+## DITA version selection
+
+The pipeline supports DITA 1.3 (default) and DITA 2.0 output. The version can be set through any of the three entry points:
+
+| Entry point | Syntax |
+|-------------|--------|
+| Makefile | `make clean all DITA_VERSION=2.0` |
+| Container | `--dita-version 2.0` |
+| CI workflow | `dita_version` workflow dispatch input |
+
+### Differences between versions
+
+| | DITA 1.3 | DITA 2.0 |
+|---|----------|----------|
+| Schema association | DTD DOCTYPE declarations | `<?xml-model?>` processing instructions (OASIS RNG) |
+| Navigation titles | `<navtitle>`, `<searchtitle>` | `<titlealt title-role="navigation\|search">` |
+
+Both versions validate with zero DITA-OT errors.
+
 ## AsciiDoc callout handling
 
 <img width="500" alt="image" src="https://github.com/user-attachments/assets/631053ea-072e-436e-b273-f5e95a150627" />
@@ -220,7 +250,8 @@ make clean all validate
 | Target | Description |
 |--------|-------------|
 | `make install` | Install asciidoctor, html2text, and DITA-OT |
-| `make all` | Run the full pipeline (stages 0-5 + images) |
+| `make all` | Run the full pipeline (stages 0-5 + images), DITA 1.3 by default |
+| `make all DITA_VERSION=2.0` | Run the full pipeline with DITA 2.0 output |
 | `make validate` | Build HTML5 output with DITA-OT to validate |
 | `make stats` | Show topic type counts in specialized output |
 | `make clean` | Remove `build/` and `out/` directories |
