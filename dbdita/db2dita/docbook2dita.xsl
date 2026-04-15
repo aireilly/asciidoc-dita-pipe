@@ -14,6 +14,8 @@
 
 <xsl:import href="dbReader.xsl"/>
 
+<xsl:param name="dita-version" select="'1.3'"/>
+
 <xsl:output
     method="xml"
     indent="yes"

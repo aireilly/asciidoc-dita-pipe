@@ -4,14 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-A 6-stage XSLT pipeline that transforms modular Red Hat-style AsciiDoc documentation into DITA 3.0 output with specialized topic types, hierarchical ditamaps, and zero DITA-OT validation errors. Uses IBM dbdita as the core DocBook-to-DITA converter, with custom XSLT stages before and after it.
+A 6-stage XSLT pipeline that transforms modular Red Hat-style AsciiDoc documentation into DITA 1.3 output with specialized topic types, hierarchical ditamaps, and zero DITA-OT validation errors. Uses IBM dbdita as the core DocBook-to-DITA converter, with custom XSLT stages before and after it.
 
 ## Build Commands
 
 ```bash
-make clean all       # Full pipeline: stages 0-5 + images
-make validate        # Build HTML5 with DITA-OT to verify zero errors
-make stats           # Show topic type counts in specialized output
+make clean all                  # Full pipeline: stages 0-5 + images (DITA 1.3, default)
+make clean all DITA_VERSION=2.0 # Full pipeline with DITA 2.0 output (no DOCTYPEs)
+make validate                   # Build HTML5 with DITA-OT to verify zero errors
+make stats                      # Show topic type counts in specialized output
 ```
 
 Individual stages (each depends on the previous):
@@ -66,6 +67,7 @@ src/.../master.adoc
 - **Task body element ordering** is enforced by the DITA content model: `prereq, context, steps, result, tasktroubleshooting, postreq` — the XSLT must emit them in this exact order
 - **`<steps-unordered>`** is used for procedures with `<ul>` instead of `<ol>`
 - **`<ph outputclass="db.title">`** artifacts from dbdita are stripped (template match suppresses them)
+- **DITA version is selectable** — `DITA_VERSION=1.3` (default) emits DTD DOCTYPE declarations; `DITA_VERSION=2.0` omits DOCTYPEs and uses `<titlealt>` instead of `<navtitle>`/`<searchtitle>` in dbdita output. Passed via Makefile variable, `--dita-version` in container entrypoint, or `dita_version` workflow dispatch input
 
 ## CI
 

@@ -34,7 +34,7 @@ warn()  { echo -e "  ${YELLOW}⚠${RESET} $*"; }
 err()   { echo -e "${RED}${BOLD}✖${RESET} $*"; }
 
 usage() {
-    echo -e "${BOLD}Usage:${RESET} docker run -v /path/to/src:/input -v /path/to/out:/output asciidoc-dita-pipe <file.adoc>"
+    echo -e "${BOLD}Usage:${RESET} docker run -v /path/to/src:/input -v /path/to/out:/output asciidoc-dita-pipe [OPTIONS] <file.adoc>"
     echo ""
     echo "  Mount your AsciiDoc source directory at /input."
     echo "  The specified .adoc file is processed through the DITA pipeline."
@@ -42,11 +42,36 @@ usage() {
     echo ""
     echo "  Assembly files are processed directly (include:: targets must be resolvable from /input)."
     echo "  Module files (concept/procedure/reference) are wrapped in a minimal document structure."
+    echo ""
+    echo -e "  ${BOLD}Options:${RESET}"
+    echo "    --dita-version 1.3|2.0   DITA output version (default: 1.3)"
     exit 1
 }
 
+# --- Parse options ---
+DITA_VERSION="1.3"
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --dita-version)
+            DITA_VERSION="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
 if [ $# -lt 1 ]; then
     usage
+fi
+
+if [ "${DITA_VERSION}" != "1.3" ] && [ "${DITA_VERSION}" != "2.0" ]; then
+    err "Invalid DITA version: ${DITA_VERSION} (must be 1.3 or 2.0)"
+    exit 1
 fi
 
 INPUT_FILE="$1"
@@ -65,7 +90,7 @@ fi
 BASENAME=$(basename "${INPUT_PATH}" .adoc)
 INPUT_PARENT=$(dirname "${INPUT_PATH}")
 
-info "Processing: ${BOLD}${INPUT_FILE}${RESET}"
+info "Processing: ${BOLD}${INPUT_FILE}${RESET} (DITA ${DITA_VERSION})"
 
 # --- Detect content type ---
 CONTENT_TYPE=""
@@ -150,7 +175,8 @@ mkdir -p "${BUILD}/dita-raw"
 java -jar "${PIPE}/SaxonHE12-4J/saxon-he-12.4.jar" -dtd:off \
     -xsl:"${PIPE}/dbdita/db2dita/docbook2dita.xsl" \
     -s:"${BUILD}/docbook/master-enriched.xml" \
-    -o:"${BUILD}/dita-raw/master-composite.dita"
+    -o:"${BUILD}/dita-raw/master-composite.dita" \
+    "dita-version=${DITA_VERSION}"
 ok "Raw DITA: $(wc -c < "${BUILD}/dita-raw/master-composite.dita") bytes"
 
 # --- Stage 4: Specialize topics ---
@@ -169,7 +195,8 @@ java -jar "${PIPE}/SaxonHE12-4J/saxon-he-12.4.jar" -dtd:off \
     -xsl:"${PIPE}/xsl/split-and-map.xsl" \
     -s:"${BUILD}/dita-specialized/master-composite.dita" \
     -o:"${BUILD}/split-result.xml" \
-    "outdir=file://${OUTPUT_DIR}/dita"
+    "outdir=file://${OUTPUT_DIR}/dita" \
+    "dita-version=${DITA_VERSION}"
 TOPIC_COUNT=$(find "${OUTPUT_DIR}/dita/topics" -name '*.dita' 2>/dev/null | wc -l)
 MAP_COUNT=$(find "${OUTPUT_DIR}/dita/maps" -name '*.ditamap' 2>/dev/null | wc -l)
 ok "Split: ${TOPIC_COUNT} topics, ${MAP_COUNT} maps"

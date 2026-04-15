@@ -8,6 +8,7 @@
                 version="2.0">
 
   <xsl:param name="outdir" select="'out'"/>
+  <xsl:param name="dita-version" select="'1.3'"/>
 
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
@@ -15,8 +16,8 @@
   <xsl:template match="/dita">
     <!-- Generate master.ditamap -->
     <xsl:result-document href="{$outdir}/master.ditamap" method="xml" indent="yes" encoding="UTF-8"
-                         doctype-public="-//OASIS//DTD DITA Map//EN"
-                         doctype-system="map.dtd">
+                         doctype-public="{if ($dita-version = '1.3') then '-//OASIS//DTD DITA Map//EN' else ''}"
+                         doctype-system="{if ($dita-version = '1.3') then 'map.dtd' else ''}">
       <map>
         <title>
           <xsl:value-of select="(topic|concept|task|reference)[1]/title"/>
@@ -60,8 +61,8 @@
         <!-- Also generate a standalone sub-map for convenience -->
         <xsl:variable name="map-filename" select="concat(@id, '.ditamap')"/>
         <xsl:result-document href="{$outdir}/maps/{$map-filename}" method="xml" indent="yes" encoding="UTF-8"
-                             doctype-public="-//OASIS//DTD DITA Map//EN"
-                             doctype-system="map.dtd">
+                             doctype-public="{if ($dita-version = '1.3') then '-//OASIS//DTD DITA Map//EN' else ''}"
+                             doctype-system="{if ($dita-version = '1.3') then 'map.dtd' else ''}">
           <map>
             <title><xsl:value-of select="title"/></title>
             <xsl:if test="body/node() | conbody/node() | taskbody/node() | refbody/node()">
@@ -126,8 +127,8 @@
     </xsl:variable>
 
     <xsl:result-document href="{$outdir}/topics/{$filename}" method="xml" indent="yes" encoding="UTF-8"
-                         doctype-public="{$dt-public}"
-                         doctype-system="{$dt-system}">
+                         doctype-public="{if ($dita-version = '1.3') then $dt-public else ''}"
+                         doctype-system="{if ($dita-version = '1.3') then $dt-system else ''}">
       <xsl:element name="{$element-name}">
         <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
         <xsl:if test="@xml:lang">

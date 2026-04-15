@@ -781,10 +781,20 @@
    </xsl:template>
 
    <xsl:template match="*" mode="topic.navtitle.out">
-      <navtitle>
-         <xsl:apply-templates select="." mode="topic.navtitle.atts.in"/>
-         <xsl:apply-templates select="." mode="topic.navtitle.content.in"/>
-      </navtitle>
+      <xsl:choose>
+         <xsl:when test="$dita-version = '2.0'">
+            <titlealt title-role="navigation">
+               <xsl:apply-templates select="." mode="topic.navtitle.atts.in"/>
+               <xsl:apply-templates select="." mode="topic.navtitle.content.in"/>
+            </titlealt>
+         </xsl:when>
+         <xsl:otherwise>
+            <navtitle>
+               <xsl:apply-templates select="." mode="topic.navtitle.atts.in"/>
+               <xsl:apply-templates select="." mode="topic.navtitle.content.in"/>
+            </navtitle>
+         </xsl:otherwise>
+      </xsl:choose>
    </xsl:template>
 
    <xsl:template match="*" mode="topic.no-topic-nesting.in">
@@ -1166,10 +1176,20 @@
    </xsl:template>
 
    <xsl:template match="*" mode="topic.searchtitle.out">
-      <searchtitle>
-         <xsl:apply-templates select="." mode="topic.searchtitle.atts.in"/>
-         <xsl:apply-templates select="." mode="topic.searchtitle.content.in"/>
-      </searchtitle>
+      <xsl:choose>
+         <xsl:when test="$dita-version = '2.0'">
+            <titlealt title-role="search">
+               <xsl:apply-templates select="." mode="topic.searchtitle.atts.in"/>
+               <xsl:apply-templates select="." mode="topic.searchtitle.content.in"/>
+            </titlealt>
+         </xsl:when>
+         <xsl:otherwise>
+            <searchtitle>
+               <xsl:apply-templates select="." mode="topic.searchtitle.atts.in"/>
+               <xsl:apply-templates select="." mode="topic.searchtitle.content.in"/>
+            </searchtitle>
+         </xsl:otherwise>
+      </xsl:choose>
    </xsl:template>
 
    <xsl:template match="*" mode="topic.section.in">

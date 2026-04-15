@@ -3,6 +3,7 @@ SRC = src/configuring-and-managing-networking
 BUILD = build
 OUT = out
 
+DITA_VERSION ?= 1.3
 DITA_OT_VERSION = 4.3.1
 
 .PHONY: all install manifest docbook enrich dita-raw specialize split images validate clean
@@ -55,7 +56,8 @@ $(BUILD)/dita-raw/master-composite.dita: $(BUILD)/docbook/master-enriched.xml
 	@mkdir -p $(BUILD)/dita-raw
 	$(SAXON) -xsl:dbdita/db2dita/docbook2dita.xsl \
 		-s:$(BUILD)/docbook/master-enriched.xml \
-		-o:$@
+		-o:$@ \
+		dita-version=$(DITA_VERSION)
 	@echo "== Raw DITA: $$(ls -lh $@ | awk '{print $$5}')"
 
 specialize: $(BUILD)/dita-specialized/master-composite.dita
@@ -73,7 +75,8 @@ split: $(BUILD)/dita-specialized/master-composite.dita xsl/split-and-map.xsl
 	$(SAXON) -xsl:xsl/split-and-map.xsl \
 		-s:$(BUILD)/dita-specialized/master-composite.dita \
 		-o:$(BUILD)/split-result.xml \
-		outdir=file:///$(CURDIR)/$(OUT)
+		outdir=file:///$(CURDIR)/$(OUT) \
+		dita-version=$(DITA_VERSION)
 	@echo "== Split: $$(find $(OUT)/topics -name '*.dita' | wc -l) topics, $$(find $(OUT)/maps -name '*.ditamap' | wc -l) maps"
 
 images:
