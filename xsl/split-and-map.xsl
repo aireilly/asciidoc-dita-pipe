@@ -33,16 +33,21 @@
       </map>
     </xsl:result-document>
 
-    <!-- Generate individual topic files -->
-    <xsl:apply-templates select="//(topic|concept|task|reference)[@id]" mode="write-topic"/>
+    <!-- Generate sub-maps for all topics with children (single pass avoids duplicates) -->
+    <xsl:for-each select="//(topic|concept|task|reference)[(topic|concept|task|reference)]">
+      <xsl:call-template name="generate-sub-map"/>
+    </xsl:for-each>
+
+    <!-- Generate individual topic files (skip assembly topics — they are maps only) -->
+    <xsl:apply-templates select="//(topic|concept|task|reference)[@id][not(@outputclass='assembly')]" mode="write-topic"/>
 
     <!-- Output a summary to the main result -->
     <pipeline-result>
       <xsl:attribute name="topics">
-        <xsl:value-of select="count(//(topic|concept|task|reference)[@id])"/>
+        <xsl:value-of select="count(//(topic|concept|task|reference)[@id][not(@outputclass='assembly')])"/>
       </xsl:attribute>
       <xsl:attribute name="maps">
-        <xsl:value-of select="count((topic|concept|task|reference)[1]/(topic|concept|task|reference)[topic|concept|task|reference])"/>
+        <xsl:value-of select="count(//(topic|concept|task|reference)[(topic|concept|task|reference)])"/>
       </xsl:attribute>
     </pipeline-result>
   </xsl:template>
@@ -50,37 +55,30 @@
   <!-- Generate nested topicref entries in master map, plus sub-maps for assemblies -->
   <xsl:template name="generate-topicref">
     <xsl:choose>
-      <!-- Assembly: has child topics -> nested topicrefs + sub-map -->
+      <!-- Has child topics -> nested topicrefs + sub-map -->
       <xsl:when test="(topic|concept|task|reference)">
-        <!-- Nested topicref in master map -->
-        <topicref href="topics/{@id}.dita">
-          <xsl:for-each select="(topic|concept|task|reference)">
-            <xsl:call-template name="generate-topicref-nested">
-              <xsl:with-param name="path-prefix" select="'topics/'"/>
-            </xsl:call-template>
-          </xsl:for-each>
-        </topicref>
+        <!-- Master map: assembly topics reference sub-map, others reference topic file -->
+        <xsl:choose>
+          <xsl:when test="@outputclass = 'assembly'">
+            <topicref href="maps/{@id}.ditamap" format="ditamap">
+              <xsl:for-each select="(topic|concept|task|reference)">
+                <xsl:call-template name="generate-topicref-nested">
+                  <xsl:with-param name="path-prefix" select="'topics/'"/>
+                </xsl:call-template>
+              </xsl:for-each>
+            </topicref>
+          </xsl:when>
+          <xsl:otherwise>
+            <topicref href="topics/{@id}.dita">
+              <xsl:for-each select="(topic|concept|task|reference)">
+                <xsl:call-template name="generate-topicref-nested">
+                  <xsl:with-param name="path-prefix" select="'topics/'"/>
+                </xsl:call-template>
+              </xsl:for-each>
+            </topicref>
+          </xsl:otherwise>
+        </xsl:choose>
 
-        <!-- Also generate a standalone sub-map for convenience -->
-        <xsl:variable name="map-filename" select="concat(@id, '.ditamap')"/>
-        <xsl:result-document href="{$outdir}/maps/{$map-filename}" method="xml" indent="yes" encoding="UTF-8"
-                             doctype-public="{if ($dita-version = '1.3') then '-//OASIS//DTD DITA Map//EN' else ''}"
-                             doctype-system="{if ($dita-version = '1.3') then 'map.dtd' else ''}">
-          <xsl:if test="$dita-version = '2.0'">
-            <xsl:processing-instruction name="xml-model">href="urn:pubid:oasis:names:tc:dita:rng:map.rng:2.0" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:processing-instruction>
-          </xsl:if>
-          <map>
-            <title><xsl:value-of select="title"/></title>
-            <xsl:if test="body/node() | conbody/node() | taskbody/node() | refbody/node()">
-              <topicref href="../topics/{@id}.dita"/>
-            </xsl:if>
-            <xsl:for-each select="(topic|concept|task|reference)">
-              <xsl:call-template name="generate-topicref-nested">
-                <xsl:with-param name="path-prefix" select="'../topics/'"/>
-              </xsl:call-template>
-            </xsl:for-each>
-          </map>
-        </xsl:result-document>
       </xsl:when>
 
       <!-- Standalone topic: direct topicref -->
@@ -95,18 +93,56 @@
     <xsl:param name="path-prefix"/>
     <xsl:choose>
       <xsl:when test="(topic|concept|task|reference)">
-        <topicref href="{$path-prefix}{@id}.dita">
-          <xsl:for-each select="(topic|concept|task|reference)">
-            <xsl:call-template name="generate-topicref-nested">
-              <xsl:with-param name="path-prefix" select="$path-prefix"/>
-            </xsl:call-template>
-          </xsl:for-each>
-        </topicref>
+        <!-- Assembly children reference their sub-map; others reference topic file -->
+        <xsl:variable name="maps-prefix" select="replace($path-prefix, 'topics/$', 'maps/')"/>
+        <xsl:choose>
+          <xsl:when test="@outputclass = 'assembly'">
+            <topicref href="{$maps-prefix}{@id}.ditamap" format="ditamap">
+              <xsl:for-each select="(topic|concept|task|reference)">
+                <xsl:call-template name="generate-topicref-nested">
+                  <xsl:with-param name="path-prefix" select="$path-prefix"/>
+                </xsl:call-template>
+              </xsl:for-each>
+            </topicref>
+          </xsl:when>
+          <xsl:otherwise>
+            <topicref href="{$path-prefix}{@id}.dita">
+              <xsl:for-each select="(topic|concept|task|reference)">
+                <xsl:call-template name="generate-topicref-nested">
+                  <xsl:with-param name="path-prefix" select="$path-prefix"/>
+                </xsl:call-template>
+              </xsl:for-each>
+            </topicref>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
         <topicref href="{$path-prefix}{@id}.dita"/>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <!-- Generate a standalone sub-map -->
+  <xsl:template name="generate-sub-map">
+    <xsl:result-document href="{$outdir}/maps/{@id}.ditamap" method="xml" indent="yes" encoding="UTF-8"
+                         doctype-public="{if ($dita-version = '1.3') then '-//OASIS//DTD DITA Map//EN' else ''}"
+                         doctype-system="{if ($dita-version = '1.3') then 'map.dtd' else ''}">
+      <xsl:if test="$dita-version = '2.0'">
+        <xsl:processing-instruction name="xml-model">href="urn:pubid:oasis:names:tc:dita:rng:map.rng:2.0" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:processing-instruction>
+      </xsl:if>
+      <map>
+        <title><xsl:value-of select="title"/></title>
+        <!-- Non-assembly topics with body: include self-reference -->
+        <xsl:if test="not(@outputclass = 'assembly') and (body/node() | conbody/node() | taskbody/node() | refbody/node())">
+          <topicref href="../topics/{@id}.dita"/>
+        </xsl:if>
+        <xsl:for-each select="(topic|concept|task|reference)">
+          <xsl:call-template name="generate-topicref-nested">
+            <xsl:with-param name="path-prefix" select="'../topics/'"/>
+          </xsl:call-template>
+        </xsl:for-each>
+      </map>
+    </xsl:result-document>
   </xsl:template>
 
   <!-- Write individual topic files -->

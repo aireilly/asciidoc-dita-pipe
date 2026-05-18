@@ -84,9 +84,20 @@
       </xsl:when>
 
       <xsl:otherwise>
-        <!-- Keep as generic topic -->
+        <!-- Warn for non-assembly topics that lack specialization -->
+        <xsl:if test="@outputclass != 'assembly' and @outputclass != 'db.article'">
+          <xsl:message>
+            <xsl:text>WARNING: Topic "</xsl:text>
+            <xsl:value-of select="@id"/>
+            <xsl:text>" has no concept/task/reference type. Add :_mod-docs-content-type: to the AsciiDoc source or use con_/proc_/ref_ filename prefix.</xsl:text>
+          </xsl:message>
+        </xsl:if>
+        <!-- Keep as generic topic, preserve assembly outputclass for split stage -->
         <topic id="{@id}">
           <xsl:call-template name="copy-topic-attrs"/>
+          <xsl:if test="@outputclass = 'assembly'">
+            <xsl:attribute name="outputclass">assembly</xsl:attribute>
+          </xsl:if>
           <xsl:apply-templates select="title"/>
           <xsl:apply-templates select="shortdesc"/>
           <xsl:if test="body/node()">
