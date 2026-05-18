@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_connecting-to-a-wifi-network-by-using-the-gnome-system-menu_assembly_managing-wifi-connections">
+   <title>Connecting to a wifi network by using the GNOME system menu</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A wifi device is installed on the host.</p>
+            </li>
+            <li>
+               <p>The wifi device is enabled. To verify, use the <codeph>nmcli radio</codeph> command.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the GNOME system menu to connect to a wifi network. When you connect to a network for the first time, GNOME creates a NetworkManager connection profile for it. If you configure the connection profile to not automatically connect, you can also use the GNOME system menu to manually connect to a wifi network with an existing NetworkManager connection profile.</p>
+         <note>
+            <p>Using the GNOME system menu to establish a connection to a wifi network for the first time has certain limitations. For example, you cannot configure IP address settings. In this case first configure the connections:</p>
+            <ul>
+               <li>
+                  <p>
+                     <xref href="#proc_connecting-to-a-wifi-network-by-using-gnome-settings_assembly_managing-wifi-connections">In the GNOME Settings application</xref>
+                  </p>
+               </li>
+               <li>
+                  <p>
+                     <xref href="#proc_configuring-a-wifi-connection-by-using-nm-connection-editor_assembly_managing-wifi-connections">In the <codeph>nm-connection-editor</codeph> application</xref>
+                  </p>
+               </li>
+               <li>
+                  <p>
+                     <xref href="#proc_connecting-to-a-wifi-network-by-using-gnome-settings_assembly_managing-wifi-connections">Using <codeph>nmcli</codeph> commands</xref>
+                  </p>
+               </li>
+            </ul>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Open the system menu on the right side of the top bar.</cmd>
+         </step>
+         <step>
+            <cmd>Expand the <codeph>Wi-Fi Not Connected</codeph> entry.</cmd>
+         </step>
+         <step>
+            <cmd>Click <codeph>Select Network</codeph>:</cmd>
+            <info>
+               <fig>
+                  <image href="../images/gnome-select-wifi.png" placement="break">
+                     <alt>The `Select network` entry in the system menu.</alt>
+                  </image>
+               </fig>
+            </info>
+         </step>
+         <step>
+            <cmd>Select the wifi network you want to connect to.</cmd>
+         </step>
+         <step>
+            <cmd>Click <codeph>Connect</codeph>.</cmd>
+         </step>
+         <step>
+            <cmd>If this is the first time you connect to this network, enter the password for the network, and click <codeph>Connect</codeph>.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Open the system menu on the right side of the top bar, and verify that the wifi network is connected:</p>
+               <fig>
+                  <image href="../images/gnome-wifi-connected.png" placement="break">
+                     <alt>The connected wifi entry in the system menu</alt>
+                  </image>
+               </fig>
+               <p>If the network appears in the list, it is connected.</p>
+            </li>
+            <li>
+               <p>Ping a hostname or IP address:</p>
+               <codeblock># <b>ping -c 3 <i>example.com</i>
+                  </b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

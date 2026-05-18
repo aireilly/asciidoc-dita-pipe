@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_connecting-to-a-wifi-network-by-using-gnome-settings_assembly_managing-wifi-connections">
+   <title>Connecting to a wifi network by using GNOME Settings</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A wifi device is installed on the host.</p>
+            </li>
+            <li>
+               <p>The wifi device is enabled. To verify, use the <codeph>nmcli radio</codeph> command.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the GNOME Settings application, also named <codeph>gnome-control-center</codeph>, to connect to a wifi network and configure the connection. When you connect to the network for the first time, GNOME creates a NetworkManager connection profile for it.</p>
+         <p>In GNOME Settings, you can configure wifi connections for all wifi network security types that RHEL supports.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Press the <ph>Super</ph> key, type <codeph>Wi-Fi</codeph>, and press <ph>Enter</ph>.</cmd>
+         </step>
+         <step>
+            <cmd>Click on the name of the wifi network you want to connect to.</cmd>
+         </step>
+         <step>
+            <cmd>Enter the password for the network, and click <codeph>Connect</codeph>.</cmd>
+         </step>
+         <step>
+            <cmd>If the network requires additional settings, such as static IP addresses or a security type other than WPA2 Personal:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Click the gear icon next to the network’s name.</p>
+                  </li>
+                  <li>
+                     <p>Optional: Configure the network profile on the <codeph>Details</codeph> tab to not automatically connect.</p>
+                     <p>If you deactivate this feature, you must always manually connect to the network, for example, by using GNOME Settings or the GNOME system menu.</p>
+                  </li>
+                  <li>
+                     <p>Configure IPv4 settings on the <codeph>IPv4</codeph> tab, and IPv6 settings on the <codeph>IPv6</codeph> tab.</p>
+                  </li>
+                  <li>
+                     <p>On the <codeph>Security</codeph> tab, select the authentication of the network, such as <codeph>WPA3 Personal</codeph>, and enter the password.</p>
+                     <p>Depending on the selected security, the application shows additional fields. Fill them accordingly. For details, ask the administrator of the wifi network.</p>
+                  </li>
+                  <li>
+                     <p>Click <codeph>Apply</codeph>.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Open the system menu on the right side of the top bar, and verify that the wifi network is connected:</p>
+               <fig>
+                  <image href="../images/gnome-wifi-connected.png" placement="break">
+                     <alt>The connected wifi entry in the system menu</alt>
+                  </image>
+               </fig>
+               <p>If the network appears in the list, it is connected.</p>
+            </li>
+            <li>
+               <p>Ping a hostname or IP address:</p>
+               <codeblock># <b>ping -c 3 example.com</b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

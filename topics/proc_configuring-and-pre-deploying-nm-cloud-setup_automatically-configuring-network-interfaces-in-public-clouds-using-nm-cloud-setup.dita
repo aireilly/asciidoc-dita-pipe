@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-and-pre-deploying-nm-cloud-setup_automatically-configuring-network-interfaces-in-public-clouds-using-nm-cloud-setup">
+   <title>Configuring and pre-deploying nm-cloud-setup</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A network connection exists.</p>
+            </li>
+            <li>
+               <p>The connection uses DHCP.</p>
+               <p>By default, NetworkManager creates a connection profile which uses DHCP. If no profile was created because you set the <codeph>no-auto-default</codeph> parameter in <codeph>/etc/NetworkManager/NetworkManager.conf</codeph>, create this initial connection manually.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>To enable and configure network interfaces in public clouds, run <codeph>nm-cloud-setup</codeph> as a timer and service.</p>
+         <note>
+            <p>On Red Hat Enterprise Linux On Demand and AWS golden images, <codeph>nm-cloud-setup</codeph> is already enabled and no action is required.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Install the <codeph>nm-cloud-setup</codeph> package:</cmd>
+            <info>
+               <codeblock># <b>dnf install NetworkManager-cloud-setup</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Create and run the snap-in file for the <codeph>nm-cloud-setup</codeph> service:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Use the following command to start editing the snap-in file:</p>
+                     <codeblock># <b>systemctl edit nm-cloud-setup.service</b>
+                     </codeblock>
+                     <p>It is important to either start the service explicitly or reboot the system to make configuration settings effective.</p>
+                  </li>
+                  <li>
+                     <p>Use the <codeph>systemd</codeph> snap-in file to configure the cloud provider in <codeph>nm-cloud-setup</codeph>. For example, to use Amazon EC2, enter:</p>
+                     <codeblock outputclass="language-console">[Service]
+Environment=NM_CLOUD_SETUP_EC2=yes</codeblock>
+                     <p>You can set the following environment variables to enable the cloud provide you use:</p>
+                     <ul>
+                        <li>
+                           <p>
+                              <codeph>NM_CLOUD_SETUP_ALIYUN</codeph> for Alibaba Cloud (Aliyun)</p>
+                        </li>
+                        <li>
+                           <p>
+                              <codeph>NM_CLOUD_SETUP_AZURE</codeph> for Microsoft Azure</p>
+                        </li>
+                        <li>
+                           <p>
+                              <codeph>NM_CLOUD_SETUP_EC2</codeph> for Amazon EC2 (AWS)</p>
+                        </li>
+                        <li>
+                           <p>
+                              <codeph>NM_CLOUD_SETUP_GCP</codeph> for Google Cloud</p>
+                        </li>
+                        <li>
+                           <p>
+                              <codeph>NM_CLOUD_SETUP_OCI</codeph> for Oracle Cloud Infrastructure (OCI)</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li>
+                     <p>Save the file and quit the editor.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Reload the <codeph>systemd</codeph> configuration:</cmd>
+            <info>
+               <codeblock># <b>systemctl daemon-reload</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Enable and start the <codeph>nm-cloud-setup</codeph> service:</cmd>
+            <info>
+               <codeblock># <b>systemctl enable --now nm-cloud-setup.service</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Enable and start the <codeph>nm-cloud-setup</codeph> timer:</cmd>
+            <info>
+               <codeblock># <b>systemctl enable --now nm-cloud-setup.timer</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/configuring_and_managing_networking/configuring-an-ethernet-connection_configuring-and-managing-networking"
+                        format="html"
+                        scope="external">Configuring an Ethernet connection</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

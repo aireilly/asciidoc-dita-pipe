@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_permanently-configuring-a-network-device-to-accept-all-traffic-using-nmstatectl_assembly_configuring-network-devices-to-accept-traffic-from-all-mac-addresses">
+   <title>Permanently configuring a network device to accept all traffic using <codeph>nmstatectl</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>nmstate</codeph> package is installed.</p>
+            </li>
+            <li>
+               <p>The <codeph>enp1s0.yml</codeph> file that you used to configure the device is available.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>Use the <codeph>nmstatectl</codeph> utility to configure a device to accept all traffic regardless of the MAC addresses through the Nmstate API. The Nmstate API ensures that, after setting the configuration, the result matches the configuration file. If anything fails, <codeph>nmstatectl</codeph> automatically rolls back the changes to avoid leaving the system in an incorrect state.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Edit the existing <codeph>enp1s0.yml</codeph> file for the <codeph>enp1s0</codeph> connection and add the following content to it:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+<b>interfaces:</b>
+                  <b>- name: <i>enp1s0</i>
+                  </b>
+                  <b>type: ethernet</b>
+                  <b>state: up</b>
+                  <b>accept -all-mac-address: <i>true</i>
+                  </b>
+               </codeblock>
+               <p>These settings configure the <codeph>enp1s0</codeph> device to accept all traffic.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Apply the network settings:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl apply ~/enp1s0.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Verify that the <codeph>802-3-ethernet.accept-all-mac-addresses</codeph> mode is enabled:</p>
+               <codeblock># <b>nmstatectl show <i>enp1s0</i>
+                  </b>
+interfaces:
+  - name: <i>enp1s0</i>
+    type: ethernet
+    state: up
+    accept-all-mac-addresses:     <b>true</b>
+...</codeblock>
+               <p>The <codeph>802-3-ethernet.accept-all-mac-addresses: true</codeph> indicates that the mode is enabled.</p>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

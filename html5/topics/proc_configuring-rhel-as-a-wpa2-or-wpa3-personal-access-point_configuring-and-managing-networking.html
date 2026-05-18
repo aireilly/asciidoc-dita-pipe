@@ -1,0 +1,143 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring RHEL as a WPA2 or WPA3 Personal access point</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-rhel-as-a-wpa2-or-wpa3-personal-access-point_configuring-and-managing-networking"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring RHEL as a WPA2 or WPA3 Personal access point</h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">The wifi device supports running in access point mode.</p>
+            </li>
+            <li class="li">
+               <p class="p">The wifi device is not in use.</p>
+            </li>
+            <li class="li">
+               <p class="p">The host has internet access.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">On a host with a wifi device, you can use NetworkManager to configure this host as an access point. Wireless clients can use a pre-shared key (PSK) to connect to the access point and use services on the RHEL host and in the network.</p>
+         <p class="p">When you configure an access point, NetworkManager automatically:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Configures the <code class="ph codeph">dnsmasq</code> service to provide DHCP and DNS services for clients</p>
+            </li>
+            <li class="li">
+               <p class="p">Enables IP forwarding</p>
+            </li>
+            <li class="li">
+               <p class="p">Adds <code class="ph codeph">nftables</code> firewall rules to masquerade traffic from the wifi device and configures IP forwarding</p>
+            </li>
+         </ul>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">List the wifi devices to identify the one that should provide the access point:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device status | grep wifi</strong>
+                  <em class="ph i">wlp0s20f3</em>    wifi   disconnected    --</code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Verify that the device supports the access point mode:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli -f WIFI-PROPERTIES.AP device show <em class="ph i">wlp0s20f3</em>
+                  </strong>
+WIFI-PROPERTIES.AP:     yes</code></pre>
+               <p class="p">To use a wifi device as an access point, the device must support this feature.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Install the <code class="ph codeph">dnsmasq</code> and <code class="ph codeph">NetworkManager-wifi</code> packages:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">dnf install dnsmasq NetworkManager-wifi</strong>
+               </code></pre>
+               <p class="p">NetworkManager uses the <code class="ph codeph">dnsmasq</code> service to provide DHCP and DNS services to clients of the access point.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Create the initial access point configuration:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli device wifi hotspot ifname <em class="ph i">wlp0s20f3</em> con-name <em class="ph i">Example-Hotspot</em> ssid <em class="ph i">Example-Hotspot</em> password "<em class="ph i">password</em>"</strong>
+               </code></pre>
+               <p class="p">This command creates a connection profile for an access point on the <code class="ph codeph">wlp0s20f3</code> device that provides WPA2 and WPA3 Personal authentication. The name of the wireless network, the Service Set Identifier (SSID), is <code class="ph codeph">Example-Hotspot</code> and uses the pre-shared key <code class="ph codeph">password</code>.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Optional: Configure the access point to support only WPA3:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">Example-Hotspot</em> 802-11-wireless-security.key-mgmt sae</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">By default, NetworkManager uses the IP address <code class="ph codeph">10.42.0.1</code> for the wifi device and assigns IP addresses from the remaining <code class="ph codeph">10.42.0.0/24</code> subnet to clients. To configure a different subnet and IP address, enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">Example-Hotspot</em> ipv4.addresses <em class="ph i">192.0.2.254/24</em>
+                  </strong>
+               </code></pre>
+               <p class="p">The IP address you set, in this case <code class="ph codeph">192.0.2.254</code>, is the one that NetworkManager assigns to the wifi device. Clients will use this IP address as default gateway and DNS server.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the connection profile:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">Example-Hotspot</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">On the server:</p>
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Verify that NetworkManager started the <code class="ph codeph">dnsmasq</code> service and that the service listens on port 67 (DHCP) and 53 (DNS):</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ss -tulpn | grep -E ":53|:67"</strong>
+udp   UNCONN 0  0   <em class="ph i">10.42.0.1</em>:53    0.0.0.0:*    users:(("dnsmasq",pid=<em class="ph i">55905</em>,fd=<em class="ph i">6</em>))
+udp   UNCONN 0  0     0.0.0.0:67    0.0.0.0:*    users:(("dnsmasq",pid=<em class="ph i">55905</em>,fd=<em class="ph i">4</em>))
+tcp   LISTEN 0  32  <em class="ph i">10.42.0.1</em>:53    0.0.0.0:*    users:(("dnsmasq",pid=<em class="ph i">55905</em>,fd=<em class="ph i">7</em>))</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Display the <code class="ph codeph">nftables</code> rule set to ensure that NetworkManager enabled forwarding and masquerading for traffic from the <code class="ph codeph">10.42.0.0/24</code> subnet:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nft list ruleset</strong>
+table ip nm-shared-wlp0s20f3 {
+    chain nat_postrouting {
+        type nat hook postrouting priority srcnat; policy accept;
+        ip saddr <em class="ph i">10.42.0.0/24</em> ip daddr != <em class="ph i">10.42.0.0/24</em> masquerade
+    }
+
+    chain filter_forward {
+        type filter hook forward priority filter; policy accept;
+        ip daddr <em class="ph i">10.42.0.0/24</em> oifname "<em class="ph i">wlp0s20f3</em>" ct state { established, related } accept
+        ip saddr <em class="ph i">10.42.0.0/24</em> iifname "<em class="ph i">wlp0s20f3</em>" accept
+        iifname "<em class="ph i">wlp0s20f3</em>" oifname "<em class="ph i">wlp0s20f3</em>" accept
+        iifname "<em class="ph i">wlp0s20f3</em>" reject
+        oifname "<em class="ph i">wlp0s20f3</em>" reject
+    }
+}</code></pre>
+                  </li>
+               </ol>
+            </li>
+            <li class="li">
+               <p class="p">On a client with a wifi adapter:</p>
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">Display the list of available networks:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli device wifi</strong>
+IN-USE  BSSID              SSID             MODE   CHAN  RATE      SIGNAL  BARS  SECURITY
+        <em class="ph i">00:53:00:88:29:04</em>
+                        <em class="ph i">Example-Hotspot</em>  Infra  <em class="ph i">11</em>
+                        <em class="ph i">130</em> Mbit/s  <em class="ph i">62</em>      ▂▄▆_  <em class="ph i">WPA3</em>
+...</code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">Connect to the <code class="ph codeph">Example-Hotspot</code> wireless network.
+See <a class="xref" href="#assembly_managing-wifi-connections_configuring-and-managing-networking">Managing Wi-Fi connections</a>.</p>
+                  </li>
+                  <li class="li">
+                     <p class="p">Ping a host on the remote network or the internet to verify that the connection works:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">ping -c 3 www.redhat.com</strong>
+                     </code></pre>
+                  </li>
+               </ol>
+            </li>
+         </ol>
+      </section>
+   </div>
+</article></main></body></html>

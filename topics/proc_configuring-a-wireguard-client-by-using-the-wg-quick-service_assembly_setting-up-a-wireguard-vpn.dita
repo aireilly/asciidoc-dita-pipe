@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-wireguard-client-by-using-the-wg-quick-service_assembly_setting-up-a-wireguard-vpn">
+   <title>Configuring a WireGuard client by using the <codeph>wg-quick</codeph> service</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You have generated the public and private key for both the server and client.</p>
+            </li>
+            <li>
+               <p>You know the following information:</p>
+               <ul>
+                  <li>
+                     <p>The private key of the client</p>
+                  </li>
+                  <li>
+                     <p>The static tunnel IP addresses and subnet masks of the client</p>
+                  </li>
+                  <li>
+                     <p>The public key of the server</p>
+                  </li>
+                  <li>
+                     <p>The static tunnel IP addresses and subnet masks of the server</p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can configure a WireGuard client by creating a configuration file in the <codeph>/etc/wireguard/</codeph> directory. Use this method to configure the service independently from NetworkManager.</p>
+         <p>This procedure assumes the following settings:</p>
+         <ul>
+            <li>
+               <p>Client:</p>
+               <ul>
+                  <li>
+                     <p>Private key: <codeph>aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A=</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv4 address: <codeph>192.0.2.2/24</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv6 address: <codeph>2001:db8:1::2/32</codeph>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>Server:</p>
+               <ul>
+                  <li>
+                     <p>Public key: <codeph>UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv4 address: <codeph>192.0.2.1/24</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv6 address: <codeph>2001:db8:1::1/32</codeph>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Install the <codeph>wireguard-tools</codeph> package:</cmd>
+            <info>
+               <codeblock># <b>dnf install wireguard-tools</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Create the <codeph>/etc/wireguard/wg0.conf</codeph> file with the following content:</cmd>
+            <info>
+               <codeblock>
+                  <b>[Interface]</b>
+                  <b>Address = 192.0.2.2/24, 2001:db8:1::2/32</b>
+                  <b>PrivateKey = aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A=</b>
+                  <b>[Peer]</b>
+                  <b>PublicKey = UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=</b>
+                  <b>AllowedIPs = 192.0.2.1, 2001:db8:1::1</b>
+                  <b>Endpoint = server.example.com:51820</b>
+                  <b>PersistentKeepalive = 20</b>
+               </codeblock>
+               <ul>
+                  <li>
+                     <p>The <codeph>[Interface]</codeph> section describes the WireGuard settings of the interface on the client:</p>
+                     <ul>
+                        <li>
+                           <p>
+                              <codeph>Address</codeph>: A comma-separated list of the client’s tunnel IP addresses.</p>
+                        </li>
+                        <li>
+                           <p>
+                              <codeph>PrivateKey</codeph>: The private key of the client.</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li>
+                     <p>The <codeph>[Peer]</codeph> section describes the settings of the server:</p>
+                     <ul>
+                        <li>
+                           <p>
+                              <codeph>PublicKey</codeph>: The public key of the server.</p>
+                        </li>
+                        <li>
+                           <p>
+                              <codeph>AllowedIPs</codeph>: The IP addresses that are allowed to send data to this client. For example, set the parameter to:</p>
+                           <ul>
+                              <li>
+                                 <p>The tunnel IP addresses of the server to allow only the server to communicate with this client. The value in the example above configures this scenario.</p>
+                              </li>
+                              <li>
+                                 <p>
+                                    <codeph>0.0.0.0/0, ::/0</codeph> to allow any remote IPv4 and IPv6 address to communicate with this client. Use this setting to route all traffic through the tunnel and use the WireGuard server as default gateway.</p>
+                              </li>
+                           </ul>
+                        </li>
+                        <li>
+                           <p>
+                              <codeph>Endpoint</codeph>: Sets the hostname or IP address and the port of the server. The client uses this information to establish the connection.</p>
+                        </li>
+                        <li>
+                           <p>The optional <codeph>persistent-keepalive</codeph> parameter defines an interval in seconds in which WireGuard sends a keepalive packet to the server. Set this parameter if you use the client in a network with network address translation (NAT) or if a firewall closes the UDP connection after some time of inactivity.</p>
+                        </li>
+                     </ul>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Enable and start the WireGuard connection:</cmd>
+            <info>
+               <codeblock># <b>systemctl enable --now wg-quick@wg0</b>
+               </codeblock>
+               <p>The systemd instance name must match the name of the configuration file in the <codeph>/etc/wireguard/</codeph> directory without the <codeph>.conf</codeph> suffix. The service also uses this name for the virtual network interface.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <xref href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</xref>.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Ping the IP addresses of the server:</p>
+               <codeblock># <b>ping 192.0.2.1</b>
+# <b>ping6 2001:db8:1::1</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display the interface configuration of the <codeph>wg0</codeph> device:</p>
+               <codeblock># <b>wg show wg0</b>
+interface: wg0
+  public key: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  private key: (hidden)
+  listening port: 51820
+
+peer: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  endpoint: server.example.com:51820
+  allowed ips: 192.0.2.1/32, 2001:db8:1::1/128
+  latest handshake: 1 minute, 41 seconds ago
+  transfer: 824 B received, 1.01 KiB sent
+  persistent keepalive: every 20 seconds</codeblock>
+               <p>To display the private key in the output, use the <codeph>WG_HIDE_KEYS=never wg show wg0</codeph> command.</p>
+               <p>Note that the output contains only the <codeph>latest handshake</codeph> and <codeph>transfer</codeph> entries if you have already sent traffic through the VPN tunnel.</p>
+            </li>
+            <li>
+               <p>Display the IP configuration of the <codeph>wg0</codeph> device:</p>
+               <codeblock># <b>ip address show wg0</b>
+10: wg0: &lt;POINTOPOINT,NOARP,UP,LOWER_UP&gt; mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.2/24 scope global wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::2/32 scope global
+       valid_lft forever preferred_lft forever</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

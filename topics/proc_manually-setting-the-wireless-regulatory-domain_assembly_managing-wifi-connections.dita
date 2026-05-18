@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_manually-setting-the-wireless-regulatory-domain_assembly_managing-wifi-connections">
+   <title>Manually setting the wireless regulatory domain</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The driver of the wifi device supports changing the regulatory domain.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>On RHEL, a <codeph>udev</codeph> rule executes the <codeph>setregdomain</codeph> utility to set the wireless regulatory domain. The utility then provides this information to the kernel.</p>
+         <p>By default, <codeph>setregdomain</codeph> attempts to determine the country code automatically. If this fails, the wireless regulatory domain setting might be wrong. To work around this problem, you can manually set the country code.</p>
+         <note type="important">
+            <p>Manually setting the regulatory domain disables the automatic detection. Therefore, if you later use the computer in a different country, the previously configured setting might no longer be correct. In this case, remove the <codeph>/etc/sysconfig/regdomain</codeph> file to switch back to automatic detection or use this procedure to manually update the regulatory domain setting again.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: Display the current regulatory domain settings:</cmd>
+            <info>
+               <codeblock># <b>iw reg get</b>
+global
+country US: DFS-FCC
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Create the <codeph>/etc/sysconfig/regdomain</codeph> file with the following content:</cmd>
+            <info>
+               <codeblock>
+                  <b>COUNTRY=<i>&lt;country_code&gt;</i>
+                  </b>
+               </codeblock>
+               <p>Set the <codeph>COUNTRY</codeph> variable to an ISO 3166-1 alpha2 country code, such as <codeph>DE</codeph> for Germany or <codeph>US</codeph> for the United States of America.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the regulatory domain:</cmd>
+            <info>
+               <codeblock># <b>setregdomain</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the regulatory domain settings:</p>
+               <codeblock># <b>iw reg get</b>
+global
+country DE: DFS-ETSI
+...</codeblock>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://www.iso.org/iso-3166-country-codes.html"
+                        format="html"
+                        scope="external">ISO 3166 Country Codes</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

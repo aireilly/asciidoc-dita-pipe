@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn">
+   <title>Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You use NetworkManager 1.48.10-5 or later.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>To protect your VPN connection from traffic redirection attacks, assign it to a dedicated routing table. This prevents malicious network servers from bypassing the secure tunnel and compromising data integrity.</p>
+         <p>Both a DHCP server and Stateless Address Autoconfiguration (SLAAC) can add routes to a client’s routing table. For example, a malicious DHCP server can use this feature to force a host with VPN connection to redirect traffic through a physical interface instead of the VPN tunnel. This vulnerability is also known as TunnelVision and described in the <xref href="https://access.redhat.com/security/cve/cve-2024-3661"
+                  format="html"
+                  scope="external">CVE-2024-3661</xref> vulnerability article.</p>
+         <p>To mitigate this vulnerability, you can assign the VPN connection to a dedicated routing table. This prevents the DHCP configuration or SLAAC from manipulating routing decisions for network packets intended for the VPN tunnel.</p>
+         <p>Follow the steps if at least one of the conditions applies to your environment:</p>
+         <ul>
+            <li>
+               <p>At least one network interface uses DHCP or SLAAC.</p>
+            </li>
+            <li>
+               <p>Your network does not use mechanisms, such as DHCP snooping, that prevent a rogue DHCP server.</p>
+            </li>
+         </ul>
+         <note type="important">
+            <p>Routing the entire traffic through the VPN prevents the host from accessing local network resources.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Decide which routing table you want to use. The following steps use table 75. By default, RHEL does not use the tables 1-254, and you can use any of them.</cmd>
+         </step>
+         <step>
+            <cmd>Configure the VPN connection profile to place the VPN routes in a dedicated routing table:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>&lt;vpn_connection_profile&gt;</i> ipv4.route-table 75 ipv6.route-table 75</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Set a low priority value for the table you used in the previous command:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>&lt;vpn_connection_profile&gt;</i> ipv4.routing-rules "priority 32345 from all table 75" ipv6.routing-rules "priority 32345 from all table 75"</b>
+               </codeblock>
+               <p>The priority value can be any value between 1 and 32766. The lower the value, the higher the priority.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Reconnect the VPN connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection down <i>&lt;vpn_connection_profile&gt;</i>
+                  </b>
+# <b>nmcli connection up <i>&lt;vpn_connection_profile&gt;</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IPv4 routes in table 75:</p>
+               <codeblock># <b>ip route show table 75</b>
+...
+192.0.2.0/24 via 192.0.2.254 dev <i>vpn_device</i> proto static metric 50
+default dev <i>vpn_device</i> proto static scope link metric 50</codeblock>
+               <p>The output confirms that both the route to the remote network and the default gateway are assigned to routing table 75 and, therefore, all traffic is routed through the tunnel. If you set <codeph>ipv4.never-default true</codeph> in the VPN connection profile, a default route is not created and, therefore, not visible in this output.</p>
+            </li>
+            <li>
+               <p>Display the IPv6 routes in table 75:</p>
+               <codeblock># <b>ip -6 route show table 75</b>
+...
+2001:db8:1::/64 dev <i>vpn_device</i> proto kernel metric 50 pref medium
+default dev <i>vpn_device</i> proto static metric 50 pref medium</codeblock>
+               <p>The output confirms that both the route to the remote network and the default gateway are assigned to routing table 75 and, therefore, all traffic is routed through the tunnel. If you set <codeph>ipv6.never-default true</codeph> in the VPN connection profile, a default route is not created and, therefore, not visible in this output.</p>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/security/cve/cve-2024-3661"
+                        format="html"
+                        scope="external">CVE-2024-3661</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

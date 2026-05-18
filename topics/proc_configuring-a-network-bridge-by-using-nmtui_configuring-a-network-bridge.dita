@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-network-bridge-by-using-nmtui_configuring-a-network-bridge">
+   <title>Configuring a network bridge by using <codeph>nmtui</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li>
+               <p>To use Ethernet devices as ports of the bridge, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>The <codeph>nmtui</codeph> application provides a text-based user interface for NetworkManager. You can use <codeph>nmtui</codeph> to configure a network bridge on a host without a graphical interface.</p>
+         <note>
+            <p>In <codeph>nmtui</codeph>:</p>
+            <ul>
+               <li>
+                  <p>Navigate by using the cursor keys.</p>
+               </li>
+               <li>
+                  <p>Press a button by selecting it and hitting <ph>Enter</ph>.</p>
+               </li>
+               <li>
+                  <p>Select and clear checkboxes by using <ph>Space</ph>.</p>
+               </li>
+               <li>
+                  <p>To return to the previous screen, use <ph>ESC</ph>.</p>
+               </li>
+            </ul>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>If you do not know the network device names on which you want configure a network bridge, display the available devices:</cmd>
+            <info>
+               <codeblock># <b>nmcli device status</b>
+DEVICE     TYPE      STATE                   CONNECTION
+enp7s0     ethernet  unavailable             --
+enp8s0     ethernet  unavailable             --
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Start <codeph>nmtui</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmtui</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Select <codeph>Edit a connection</codeph>, and press <ph>Enter</ph>.</cmd>
+         </step>
+         <step>
+            <cmd>Press <codeph>Add</codeph>.</cmd>
+         </step>
+         <step>
+            <cmd>Select <codeph>Bridge</codeph> from the list of network types, and press <ph>Enter</ph>.</cmd>
+         </step>
+         <step>
+            <cmd>Optional: Enter a name for the NetworkManager profile to be created.</cmd>
+            <info>
+               <p>On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Enter the bridge device name to be created into the <codeph>Device</codeph> field.</cmd>
+         </step>
+         <step>
+            <cmd>Add ports to the bridge to be created:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Press <codeph>Add</codeph> next to the <codeph>Ports</codeph> list.</p>
+                  </li>
+                  <li>
+                     <p>Select the type of the interface you want to add as a port to the bridge, for example, <codeph>Ethernet</codeph>.</p>
+                  </li>
+                  <li>
+                     <p>Optional: Enter a name for the NetworkManager profile to be created for this bridge port.</p>
+                  </li>
+                  <li>
+                     <p>Enter the port’s device name into the <codeph>Device</codeph> field.</p>
+                  </li>
+                  <li>
+                     <p>Press <codeph>OK</codeph> to return to the window with the bridge settings.</p>
+                     <fig>
+                        <p>Adding an Ethernet device as a port to a bridge</p>
+                        <image href="../images/nmtui-bridge-add-port.png" placement="break">
+                           <alt>Editing a bridge connection profile in `nmtui`</alt>
+                        </image>
+                     </fig>
+                  </li>
+                  <li>
+                     <p>Repeat these steps to add more ports to the bridge.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Depending on your environment, configure the IP address settings in the <codeph>IPv4 configuration</codeph> and <codeph>IPv6 configuration</codeph> areas accordingly. For this, press the button next to these areas, and select:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>
+                        <codeph>Disabled</codeph>, if the bridge does not require an IP address.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>Automatic</codeph>, if a DHCP server or stateless address autoconfiguration (SLAAC) dynamically assigns an IP address to the bridge.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>Manual</codeph>, if the network requires static IP address settings. In this case, you must fill further fields:</p>
+                     <ol>
+                        <li>
+                           <p>Press <codeph>Show</codeph> next to the protocol you want to configure to display additional fields.</p>
+                        </li>
+                        <li>
+                           <p>Press <codeph>Add</codeph> next to <codeph>Addresses</codeph>, and enter the IP address and the subnet mask in Classless Inter-Domain Routing (CIDR) format.</p>
+                           <p>If you do not specify a subnet mask, NetworkManager sets a <codeph>/32</codeph> subnet mask for IPv4 addresses and <codeph>/64</codeph> for IPv6 addresses.</p>
+                        </li>
+                        <li>
+                           <p>Enter the address of the default gateway.</p>
+                        </li>
+                        <li>
+                           <p>Press <codeph>Add</codeph> next to <codeph>DNS servers</codeph>, and enter the DNS server address.</p>
+                        </li>
+                        <li>
+                           <p>Press <codeph>Add</codeph> next to <codeph>Search domains</codeph>, and enter the DNS search domain.</p>
+                        </li>
+                     </ol>
+                  </li>
+               </ul>
+               <fig>
+                  <p>Example of a bridge connection without IP address settings</p>
+                  <image href="../images/nmtui-bridge-no-IP.png" placement="break">
+                     <alt>A bridge connection profile without IP configuration in `nmtui`</alt>
+                  </image>
+               </fig>
+            </info>
+         </step>
+         <step>
+            <cmd>Press <codeph>OK</codeph> to create and automatically activate the new connection.</cmd>
+         </step>
+         <step>
+            <cmd>Press <codeph>Back</codeph> to return to the main menu.</cmd>
+         </step>
+         <step>
+            <cmd>Select <codeph>Quit</codeph>, and press <ph>Enter</ph> to close the <codeph>nmtui</codeph> application.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Use the <codeph>ip</codeph> utility to display the link status of Ethernet devices that are ports of a specific bridge:</p>
+               <codeblock># <b>ip link show master bridge0</b>
+3: enp7s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel master bridge0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:62:61:0e brd ff:ff:ff:ff:ff:ff
+4: enp8s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel master bridge0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:9e:f1:ce brd ff:ff:ff:ff:ff:ff</codeblock>
+            </li>
+            <li>
+               <p>Use the <codeph>bridge</codeph> utility to display the status of Ethernet devices that are ports of any bridge device:</p>
+               <codeblock># <b>bridge link show</b>
+3: enp7s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 master bridge0 state forwarding priority 32 cost 100
+4: enp8s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 master bridge0 state listening priority 32 cost 100
+...</codeblock>
+               <p>To display the status for a specific Ethernet device, use the <codeph>bridge link show dev <i>&lt;ethernet_device_name&gt;</i>
+                  </codeph> command.</p>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

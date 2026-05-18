@@ -1,0 +1,86 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring the loopback interface by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_configuring-the-loopback-interface-by-using-nmcli_configuring-and-managing-networking"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring the loopback interface by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">By default, NetworkManager does not manage the loopback (<code class="ph codeph">lo</code>) interface. After creating a connection profile for the <code class="ph codeph">lo</code> interface, you can configure this device by using NetworkManager.</p>
+         <p class="p">Some of the examples when users want to configure the loopback interface are as follows:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">Assign additional IP addresses to the <code class="ph codeph">lo</code> interface</p>
+            </li>
+            <li class="li">
+               <p class="p">Define DNS addresses</p>
+            </li>
+            <li class="li">
+               <p class="p">Change the Maximum Transmission Unit (MTU) size of the <code class="ph codeph">lo</code> interface</p>
+            </li>
+         </ul>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a new connection of type <code class="ph codeph">loopback</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add con-name <em class="ph i">example-loopback</em> type loopback</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure custom connection settings, for example:</span>
+            <div class="itemgroup info">
+               <ol class="ol" type="a">
+                  <li class="li">
+                     <p class="p">To assign an additional IP address to the interface, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">example-loopback</em> +ipv4.addresses <em class="ph i">192.0.2.1/24</em>
+                        </strong>
+                     </code></pre>
+                     <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+                        <p class="p">NetworkManager manages the <code class="ph codeph">lo</code> interface by always assigning the IP addresses <code class="ph codeph">127.0.0.1</code> and <code class="ph codeph">::1</code> that are persistent across the reboots. You cannot override <code class="ph codeph">127.0.0.1</code> and <code class="ph codeph">::1</code>. However, you can assign additional IP addresses to the interface.</p>
+                     </div></div>
+                  </li>
+                  <li class="li">
+                     <p class="p">To set a custom Maximum Transmission Unit (MTU), enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli con mod <em class="ph i">example-loopback</em> loopback.mtu <em class="ph i">16384</em>
+                        </strong>
+                     </code></pre>
+                  </li>
+                  <li class="li">
+                     <p class="p">To set an IP address to your DNS server, enter:</p>
+                     <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">example-loopback</em> ipv4.dns <em class="ph i">192.0.2.0</em>
+                        </strong>
+                     </code></pre>
+                     <p class="p">If you set a DNS server in the loopback connection profile, this entry is always available in the <code class="ph codeph">/etc/resolv.conf</code> file. The DNS server entry remains independent of whether or not the host roams between different networks.</p>
+                  </li>
+               </ol>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up example-loopback</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Display the settings of the <code class="ph codeph">lo</code> interface:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">ip address show lo</strong>
+
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <strong class="ph b">16384</strong> qdisc noqueue state UNKNOWN group default qlen 1000
+
+link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 inet 127.0.0.1/8 scope host lo valid_lft forever preferred_lft forever inet <code class="ph codeph">192.0.2.1/24</code> brd <code class="ph codeph">192.0.2.255</code> scope global lo valid_lft forever preferred_lft forever
+
+inet6 ::1/128 scope host
+valid_lft forever preferred_lft forever</code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Verify the DNS address:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">cat /etc/resolv.conf</strong>
+...
+nameserver <code class="ph codeph">192.0.2.0</code>
+...</code></pre>
+            </li>
+         </ol>
+      </section>
+   </div>
+</article></main></body></html>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_fixing-unexpected-routing-behavior-due-to-multiple-default-gateways_managing-the-default-gateway-setting">
+   <title>Fixing unexpected routing behavior due to multiple default gateways</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The host uses NetworkManager to manage network connections, which is the default.</p>
+            </li>
+            <li>
+               <p>The host has multiple network interfaces.</p>
+            </li>
+            <li>
+               <p>The host has multiple default gateways configured.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>For most hosts, you require only a single default gateway to prevent unexpected routing behavior and asynchronous routing issues. Multiple default gateways are typically needed only for specific scenarios, such as when using Multipath TCP.</p>
+         <note>
+            <p>To route traffic to different internet providers, use policy-based routing instead of multiple default gateways.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Display the routing table:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>For IPv4, enter:</p>
+                     <codeblock># <b>ip -4 route</b>
+default via 192.0.2.1 dev enp1s0 proto dhcp metric 101
+default via 198.51.100.1 dev enp7s0 proto dhcp metric 102
+...</codeblock>
+                  </li>
+                  <li>
+                     <p>For IPv6, enter:</p>
+                     <codeblock># <b>ip -6 route</b>
+default via 2001:db8:1::1 dev enp1s0 proto static ra 101 pref medium
+default via 2001:db8:2::1 dev enp7s0 proto static ra 102 pref medium
+...</codeblock>
+                  </li>
+               </ul>
+               <p>Entries starting with <codeph>default</codeph> indicate a default route. Note the interface names of these entries displayed next to <codeph>dev</codeph>.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Use the following commands to display the NetworkManager connections that use the interfaces you identified in the previous step:</cmd>
+            <info>
+               <codeblock># <b>nmcli -f GENERAL.CONNECTION,IP4.GATEWAY,IP6.GATEWAY device show enp1s0</b>
+GENERAL.CONNECTION:      Corporate-LAN
+IP4.GATEWAY:             192.0.2.1
+IP6.GATEWAY:             2001:db8:1::1
+
+# <b>nmcli -f GENERAL.CONNECTION,IP4.GATEWAY,IP6.GATEWAY device show enp7s0</b>
+GENERAL.CONNECTION:      Internet-Provider
+IP4.GATEWAY:             198.51.100.1
+IP6.GATEWAY:             2001:db8:2::1</codeblock>
+               <p>In these examples, the profiles named <codeph>Corporate-LAN</codeph> and <codeph>Internet-Provider</codeph> have the default gateways set. Because, in a local network, the default gateway is typically the host that is one hop closer to the internet, the rest of this procedure assumes that the default gateways in the <codeph>Corporate-LAN</codeph> are incorrect.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure that NetworkManager does not use the <codeph>Corporate-LAN</codeph> connection as the default route for IPv4 and IPv6 connections:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify Corporate-LAN ipv4.never-default yes ipv6.never-default yes</b>
+               </codeblock>
+               <p>Note that setting <codeph>ipv4.never-default</codeph> and <codeph>ipv6.never-default</codeph> to <codeph>yes</codeph>, automatically removes the default gateway’s IP address for the corresponding protocol from the connection profile.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the <codeph>Corporate-LAN</codeph> connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up Corporate-LAN</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the IPv4 and IPv6 routing tables and verify that only one default gateway is available for each protocol:</p>
+               <ul>
+                  <li>
+                     <p>For IPv4, enter:</p>
+                     <codeblock># <b>ip -4 route</b>
+default via 198.51.100.1 dev enp7s0 proto dhcp metric 102
+...</codeblock>
+                  </li>
+                  <li>
+                     <p>For IPv6, enter:</p>
+                     <codeblock># <b>ip -6 route</b>
+default via 2001:db8:2::1 dev enp7s0 proto ra metric 102 pref medium
+...</codeblock>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#proc_configuring-a-static-route-by-using-the-network-rhel-system-role_configuring-static-routes/configuring-policy-based-routing-to-define-alternative-routes_configuring-and-managing-networking">Configuring policy-based routing to define alternative routes</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

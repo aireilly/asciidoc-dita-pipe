@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_changing-a-hostname-using-nmcli_assembly_changing-a-hostname">
+   <title>Changing a hostname by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <context>
+         <p>You can use the <codeph>nmcli</codeph> utility to update the system hostname. Note that other utilities might use a different term, such as static or persistent hostname.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: Display the current hostname setting:</cmd>
+            <info>
+               <codeblock># <b>nmcli general hostname</b>
+                  <i>old-hostname.example.com</i>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the new hostname:</cmd>
+            <info>
+               <codeblock># <b>nmcli general hostname <i>new-hostname.example.com</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>NetworkManager automatically restarts the <codeph>systemd-hostnamed</codeph> to activate the new name. For the changes to take effect, reboot the host:</cmd>
+            <info>
+               <codeblock># <b>reboot</b>
+               </codeblock>
+               <p>Alternatively, if you know which services use the hostname:</p>
+               <ol>
+                  <li>
+                     <p>Restart all services that only read the hostname when the service starts:</p>
+                     <codeblock># <b>systemctl restart <i>&lt;service_name&gt;</i>
+                        </b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Active shell users must re-login for the changes to take effect.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the hostname:</p>
+               <codeblock># <b>nmcli general hostname</b>
+                  <i>new-hostname.example.com</i>
+               </codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-an-ethernet-connection-by-using-nmcli_configuring-an-ethernet-connection">
+   <title>Configuring an Ethernet connection by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A physical or virtual Ethernet Network Interface Controller (NIC) exists in the server’s configuration.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>If you connect a host to the network over Ethernet, you can manage the connection’s settings on the command line by using the <codeph>nmcli</codeph> utility.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>List the NetworkManager connection profiles:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection show</b>
+NAME                UUID                                  TYPE      DEVICE
+Wired connection 1  a5eb6490-cc20-3668-81f8-0314a27f3f75  ethernet  enp1s0</codeblock>
+               <p>By default, NetworkManager creates a profile for each NIC in the host. If you plan to connect this NIC only to a specific network, adapt the automatically-created profile. If you plan to connect this NIC to networks with different settings, create individual profiles for each network.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>If you want to create an additional connection profile, enter:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add con-name <i>&lt;connection-name&gt;</i> ifname <i>&lt;device-name&gt;</i> type ethernet</b>
+               </codeblock>
+               <p>Skip this step to modify an existing profile.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Rename the connection profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify "Wired connection 1" connection.id "Internal-LAN"</b>
+               </codeblock>
+               <p>On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Display the current settings of the connection profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection show Internal-LAN</b>
+...
+connection.interface-name:     enp1s0
+connection.autoconnect:        yes
+ipv4.method:                   auto
+ipv6.method:                   auto
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the IPv4 settings:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>To use DHCP, enter:</p>
+                     <codeblock># <b>nmcli connection modify Internal-LAN ipv4.method auto</b>
+                     </codeblock>
+                     <p>Skip this step if <codeph>ipv4.method</codeph> is already set to <codeph>auto</codeph> (default).</p>
+                  </li>
+                  <li>
+                     <p>To set a static IPv4 address, network mask, default gateway, DNS servers, and search domain, enter:</p>
+                     <codeblock># <b>nmcli connection modify Internal-LAN ipv4.method manual ipv4.addresses 192.0.2.1/24 ipv4.gateway 192.0.2.254 ipv4.dns 192.0.2.200 ipv4.dns-search example.com</b>
+                     </codeblock>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the IPv6 settings:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>To use stateless address autoconfiguration (SLAAC), enter:</p>
+                     <codeblock># <b>nmcli connection modify Internal-LAN ipv6.method auto</b>
+                     </codeblock>
+                     <p>Skip this step if <codeph>ipv6.method</codeph> is already set to <codeph>auto</codeph> (default).</p>
+                  </li>
+                  <li>
+                     <p>To set a static IPv6 address, network mask, default gateway, DNS servers, and search domain, enter:</p>
+                     <codeblock># <b>nmcli connection modify Internal-LAN ipv6.method manual ipv6.addresses 2001:db8:1::fffe/64 ipv6.gateway 2001:db8:1::fffe ipv6.dns 2001:db8:1::ffbb ipv6.dns-search example.com</b>
+                     </codeblock>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>To customize other settings in the profile, use the following command:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>&lt;connection-name&gt;</i>
+                     <i>&lt;setting&gt;</i>
+                     <i>&lt;value&gt;</i>
+                  </b>
+               </codeblock>
+               <p>Enclose values with spaces or semicolons in quotes.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up Internal-LAN</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IP settings of the NIC:</p>
+               <codeblock># <b>ip address show enp1s0</b>
+2: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:17:b8:b6 brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute enp1s0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::fffe/64 scope global noprefixroute
+       valid_lft forever preferred_lft forever</codeblock>
+            </li>
+            <li>
+               <p>Display the IPv4 default gateway:</p>
+               <codeblock># <b>ip route show default</b>
+default via 192.0.2.254 dev enp1s0 proto static metric 102</codeblock>
+            </li>
+            <li>
+               <p>Display the IPv6 default gateway:</p>
+               <codeblock># <b>ip -6 route show default</b>
+default via 2001:db8:1::fffe dev enp1s0 proto static metric 102 pref medium</codeblock>
+            </li>
+            <li>
+               <p>Display the DNS settings:</p>
+               <codeblock># <b>cat /etc/resolv.conf</b>
+search example.com
+nameserver 192.0.2.200
+nameserver 2001:db8:1::ffbb</codeblock>
+               <p>If multiple connection profiles are active at the same time, the order of <codeph>nameserver</codeph> entries depend on the DNS priority values in these profiles and the connection types.</p>
+            </li>
+            <li>
+               <p>Use the <codeph>ping</codeph> utility to verify that this host can send packets to other hosts:</p>
+               <codeblock># <b>ping <i>&lt;host-name-or-IP-address&gt;</i>
+                  </b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+      <tasktroubleshooting>
+         <ul>
+            <li>
+               <p>Verify that the network cable is plugged-in to the host and a switch.</p>
+            </li>
+            <li>
+               <p>Check whether the link failure exists only on this host or also on other hosts connected to the same switch.</p>
+            </li>
+            <li>
+               <p>Verify that the network cable and the network interface are working as expected. Perform hardware diagnosis steps and replace defective cables and network interface cards.</p>
+            </li>
+            <li>
+               <p>If the configuration on the disk does not match the configuration on the device, starting or restarting NetworkManager creates an in-memory connection that reflects the configuration of the device. For further details and how to avoid this problem, see the Red Hat Knowledgebase solution <xref href="https://access.redhat.com/solutions/3068421"
+                        format="html"
+                        scope="external">NetworkManager duplicates a connection after restart of NetworkManager service</xref>.</p>
+            </li>
+         </ul>
+      </tasktroubleshooting>
+   </taskbody>
+</task>

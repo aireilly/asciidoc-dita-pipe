@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="disabling-multipath-tcp-in-the-kernel_getting-started-with-multipath-tcp">
+   <title>Disabling Multipath TCP in the kernel</title>
+   <taskbody>
+      <context>
+         <p>If you do not require MPTCP, you can explicitly disable the MPTCP option in the kernel.</p>
+      </context>
+      <steps-unordered>
+         <step>
+            <cmd>Disable the <codeph>mptcp.enabled</codeph> option.</cmd>
+            <info>
+               <codeblock># <b>echo "net.mptcp.enabled=0" &gt; /etc/sysctl.d/90-enable-MPTCP.conf</b>
+# <b>sysctl -p /etc/sysctl.d/90-enable-MPTCP.conf</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps-unordered>
+      <result>
+         <ul>
+            <li>
+               <p>Verify whether the <codeph>mptcp.enabled</codeph> is disabled in the kernel.</p>
+               <codeblock># <b>sysctl -a | grep mptcp.enabled</b>
+net.mptcp.enabled = 0</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

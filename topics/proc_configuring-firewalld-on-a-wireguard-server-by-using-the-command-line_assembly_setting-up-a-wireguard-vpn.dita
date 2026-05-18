@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-firewalld-on-a-wireguard-server-by-using-the-command-line_assembly_setting-up-a-wireguard-vpn">
+   <title>Configuring <codeph>firewalld</codeph> on a WireGuard server by using the command line</title>
+   <taskbody>
+      <context>
+         <p>Configure the <codeph>firewalld</codeph> service on the WireGuard server, allowing incoming connections from clients. If clients need to use the server as their default gateway and route all traffic through the tunnel, enable also masquerading.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Open the WireGuard port for incoming connections in the <codeph>firewalld</codeph> service:</cmd>
+            <info>
+               <codeblock># <b>firewall-cmd --permanent --add-port=51820/udp --zone=public</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>If clients should route all traffic through the tunnel and use the WireGuard server as the default gateway, enable masquerading for the <codeph>public</codeph> zone:</cmd>
+            <info>
+               <codeblock># <b>firewall-cmd --permanent --zone=public --add-masquerade</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Reload the <codeph>firewalld</codeph> rules.</cmd>
+            <info>
+               <codeblock># <b>firewall-cmd --reload</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the configuration of the <codeph>public</codeph> zone:</p>
+               <codeblock># <b>firewall-cmd --list-all</b>
+public (active)
+  ...
+  ports: 51820/udp
+  masquerade: yes
+  ...</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

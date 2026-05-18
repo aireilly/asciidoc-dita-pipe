@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-802-3-link-settings-using-the-nmcli-utility_configuring-802-3-link-settings">
+   <title>Configuring 802.3 link settings using the <codeph>nmcli</codeph> utility</title>
+   <taskbody>
+      <context>
+         <p>To configure the 802.3 link settings of an Ethernet connection, modify the following configuration parameters:</p>
+         <ul>
+            <li>
+               <p>
+                  <codeph>802-3-ethernet.auto-negotiate</codeph>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <codeph>802-3-ethernet.speed</codeph>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <codeph>802-3-ethernet.duplex</codeph>
+               </p>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Display the current settings of the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection show <i>Example-connection</i>
+                  </b>
+...
+802-3-ethernet.speed:  0
+802-3-ethernet.duplex: --
+802-3-ethernet.auto-negotiate: no
+...</codeblock>
+               <p>You can use these values if you need to reset the parameters in case of any problems.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the speed and duplex link settings:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>Example-connection</i> 802-3-ethernet.auto-negotiate <i>yes</i> 802-3-ethernet.speed <i>10000</i> 802-3-ethernet.duplex <i>full</i>
+                  </b>
+               </codeblock>
+               <p>This command enables auto-negotiation and sets the speed of the connection to <codeph>10000</codeph> Mbit full duplex.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Reactivate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>Example-connection</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Use the <codeph>ethtool</codeph> utility to verify the values of Ethernet interface <codeph>enp1s0</codeph>:</p>
+               <codeblock># <b>ethtool <i>enp1s0</i>
+                  </b>
+
+Settings for enp1s0:
+...
+Speed: 10000 Mb/s
+Duplex: Full
+Auto-negotiation: on
+...
+Link detected: yes</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

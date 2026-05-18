@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Configuring IPsec VPN connections by using RHEL system roles</title>
+   <topicref href="../topics/configuring-an-ipsec-host-to-host-vpn-with-psk-authentication-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+   <topicref href="../topics/configuring-an-ipsec-host-to-host-vpn-with-psk-authentication-and-separate-data-and-control-planes-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+   <topicref href="../topics/configuring-an-ipsec-site-to-site-vpn-with-psk-authentication-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+   <topicref href="../topics/configuring-an-ipsec-mesh-vpn-with-certificate-based-authentication-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+</map>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-tcp-fallback-for-an-ipsec-vpn-connection_setting-up-an-ipsec-vpn">
+   <title>Configuring TCP fallback for an IPsec VPN connection</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The IPsec connection is configured.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>Standard IPsec VPNs can fail on restrictive networks that block the UDP and Encapsulating Security Payload (ESP) protocols. To ensure connectivity in such environments, Libreswan can encapsulate all VPN traffic within a TCP connection.</p>
+         <note type="important">
+            <p>Encapsulating VPN packets within TCP can reduce throughput and increase latency. For this reason, use TCP encapsulation only as a fallback option or if UDP-based connections are consistently blocked in your environment.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Edit the <codeph>/etc/ipsec.conf</codeph> file, and make the following changes in the <codeph>config setup</codeph> section:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Configure Libreswan to listen on a TCP port:</p>
+                     <codeblock outputclass="language-bash">listen-tcp=yes</codeblock>
+                  </li>
+                  <li>
+                     <p>By default, Libreswan listens on port 4500. If you want to use a different port, enter:</p>
+                     <codeblock outputclass="language-bash">tcp-remoteport=<i>&lt;port_number&gt;</i>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Decide whether TCP should be used as a fallback option if UDP is not available or permanent:</p>
+                     <ul>
+                        <li>
+                           <p>As a fallback option, enter:</p>
+                           <codeblock outputclass="language-bash">enable-tcp=fallback
+retransmit-timeout=5s</codeblock>
+                           <p>By default, Libreswan waits 60 seconds after a failed attempt to connect by using UDP before retrying the connection over TCP. Lowering the <codeph>retransmit-timeout</codeph> value shortens the delay, enabling the fallback protocol to initiate more quickly.</p>
+                        </li>
+                        <li>
+                           <p>As a permanent replacement for UDP, enter:</p>
+                           <codeblock outputclass="language-bash">enable-tcp=yes</codeblock>
+                        </li>
+                     </ul>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Restart the <codeph>ipsec</codeph> service:</cmd>
+            <info>
+               <codeblock># <b>systemctl restart ipsec</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>If you configured a TCP port other than the default 4500, open the port in the firewall:</cmd>
+            <info>
+               <codeblock># <b>firewall-cmd --permanent --add-port=<i>&lt;tcp_port&gt;</i>/tcp</b>
+# <b>firewall-cmd --reload</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Repeat the procedure on the peers that use this gateway.</cmd>
+         </step>
+      </steps>
+   </taskbody>
+</task>

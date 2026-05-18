@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="ipvlan-modes_getting-started-with-ipvlan">
+   <title>IPVLAN modes</title>
+   <conbody>
+      <p>The following modes are available for IPVLAN:</p>
+      <ul>
+         <li>
+            <p>
+               <b>L2 mode</b>
+            </p>
+            <p>In IPVLAN <b>L2 mode</b>, virtual devices receive and respond to address resolution protocol (ARP) requests. The <codeph>netfilter</codeph> framework runs only inside the container that owns the virtual device. No <codeph>netfilter</codeph> chains are executed in the default namespace on the containerized traffic. Using <b>L2 mode</b> provides good performance, but less control on the network traffic.</p>
+         </li>
+         <li>
+            <p>
+               <b>L3 mode</b>
+            </p>
+            <p>In <b>L3 mode</b>, virtual devices process only <b>L3</b> traffic and above. Virtual devices do not respond to ARP requests and users must configure the neighbour entries for the IPVLAN IP addresses on the relevant peers manually. The egress traffic of a relevant container is landed on the <codeph>netfilter</codeph> POSTROUTING and OUTPUT chains in the default namespace while the ingress traffic is threaded in the same way as <b>L2 mode</b>. Using <b>L3 mode</b> provides good control but decreases the network traffic performance.</p>
+         </li>
+         <li>
+            <p>
+               <b>L3S mode</b>
+            </p>
+            <p>In <b>L3S mode</b>, virtual devices process the same way as in <b>L3 mode</b>, except that both egress and ingress traffics of a relevant container are landed on the <codeph>netfilter</codeph> chain in the default namespace. <b>L3S mode</b> behaves in a similar way to <b>L3 mode</b> but provides greater control of the network.</p>
+         </li>
+      </ul>
+      <note>
+         <p>The IPVLAN virtual device does not receive broadcast and multicast traffic in case of <b>L3</b> and <b>L3S</b> modes.</p>
+      </note>
+   </conbody>
+</concept>

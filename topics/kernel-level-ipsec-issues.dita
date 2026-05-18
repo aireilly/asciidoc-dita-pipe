@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="kernel-level-ipsec-issues">
+   <title>Kernel-level IPsec issues</title>
+   <refbody>
+      <section>
+         <p>Troubleshoot kernel-level IPsec issues when a VPN tunnel appears established but no traffic flows. In this case, inspect the kernel’s IPsec state to check if the tunnel policies and cryptographic keys were correctly installed.</p>
+         <p>This process involves checking two components:</p>
+         <ul>
+            <li>
+               <p>The Security Policy Database (SPD): The rule that instructs the kernel what traffic to encrypt.</p>
+            </li>
+            <li>
+               <p>The Security Association Database (SAD): The keys that instruct the kernel how to encrypt that traffic.</p>
+            </li>
+         </ul>
+         <p>First, check if the correct policy exists in the SPD:</p>
+         <codeblock># <b>ip xfrm policy</b>
+src 192.0.2.1/32 dst 10.0.0.0/8
+	dir out priority 666 ptype main
+	tmpl src 198.51.100.13 dst 203.0.113.22
+		proto esp reqid 16417 mode tunnel</codeblock>
+         <p>The output should contain the policies matching your <codeph>leftsubnet</codeph> and <codeph>rightsubnet</codeph> parameters with both in and out directions. If you do not see a policy for your traffic, Libreswan failed to create the kernel rule, and traffic is not encrypted.</p>
+         <p>If the policy exists, check if it has a corresponding set of keys in the SAD:</p>
+         <codeblock># <b>ip xfrm state</b>
+src 203.0.113.22 dst 198.51.100.13
+	proto esp spi 0xa78b3fdb reqid 16417 mode tunnel
+	auth-trunc hmac(sha1) 0x3763cd3b... 96
+	enc cbc(aes) 0xd9dba399...</codeblock>
+         <note type="attention">
+            <p>This command displays private cryptographic keys. Do not share this output, because attackers can use it to decrypt your VPN traffic.</p>
+         </note>
+         <p>If a policy exists but you see no corresponding state with the same <codeph>reqid</codeph>, it typically means the Internet Key Exchange (IKE) negotiation failed. The two VPN endpoints could not agree on a set of keys.</p>
+         <p>For more detailed diagnostics, use the <codeph>-s</codeph> option with either of the commands. This option adds traffic counters, which can help you identify if the kernel processes packets by a specific rule.</p>
+      </section>
+   </refbody>
+</reference>

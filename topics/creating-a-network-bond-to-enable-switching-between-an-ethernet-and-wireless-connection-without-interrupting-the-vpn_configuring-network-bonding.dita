@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="creating-a-network-bond-to-enable-switching-between-an-ethernet-and-wireless-connection-without-interrupting-the-vpn_configuring-network-bonding">
+   <title>Creating a network bond to enable switching between an Ethernet and wireless connection without interrupting the VPN</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The host contains an Ethernet and a Wi-Fi device.</p>
+            </li>
+            <li>
+               <p>An Ethernet and Wi-Fi NetworkManager connection profile has been created and both connections work independently.</p>
+               <p>This procedure uses the following connection profiles to create a network bond named <codeph>bond0</codeph>:</p>
+               <ul>
+                  <li>
+                     <p>
+                        <codeph>Docking_station</codeph> associated with the <codeph>enp11s0u1</codeph> Ethernet device</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>Wi-Fi</codeph> associated with the <codeph>wlp1s0</codeph> Wi-Fi device</p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>Configure a network bond in <codeph>active-backup</codeph> mode to maintain uninterrupted VPN access when switching between Ethernet and Wi-Fi.</p>
+         <p>RHEL users who connect their workstation to their company’s network typically use a VPN to access remote resources. However, if the workstation switches between an Ethernet and Wi-Fi connection, for example, if you release a laptop from a docking station with an Ethernet connection, the VPN connection is interrupted. To avoid this problem, you can create a network bond that uses the Ethernet and Wi-Fi connection in <codeph>active-backup</codeph> mode.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a bond interface in <codeph>active-backup</codeph> mode:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type bond con-name bond0 ifname bond0 bond.options "mode=active-backup"</b>
+               </codeblock>
+               <p>This command names both the interface and connection profile <codeph>bond0</codeph>.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the IPv4 settings of the bond:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>If a DHCP server in your network assigns IPv4 addresses to hosts, no action is required.</p>
+                  </li>
+                  <li>
+                     <p>If your local network requires static IPv4 addresses, set the address, network mask, default gateway, DNS server, and DNS search domain to the <codeph>bond0</codeph> connection:</p>
+                     <codeblock># <b>nmcli connection modify bond0 ipv4.addresses '<i>192.0.2.1/24</i>'</b>
+# <b>nmcli connection modify bond0 ipv4.gateway '<i>192.0.2.254</i>'</b>
+# <b>nmcli connection modify bond0 ipv4.dns '<i>192.0.2.253</i>'</b>
+# <b>nmcli connection modify bond0 ipv4.dns-search '<i>example.com</i>'</b>
+# <b>nmcli connection modify bond0 ipv4.method manual</b>
+                     </codeblock>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the IPv6 settings of the bond:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>If your router or a DHCP server in your network assigns IPv6 addresses to hosts, no action is required.</p>
+                  </li>
+                  <li>
+                     <p>If your local network requires static IPv6 addresses, set the address, network mask, default gateway, DNS server, and DNS search domain to the <codeph>bond0</codeph> connection:</p>
+                     <codeblock># <b>nmcli connection modify bond0 ipv6.addresses '<i>2001:db8:1::1/64</i>'</b>
+# <b>nmcli connection modify bond0 ipv6.gateway '<i>2001:db8:1::fffe</i>'</b>
+# <b>nmcli connection modify bond0 ipv6.dns '<i>2001:db8:1::fffd</i>'</b>
+# <b>nmcli connection modify bond0 ipv6.dns-search '<i>example.com</i>'</b>
+# <b>nmcli connection modify bond0 ipv6.method manual</b>
+                     </codeblock>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Display the connection profiles:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection show</b>
+NAME             UUID                                  TYPE      DEVICE
+Docking_station  256dd073-fecc-339d-91ae-9834a00407f9  ethernet  enp11s0u1
+Wi-Fi            1f1531c7-8737-4c60-91af-2d21164417e8  wifi      wlp1s0
+...</codeblock>
+               <p>You require the names of the connection profiles and the Ethernet device name in the next steps.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Assign the connection profile of the Ethernet connection to the bond:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>Docking_station</i> controller bond0</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Assign the connection profile of the Wi-Fi connection to the bond:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>Wi-Fi</i> controller bond0</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>If your Wi-Fi network uses MAC filtering to allow only MAC addresses on a allowlist to access the network, configure that NetworkManager dynamically assigns the MAC address of the active port to the bond:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify bond0 +bond.options fail_over_mac=1</b>
+               </codeblock>
+               <p>With this setting, you must set only the MAC address of the Wi-Fi device to the allowlist instead of the MAC address of both the Ethernet and Wi-Fi device.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the device associated with the Ethernet connection as primary device of the bond:</cmd>
+            <info>
+               <codeblock># <b>nmcli con modify bond0 +bond.options "primary=enp11s0u1"</b>
+               </codeblock>
+               <p>With this setting, the bond always uses the Ethernet connection if it is available.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure that NetworkManager automatically activates ports when the <codeph>bond0</codeph> device is activated:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify bond0 connection.autoconnect-ports 1</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the <codeph>bond0</codeph> connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up bond0</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the currently active device, the status of the bond and its ports:</p>
+               <codeblock># <b>cat /proc/net/bonding/bond0</b>
+Ethernet Channel Bonding Driver: v3.7.1 (April 27, 2011)
+
+Bonding Mode: fault-tolerance (active-backup) (fail_over_mac active)
+Primary Slave: enp11s0u1 (primary_reselect always)
+<b>Currently Active Slave: enp11s0u1</b>
+                  <b>MII Status: up</b>
+MII Polling Interval (ms): 1
+Up Delay (ms): 0
+Down Delay (ms): 0
+Peer Notification Delay (ms): 0
+
+Slave Interface: enp11s0u1
+<b>MII Status: up</b>
+Speed: 1000 Mbps
+Duplex: full
+Link Failure Count: 0
+Permanent HW addr: 00:53:00:59:da:b7
+Slave queue ID: 0
+
+Slave Interface: wlp1s0
+<b>MII Status: up</b>
+Speed: Unknown
+Duplex: Unknown
+Link Failure Count: 2
+Permanent HW addr: 00:53:00:b3:22:ba
+Slave queue ID: 0</codeblock>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#configuring-an-ethernet-connection_configuring-and-managing-networking">Configuring an Ethernet connection</xref>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <xref href="#assembly_managing-wifi-connections_configuring-and-managing-networking">Managing Wi-Fi connections</xref>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <xref href="#configuring-network-bonding_configuring-and-managing-networking">Configuring a network bond</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

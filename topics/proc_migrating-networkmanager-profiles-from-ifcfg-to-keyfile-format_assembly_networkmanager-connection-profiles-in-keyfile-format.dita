@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_migrating-networkmanager-profiles-from-ifcfg-to-keyfile-format_assembly_networkmanager-connection-profiles-in-keyfile-format">
+   <title>Migrating NetworkManager profiles from ifcfg to keyfile format</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You have connection profiles in <codeph>ifcfg</codeph> format in the <codeph>/etc/sysconfig/network-scripts/</codeph> directory.</p>
+            </li>
+            <li>
+               <p>If the connection profiles contain a <codeph>DEVICE</codeph> variable that is set to a custom device name, such as <codeph>provider</codeph> or <codeph>lan</codeph>, you created a <xref href="#configuring-user-defined-network-interface-names-by-using-systemd-link-files_consistent-network-interface-device-naming">systemd link file</xref> or a <xref href="#configuring-user-defined-network-interface-names-by-using-udev-rules_consistent-network-interface-device-naming">udev rule</xref> for each of the custom device names.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>If you still use connection profiles in the deprecated <codeph>ifcfg</codeph> format, you can convert them to the keyfile format.</p>
+         <note>
+            <p>If an <codeph>ifcfg</codeph> file contains the <codeph>NM_CONTROLLED=no</codeph> setting, NetworkManager does not control this profile and, consequently, the migration process ignores it.</p>
+         </note>
+      </context>
+      <steps-unordered>
+         <step>
+            <cmd>Migrate the connection profiles:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection migrate</b>
+Connection 'enp1s0' (43ed18ab-f0c4-4934-af3d-2b3333948e45) successfully migrated.
+Connection 'enp2s0' (883333e8-1b87-4947-8ceb-1f8812a80a9b) successfully migrated.
+...</codeblock>
+            </info>
+         </step>
+      </steps-unordered>
+      <result>
+         <ul>
+            <li>
+               <p>Optionally, you can verify that you successfully migrated all your connection profiles:</p>
+               <codeblock># <b>nmcli <i>-f TYPE,FILENAME,NAME</i> connection</b>
+TYPE      FILENAME                                                           NAME
+ethernet  /etc/NetworkManager/system-connections/enp1s0.nmconnection         enp1s0
+ethernet  /etc/NetworkManager/system-connections/enp2s0.nmconnection         enp2s0
+...</codeblock>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#how-the-udev-device-manager-renames-network-interfaces_consistent-network-interface-device-naming">How the udev device manager renames network interfaces</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

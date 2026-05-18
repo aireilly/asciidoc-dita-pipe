@@ -1,0 +1,773 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="ref_overview-of-xdp-features-by-network-cards_assembly_understanding-the-ebpf-features-in-rhel-9">
+   <title>Overview of XDP features in RHEL 9 by network cards</title>
+   <refbody>
+      <section>
+         <p>The XDP features available in RHEL depend on the network card and their drivers.</p>
+         <p>The following is an overview of XDP-enabled network cards and the XDP features you can use with them:</p>
+      </section>
+      <table colsep="1" rowsep="1" frame="all">
+         <tgroup cols="8">
+            <colspec colname="col_1" colwidth="33.3333*"/>
+            <colspec colname="col_2" colwidth="16.6666*"/>
+            <colspec colname="col_3" colwidth="8.3333*"/>
+            <colspec colname="col_4" colwidth="8.3333*"/>
+            <colspec colname="col_5" colwidth="8.3333*"/>
+            <colspec colname="col_6" colwidth="8.3333*"/>
+            <colspec colname="col_7" colwidth="8.3333*"/>
+            <colspec colname="col_8" colwidth="8.3336*"/>
+            <thead>
+               <row>
+                  <entry align="left" valign="top">Network card</entry>
+                  <entry align="left" valign="top">Driver</entry>
+                  <entry align="left" valign="top">Basic</entry>
+                  <entry align="left" valign="top">Redirect</entry>
+                  <entry align="left" valign="top">Target</entry>
+                  <entry align="left" valign="top">HW offload</entry>
+                  <entry align="left" valign="top">Zero-copy</entry>
+                  <entry align="left" valign="top">Large MTU</entry>
+               </row>
+            </thead>
+            <tbody>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Amazon Elastic Network Adapter</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>ena</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <fn id="xdp-on-interface">
+                           <p>Only if an XDP program is loaded on the interface.</p>
+                        </fn>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>aQuantia AQtion Ethernet card</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>atlantic</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Broadcom NetXtreme-C/E 10/25/40/50 gigabit Ethernet</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>bnxt_en</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --></p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Cavium Thunder Virtual function</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>nicvf</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Google Virtual NIC (gVNIC) support</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>gve</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Intel® 10GbE PCI Express Virtual Function Ethernet</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>ixgbevf</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Intel® 10GbE PCI Express adapters</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>ixgbe</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --></p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <fn id="transmitting-side-only">
+                           <p>Transmitting side only. Cannot receive large packets through XDP.</p>
+                        </fn>
+                     </p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Intel® Ethernet Connection E800 Series</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>ice</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --></p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Intel® Ethernet Controller I225-LM/I225-V family</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>igc</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --></p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Intel® PCI Express Gigabit adapters</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>igb</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --></p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --></p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Intel® Ethernet Controller XL710 Family</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>i40e</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --><fn id="requires-queues-ge-cpu-index">
+                           <p>Requires several XDP TX queues allocated that are larger or equal to the largest CPU index.</p>
+                        </fn>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Marvell OcteonTX2</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>rvu_nicpf</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --><!--footnoteref not processed within --></p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Mellanox 5th generation network adapters (ConnectX series)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>mlx5_core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --></p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Mellanox Technologies 1/10/40Gbit Ethernet</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>mlx4_en</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Microsoft Azure Network Adapter</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>mana</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Microsoft Hyper-V virtual network</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>hv_netvsc</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Netronome® NFP4000/NFP6000 NIC <fn id="netronome-xdp-limitation">
+                           <p>Some of the listed features are not available for the Netronome® NFP3800 NIC.</p>
+                        </fn>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>nfp</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>QEMU Virtio network</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>virtio_net</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --></p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>QLogic QED 25/40/100Gb Ethernet NIC</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>qede</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>STMicroelectronics Multi-Gigabit Ethernet</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>stmmac</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Solarflare SFC9000/SFC9100/EF100-family</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>sfc</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --></p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Universal TUN/TAP device</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>tun</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Virtual Ethernet pair device</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>veth</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>VMware VMXNET3 ethernet driver</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>vmxnet3</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes <!--footnoteref not processed within --><!--footnoteref not processed within --></p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Xen paravirtual network device</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>xen-netfront</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>yes</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>no</p>
+                  </entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+      <section>
+         <p>Legend:</p>
+         <ul>
+            <li>
+               <p>Basic: Supports basic return codes: <codeph>DROP</codeph>, <codeph>PASS</codeph>, <codeph>ABORTED</codeph>, and <codeph>TX</codeph>.</p>
+            </li>
+            <li>
+               <p>Redirect: Supports the <codeph>XDP_REDIRECT</codeph> return code.</p>
+            </li>
+            <li>
+               <p>Target: Can be a target of a <codeph>XDP_REDIRECT</codeph> return code.</p>
+            </li>
+            <li>
+               <p>HW offload: Supports XDP hardware offload.</p>
+            </li>
+            <li>
+               <p>Zero-copy: Supports the zero-copy mode for the <codeph>AF_XDP</codeph> protocol family.</p>
+            </li>
+            <li>
+               <p>Large MTU: Supports packets larger than page size.</p>
+            </li>
+         </ul>
+      </section>
+   </refbody>
+</reference>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-static-route-by-using-the-network-rhel-system-role_configuring-static-routes">
+   <title>Configuring a static route by using the <codeph>network</codeph> RHEL system role</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles"
+                        format="html"
+                        scope="external">You have prepared the control node and the managed nodes</xref>.</p>
+            </li>
+            <li>
+               <p>The account you use to connect to the managed nodes has <codeph>sudo</codeph> permissions for these nodes.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the <codeph>network</codeph> RHEL system role to configure static routes.</p>
+         <note type="important">
+            <p>When you run a play that uses the <codeph>network</codeph> RHEL system role and if the setting values do not match the values specified in the play, the role overrides the existing connection profile with the same name. To prevent resetting these values to their defaults, always specify the whole configuration of the network connection profile in the play, even if the configuration, for example the IP configuration, already exists.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a playbook file, for example, <codeph>~/playbook.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Ethernet connection profile with static IP address settings
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: enp7s0
+            type: ethernet
+            autoconnect: yes
+            ip:
+              address:
+                - 192.0.2.1/24
+                - 2001:db8:1::1/64
+              gateway4: 192.0.2.254
+              gateway6: 2001:db8:1::fffe
+              dns:
+                - 192.0.2.200
+                - 2001:db8:1::ffbb
+              dns_search:
+                - example.com
+              <b>route:</b>
+                  <b>- network: 198.51.100.0</b>
+                  <b>prefix: 24</b>
+                  <b>gateway: 192.0.2.10</b>
+                  <b>- network: '2001:db8:2::'</b>
+                  <b>prefix: 64</b>
+                  <b>gateway: 2001:db8:1::10</b>
+            state: up</codeblock>
+               <p>For details about all variables used in the playbook, see the <codeph>/usr/share/ansible/roles/rhel-system-roles.network/README.md</codeph> file on the control node.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Validate the playbook syntax:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook --syntax-check ~/playbook.yml</b>
+               </codeblock>
+               <p>Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Run the playbook:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook ~/playbook.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IPv4 routes:</p>
+               <codeblock># <b>ansible managed-node-01.example.com -m command -a 'ip -4 route'</b>
+managed-node-01.example.com | CHANGED | rc=0 &gt;&gt;
+...
+198.51.100.0/24 via 192.0.2.10 dev enp7s0</codeblock>
+            </li>
+            <li>
+               <p>Display the IPv6 routes:</p>
+               <codeblock># <b>ansible managed-node-01.example.com -m command -a 'ip -6 route'</b>
+managed-node-01.example.com | CHANGED | rc=0 &gt;&gt;
+...
+2001:db8:2::/64 via 2001:db8:1::10 dev enp7s0 metric 1024 pref medium</codeblock>
+            </li>
+         </ol>
+         <p id="configuring-policy-based-routing-to-define-alternative-routes_configuring-and-managing-networking">By default, the RHEL kernel forwards network packets based on the destination address by using a routing table. With policy-based routing, you can configure complex scenarios to route packets based on various criteria, such as the source address.</p>
+      </result>
+   </taskbody>
+</task>

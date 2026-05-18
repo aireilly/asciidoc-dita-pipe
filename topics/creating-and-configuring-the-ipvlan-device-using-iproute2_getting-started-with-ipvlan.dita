@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="creating-and-configuring-the-ipvlan-device-using-iproute2_getting-started-with-ipvlan">
+   <title>Creating and configuring the IPVLAN device using iproute2</title>
+   <taskbody>
+      <context>
+         <p>This procedure shows how to set up the IPVLAN device using <codeph>iproute2</codeph>.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>To create an IPVLAN device, enter the following command:</cmd>
+            <info>
+               <codeblock># <b>ip link add link <i>&lt;real_nic_device&gt;</i> name <i>&lt;ipvlan_device&gt;</i> type ipvlan mode l2</b>
+               </codeblock>
+               <p>Note that network interface controller (NIC) is a hardware component which connects a computer to a network.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>To assign an <codeph>IPv4</codeph> or <codeph>IPv6</codeph> address to the interface, enter the following command:</cmd>
+            <info>
+               <codeblock># <b>ip addr add dev <i>&lt;ipvlan_device&gt;</i>
+                     <i>&lt;ip_address/subnet_mask_prefix&gt;</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>In case of configuring an IPVLAN device in <b>L3 mode</b> or <b>L3S mode</b>, make the following setups:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Configure the neighbor setup for the remote peer on the remote host:</p>
+                     <codeblock># <b>ip neigh add dev <i>&lt;peer_device&gt;</i>
+                           <i>&lt;ipvlan_device_IP_address&gt;</i> lladdr <i>&lt;mac_address&gt;</i>
+                        </b>
+                     </codeblock>
+                     <p>where <i>MAC_address</i> is the MAC address of the real NIC on which an IPVLAN device is based on.</p>
+                  </li>
+                  <li>
+                     <p>Configure an IPVLAN device for <b>L3 mode</b> with the following command:</p>
+                     <codeblock># <b>ip route add dev <i>&lt;real_nic_device&gt;</i>
+                           <i>&lt;peer_ip_address/32&gt;</i>
+                        </b>
+                     </codeblock>
+                     <p>For <b>L3S mode</b>:</p>
+                     <codeblock># <b>ip route add dev <i>&lt;real_nic_device&gt;</i>
+                           <i>&lt;peer_ip_address&gt;/32</i>
+                        </b>
+                     </codeblock>
+                     <p>where IP-address represents the address of the remote peer.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>To set an IPVLAN device active, enter the following command:</cmd>
+            <info>
+               <codeblock># <b>ip link set dev <i>&lt;ipvlan_device&gt;</i> up</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>To check if the IPVLAN device is active, execute the following command on the remote host:</cmd>
+            <info>
+               <codeblock># <b>ping <i>&lt;IP_address&gt;</i>
+                  </b>
+               </codeblock>
+               <p>where the <i>IP_address</i> uses the IP address of the IPVLAN device.</p>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

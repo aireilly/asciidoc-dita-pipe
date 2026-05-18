@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="displaying-libreswan-logs">
+   <title>Displaying Libreswan logs</title>
+   <refbody>
+      <section>
+         <p>Display Libreswan logs to diagnose and troubleshoot IPsec service events and issues. Access the journal for the <codeph>ipsec</codeph> service to gain insights into connection status and potential problems.</p>
+         <p>To display the journal, enter:</p>
+         <codeblock># <b>journalctl -xeu ipsec</b>
+         </codeblock>
+         <p>If the default logging level does not provide enough details, enable comprehensive debug logging by adding the following settings to the <codeph>config setup</codeph> section in the <codeph>/etc/ipsec.conf</codeph> file:</p>
+         <codeblock outputclass="language-bash">plutodebug=all
+logfile=/var/log/pluto.log</codeblock>
+         <p>Because debug logging can produce many entries, redirecting the messages to a dedicated log file can prevent the <codeph>journald</codeph> and <codeph>systemd</codeph> services from rate-limiting the messages.</p>
+      </section>
+   </refbody>
+</reference>

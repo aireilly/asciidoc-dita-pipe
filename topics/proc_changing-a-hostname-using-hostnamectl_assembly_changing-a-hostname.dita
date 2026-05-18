@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_changing-a-hostname-using-hostnamectl_assembly_changing-a-hostname">
+   <title>Changing a hostname by using <codeph>hostnamectl</codeph>
+   </title>
+   <taskbody>
+      <context>
+         <p>You can use the <codeph>hostnamectl</codeph> utility to update the hostname.</p>
+         <p>By default, <codeph>hostnamectl</codeph> sets the following hostname types:</p>
+         <ul>
+            <li>
+               <p>Static hostname: Stored in the <codeph>/etc/hostname</codeph> file. Typically, services use this name as the hostname.</p>
+            </li>
+            <li>
+               <p>Pretty hostname: A descriptive name, such as <codeph>Proxy server in data center A</codeph>.</p>
+            </li>
+            <li>
+               <p>Transient hostname: A fall-back value that is typically received from the network configuration.</p>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: Display the current hostname setting:</cmd>
+            <info>
+               <codeblock># <b>hostnamectl status --static</b>
+                  <i>old-hostname.example.com</i>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the new hostname:</cmd>
+            <info>
+               <codeblock># <b>hostnamectl set-hostname <i>new-hostname.example.com</i>
+                  </b>
+               </codeblock>
+               <p>This command sets the static and transient hostname to the new value. To set only a specific type, pass the <codeph>--static</codeph>, <codeph>--pretty</codeph>, or <codeph>--transient</codeph> option to the command.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>The <codeph>hostnamectl</codeph> utility automatically restarts the <codeph>systemd-hostnamed</codeph> to activate the new name. For the changes to take effect, reboot the host:</cmd>
+            <info>
+               <codeblock># <b>reboot</b>
+               </codeblock>
+               <p>Alternatively, if you know which services use the hostname:</p>
+               <ol>
+                  <li>
+                     <p>Restart all services that only read the hostname when the service starts:</p>
+                     <codeblock># <b>systemctl restart <i>&lt;service_name&gt;</i>
+                        </b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Active shell users must re-login for the changes to take effect.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the hostname:</p>
+               <codeblock># <b>hostnamectl status --static</b>
+                  <i>new-hostname.example.com</i>
+               </codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

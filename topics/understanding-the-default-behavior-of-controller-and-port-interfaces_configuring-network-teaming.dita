@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="understanding-the-default-behavior-of-controller-and-port-interfaces_configuring-network-teaming">
+   <title>Understanding the default behavior of controller and port interfaces</title>
+   <conbody>
+      <p>Understanding the default behavior of NetworkManager when managing bond port interfaces helps you to troubleshoot problems more effectively.</p>
+      <p>Default behavior:</p>
+      <ul>
+         <li>
+            <p>Starting the controller interface does not automatically start the port interfaces.</p>
+         </li>
+         <li>
+            <p>Starting a port interface always starts the controller interface.</p>
+         </li>
+         <li>
+            <p>Stopping the controller interface also stops the port interface.</p>
+         </li>
+         <li>
+            <p>A controller without ports can start static IP connections.</p>
+         </li>
+         <li>
+            <p>A controller without ports waits for ports when starting DHCP connections.</p>
+         </li>
+         <li>
+            <p>A controller with a DHCP connection waiting for ports completes when you add a port with a carrier.</p>
+         </li>
+         <li>
+            <p>A controller with a DHCP connection waiting for ports continues waiting when you add a port without a carrier.</p>
+         </li>
+      </ul>
+   </conbody>
+</concept>

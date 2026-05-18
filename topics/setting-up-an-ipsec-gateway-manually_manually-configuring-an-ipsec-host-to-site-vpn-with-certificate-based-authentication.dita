@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="setting-up-an-ipsec-gateway-manually_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication">
+   <title>Setting up an IPsec gateway manually</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The Public Key Cryptography Standards #12 (PKCS #12) file <codeph>~/file.p12</codeph> exists on the gateway with the following contents:</p>
+               <ul>
+                  <li>
+                     <p>The private key of the server</p>
+                  </li>
+                  <li>
+                     <p>The server certificate</p>
+                  </li>
+                  <li>
+                     <p>The CA certificate</p>
+                  </li>
+                  <li>
+                     <p>If required, intermediate certificates</p>
+                  </li>
+               </ul>
+               <p>For details about creating a private key and certificate signing request (CSR), as well as about requesting a certificate from a CA, see your CA’s documentation.</p>
+            </li>
+            <li>
+               <p>The server certificate contains the following fields:</p>
+               <ul>
+                  <li>
+                     <p>Extended Key Usage (EKU) is set to <codeph>TLS Web Server Authentication</codeph>.</p>
+                  </li>
+                  <li>
+                     <p>Common Name (CN) or Subject Alternative Name (SAN) is set to the fully-qualified domain name (FQDN) of the gateway.</p>
+                  </li>
+                  <li>
+                     <p>X509v3 CRL distribution points contains URLs to Certificate Revocation Lists (CRLs).</p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>A return route for VPN client traffic is configured on the internal network, pointing to the VPN gateway.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You must configure the Libreswan IPsec gateway properly to enable secure remote access. Libreswan reads the server certificate, private key, and CA certificate from a Network Security Services (NSS) database.</p>
+         <p>The following example permits authenticated clients to access the internal 192.0.2.0/24 subnet and dynamically assigns an IP address from a virtual IP pool to each client. To maintain security, the gateway verifies that client certificates are issued by the same trusted CA and automatically uses a certificate revocation list (CRL) to ensure access is denied for any revoked certificates.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>If Libreswan is not yet installed:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Install the <codeph>libreswan</codeph> package:</p>
+                     <codeblock># <b>dnf install libreswan</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Initialize the Network Security Services (NSS) database:</p>
+                     <codeblock># <b>ipsec initnss</b>
+                     </codeblock>
+                     <p>The command creates the database in the <codeph>/var/lib/ipsec/nss/</codeph> directory.</p>
+                  </li>
+                  <li>
+                     <p>Enable and start the <codeph>ipsec</codeph> service:</p>
+                     <codeblock># <b>systemctl enable --now ipsec</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Open the IPsec ports and protocols in the firewall:</p>
+                     <codeblock># <b>firewall-cmd --permanent --add-service="ipsec"</b>
+# <b>firewall-cmd --reload</b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Import the PKCS #12 file into the NSS database:</cmd>
+            <info>
+               <codeblock># <b>ipsec import ~/file.p12</b>
+Enter password for PKCS12 file: <i>&lt;password&gt;</i>
+pk12util: PKCS12 IMPORT SUCCESSFUL
+correcting trust bits for Example-CA</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Display the nicknames of the server and CA certificates:</cmd>
+            <info>
+               <codeblock># <b>certutil -L -d  /var/lib/ipsec/nss/</b>
+Certificate Nickname     Trust Attributes
+                         SSL,S/MIME,JAR/XPI
+
+vpn-gateway              u,u,u
+Example-CA               CT,,
+...</codeblock>
+               <p>You need this information for the configuration file.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Create a <codeph>.conf</codeph> file for the connection in the <codeph>/etc/ipsec.d/</codeph> directory. For example, create the <codeph>/etc/ipsec.d/host-to-site.conf</codeph> file with the following settings:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Add a <codeph>config setup</codeph> section to enable CRL checks:</p>
+                     <codeblock outputclass="language-bash">config setup
+    crl-strict=yes
+    crlcheckinterval=1h</codeblock>
+                     <p>The settings specified in the example include the following:</p>
+                     <dl>
+                        <dlentry>
+                           <dt>
+                              <codeph>crl-strict=yes</codeph>
+                           </dt>
+                           <dd>
+                              <p>Enables CRL checks. Authenticating clients are rejected if no CRL is available in the NSS database.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>crlcheckinterval=1h</codeph>
+                           </dt>
+                           <dd>
+                              <p>Re-fetches the CRL from the URL specified in the server’s certificate after the specified period.</p>
+                           </dd>
+                        </dlentry>
+                     </dl>
+                  </li>
+                  <li>
+                     <p>Add a section for the gateway:</p>
+                     <codeblock outputclass="language-bash">conn <i>&lt;connection_name&gt;</i>
+    # General setup and authentication type
+    auto=start
+    ikev2=insist
+    authby=rsasig
+
+    # VPN gateway settings
+    left=%defaultroute
+    leftid=%fromcert
+    leftcert="<i>&lt;server_certificate_nickname&gt;</i>"
+    leftrsasigkey=%cert
+    leftsendcert=always
+    leftsubnet=192.0.2.0/24
+    rekey=no
+    mobike=yes
+    narrowing=yes
+
+    # Client-related settings
+    right=%any
+    rightid=%fromcert
+    rightrsasigkey=%cert
+    rightaddresspool=198.51.100.129-198.51.100.254
+    rightmodecfgclient=yes
+    modecfgclient=yes
+    modecfgdns=192.0.2.5
+    modecfgdomains="example.com"
+
+    # Dead Peer Detection
+    dpddelay=30
+    dpdtimeout=120
+    dpdaction=clear</codeblock>
+                     <p>The settings specified in the example include the following:</p>
+                     <dl>
+                        <dlentry>
+                           <dt>
+                              <codeph>ikev2=insist</codeph>
+                           </dt>
+                           <dd>
+                              <p>Defines the modern IKEv2 protocol as the only allowed protocol without fallback to IKEv1.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>left=%defaultroute</codeph>
+                           </dt>
+                           <dd>
+                              <p>Dynamically sets the IP address of the default route interface when the <codeph>ipsec</codeph> service starts. Alternatively, you can set the <codeph>left</codeph> parameter to the IP address or the FQDN of the host.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>leftid=%fromcert</codeph> and <codeph>rightid=%fromcert</codeph>
+                           </dt>
+                           <dd>
+                              <p>Configures Libreswan to retrieve the identity from the distinguished name (DN) field of the certificate.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>leftcert="<i>&lt;server_certificate_nickname&gt;</i>"</codeph>
+                           </dt>
+                           <dd>
+                              <p>Sets the nickname of the server’s certificate used in the NSS database.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>leftrsasigkey=%cert</codeph> and <codeph>rightrsasigkey=%cert</codeph>
+                           </dt>
+                           <dd>
+                              <p>Configures Libreswan to use the RSA public key embedded in the certificate.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>leftsendcert=always</codeph>
+                           </dt>
+                           <dd>
+                              <p>Instructs the gateway to always send the certificate, so that clients can validate it against the CA certificate.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>leftsubnet=<i>&lt;subnets&gt;</i>
+                              </codeph>
+                           </dt>
+                           <dd>
+                              <p>Specifies the subnets connected to the gateway that clients can access through the tunnel.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>mobike=yes</codeph>
+                           </dt>
+                           <dd>
+                              <p>Enables clients to seamlessly roam among networks.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>rightaddresspool=<i>&lt;ip_range&gt;</i>
+                              </codeph>
+                           </dt>
+                           <dd>
+                              <p>Specifies from which range the gateway can assign IP addresses to the clients.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>modecfgclient=yes</codeph>
+                           </dt>
+                           <dd>
+                              <p>Enables clients to receive the DNS server IP set in the <codeph>modecfgdns</codeph> parameter and the DNS search domain set in <codeph>modecfgdomains</codeph>.</p>
+                           </dd>
+                        </dlentry>
+                     </dl>
+                  </li>
+               </ol>
+               <p>For details about all parameters used in the example, see the <codeph>ipsec.conf(5)</codeph> man page on your system.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Enable packet forwarding:</cmd>
+            <info>
+               <codeblock># <b>echo "net.ipv4.ip_forward=1" &gt; /etc/sysctl.d/95-IPv4-forwarding.conf</b>
+# <b>sysctl -p /etc/sysctl.d/95-IPv4-forwarding.conf</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Restart the <codeph>ipsec</codeph> service:</cmd>
+            <info>
+               <codeblock># <b>systemctl restart ipsec</b>
+               </codeblock>
+               <p>If you use <codeph>auto=start</codeph> in the configuration file, the connection is automatically activated. With other methods, additional steps are required to activate the connection. For details, see the <codeph>ipsec.conf(5)</codeph> man page on your system.</p>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>
+                  <xref href="#configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication">Configure a client and connect to the VPN gateway</xref>.</p>
+            </li>
+            <li>
+               <p>Check if the service loaded the CRL and added the entries to the NSS database:</p>
+               <codeblock># <b>ipsec auto --listcrls</b>
+000
+000 List of CRLs:
+000
+000 issuer: CN=Example-CA
+000 revoked certs: 1
+000 updates: this Tue Jul 15 10:22:36 2025
+000          next Sun Jan 11 10:22:36 2026
+000
+000 List of CRL fetch requests:
+000
+000 Jul 15 15:13:56 2025, trials: 1
+000        issuer:  'CN=Example-CA'
+000        distPts: 'https://ca.example.com/crl.pem'</codeblock>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <xref href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</xref>.</p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

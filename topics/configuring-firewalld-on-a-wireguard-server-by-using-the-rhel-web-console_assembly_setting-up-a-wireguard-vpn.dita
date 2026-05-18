@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-firewalld-on-a-wireguard-server-by-using-the-rhel-web-console_assembly_setting-up-a-wireguard-vpn">
+   <title>Configuring <codeph>firewalld</codeph> on a WireGuard server by using the RHEL web console</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You are logged in to the RHEL web console.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>Configure the <codeph>firewalld</codeph> service on the WireGuard server, allowing incoming connections from clients. If clients need to use the server as their default gateway and route all traffic through the tunnel, enable also masquerading.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Select the <b>Networking</b> tab in the navigation on the left side of the screen.</cmd>
+         </step>
+         <step>
+            <cmd>Click <b>Edit rules and zones</b> in the <b>Firewall</b> section.</cmd>
+         </step>
+         <step>
+            <cmd>Click <b>Add services</b>.</cmd>
+         </step>
+         <step>
+            <cmd>Enter <codeph>wireguard</codeph> into the <b>Filter services</b> field.</cmd>
+         </step>
+         <step>
+            <cmd>Select the <codeph>wireguard</codeph> entry from the list.</cmd>
+            <info>
+               <fig>
+                  <image href="../images/wireguard-server-firewalld.png" placement="break">
+                     <alt>`firewalld` settings for a WireGuard server</alt>
+                  </image>
+               </fig>
+            </info>
+         </step>
+         <step>
+            <cmd>Click <b>Add services</b>.</cmd>
+         </step>
+         <step>
+            <cmd>If clients should route all traffic through the tunnel and use the WireGuard server as the default gateway, enable masquerading for the <codeph>public</codeph> zone:</cmd>
+            <info>
+               <codeblock># <b>firewall-cmd --permanent --zone=public --add-masquerade</b>
+# <b>firewall-cmd --reload</b>
+               </codeblock>
+               <p>Note that you cannot enable masquerading in <codeph>firewalld</codeph> zones in the web console.</p>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Select the <b>Networking</b> tab in the navigation on the left side of the screen.</p>
+            </li>
+            <li>
+               <p>Click <b>Edit rules and zones</b> in the <b>Firewall</b> section.</p>
+            </li>
+            <li>
+               <p>The list contains an entry for the <codeph>wireguard</codeph> service and displays the UDP port that you configured in the WireGuard connection profile.</p>
+            </li>
+            <li>
+               <p>To verify that masquerading is enabled in the <codeph>public</codeph> zone of <codeph>firewalld</codeph>, enter:</p>
+               <codeblock># <b>firewall-cmd --list-all --zone=public</b>
+public (active)
+  ...
+  services: ... wireguard
+  ports:
+  forward: yes
+  masquerade: yes
+  ...</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

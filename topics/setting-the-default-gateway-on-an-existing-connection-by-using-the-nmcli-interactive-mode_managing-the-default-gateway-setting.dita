@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="setting-the-default-gateway-on-an-existing-connection-by-using-the-nmcli-interactive-mode_managing-the-default-gateway-setting">
+   <title>Setting the default gateway on an existing connection by using the <codeph>nmcli</codeph> interactive mode</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>At least one static IP address must be configured on the connection on which the default gateway will be set.</p>
+            </li>
+            <li>
+               <p>If the user is logged in on a physical console, user permissions are sufficient. Otherwise, the user must have <codeph>root</codeph> permissions.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>In most situations, administrators set the default gateway when they create a connection. However, you can also set or update the default gateway setting on a previously created connection by using the interactive mode of the <codeph>nmcli</codeph> utility.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Open the <codeph>nmcli</codeph> interactive mode for the required connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection edit <i>&lt;connection_name&gt;</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the default gateway</cmd>
+            <info>
+               <p>To set the IPv4 default gateway, enter:</p>
+               <codeblock>nmcli&gt; <b>set ipv4.gateway "<i>&lt;IPv4_gateway_address&gt;</i>"</b>
+               </codeblock>
+               <p>To set the IPv6 default gateway, enter:</p>
+               <codeblock>nmcli&gt; <b>set ipv6.gateway "<i>&lt;IPv6_gateway_address&gt;</i>"</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Verify that the default gateway was set correctly:</cmd>
+            <info>
+               <codeblock>nmcli&gt; <b>print</b>
+...
+ipv4.gateway:            <i>&lt;IPv4_gateway_address&gt;</i>
+...
+ipv6.gateway:            <i>&lt;IPv6_gateway_address&gt;</i>
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Save the configuration:</cmd>
+            <info>
+               <codeblock>nmcli&gt; <b>save persistent</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Restart the network connection for changes to take effect:</cmd>
+            <info>
+               <codeblock>nmcli&gt; <b>activate <i>&lt;connection_name&gt;</i>
+                  </b>
+               </codeblock>
+               <note type="attention">
+                  <p>All connections currently using this network connection are temporarily interrupted during the restart.</p>
+               </note>
+            </info>
+         </step>
+         <step>
+            <cmd>Leave the <codeph>nmcli</codeph> interactive mode:</cmd>
+            <info>
+               <codeblock>nmcli&gt; <b>quit</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Verify that the route is active:</p>
+               <ol>
+                  <li>
+                     <p>To display the IPv4 default gateway, enter:</p>
+                     <codeblock># <b>ip -4 route</b>
+default via 192.0.2.1 dev <i>example</i> proto static metric 100</codeblock>
+                  </li>
+                  <li>
+                     <p>To display the IPv6 default gateway, enter:</p>
+                     <codeblock># <b>ip -6 route</b>
+default via 2001:db8:1::1 dev <i>example</i> proto static metric 100 pref medium</codeblock>
+                  </li>
+               </ol>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

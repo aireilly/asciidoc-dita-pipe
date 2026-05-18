@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="overview-of-queuing-disciplines_linux-traffic-control">
+   <title>Overview of queuing disciplines</title>
+   <conbody>
+      <p>Queuing disciplines (<codeph>qdiscs</codeph>) help with queuing up and, later, scheduling of traffic transmission by a network interface.</p>
+      <p>A <codeph>qdisc</codeph> has two operations;</p>
+      <ul>
+         <li>
+            <p>enqueue requests so that a packet can be queued up for later transmission and</p>
+         </li>
+         <li>
+            <p>dequeue requests so that one of the queued-up packets can be chosen for immediate transmission.</p>
+         </li>
+      </ul>
+      <p>Every <codeph>qdisc</codeph> has a 16-bit hexadecimal identification number called a <codeph>handle</codeph>, with an attached colon, such as <codeph>1:</codeph> or <codeph>abcd:</codeph>. This number is called the <codeph>qdisc</codeph> major number. If a <codeph>qdisc</codeph> has classes, then the identifiers are formed as a pair of two numbers with the major number before the minor, <codeph>&lt;major&gt;:&lt;minor&gt;</codeph>, for example <codeph>abcd:1</codeph>. The numbering scheme for the minor numbers depends on the <codeph>qdisc</codeph> type.
+Sometimes the numbering is systematic, where the first-class has the ID <codeph>&lt;major&gt;:1</codeph>, the second one <codeph>&lt;major&gt;:2</codeph>, and so on. Some <codeph>qdiscs</codeph> allow the user to set class minor numbers arbitrarily when creating the class.</p>
+      <dl>
+         <dlentry>
+            <dt>Classful <codeph>qdiscs</codeph>
+            </dt>
+            <dd>
+               <p>Different types of <codeph>qdiscs</codeph> exist and help in the transfer of packets to and from a networking interface. You can configure <codeph>qdiscs</codeph> with root, parent, or child classes. The point where children can be attached are called classes. Classes in <codeph>qdisc</codeph> are flexible and can always contain either multiple children classes or a single child, <codeph>qdisc</codeph>. There is no prohibition against a class containing a classful <codeph>qdisc</codeph> itself, this facilitates complex traffic control scenarios.</p>
+               <p>Classful <codeph>qdiscs</codeph> do not store any packets themselves. Instead, they enqueue and dequeue requests down to one of their children according to criteria specific to the <codeph>qdisc</codeph>. Eventually, this recursive packet passing ends up where the packets are stored (or picked up from in the case of dequeuing).</p>
+            </dd>
+         </dlentry>
+         <dlentry>
+            <dt>Classless <codeph>qdiscs</codeph>
+            </dt>
+            <dd>
+               <p>Some <codeph>qdiscs</codeph> contain no child classes and they are called classless <codeph>qdiscs</codeph>. Classless <codeph>qdiscs</codeph> require less customization compared to classful <codeph>qdiscs</codeph>. It is usually enough to attach them to an interface.</p>
+            </dd>
+         </dlentry>
+      </dl>
+   </conbody>
+</concept>

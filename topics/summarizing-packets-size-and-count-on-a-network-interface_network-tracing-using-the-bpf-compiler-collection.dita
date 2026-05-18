@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="summarizing-packets-size-and-count-on-a-network-interface_network-tracing-using-the-bpf-compiler-collection">
+   <title>Summarizing packets size and count on a network interface</title>
+   <taskbody>
+      <context>
+         <p>The <codeph>netqtop</codeph> utility displays statistics about the attributes of received (RX) and transmitted (TX) packets on each network queue of a particular network interface.</p>
+         <p>The statistics include:</p>
+         <ul>
+            <li>
+               <p>Bytes per second (BPS)</p>
+            </li>
+            <li>
+               <p>Packets per second (PPS)</p>
+            </li>
+            <li>
+               <p>The average packet size</p>
+            </li>
+            <li>
+               <p>Total number of packets</p>
+            </li>
+         </ul>
+         <p>To generate these statistics, <codeph>netqtop</codeph> traces the kernel functions that perform events of transmitted packets <codeph>net_dev_start_xmit</codeph> and received packets <codeph>netif_receive_skb</codeph>.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Display the number of packets within the range of bytes size of the time interval of <codeph>2</codeph> seconds:</cmd>
+            <info>
+               <codeblock># <b>/usr/share/bcc/tools/netqtop -n enp1s0 -i 2</b>
+
+Fri Jan 31 18:08:55 2023
+TX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	0      	0      	0      	0      	0      	0
+ Total  	0      	0      	0      	0      	0      	0
+
+RX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	38.0   	1      	0      	0      	0      	0
+ Total  	38.0   	1      	0      	0      	0      	0
+-----------------------------------------------------------------------------
+Fri Jan 31 18:08:57 2023
+TX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	0      	0      	0      	0      	0      	0
+ Total  	0      	0      	0      	0      	0      	0
+
+RX
+ QueueID	avg_size   [0, 64)	[64, 512)  [512, 2K)  [2K, 16K)  [16K, 64K)
+ 0      	38.0   	1      	0      	0      	0      	0
+ Total  	38.0   	1      	0      	0      	0      	0
+-----------------------------------------------------------------------------</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Press <ph>
+                  <ph>Ctrl</ph>
+                  <ph>C</ph>
+               </ph> to stop <codeph>netqtop</codeph>.</cmd>
+         </step>
+      </steps>
+   </taskbody>
+</task>

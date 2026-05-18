@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-vlan-tagging-by-using-nmcli_configuring-vlan-tagging">
+   <title>Configuring VLAN tagging by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The interface you plan to use as a parent to the virtual VLAN interface supports VLAN tags.</p>
+            </li>
+            <li>
+               <p>If you configure the VLAN on top of a bond interface:</p>
+               <ul>
+                  <li>
+                     <p>The ports of the bond are up.</p>
+                  </li>
+                  <li>
+                     <p>The bond is not configured with the <codeph>fail_over_mac=follow</codeph> option. A VLAN virtual device cannot change its MAC address to match the parent’s new MAC address. In such a case, the traffic would still be sent with the incorrect source MAC address.</p>
+                  </li>
+                  <li>
+                     <p>The bond is usually not expected to get IP addresses from a DHCP server or IPv6 auto-configuration. Ensure it by setting the <codeph>ipv4.method=disable</codeph> and <codeph>ipv6.method=ignore</codeph> options while creating the bond. Otherwise, if DHCP or IPv6 auto-configuration fails after some time, the interface might be brought down.</p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>The switch, the host is connected to, is configured to support VLAN tags. For details, see the documentation of your switch.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can configure Virtual Local Area Network (VLAN) tagging on the command line using the <codeph>nmcli</codeph> utility.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Display the network interfaces:</cmd>
+            <info>
+               <codeblock># <b>nmcli device status</b>
+DEVICE   TYPE      STATE         CONNECTION
+enp1s0   ethernet  disconnected  enp1s0
+bridge0  bridge    connected     bridge0
+bond0    bond      connected     bond0
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Create the VLAN interface. For example, to create a VLAN interface named <codeph>vlan10</codeph> that uses <codeph>enp1s0</codeph> as its parent interface and that tags packets with VLAN ID <codeph>10</codeph>, enter:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type vlan con-name vlan10 ifname vlan10 vlan.parent enp1s0 vlan.id 10</b>
+               </codeblock>
+               <p>Note that the VLAN must be within the range from <codeph>0</codeph> to <codeph>4094</codeph>.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>By default, the VLAN connection inherits the maximum transmission unit (MTU) from the parent interface. Optionally, set a different MTU value:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify vlan10 ethernet.mtu 2000</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the IPv4 settings:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>To set a static IPv4 address, network mask, default gateway, and DNS server to the <codeph>vlan10</codeph> connection, enter:</p>
+                     <codeblock># <b>nmcli connection modify vlan10 ipv4.addresses '192.0.2.1/24' ipv4.gateway '192.0.2.254' ipv4.dns '192.0.2.253' ipv4.method manual</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>To use DHCP, no action is required.</p>
+                  </li>
+                  <li>
+                     <p>If you plan to use this VLAN device as a port of other devices, no action is required.</p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the IPv6 settings:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>To set a static IPv6 address, network mask, default gateway, and DNS server to the <codeph>vlan10</codeph> connection, enter:</p>
+                     <codeblock># <b>nmcli connection modify vlan10 ipv6.addresses '2001:db8:1::1/32' ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffd' ipv6.method manual</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>To use stateless address autoconfiguration (SLAAC), no action is required.</p>
+                  </li>
+                  <li>
+                     <p>If you plan to use this VLAN device as a port of other devices, no action is required.</p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up vlan10</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Verify the settings:</p>
+               <codeblock># <b>ip -d addr show vlan10</b>
+4: vlan10@enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 52:54:00:72:2f:6e brd ff:ff:ff:ff:ff:ff promiscuity 0
+    vlan protocol 802.1Q id 10 &lt;REORDER_HDR&gt; numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute vlan10
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::8dd7:9030:6f8e:89e6/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_permanently-configuring-multiple-paths-for-mptcp-applications_getting-started-with-multipath-tcp">
+   <title>Permanently configuring multiple paths for MPTCP applications</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You configured the default gateway on the relevant interfaces.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can configure MultiPath TCP (MPTCP) by using the <codeph>nmcli</codeph> command to permanently establish multiple subflows between a source and destination system.</p>
+         <p>The subflows can use different resources, different routes to the destination, and even different networks. Such as Ethernet, cellular, wifi, and so on. As a result, you achieve combined connections, which increase network resilience and throughput.</p>
+         <p>The server uses the following network interfaces in our example:</p>
+         <ul>
+            <li>
+               <p>enp4s0: <codeph>192.0.2.1/24</codeph>
+               </p>
+            </li>
+            <li>
+               <p>enp1s0: <codeph>198.51.100.1/24</codeph>
+               </p>
+            </li>
+            <li>
+               <p>enp7s0: <codeph>192.0.2.3/24</codeph>
+               </p>
+            </li>
+         </ul>
+         <p>The client uses the following network interfaces in our example:</p>
+         <ul>
+            <li>
+               <p>enp4s0f0: <codeph>192.0.2.2/24</codeph>
+               </p>
+            </li>
+            <li>
+               <p>enp4s0f1: <codeph>198.51.100.2/24</codeph>
+               </p>
+            </li>
+            <li>
+               <p>enp6s0: <codeph>192.0.2.5/24</codeph>
+               </p>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Enable MPTCP sockets in the kernel:</cmd>
+            <info>
+               <codeblock># <b>echo "net.mptcp.enabled=1" &gt; /etc/sysctl.d/90-enable-MPTCP.conf</b>
+# <b>sysctl -p /etc/sysctl.d/90-enable-MPTCP.conf</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: The RHEL kernel default for subflow limit is 2. If you require more:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Create the <codeph>/etc/systemd/system/set_mptcp_limit.service</codeph> file with the following content:</p>
+                     <codeblock outputclass="language-console">[Unit]
+Description=Set MPTCP subflow limit to 3
+After=network.target
+
+[Service]
+ExecStart=ip mptcp limits set subflows 3
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target</codeblock>
+                     <p>The <b>oneshot</b> unit executes the <codeph>ip mptcp limits set subflows 3</codeph> command after your network (<codeph>network.target</codeph>) is operational during every boot process.</p>
+                     <p>The <codeph>ip mptcp limits set subflows 3</codeph> command sets the maximum number of <i>additional</i> subflows for each connection, so 4 in total. It is possible to add maximally 3 additional subflows.</p>
+                  </li>
+                  <li>
+                     <p>Enable the <codeph>set_mptcp_limit</codeph> service:</p>
+                     <codeblock># <b>systemctl enable --now set_mptcp_limit</b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Enable MPTCP on all connection profiles that you want to use for connection aggregation:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>&lt;profile_name&gt;</i> connection.mptcp-flags signal,subflow,also-without-default-route</b>
+               </codeblock>
+               <p>The <codeph>connection.mptcp-flags</codeph> parameter configures MPTCP endpoints and the IP address flags. If MPTCP is enabled in a NetworkManager connection profile, the setting will configure the IP addresses of the relevant network interface as MPTCP endpoints.</p>
+               <p>By default, NetworkManager does not add MPTCP flags to IP addresses if there is no default gateway. If you want to bypass that check, you need to use the <codeph>also-without-default-route</codeph> flag.</p>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Verify that you enabled the MPTCP kernel parameter:</p>
+               <codeblock># <b>sysctl net.mptcp.enabled</b>
+net.mptcp.enabled = 1</codeblock>
+            </li>
+            <li>
+               <p>Verify that you set the subflow limit correctly, in case the default was not enough:</p>
+               <codeblock># <b>ip mptcp limit show</b>
+add_addr_accepted 2 subflows 3</codeblock>
+            </li>
+            <li>
+               <p>Verify that you configured the per-address MPTCP setting correctly:</p>
+               <codeblock># <b>ip mptcp endpoint show</b>
+192.0.2.1 id 1 subflow dev enp4s0
+198.51.100.1 id 2 subflow dev enp1s0
+192.0.2.3 id 3 subflow dev enp7s0
+192.0.2.4 id 4 subflow dev enp3s0
+...</codeblock>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#understanding-mptcp_getting-started-with-multipath-tcp"/>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <xref href="https://www.redhat.com/en/blog/understanding-multipath-tcp-networking-highway-future"
+                        format="html"
+                        scope="external">Understanding Multipath TCP: High availability for endpoints and the networking highway of the future</xref>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <xref href="https://www.rfc-editor.org/rfc/rfc8684"
+                        format="html"
+                        scope="external">RFC8684: TCP Extensions for Multipath Operation with Multiple Addresses</xref>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <xref href="https://www.redhat.com/en/blog/using-multipath-tcp-better-survive-outages-and-increase-bandwidth"
+                        format="html"
+                        scope="external">Using Multipath TCP to better survive outages and increase bandwidth</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

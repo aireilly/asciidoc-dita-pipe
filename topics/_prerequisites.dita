@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="_prerequisites">
+   <title>Prerequisites</title>
+   <body>
+      <ul>
+         <li>
+            <p>A clean installation of the <codeph>freeradius</codeph> and <codeph>freeradius-ldap</codeph> packages.</p>
+            <p>If the packages are already installed, remove the <codeph>/etc/raddb/</codeph> directory, uninstall and then install the packages again. Do not reinstall the packages by using the <codeph>dnf reinstall</codeph> command, because the permissions and symbolic links in the <codeph>/etc/raddb/</codeph> directory are then different.</p>
+         </li>
+         <li>
+            <p>The host on which you want to configure FreeRADIUS is a <xref href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/installing_identity_management/index"
+                     format="html"
+                     scope="external">client in an IdM domain</xref>.</p>
+         </li>
+      </ul>
+   </body>
+</topic>

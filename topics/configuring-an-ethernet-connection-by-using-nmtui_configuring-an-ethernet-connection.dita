@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-an-ethernet-connection-by-using-nmtui_configuring-an-ethernet-connection">
+   <title>Configuring an Ethernet connection by using <codeph>nmtui</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A physical or virtual Ethernet Network Interface Controller (NIC) exists in the server’s configuration.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>If you connect a host to an Ethernet network, you can manage the connection’s settings in a text-based user interface. Use the <codeph>nmtui</codeph> application to create new profiles and to update existing ones on a host without a graphical interface.</p>
+         <note>
+            <p>In <codeph>nmtui</codeph>:</p>
+            <ul>
+               <li>
+                  <p>Navigate by using the cursor keys.</p>
+               </li>
+               <li>
+                  <p>Press a button by selecting it and hitting <ph>Enter</ph>.</p>
+               </li>
+               <li>
+                  <p>Select and clear checkboxes by using <ph>Space</ph>.</p>
+               </li>
+               <li>
+                  <p>To return to the previous screen, use <ph>ESC</ph>.</p>
+               </li>
+            </ul>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>If you do not know the network device name you want to use in the connection, display the available devices:</cmd>
+            <info>
+               <codeblock># <b>nmcli device status</b>
+DEVICE     TYPE      STATE                   CONNECTION
+enp1s0     ethernet  unavailable             --
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Start <codeph>nmtui</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmtui</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Select <b>Edit a connection</b>, and press <ph>Enter</ph>.</cmd>
+         </step>
+         <step>
+            <cmd>Choose whether to add a new connection profile or to modify an existing one:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>To create a new profile:</p>
+                     <ol>
+                        <li>
+                           <p>Press <b>Add</b>.</p>
+                        </li>
+                        <li>
+                           <p>Select <b>Ethernet</b> from the list of network types, and press <ph>Enter</ph>.</p>
+                        </li>
+                     </ol>
+                  </li>
+                  <li>
+                     <p>To modify an existing profile, select the profile from the list, and press <ph>Enter</ph>.</p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Update the name of the connection profile.</cmd>
+            <info>
+               <p>On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>If you create a new connection profile, enter the network device name into the <b>Device</b> field.</cmd>
+         </step>
+         <step>
+            <cmd>Depending on your environment, configure the IP address settings in the <codeph>IPv4 configuration</codeph> and <codeph>IPv6 configuration</codeph> areas accordingly. For this, press the button next to these areas, and select:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>
+                        <b>Disabled</b>, if this connection does not require an IP address.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <b>Automatic</b>, if a DHCP server dynamically assigns an IP address to this NIC.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <b>Manual</b>, if the network requires static IP address settings. In this case, you must fill further fields:</p>
+                     <ol>
+                        <li>
+                           <p>Press <b>Show</b> next to the protocol you want to configure to display additional fields.</p>
+                        </li>
+                        <li>
+                           <p>Press <b>Add</b> next to <b>Addresses</b>, and enter the IP address and the subnet mask in Classless Inter-Domain Routing (CIDR) format.</p>
+                           <p>If you do not specify a subnet mask, NetworkManager sets a <codeph>/32</codeph> subnet mask for IPv4 addresses and <codeph>/64</codeph> for IPv6 addresses.</p>
+                        </li>
+                        <li>
+                           <p>Enter the address of the default gateway.</p>
+                        </li>
+                        <li>
+                           <p>Press <b>Add</b> next to <b>DNS servers</b>, and enter the DNS server address.</p>
+                        </li>
+                        <li>
+                           <p>Press <b>Add</b> next to <b>Search domains</b>, and enter the DNS search domain.</p>
+                        </li>
+                     </ol>
+                  </li>
+               </ul>
+               <fig>
+                  <p>Example of an Ethernet connection with static IP address settings</p>
+                  <image href="../images/nmtui-ethernet-static-IP.png" placement="break">
+                     <alt>Static IP address settings in `nmtui`</alt>
+                  </image>
+               </fig>
+            </info>
+         </step>
+         <step>
+            <cmd>Press <b>OK</b> to create and automatically activate the new connection.</cmd>
+         </step>
+         <step>
+            <cmd>Press <b>Back</b> to return to the main menu.</cmd>
+         </step>
+         <step>
+            <cmd>Select <b>Quit</b>, and press <ph>Enter</ph> to close the <codeph>nmtui</codeph> application.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IP settings of the NIC:</p>
+               <codeblock># <b>ip address show enp1s0</b>
+2: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:17:b8:b6 brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute enp1s0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::fffe/64 scope global noprefixroute
+       valid_lft forever preferred_lft forever</codeblock>
+            </li>
+            <li>
+               <p>Display the IPv4 default gateway:</p>
+               <codeblock># <b>ip route show default</b>
+default via 192.0.2.254 dev enp1s0 proto static metric 102</codeblock>
+            </li>
+            <li>
+               <p>Display the IPv6 default gateway:</p>
+               <codeblock># <b>ip -6 route show default</b>
+default via 2001:db8:1::fffe dev enp1s0 proto static metric 102 pref medium</codeblock>
+            </li>
+            <li>
+               <p>Display the DNS settings:</p>
+               <codeblock># <b>cat /etc/resolv.conf</b>
+search example.com
+nameserver 192.0.2.200
+nameserver 2001:db8:1::ffbb</codeblock>
+               <p>If multiple connection profiles are active at the same time, the order of <codeph>nameserver</codeph> entries depend on the DNS priority values in these profiles and the connection types.</p>
+            </li>
+            <li>
+               <p>Use the <codeph>ping</codeph> utility to verify that this host can send packets to other hosts:</p>
+               <codeblock># <b>ping <i>&lt;host-name-or-IP-address&gt;</i>
+                  </b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+      <tasktroubleshooting>
+         <ul>
+            <li>
+               <p>Verify that the network cable is plugged-in to the host and a switch.</p>
+            </li>
+            <li>
+               <p>Check whether the link failure exists only on this host or also on other hosts connected to the same switch.</p>
+            </li>
+            <li>
+               <p>Verify that the network cable and the network interface are working as expected. Perform hardware diagnosis steps and replace defective cables and network interface cards.</p>
+            </li>
+            <li>
+               <p>If the configuration on the disk does not match the configuration on the device, starting or restarting NetworkManager creates an in-memory connection that reflects the configuration of the device. For further details and how to avoid this problem, see the Red Hat Knowledgebase solution <xref href="https://access.redhat.com/solutions/3068421"
+                        format="html"
+                        scope="external">NetworkManager duplicates a connection after restart of NetworkManager service</xref>.</p>
+            </li>
+         </ul>
+      </tasktroubleshooting>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting">Configuring NetworkManager to avoid using a specific profile to provide a default gateway</xref>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <xref href="#configuring-the-order-of-dns-servers_configuring-and-managing-networking">Configuring the order of DNS servers</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

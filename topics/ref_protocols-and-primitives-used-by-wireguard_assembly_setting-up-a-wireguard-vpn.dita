@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="ref_protocols-and-primitives-used-by-wireguard_assembly_setting-up-a-wireguard-vpn">
+   <title>Protocols and primitives used by WireGuard</title>
+   <refbody>
+      <section>
+         <p>Understanding the protocols and primitives used by WireGuard is important for evaluating its security and trustworthiness. Knowing these components enables a user to verify that the system uses modern and secure cryptographic standards.</p>
+         <p>WireGuard uses the following protocols and primitives:</p>
+         <ul>
+            <li>
+               <p>ChaCha20 for symmetric encryption, authenticated with Poly1305, using Authenticated Encryption with Associated Data (AEAD) construction as described in <xref href="https://tools.ietf.org/html/rfc7539"
+                        format="html"
+                        scope="external">RFC7539</xref>
+               </p>
+            </li>
+            <li>
+               <p>Curve25519 for Elliptic-curve Diffie-Hellman (ECDH) key exchange</p>
+            </li>
+            <li>
+               <p>BLAKE2s for hashing and keyed hashing, as described in <xref href="https://tools.ietf.org/html/rfc7693"
+                        format="html"
+                        scope="external">RFC7693</xref>
+               </p>
+            </li>
+            <li>
+               <p>SipHash24 for hash table keys</p>
+            </li>
+            <li>
+               <p>HKDF for key derivation, as described in <xref href="https://tools.ietf.org/html/rfc5869"
+                        format="html"
+                        scope="external">RFC5869</xref>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </refbody>
+</reference>

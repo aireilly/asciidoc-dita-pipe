@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-an-ethtool-coalesce-settings-by-using-nmcli_configuring-ethtool-settings-in-networkmanager-connection-profiles">
+   <title>Configuring an ethtool coalesce settings by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <context>
+         <p>You can use NetworkManager to set <codeph>ethtool</codeph> coalesce settings in connection profiles.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>For example, to set the maximum number of received packets to delay to <codeph>128</codeph> in the <codeph>enp1s0</codeph> connection profile, enter:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>enp1s0</i> ethtool.coalesce-rx-frames <i>128</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>To remove a coalesce setting, set it to a null value. For example, to remove the <codeph>ethtool.coalesce-rx-frames</codeph> setting, enter:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>enp1s0</i> ethtool.coalesce-rx-frames ""</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>To reactivate the network profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>enp1s0</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Use the <codeph>ethtool -c</codeph> command to display the current offload features of a network device:</p>
+               <codeblock># <b>ethtool -c <i>network_device</i>
+                  </b>
+               </codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

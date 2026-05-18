@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-static-route-by-using-nmstatectl_configuring-static-routes">
+   <title>Configuring a static route by using <codeph>nmstatectl</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>enp1s0</codeph> network interface is configured and is in the same IP subnet as the gateways.</p>
+            </li>
+            <li>
+               <p>The <codeph>nmstate</codeph> package is installed.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the declarative Nmstate API to configure a static route. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a YAML file, for example <codeph>~/add-static-route-to-enp1s0.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+routes:
+  config:
+  - destination: 198.51.100.0/24
+    next-hop-address: 192.0.2.10
+    next-hop-interface: enp1s0
+  - destination: 2001:db8:2::/64
+    next-hop-address: 2001:db8:1::10
+    next-hop-interface: enp1s0</codeblock>
+               <p>These settings define the following static routes:</p>
+               <ul>
+                  <li>
+                     <p>An IPv4 route to the remote <codeph>198.51.100.0/24</codeph> network. The corresponding gateway with the IP address <codeph>192.0.2.10</codeph> is reachable through the <codeph>enp1s0</codeph> interface.</p>
+                  </li>
+                  <li>
+                     <p>An IPv6 route to the remote <codeph>2001:db8:2::/64</codeph> network. The corresponding gateway with the IP address <codeph>2001:db8:1::10</codeph> is reachable through the <codeph>enp1s0</codeph> interface.</p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Apply the settings to the system:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl apply ~/add-static-route-to-enp1s0.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IPv4 routes:</p>
+               <codeblock># <b>ip -4 route</b>
+...
+198.51.100.0/24 via 192.0.2.10 dev enp1s0</codeblock>
+            </li>
+            <li>
+               <p>Display the IPv6 routes:</p>
+               <codeblock># <b>ip -6 route</b>
+...
+2001:db8:2::/64 via 2001:db8:1::10 dev enp1s0 metric 1024 pref medium</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="setting-a-networkmanager-wide-default-dns-server-priority-value_configuring-the-order-of-dns-servers">
+   <title>Setting a NetworkManager-wide default DNS server priority value</title>
+   <taskbody>
+      <context>
+         <p>You can override NetworkManager’s system-wide DNS server priority default values to set custom defaults for IPv4 and IPv6 DNS servers.</p>
+         <p>The default values are as follows:</p>
+         <ul>
+            <li>
+               <p>
+                  <codeph>50</codeph> for VPN connections</p>
+            </li>
+            <li>
+               <p>
+                  <codeph>100</codeph> for other connections</p>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Edit the <codeph>/etc/NetworkManager/NetworkManager.conf</codeph> file:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Add the <codeph>[connection]</codeph> section, if it does not exist:</p>
+                     <codeblock outputclass="language-console">[connection]</codeblock>
+                  </li>
+                  <li>
+                     <p>Add the custom default values to the <codeph>[connection]</codeph> section. For example, to set the new default for both IPv4 and IPv6 to <codeph>200</codeph>, add:</p>
+                     <codeblock outputclass="language-console">ipv4.dns-priority=200
+ipv6.dns-priority=200</codeblock>
+                     <p>You can set the parameters to a value between <codeph>-2147483647</codeph> and <codeph>2147483647</codeph>. Note that setting the parameters to <codeph>0</codeph> enables the built-in defaults (<codeph>50</codeph> for VPN connections and <codeph>100</codeph> for other connections).</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Reload the <codeph>NetworkManager</codeph> service:</cmd>
+            <info>
+               <codeblock># <b>systemctl reload NetworkManager</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

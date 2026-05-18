@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-the-rate-limiting-of-packets-by-using-the-tc-ctinfo-utility_linux-traffic-control">
+   <title>Configuring the rate limiting of packets by using the tc-ctinfo utility</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>iperf3</codeph> utility is installed on a server and a client.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>With rate limiting, you can limit network traffic, prevent the exhaustion of resources in the network, and reduce the load on servers by limiting repetitive packet requests in a specific time frame.</p>
+         <p>The connection tracking entry stores the <codeph>Netfilter</codeph> mark and connection information. When a router forwards a packet from the firewall, the router either removes or modifies the connection tracking entry from the packet. The connection tracking information (<codeph>ctinfo</codeph>) module retrieves data from connection tracking marks into various fields. This kernel module preserves the <codeph>Netfilter</codeph> mark by copying it into a socket buffer (<codeph>skb</codeph>) mark metadata field.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Perform the following steps on the server:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Add a virtual link to the network interface:</p>
+                     <codeblock># <b>ip link add name ifb4eth0 numtxqueues 48 numrxqueues 48 type ifb</b>
+                     </codeblock>
+                     <p>This command has the following parameters:</p>
+                     <dl>
+                        <dlentry>
+                           <dt>
+                              <codeph>name ifb4eth0</codeph>
+                           </dt>
+                           <dd>
+                              <p>Sets a new virtual device interface.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>numtxqueues 48</codeph>
+                           </dt>
+                           <dd>
+                              <p>Sets the number of transmit queues.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>numrxqueues 48</codeph>
+                           </dt>
+                           <dd>
+                              <p>Sets the number of receive queues.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>type ifb</codeph>
+                           </dt>
+                           <dd>
+                              <p>Sets the type of the new device.</p>
+                           </dd>
+                        </dlentry>
+                     </dl>
+                  </li>
+                  <li>
+                     <p>Change the state of the interface:</p>
+                     <codeblock># <b>ip link set dev ifb4eth0 up</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Add the <codeph>qdisc</codeph> attribute on the physical network interface and apply it to the incoming traffic:</p>
+                     <codeblock># <b>tc qdisc add dev enp1s0 handle ffff: ingress</b>
+                     </codeblock>
+                     <p>In the <codeph>handle ffff:</codeph> option, the <codeph>handle</codeph> parameter assigns the major number <codeph>ffff:</codeph> as a default value to a classful <codeph>qdisc</codeph> on the <codeph>enp1s0</codeph> physical network interface, where <codeph>qdisc</codeph> is a queueing discipline parameter to analyze traffic control.</p>
+                  </li>
+                  <li>
+                     <p>Add a filter on the physical interface of the <codeph>ip</codeph> protocol to classify packets:</p>
+                     <codeblock># <b>tc filter add dev enp1s0 parent ffff: protocol ip u32 match u32 0 0 action ctinfo cpmark 100 action mirred egress redirect dev ifb4eth0</b>
+                     </codeblock>
+                     <p>This command has the following attributes:</p>
+                     <dl>
+                        <dlentry>
+                           <dt>
+                              <codeph>parent ffff:</codeph>
+                           </dt>
+                           <dd>
+                              <p>Sets major number <codeph>ffff:</codeph> for the parent <codeph>qdisc</codeph>.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>u32 match u32 0 0</codeph>
+                           </dt>
+                           <dd>
+                              <p>Sets the <codeph>u32</codeph> filter to <codeph>match</codeph> the IP headers the of <codeph>u32</codeph> pattern. The first <codeph>0</codeph> represents the second byte of IP header while the other <codeph>0</codeph> is for the mask match telling the filter which bits to match.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>action ctinfo</codeph>
+                           </dt>
+                           <dd>
+                              <p>Sets action to retrieve data from the connection tracking mark into various fields.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>cpmark 100</codeph>
+                           </dt>
+                           <dd>
+                              <p>Copies the connection tracking mark (connmark) <codeph>100</codeph> into the packet IP header field.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>action mirred egress redirect dev ifb4eth0</codeph>
+                           </dt>
+                           <dd>
+                              <p>Sets the <codeph>action</codeph> to <codeph>mirred</codeph> to redirect the received packets to the <codeph>ifb4eth0</codeph> destination interface.</p>
+                           </dd>
+                        </dlentry>
+                     </dl>
+                  </li>
+                  <li>
+                     <p>Add a classful <codeph>qdisc</codeph> to the interface:</p>
+                     <codeblock># <b>tc qdisc add dev ifb4eth0 root handle 1: htb default 1000</b>
+                     </codeblock>
+                     <p>This command sets the major number <codeph>1</codeph> to root <codeph>qdisc</codeph> and uses the <codeph>htb</codeph> hierarchy token bucket with classful <codeph>qdisc</codeph> of minor-id <codeph>1000</codeph>.</p>
+                  </li>
+                  <li>
+                     <p>Limit the traffic on the interface to 1 Mbit/s with an upper limit of 2 Mbit/s:</p>
+                     <codeblock># <b>tc class add dev ifb4eth0 parent 1:1 classid 1:100 htb ceil 2mbit rate 1mbit prio 100</b>
+                     </codeblock>
+                     <p>This command has the following parameters:</p>
+                     <dl>
+                        <dlentry>
+                           <dt>
+                              <codeph>parent 1:1</codeph>
+                           </dt>
+                           <dd>
+                              <p>Sets <codeph>parent</codeph> with <codeph>classid</codeph> as <codeph>1</codeph> and <codeph>root</codeph> as <codeph>1</codeph>.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>classid 1:100</codeph>
+                           </dt>
+                           <dd>
+                              <p>Sets <codeph>classid</codeph> as <codeph>1:100</codeph> where <codeph>1</codeph> is the number of parent <codeph>qdisc</codeph> and <codeph>100</codeph> is the number of classes of the parent <codeph>qdisc</codeph>.</p>
+                           </dd>
+                        </dlentry>
+                        <dlentry>
+                           <dt>
+                              <codeph>htb ceil 2mbit</codeph>
+                           </dt>
+                           <dd>
+                              <p>The <codeph>htb</codeph> classful <codeph>qdisc</codeph> allows upper limit bandwidth of <codeph>2 Mbit/s</codeph> as the <codeph>ceil</codeph> rate limit.</p>
+                           </dd>
+                        </dlentry>
+                     </dl>
+                  </li>
+                  <li>
+                     <p>Apply the Stochastic Fairness Queuing (<codeph>sfq</codeph>) of classless <codeph>qdisc</codeph> to interface with a time interval of <codeph>60</codeph> seconds to reduce queue algorithm perturbation:</p>
+                     <codeblock># <b>tc qdisc add dev ifb4eth0 parent 1:100 sfq perturb 60</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Add the firewall mark (<codeph>fw</codeph>) filter to the interface:</p>
+                     <codeblock># <b>tc filter add dev ifb4eth0 parent 1:0 protocol ip prio 100 handle 100 fw classid 1:100</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Restore the packet meta mark from the connection mark (<codeph>CONNMARK</codeph>):</p>
+                     <codeblock># <b>nft add rule ip mangle PREROUTING counter meta mark set ct mark</b>
+                     </codeblock>
+                     <p>In this command, the <codeph>nft</codeph> utility has a <codeph>mangle</codeph> table with the <codeph>PREROUTING</codeph> chain rule specification that alters incoming packets before routing to replace the packet mark with <codeph>CONNMARK</codeph>.</p>
+                  </li>
+                  <li>
+                     <p>If no <codeph>nft</codeph> table and chain exist, create a table and add a chain rule:</p>
+                     <codeblock># <b>nft add table ip mangle</b>
+# <b>nft add chain ip mangle PREROUTING {type filter hook prerouting priority mangle \;}</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Set the meta mark on <codeph>tcp</codeph> packets that are received on the specified destination address <codeph>192.0.2.3</codeph>:</p>
+                     <codeblock># <b>nft add rule ip mangle PREROUTING ip daddr 192.0.2.3 counter meta mark set 0x64</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Save the packet mark into the connection mark:</p>
+                     <codeblock># <b>nft add rule ip mangle PREROUTING counter ct mark set mark</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Run the <codeph>iperf3</codeph> utility as the server on a system by using the <codeph>-s</codeph> parameter and the server then waits for the response of the client connection:</p>
+                     <codeblock># <b>iperf3 -s</b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>On the client, run <codeph>iperf3</codeph> as a client and connect to the server that listens on IP address <codeph>192.0.2.3</codeph> for periodic HTTP request-response timestamp:</cmd>
+            <info>
+               <codeblock># <b>iperf3 -c 192.0.2.3 -t TCP_STREAM | tee rate</b>
+               </codeblock>
+               <p>
+                  <codeph>192.0.2.3</codeph> is the IP address of the server while <codeph>192.0.2.4</codeph> is the IP address of the client.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Terminate the <codeph>iperf3</codeph> utility on the server by pressing <ph>
+                  <ph>Ctrl</ph>
+                  <ph>C</ph>
+               </ph>:</cmd>
+            <info>
+               <codeblock>Accepted connection from 192.0.2.4, port 52128
+[5]  local 192.0.2.3 port 5201 connected to 192.0.2.4 port 52130
+[ID] Interval       	Transfer 	Bitrate
+[5]   0.00-1.00   sec   119 KBytes   973 Kbits/sec
+[5]   1.00-2.00   sec   116 KBytes   950 Kbits/sec
+...
+[ID] Interval       	Transfer 	Bitrate
+[5]   0.00-14.81  sec  1.51 MBytes   853 Kbits/sec  receiver
+
+iperf3: interrupt - the server has terminated</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Terminate the <codeph>iperf3</codeph> utility on the client by pressing <ph>
+                  <ph>Ctrl</ph>
+                  <ph>C</ph>
+               </ph>:</cmd>
+            <info>
+               <codeblock>Connecting to host 192.0.2.3, port 5201
+[5] local 192.0.2.4 port 52130 connected to 192.0.2.3 port 5201
+[ID] Interval       	Transfer 	Bitrate     	Retr  Cwnd
+[5]   0.00-1.00   sec   481 KBytes  3.94 Mbits/sec	0   76.4 KBytes
+[5]   1.00-2.00   sec   223 KBytes  1.83 Mbits/sec	0   82.0 KBytes
+...
+[ID] Interval       	Transfer 	Bitrate     	Retr
+[5]   0.00-14.00  sec  3.92 MBytes  2.35 Mbits/sec   32     sender
+[5]   0.00-14.00  sec  0.00 Bytes  0.00 bits/sec            receiver
+
+iperf3: error - the server has terminated</codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the statistics about packet counts of the <codeph>htb</codeph> and <codeph>sfq</codeph> classes on the interface:</p>
+               <codeblock># <b>tc -s qdisc show dev ifb4eth0</b>
+
+qdisc htb 1: root
+...
+ Sent 26611455 bytes 3054 pkt (dropped 76, overlimits 4887 requeues 0)
+...
+qdisc sfq 8001: parent
+...
+ Sent 26535030 bytes 2296 pkt (dropped 76, overlimits 0 requeues 0)
+...</codeblock>
+            </li>
+            <li>
+               <p>Display the statistics of packet counts for the <codeph>mirred</codeph> and <codeph>ctinfo</codeph> actions:</p>
+               <codeblock># <b>tc -s filter show dev enp1s0 ingress</b>
+filter parent ffff: protocol ip pref 49152 u32 chain 0
+filter parent ffff: protocol ip pref 49152 u32 chain 0 fh 800: ht divisor 1
+filter parent ffff: protocol ip pref 49152 u32 chain 0 fh 800::800 order 2048 key ht 800 bkt 0 terminal flowid not_in_hw (rule hit 8075 success 8075)
+  match 00000000/00000000 at 0 (success 8075 )
+    action order 1: ctinfo zone 0 pipe
+      index 1 ref 1 bind 1 cpmark 0x00000064 installed 3105 sec firstused 3105 sec DSCP set 0 error 0
+      CPMARK set 7712
+    Action statistics:
+    Sent 25891504 bytes 3137 pkt (dropped 0, overlimits 0 requeues 0)
+    backlog 0b 0p requeues 0
+
+    action order 2: mirred (Egress Redirect to device ifb4eth0) stolen
+       index 1 ref 1 bind 1 installed 3105 sec firstused 3105 sec
+    Action statistics:
+    Sent 25891504 bytes 3137 pkt (dropped 0, overlimits 61 requeues 0)
+    backlog 0b 0p requeues 0</codeblock>
+            </li>
+            <li>
+               <p>Display the statistics of the <codeph>htb</codeph> rate-limiter and its configuration:</p>
+               <codeblock># <b>tc -s class show dev ifb4eth0</b>
+class htb 1:100 root leaf 8001: prio 7 rate 1Mbit ceil 2Mbit burst 1600b cburst 1600b
+ Sent 26541716 bytes 2373 pkt (dropped 61, overlimits 4887 requeues 0)
+ backlog 0b 0p requeues 0
+ lended: 7248 borrowed: 0 giants: 0
+ tokens: 187250 ctokens: 93625</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

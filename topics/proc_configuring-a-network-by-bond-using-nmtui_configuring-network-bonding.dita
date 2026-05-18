@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-network-by-bond-using-nmtui_configuring-network-bonding">
+   <title>Configuring a network bond by using <codeph>nmtui</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li>
+               <p>To use Ethernet devices as ports of the bond, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>The <codeph>nmtui</codeph> application provides a text-based user interface for NetworkManager. You can use <codeph>nmtui</codeph> to configure a network bond on a host without a graphical interface.</p>
+         <note>
+            <p>In <codeph>nmtui</codeph>:</p>
+            <ul>
+               <li>
+                  <p>Navigate by using the cursor keys.</p>
+               </li>
+               <li>
+                  <p>Press a button by selecting it and hitting <ph>Enter</ph>.</p>
+               </li>
+               <li>
+                  <p>Select and clear checkboxes by using <ph>Space</ph>.</p>
+               </li>
+               <li>
+                  <p>To return to the previous screen, use <ph>ESC</ph>.</p>
+               </li>
+            </ul>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>If you do not know the network device names on which you want configure a network bond, display the available devices:</cmd>
+            <info>
+               <codeblock># <b>nmcli device status</b>
+DEVICE     TYPE      STATE                   CONNECTION
+enp7s0     ethernet  unavailable             --
+enp8s0     ethernet  unavailable             --
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Start <codeph>nmtui</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmtui</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Select <b>Edit a connection</b>, and press <ph>Enter</ph>.</cmd>
+         </step>
+         <step>
+            <cmd>Press <b>Add</b>.</cmd>
+         </step>
+         <step>
+            <cmd>Select <b>Bond</b> from the list of network types, and press <ph>Enter</ph>.</cmd>
+         </step>
+         <step>
+            <cmd>Optional: Enter a name for the NetworkManager profile to be created.</cmd>
+            <info>
+               <p>On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Enter the bond device name to be created into the <b>Device</b> field.</cmd>
+         </step>
+         <step>
+            <cmd>Add ports to the bond to be created:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Press <b>Add</b> next to the <b>Ports</b> list.</p>
+                  </li>
+                  <li>
+                     <p>Select the type of the interface you want to add as a port to the bond, for example, <b>Ethernet</b>.</p>
+                  </li>
+                  <li>
+                     <p>Optional: Enter a name for the NetworkManager profile to be created for this bond port.</p>
+                  </li>
+                  <li>
+                     <p>Enter the port’s device name into the <b>Device</b> field.</p>
+                  </li>
+                  <li>
+                     <p>Press <b>OK</b> to return to the window with the bond settings.</p>
+                     <fig>
+                        <p>Adding an Ethernet device as a port to a bond</p>
+                        <image href="../images/nmtui-bond-add-port.png" placement="break">
+                           <alt>Editing a bond connection profile in `nmtui`</alt>
+                        </image>
+                     </fig>
+                  </li>
+                  <li>
+                     <p>Repeat these steps to add more ports to the bond.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the bond mode. Depending on the value you set, <codeph>nmtui</codeph> displays additional fields for settings that are related to the selected mode.</cmd>
+         </step>
+         <step>
+            <cmd>Depending on your environment, configure the IP address settings in the <b>IPv4 configuration</b> and <b>IPv6 configuration</b> areas accordingly. For this, press the button next to these areas, and select:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>
+                        <codeph>Disabled</codeph>, if the bond does not require an IP address.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>Automatic</codeph>, if a DHCP server or stateless address autoconfiguration (SLAAC) dynamically assigns an IP address to the bond.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>Manual</codeph>, if the network requires static IP address settings. In this case, you must fill further fields:</p>
+                     <ol>
+                        <li>
+                           <p>Press <b>Show</b> next to the protocol you want to configure to display additional fields.</p>
+                        </li>
+                        <li>
+                           <p>Press <b>Add</b> next to <b>Addresses</b>, and enter the IP address and the subnet mask in Classless Inter-Domain Routing (CIDR) format.</p>
+                           <p>If you do not specify a subnet mask, NetworkManager sets a <codeph>/32</codeph> subnet mask for IPv4 addresses and <codeph>/64</codeph> for IPv6 addresses.</p>
+                        </li>
+                        <li>
+                           <p>Enter the address of the default gateway.</p>
+                        </li>
+                        <li>
+                           <p>Press <b>Add</b> next to <b>DNS servers</b>, and enter the DNS server address.</p>
+                        </li>
+                        <li>
+                           <p>Press <b>Add</b> next to <b>Search domains</b>, and enter the DNS search domain.</p>
+                        </li>
+                     </ol>
+                  </li>
+               </ul>
+               <fig>
+                  <p>Example of a bond connection with static IP address settings</p>
+                  <image href="../images/nmtui-bond-static-IP.png" placement="break">
+                     <alt>Static IP address settings in `nmtui`</alt>
+                  </image>
+               </fig>
+            </info>
+         </step>
+         <step>
+            <cmd>Press <b>OK</b> to create and automatically activate the new connection.</cmd>
+         </step>
+         <step>
+            <cmd>Press <b>Back</b> to return to the main menu.</cmd>
+         </step>
+         <step>
+            <cmd>Select <b>Quit</b>, and press <ph>Enter</ph> to close the <codeph>nmtui</codeph> application.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Temporarily remove the network cable from one of the network devices and check if the other device in the bond is handling the traffic.</p>
+               <p>Note that there is no method to properly test link failure events using software utilities. Tools that deactivate connections, such as <codeph>nmcli</codeph>, show only the bonding driver’s ability to handle port configuration changes and not actual link failure events.</p>
+            </li>
+            <li>
+               <p>Display the status of the bond:</p>
+               <codeblock># <b>cat /proc/net/bonding/bond0</b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

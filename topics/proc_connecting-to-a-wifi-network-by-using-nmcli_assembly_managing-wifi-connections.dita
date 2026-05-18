@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_connecting-to-a-wifi-network-by-using-nmcli_assembly_managing-wifi-connections">
+   <title>Connecting to a wifi network by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A wifi device is installed on the host.</p>
+            </li>
+            <li>
+               <p>The wifi device is enabled. To verify, use the <codeph>nmcli radio</codeph> command.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>When you first use the <codeph>nmcli</codeph> utility to connect to a wifi network, it automatically creates a NetworkManager connection profile. You can then modify this profile to add specific settings, such as a static IP address.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>If the wifi radio has been disabled in NetworkManager, enable this feature:</cmd>
+            <info>
+               <codeblock># <b>nmcli radio wifi on</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Display the available wifi networks:</cmd>
+            <info>
+               <codeblock># <b>nmcli device wifi list</b>
+IN-USE  BSSID              SSID          MODE   CHAN  RATE        SIGNAL  BARS  SECURITY
+        00:53:00:2F:3B:08  Office        Infra  44    270 Mbit/s  57      ▂▄▆_  WPA2 WPA3
+        00:53:00:15:03:BF  --            Infra  1     130 Mbit/s  48      ▂▄__  WPA2 WPA3</codeblock>
+               <p>The service set identifier (<codeph>SSID</codeph>) column contains the names of the networks. If the column shows <codeph>--</codeph>, the access point of this network does not broadcast an SSID.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Connect to the wifi network:</cmd>
+            <info>
+               <codeblock># <b>nmcli device wifi connect Office --ask</b>
+Password: <b>wifi-password</b>
+               </codeblock>
+               <p>If you prefer to set the password in the command instead of entering it interactively, use the <codeph>password <i>&lt;wifi_password&gt;</i>
+                  </codeph> option in the command instead of <codeph>--ask</codeph>:</p>
+               <codeblock># <b>nmcli device wifi connect Office password &lt;wifi_password&gt;</b>
+               </codeblock>
+               <p>Note that, if the network requires static IP addresses, NetworkManager fails to activate the connection at this point. You can configure the IP addresses in later steps.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>If the network requires static IP addresses:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Configure the IPv4 address settings, for example:</p>
+                     <codeblock># <b>nmcli connection modify Office ipv4.method manual ipv4.addresses 192.0.2.1/24 ipv4.gateway 192.0.2.254 ipv4.dns 192.0.2.200 ipv4.dns-search example.com</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Configure the IPv6 address settings, for example:</p>
+                     <codeblock># <b>nmcli connection modify Office ipv6.method manual ipv6.addresses 2001:db8:1::1/64 ipv6.gateway 2001:db8:1::fffe ipv6.dns 2001:db8:1::ffbb ipv6.dns-search example.com</b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Re-activate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up Office</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the active connections:</p>
+               <codeblock># <b>nmcli connection show --active</b>
+NAME    ID                                    TYPE  DEVICE
+Office  2501eb7e-7b16-4dc6-97ef-7cc460139a58  wifi  wlp0s20f3</codeblock>
+               <p>If the output lists the wifi connection you have created, the connection is active.</p>
+            </li>
+            <li>
+               <p>Ping a hostname or IP address:</p>
+               <codeblock># <b>ping -c 3 example.com</b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

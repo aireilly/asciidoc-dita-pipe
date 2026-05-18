@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-wireguard-client-by-using-nm-connection-editor_assembly_setting-up-a-wireguard-vpn">
+   <title>Configuring a WireGuard client by using nm-connection-editor</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You have generated the public and private key for both the server and client.</p>
+            </li>
+            <li>
+               <p>You know the following information:</p>
+               <ul>
+                  <li>
+                     <p>The private key of the client</p>
+                  </li>
+                  <li>
+                     <p>The static tunnel IP addresses and subnet masks of the client</p>
+                  </li>
+                  <li>
+                     <p>The public key of the server</p>
+                  </li>
+                  <li>
+                     <p>The static tunnel IP addresses and subnet masks of the server</p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can configure a WireGuard client by creating a connection profile in NetworkManager. Use this method to let NetworkManager manage the WireGuard connection.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Open a terminal, and enter:</cmd>
+            <info>
+               <codeblock># <b>nm-connection-editor</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Add a new connection by clicking the <uicontrol>+</uicontrol> button.</cmd>
+         </step>
+         <step>
+            <cmd>Select the <b>WireGuard</b> connection type, and click <uicontrol>Create</uicontrol>.</cmd>
+         </step>
+         <step>
+            <cmd>Optional: Update the connection name.</cmd>
+         </step>
+         <step>
+            <cmd>Optional: On the <b>General</b> tab, select <b>Connect automatically with priority</b>.</cmd>
+         </step>
+         <step>
+            <cmd>On the <b>WireGuard</b> tab:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Enter the name of the virtual interface, such as <codeph>wg0</codeph>, that NetworkManager should assign to the connection.</p>
+                  </li>
+                  <li>
+                     <p>Enter client’s private key.</p>
+                  </li>
+                  <li>
+                     <p>Click <uicontrol>Add</uicontrol> to add peers:</p>
+                     <ol>
+                        <li>
+                           <p>Enter the public key of the server.</p>
+                        </li>
+                        <li>
+                           <p>Set the <b>Allowed IPs</b> field. For example, set it to:</p>
+                           <ul>
+                              <li>
+                                 <p>The tunnel IP addresses of the server to allow only the server to communicate with this client.</p>
+                              </li>
+                              <li>
+                                 <p>
+                                    <codeph>0.0.0.0/0;::/0;</codeph> to allow any remote IPv4 and IPv6 address to communicate with this client. Use this setting to route all traffic through the tunnel and use the WireGuard server as default gateway.</p>
+                                 <p>Note that routing all traffic through the tunnel can impact the connectivity to other hosts based on the server routing and firewall configuration.</p>
+                              </li>
+                           </ul>
+                        </li>
+                        <li>
+                           <p>Enter the hostname or IP address and port of the WireGuard server into the <b>Endpoint</b> field. Use the following format: <codeph>
+                                 <i>&lt;hostname_or_IP&lt;</i>:<i>&lt;port_number&gt;</i>
+                              </codeph>
+                           </p>
+                        </li>
+                        <li>
+                           <p>Optional: If you use the client in a network with network address translation (NAT) or if a firewall closes the UDP connection after some time of inactivity, set a persistent keep alive interval in seconds. In this interval, the client sends a keep alive packet to the server.</p>
+                        </li>
+                        <li>
+                           <p>Click <uicontrol>Apply</uicontrol>.</p>
+                        </li>
+                     </ol>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>On the <b>IPv4 Settings</b> tab:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Select <b>Manual</b> in the <b>Method</b> list.</p>
+                  </li>
+                  <li>
+                     <p>Click <uicontrol>Add</uicontrol> to enter the tunnel IPv4 address and the subnet mask.</p>
+                  </li>
+                  <li>
+                     <p>If you want to route all traffic through the tunnel, set the tunnel IPv4 address of the server in the <b>Gateway</b> field. Otherwise, leave the field empty.</p>
+                     <p>Routing all IPv4 traffic through the tunnel requires that you included <codeph>0.0.0.0/0</codeph> in the <b>Allowed IPs</b> field on this client.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>On the <b>IPv6 Settings</b> tab:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Select <b>Manual</b> in the <b>Method</b> list.</p>
+                  </li>
+                  <li>
+                     <p>Click <uicontrol>Add</uicontrol> to enter the tunnel IPv6 address and the subnet mask.</p>
+                  </li>
+                  <li>
+                     <p>If you want to route all traffic through the tunnel, set the tunnel IPv6 address of the server in the <b>Gateway</b> field. Otherwise, leave the field empty.</p>
+                     <p>Routing all IPv4 traffic through the tunnel requires that you included <codeph>::/0</codeph> in the <b>Allowed IPs</b> field on this client.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>Save</uicontrol> to store the connection profile.</cmd>
+         </step>
+         <step>
+            <cmd>If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <xref href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</xref>.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Ping the IP addresses of the server:</p>
+               <codeblock># <b>ping 192.0.2.1</b>
+# <b>ping6 2001:db8:1::1</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display the interface configuration of the <codeph>wg0</codeph> device:</p>
+               <codeblock># <b>wg show wg0</b>
+interface: wg0
+  public key: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  private key: (hidden)
+  listening port: 51820
+
+peer: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  endpoint: server.example.com:51820
+  allowed ips: 192.0.2.1/32, 2001:db8:1::1/128
+  latest handshake: 1 minute, 41 seconds ago
+  transfer: 824 B received, 1.01 KiB sent
+  persistent keepalive: every 20 seconds</codeblock>
+               <p>To display the private key in the output, use the <codeph>WG_HIDE_KEYS=never wg show wg0</codeph> command.</p>
+               <p>Note that the output only has the <codeph>latest handshake</codeph> and <codeph>transfer</codeph> entries if you have already sent traffic through the VPN tunnel.</p>
+            </li>
+            <li>
+               <p>Display the IP configuration of the <codeph>wg0</codeph> device:</p>
+               <codeblock># <b>ip address show wg0</b>
+10: wg0: &lt;POINTOPOINT,NOARP,UP,LOWER_UP&gt; mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.2/24 brd 192.0.2.255 scope global noprefixroute wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::2/32 scope global noprefixroute
+       valid_lft forever preferred_lft forever
+    inet6 fe80::73d9:6f51:ea6f:863e/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

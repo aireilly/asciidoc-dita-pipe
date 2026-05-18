@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-the-dhcp-behavior-of-a-networkmanager-connection_configuring-networkmanager-dhcp-settings">
+   <title>Configuring the DHCP timeout behavior of a NetworkManager connection</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A connection that uses DHCP is configured on the host.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>In a connection profile that uses DHCP, NetworkManager waits, by default, 45 seconds for the DHCP request to complete. You can customize timeout-related settings, to adjust the connection profile to your environment.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: Set the <codeph>ipv4.dhcp-timeout</codeph> and <codeph>ipv6.dhcp-timeout</codeph> properties. For example, to set both options to <codeph>30</codeph> seconds, enter:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>&lt;connection_name&gt;</i> ipv4.dhcp-timeout 30 ipv6.dhcp-timeout 30</b>
+               </codeblock>
+               <p>Alternatively, set the parameters to <codeph>infinity</codeph> to configure that NetworkManager does not stop trying to request and renew an IP address until it is successful.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Configure the behavior if NetworkManager does not receive an IPv4 address before the timeout:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>&lt;connection_name&gt;</i> ipv4.may-fail <i>&lt;value&gt;</i>
+                  </b>
+               </codeblock>
+               <p>If you set the <codeph>ipv4.may-fail</codeph> option to:</p>
+               <ul>
+                  <li>
+                     <p>
+                        <codeph>yes</codeph>, the status of the connection depends on the IPv6 configuration:</p>
+                     <ul>
+                        <li>
+                           <p>If the IPv6 configuration is enabled and successful, NetworkManager activates the IPv6 connection and no longer tries to activate the IPv4 connection.</p>
+                        </li>
+                        <li>
+                           <p>If the IPv6 configuration is disabled or not configured, the connection fails.</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>no</codeph>, the connection is deactivated. In this case:</p>
+                     <ul>
+                        <li>
+                           <p>If the <codeph>autoconnect</codeph> property of the connection is enabled, NetworkManager retries to activate the connection as many times as set in the <codeph>autoconnect-retries</codeph> property. The default is <codeph>4</codeph>.</p>
+                        </li>
+                        <li>
+                           <p>If the connection still cannot acquire a DHCP address, auto-activation fails. Note that after 5 minutes, the auto-connection process starts again to acquire an IP address from the DHCP server.</p>
+                        </li>
+                     </ul>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Configure the behavior if NetworkManager does not receive an IPv6 address before the timeout:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>&lt;connection_name&gt;</i> ipv6.may-fail <i>&lt;value&gt;</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

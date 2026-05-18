@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-wireguard-server-by-using-the-wg-quick-service_assembly_setting-up-a-wireguard-vpn">
+   <title>Configuring a WireGuard server by using the <codeph>wg-quick</codeph> service</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You have generated the public and private key for both the server and client.</p>
+            </li>
+            <li>
+               <p>You know the following information:</p>
+               <ul>
+                  <li>
+                     <p>The private key of the server</p>
+                  </li>
+                  <li>
+                     <p>The static tunnel IP addresses and subnet masks of the client</p>
+                  </li>
+                  <li>
+                     <p>The public key of the client</p>
+                  </li>
+                  <li>
+                     <p>The static tunnel IP addresses and subnet masks of the server</p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can configure the WireGuard server by creating a configuration file in the <codeph>/etc/wireguard/</codeph> directory. Use this method to configure the service independently from NetworkManager.</p>
+         <p>This procedure assumes the following settings:</p>
+         <ul>
+            <li>
+               <p>Server:</p>
+               <ul>
+                  <li>
+                     <p>Private key: <codeph>YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg=</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv4 address: <codeph>192.0.2.1/24</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv6 address: <codeph>2001:db8:1::1/32</codeph>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>Client:</p>
+               <ul>
+                  <li>
+                     <p>Public key: <codeph>bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv4 address: <codeph>192.0.2.2/24</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Tunnel IPv6 address: <codeph>2001:db8:1::2/32</codeph>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Install the <codeph>wireguard-tools</codeph> package:</cmd>
+            <info>
+               <codeblock># <b>dnf install wireguard-tools</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Create the <codeph>/etc/wireguard/wg0.conf</codeph> file with the following content:</cmd>
+            <info>
+               <codeblock>
+                  <b>[Interface]</b>
+                  <b>Address = 192.0.2.1/24, 2001:db8:1::1/32</b>
+                  <b>ListenPort = 51820</b>
+                  <b>PrivateKey = YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg=</b>
+                  <b>[Peer]</b>
+                  <b>PublicKey = bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=</b>
+                  <b>AllowedIPs = 192.0.2.2, 2001:db8:1::2</b>
+               </codeblock>
+               <ul>
+                  <li>
+                     <p>The <codeph>[Interface]</codeph> section describes the WireGuard settings of the interface on the server:</p>
+                     <ul>
+                        <li>
+                           <p>
+                              <codeph>Address</codeph>: A comma-separated list of the server’s tunnel IP addresses.</p>
+                        </li>
+                        <li>
+                           <p>
+                              <codeph>PrivateKey</codeph>: The private key of the server.</p>
+                        </li>
+                        <li>
+                           <p>
+                              <codeph>ListenPort</codeph>: The port on which WireGuard listens for incoming UDP connections.</p>
+                           <p>Always set a fixed port number on hosts that receive incoming WireGuard connections. If you do not set a port, WireGuard uses a random free port each time you activate the <codeph>wg0</codeph> interface.</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li>
+                     <p>Each <codeph>[Peer]</codeph> section describes the settings of one client:</p>
+                     <ul>
+                        <li>
+                           <p>
+                              <codeph>PublicKey</codeph>: The public key of the client.</p>
+                        </li>
+                        <li>
+                           <p>
+                              <codeph>AllowedIPs</codeph>: The tunnel IP addresses of the client that are allowed to send data to this server.</p>
+                        </li>
+                     </ul>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Enable and start the WireGuard connection:</cmd>
+            <info>
+               <codeblock># <b>systemctl enable --now wg-quick@wg0</b>
+               </codeblock>
+               <p>The systemd instance name must match the name of the configuration file in the <codeph>/etc/wireguard/</codeph> directory without the <codeph>.conf</codeph> suffix. The service also uses this name for the virtual network interface.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <xref href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_assembly_setting-up-a-wireguard-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</xref>.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the interface configuration of the <codeph>wg0</codeph> device:</p>
+               <codeblock># <b>wg show wg0</b>
+interface: wg0
+  public key: UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=
+  private key: (hidden)
+  listening port: 51820
+
+peer: bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=
+  allowed ips: 192.0.2.2/32, 2001:db8:1::2/128</codeblock>
+               <p>To display the private key in the output, use the <codeph>WG_HIDE_KEYS=never wg show wg0</codeph> command.</p>
+            </li>
+            <li>
+               <p>Display the IP configuration of the <codeph>wg0</codeph> device:</p>
+               <codeblock># <b>ip address show wg0</b>
+20: wg0: &lt;POINTOPOINT,NOARP,UP,LOWER_UP&gt; mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/none
+    inet 192.0.2.1/24 scope global wg0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::1/32 scope global
+       valid_lft forever preferred_lft forever</codeblock>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#proc_configuring-firewalld-on-a-wireguard-server-by-using-the-command-line_assembly_setting-up-a-wireguard-vpn">Configure the firewalld service on the WireGuard server</xref>.</p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

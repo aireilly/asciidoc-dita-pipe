@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-nmcli_configuring-policy-based-routing-to-define-alternative-routes">
+   <title>Routing traffic from a specific subnet to a different default gateway by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The system uses <codeph>NetworkManager</codeph> to configure the network, which is the default.</p>
+            </li>
+            <li>
+               <p>The RHEL router you want to set up in the procedure has four network interfaces:</p>
+               <ul>
+                  <li>
+                     <p>The <codeph>enp7s0</codeph> interface is connected to the network of provider A. The gateway IP in the provider’s network is <codeph>198.51.100.2</codeph>, and the network uses a <codeph>/30</codeph> network mask.</p>
+                  </li>
+                  <li>
+                     <p>The <codeph>enp1s0</codeph> interface is connected to the network of provider B. The gateway IP in the provider’s network is <codeph>192.0.2.2</codeph>, and the network uses a <codeph>/30</codeph> network mask.</p>
+                  </li>
+                  <li>
+                     <p>The <codeph>enp8s0</codeph> interface is connected to the <codeph>10.0.0.0/24</codeph> subnet with internal workstations.</p>
+                  </li>
+                  <li>
+                     <p>The <codeph>enp9s0</codeph> interface is connected to the <codeph>203.0.113.0/24</codeph> subnet with the company’s servers.</p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>Hosts in the internal workstations subnet use <codeph>10.0.0.1</codeph> as the default gateway. In the procedure, you assign this IP address to the <codeph>enp8s0</codeph> network interface of the router.</p>
+            </li>
+            <li>
+               <p>Hosts in the server subnet use <codeph>203.0.113.1</codeph> as the default gateway. In the procedure, you assign this IP address to the <codeph>enp9s0</codeph> network interface of the router.</p>
+            </li>
+            <li>
+               <p>The <codeph>firewalld</codeph> service is enabled and active.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use policy-based routing to configure a different default gateway for traffic from certain subnets.</p>
+         <p>For example, you can configure RHEL as a router that, by default, routes all traffic to internet provider A using the default route. However, traffic received from the internal workstations subnet is routed to provider B.</p>
+         <p>The procedure assumes the following network topology:</p>
+         <fig>
+            <image href="../images/policy-based-routing.png" placement="break">
+               <alt>Example topology used for policy-based routing.</alt>
+            </image>
+         </fig>
+      </context>
+      <steps>
+         <step>
+            <cmd>Configure the network interface to provider A:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type ethernet con-name Provider-A ifname enp7s0 ipv4.method manual ipv4.addresses 198.51.100.1/30 ipv4.gateway 198.51.100.2 ipv4.dns 198.51.100.200 connection.zone external</b>
+               </codeblock>
+               <p>The <codeph>nmcli connection add</codeph> command creates a NetworkManager connection profile. The command uses the following options:</p>
+               <ul>
+                  <li>
+                     <p>
+                        <codeph>type ethernet</codeph>: Defines that the connection type is Ethernet.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>con-name <i>&lt;connection_name&gt;</i>
+                        </codeph>: Sets the name of the profile. Use a meaningful name to avoid confusion.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>ifname <i>&lt;network_device&gt;</i>
+                        </codeph>: Sets the network interface.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>ipv4.method manual</codeph>: Enables to configure a static IP address.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>ipv4.addresses <i>&lt;IP_address&gt;</i>/<i>&lt;subnet_mask&gt;</i>
+                        </codeph>: Sets the IPv4 addresses and subnet mask.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>ipv4.gateway <i>&lt;IP_address&gt;</i>
+                        </codeph>: Sets the default gateway address.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>ipv4.dns <i>&lt;IP_of_DNS_server&gt;</i>
+                        </codeph>: Sets the IPv4 address of the DNS server.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>connection.zone <i>&lt;firewalld_zone&gt;</i>
+                        </codeph>: Assigns the network interface to the defined <codeph>firewalld</codeph> zone. Note that <codeph>firewalld</codeph> automatically enables masquerading for interfaces assigned to the <codeph>external</codeph> zone.</p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the network interface to provider B:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type ethernet con-name Provider-B ifname enp1s0 ipv4.method manual ipv4.addresses 192.0.2.1/30 ipv4.routes "0.0.0.0/0 192.0.2.2 table=5000" connection.zone external</b>
+               </codeblock>
+               <p>This command uses the <codeph>ipv4.routes</codeph> parameter instead of <codeph>ipv4.gateway</codeph> to set the default gateway. This is required to assign the default gateway for this connection to a different routing table (<codeph>5000</codeph>) than the default. NetworkManager automatically creates this new routing table when the connection is activated.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the network interface to the internal workstations subnet:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type ethernet con-name Internal-Workstations ifname enp8s0 ipv4.method manual ipv4.addresses 10.0.0.1/24 ipv4.routes "10.0.0.0/24 table=5000" ipv4.routing-rules "priority 5 from 10.0.0.0/24 table 5000" connection.zone trusted</b>
+               </codeblock>
+               <p>This command uses the <codeph>ipv4.routes</codeph> parameter to add a static route to the routing table with ID <codeph>5000</codeph>. This static route for the <codeph>10.0.0.0/24</codeph> subnet uses the IP of the local network interface to provider B (<codeph>192.0.2.1</codeph>) as the next hop.</p>
+               <p>Additionally, the command uses the <codeph>ipv4.routing-rules</codeph> parameter to add a routing rule with priority <codeph>5</codeph> that routes traffic from the <codeph>10.0.0.0/24</codeph> subnet to table <codeph>5000</codeph>. Low values have a high priority.</p>
+               <p>Note that the syntax in the <codeph>ipv4.routing-rules</codeph> parameter is the same as in an <codeph>ip rule add</codeph> command, except that <codeph>ipv4.routing-rules</codeph> always requires specifying a priority.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the network interface to the server subnet:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type ethernet con-name Servers ifname enp9s0 ipv4.method manual ipv4.addresses 203.0.113.1/24 connection.zone trusted</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>On a RHEL host in the internal workstation subnet:</p>
+               <ol>
+                  <li>
+                     <p>Install the <codeph>traceroute</codeph> package:</p>
+                     <codeblock># <b>dnf install traceroute</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Use the <codeph>traceroute</codeph> utility to display the route to a host on the internet:</p>
+                     <codeblock># <b>traceroute redhat.com</b>
+traceroute to redhat.com (209.132.183.105), 30 hops max, 60 byte packets
+ 1  10.0.0.1 (10.0.0.1)     0.337 ms  0.260 ms  0.223 ms
+ 2  192.0.2.2 (192.0.2.2)   0.884 ms  1.066 ms  1.248 ms
+ ...</codeblock>
+                     <p>The output of the command displays that the router sends packets over <codeph>192.0.2.1</codeph>, which is the network of provider B.</p>
+                  </li>
+               </ol>
+            </li>
+            <li>
+               <p>On a RHEL host in the server subnet:</p>
+               <ol>
+                  <li>
+                     <p>Install the <codeph>traceroute</codeph> package:</p>
+                     <codeblock># <b>dnf install traceroute</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Use the <codeph>traceroute</codeph> utility to display the route to a host on the internet:</p>
+                     <codeblock># <b>traceroute redhat.com</b>
+traceroute to redhat.com (209.132.183.105), 30 hops max, 60 byte packets
+ 1  203.0.113.1 (203.0.113.1)    2.179 ms  2.073 ms  1.944 ms
+ 2  198.51.100.2 (198.51.100.2)  1.868 ms  1.798 ms  1.549 ms
+ ...</codeblock>
+                     <p>The output of the command displays that the router sends packets over <codeph>198.51.100.2</codeph>, which is the network of provider A.</p>
+                  </li>
+               </ol>
+            </li>
+         </ol>
+         <p>On the RHEL router:</p>
+         <ol>
+            <li>
+               <p>Display the rule list:</p>
+               <codeblock># <b>ip rule list</b>
+0:	from all lookup local
+<b>5</b>:	<b>from 10.0.0.0/24 lookup 5000</b>
+32766:	from all lookup main
+32767:	from all lookup default</codeblock>
+               <p>By default, RHEL contains rules for the tables <codeph>local</codeph>, <codeph>main</codeph>, and <codeph>default</codeph>.</p>
+            </li>
+            <li>
+               <p>Display the routes in table <codeph>5000</codeph>:</p>
+               <codeblock># <b>ip route list table 5000</b>
+0.0.0.0/0 via 192.0.2.2 dev enp1s0 proto static metric 100
+10.0.0.0/24 dev enp8s0 proto static scope link src 192.0.2.1 metric 102</codeblock>
+            </li>
+            <li>
+               <p>Display the interfaces and firewall zones:</p>
+               <codeblock># <b>firewall-cmd --get-active-zones</b>
+external
+  interfaces: enp1s0 enp7s0
+trusted
+  interfaces: enp8s0 enp9s0</codeblock>
+            </li>
+            <li>
+               <p>Verify that the <codeph>external</codeph> zone has masquerading enabled:</p>
+               <codeblock># <b>firewall-cmd --info-zone=external</b>
+external (active)
+  target: default
+  icmp-block-inversion: no
+  interfaces: enp1s0 enp7s0
+  sources:
+  services: ssh
+  ports:
+  protocols:
+  <b>masquerade: yes</b>
+  ...</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

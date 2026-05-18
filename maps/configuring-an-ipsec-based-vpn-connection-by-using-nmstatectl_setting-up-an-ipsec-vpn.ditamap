@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Configuring an IPsec based VPN connection by using nmstatectl</title>
+   <topicref href="../topics/configuring-an-ipsec-host-to-host-vpn-with-raw-rsa-key-authentication-by-using-nmstatectl_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl.dita"/>
+   <topicref href="../topics/configuring-an-ipsec-site-to-site-vpn-with-raw-rsa-key-authentication-by-using-nmstatectl_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl.dita"/>
+   <topicref href="../topics/configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-nmstatectl_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl.dita"/>
+</map>

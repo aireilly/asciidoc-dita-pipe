@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="the-architecture-of-tipc_getting-started-with-tipc">
+   <title>The architecture of TIPC</title>
+   <conbody>
+      <p>TIPC is a layer between applications using TIPC and a packet transport service (<codeph>bearer</codeph>), and spans the level of transport, network, and signaling link layers. However, TIPC can use a different transport protocol as bearer, so that, for example, a TCP connection can serve as a bearer for a TIPC signaling link.</p>
+      <p>TIPC supports the following bearers:</p>
+      <ul>
+         <li>
+            <p>Ethernet</p>
+         </li>
+         <li>
+            <p>InfiniBand</p>
+         </li>
+         <li>
+            <p>UDP protocol</p>
+         </li>
+      </ul>
+      <p>TIPC provides a reliable transfer of messages between TIPC ports, that are the endpoints of all TIPC communication.</p>
+      <p>The following is a diagram of the TIPC architecture:</p>
+      <fig>
+         <image href="../images/TIPC-architectural-overview.png" placement="break">
+            <alt>TIPC architectural overview</alt>
+         </image>
+      </fig>
+   </conbody>
+</concept>

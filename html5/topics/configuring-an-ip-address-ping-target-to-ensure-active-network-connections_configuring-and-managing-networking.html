@@ -1,0 +1,34 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Configuring an IP address ping target to ensure active network connections</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="configuring-an-ip-address-ping-target-to-ensure-active-network-connections_configuring-and-managing-networking"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Configuring an IP address ping target to ensure active network connections</h1>
+   <div class="body taskbody">
+      <section class="section context">
+         <p class="p">Configure the <code class="ph codeph">connection.ip-ping-addresses</code> and <code class="ph codeph">connection.ip-ping-timeout</code> settings to verify connectivity to a specific target.</p>
+         <p class="p">The NetworkManager service starts after the system boots. Certain services, such as network file system (NFS), are dependent on the network connectivity. If the gateway IP or the target IP address does not return a response, NFS fails to mount because it cannot connect to its destination as the network is not completely up and running. Therefore, you can configure the <code class="ph codeph">connection.ip-ping-addresses</code> and <code class="ph codeph">connection.ip-ping-timeout</code> settings to verify connectivity to a specific target to avoid such problems. The <code class="ph codeph">connection.ip-ping-addresses</code> setting supports configuration of IPv4 and IPv6 addresses.</p>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Create a connection profile, if it does not already exist. For example, to create a profile for the <code class="ph codeph">enp1s0</code> interface with dynamic IP address assignment, enter:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code># <strong class="ph b">nmcli connection add con-name enp1s0 ifname enp1s0 type ethernet</strong>
+               </code></pre>
+               <div class="note note note_note"><span class="note__title">Note:</span> <div class="note__body">
+                  <p class="p">Configuration of <code class="ph codeph">connection.ip-ping-addresses</code> can result in the delay of response from the <code class="ph codeph">network-online</code> target service of <code class="ph codeph">systemd</code>, because of waiting for either the ping operation completion or timeout period.</p>
+               </div></div>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Configure the connection to ping the specified IP addresses with a defined timeout period:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code># <strong class="ph b">nmcli connection modify enp1s0 connection.ip-ping-addresses "192.0.2.56, 192.0.2.60" connection.ip-ping-timeout 10 ipv4.may-fail no</strong>
+               </code></pre>
+               <p class="p">Setting the <code class="ph codeph">ipv4.may-fail</code> attribute to <code class="ph codeph">no</code>, ensures that IPv4 configuration must complete successfully.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Re-activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock language-console"><code># <strong class="ph b">nmcli connection up enp1s0</strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+   </div>
+</article></main></body></html>

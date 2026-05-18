@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_monitoring-mptcp-sub-flows_getting-started-with-multipath-tcp">
+   <title>Monitoring MPTCP sub-flows</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A RHEL client with two network interfaces, such as a laptop with Ethernet and WiFi</p>
+            </li>
+            <li>
+               <p>The client can connect to the server via both interfaces</p>
+            </li>
+            <li>
+               <p>A RHEL server</p>
+            </li>
+            <li>
+               <p>Both the client and the server run RHEL 9.0 or later</p>
+            </li>
+            <li>
+               <p>You installed the <codeph>mptcpd</codeph> package on both the client and the server</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>Monitoring MPTCP (Multipath TCP) subflows is crucial for optimizing performance, ensuring reliability, and maintaining control over multi-path network communication.</p>
+         <p>The life cycle of a multipath TCP (MPTCP) socket can be complex: The main MPTCP socket is created, the MPTCP path is validated, one or more sub-flows are created and eventually removed. Finally, the MPTCP socket is terminated.</p>
+         <p>The MPTCP protocol allows monitoring MPTCP-specific events related to socket and sub-flow creation and deletion, using the <codeph>ip</codeph> utility provided by the <codeph>iproute</codeph> package. This utility uses the <codeph>netlink</codeph> interface to monitor MPTCP events.</p>
+         <p>This procedure demonstrates how to monitor MPTCP events. For that, it simulates a MPTCP server application, and a client connects to this service. The involved clients in this example use the following interfaces and IP addresses:</p>
+         <ul>
+            <li>
+               <p>Server: <codeph>192.0.2.1</codeph>
+               </p>
+            </li>
+            <li>
+               <p>Client (Ethernet connection): <codeph>192.0.2.2</codeph>
+               </p>
+            </li>
+            <li>
+               <p>Client (WiFi connection): <codeph>192.0.2.3</codeph>
+               </p>
+            </li>
+         </ul>
+         <p>To simplify this example, all interfaces are within the same subnet. This is not a requirement. However, it is important that routing has been configured correctly, and the client can reach the server via both interfaces.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Set the per connection additional subflow limits to <codeph>1</codeph> on both client and server:</cmd>
+            <info>
+               <codeblock># <b>ip mptcp limits set add_addr_accepted 0 subflows 1</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>On the server, to simulate a MPTCP server application, start <codeph>netcat</codeph> (<codeph>nc</codeph>) in listen mode with enforced MPTCP sockets instead of TCP sockets:</cmd>
+            <info>
+               <codeblock># <b>mptcpize run nc -l -k -p <i>12345</i>
+                  </b>
+               </codeblock>
+               <p>The <codeph>-k</codeph> option causes that <codeph>nc</codeph> does not close the listener after the first accepted connection. This is required to demonstrate the monitoring of sub-flows.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>On the client:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Identify the interface with the lowest metric:</p>
+                     <codeblock># <b>ip -4 route</b>
+192.0.2.0/24 dev enp1s0 proto kernel scope link src 192.0.2.2 metric 100
+192.0.2.0/24 dev wlp1s0 proto kernel scope link src 192.0.2.3 metric 600</codeblock>
+                     <p>The <codeph>enp1s0</codeph> interface has a lower metric than <codeph>wlp1s0</codeph>. Therefore, RHEL uses <codeph>enp1s0</codeph> by default.</p>
+                  </li>
+                  <li>
+                     <p>On the first terminal, start the monitoring:</p>
+                     <codeblock># <b>ip mptcp monitor</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>On the second terminal, start a MPTCP connection to the server:</p>
+                     <codeblock># <b>mptcpize run nc 192.0.2.1 12345</b>
+                     </codeblock>
+                     <p>RHEL uses the <codeph>enp1s0</codeph> interface and its associated IP address as a source for this connection.</p>
+                     <p>On the monitoring terminal, the <codeph>ip mptcp monitor</codeph> command now logs:</p>
+                     <codeblock>[       CREATED] token=63c070d2 remid=0 locid=0 saddr4=192.0.2.2 daddr4=192.0.2.1 sport=36444 dport=12345</codeblock>
+                     <p>The token identifies the MPTCP socket as an unique ID, and later it enables you to correlate MPTCP events on the same socket.</p>
+                  </li>
+                  <li>
+                     <p>On the terminal with the running <codeph>nc</codeph> connection to the server, press <ph>Enter</ph>. This first data packet fully establishes the connection. Note that, as long as no data has been sent, the connection is not established.</p>
+                     <p>On the monitoring terminal, <codeph>ip mptcp monitor</codeph> now logs:</p>
+                     <codeblock>[   ESTABLISHED] token=63c070d2 remid=0 locid=0 saddr4=192.0.2.2 daddr4=192.0.2.1 sport=36444 dport=12345</codeblock>
+                  </li>
+                  <li>
+                     <p>Optional: Display the connections to port <codeph>12345</codeph> on the server:</p>
+                     <codeblock># <b>ss -taunp | grep ":12345"</b>
+tcp ESTAB  0  0         192.0.2.2:36444 192.0.2.1:12345</codeblock>
+                     <p>At this point, only one connection to the server has been established.</p>
+                  </li>
+                  <li>
+                     <p>On a third terminal, create another endpoint:</p>
+                     <codeblock># <b>ip mptcp endpoint add dev wlp1s0 192.0.2.3 subflow</b>
+                     </codeblock>
+                     <p>This command sets the name and IP address of the WiFi interface of the client in this command.</p>
+                     <p>On the monitoring terminal, <codeph>ip mptcp monitor</codeph> now logs:</p>
+                     <codeblock>[SF_ESTABLISHED] token=63c070d2 remid=0 locid=2 saddr4=192.0.2.3 daddr4=192.0.2.1 sport=53345 dport=12345 backup=0 ifindex=3</codeblock>
+                     <p>The <codeph>locid</codeph> field displays the local address ID of the new sub-flow and identifies this sub-flow even if the connection uses network address translation (NAT). The <codeph>saddr4</codeph> field matches the endpoint’s IP address from the <codeph>ip mptcp endpoint add</codeph> command.</p>
+                  </li>
+                  <li>
+                     <p>Optional: Display the connections to port <codeph>12345</codeph> on the server:</p>
+                     <codeblock># <b>ss -taunp | grep ":12345"</b>
+tcp ESTAB  0  0         192.0.2.2:36444 192.0.2.1:12345
+tcp ESTAB  0  0  192.0.2.3%wlp1s0:53345 192.0.2.1:12345</codeblock>
+                     <p>The command now displays two connections:</p>
+                     <ul>
+                        <li>
+                           <p>The connection with source address <codeph>192.0.2.2</codeph> corresponds to the first MPTCP sub-flow that you established previously.</p>
+                        </li>
+                        <li>
+                           <p>The connection from the sub-flow over the <codeph>wlp1s0</codeph> interface with source address <codeph>192.0.2.3</codeph>.</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li>
+                     <p>On the third terminal, delete the endpoint:</p>
+                     <codeblock># <b>ip mptcp endpoint delete id 2</b>
+                     </codeblock>
+                     <p>Use the ID from the <codeph>locid</codeph> field from the <codeph>ip mptcp monitor</codeph> output, or retrieve the endpoint ID using the <codeph>ip mptcp endpoint show</codeph> command.</p>
+                     <p>On the monitoring terminal, <codeph>ip mptcp monitor</codeph> now logs:</p>
+                     <codeblock>[     SF_CLOSED] token=63c070d2 remid=0 locid=2 saddr4=192.0.2.3 daddr4=192.0.2.1 sport=53345 dport=12345 backup=0 ifindex=3</codeblock>
+                  </li>
+                  <li>
+                     <p>On the first terminal with the <codeph>nc</codeph> client, press <ph>
+                           <ph>Ctrl</ph>
+                           <ph>C</ph>
+                        </ph> to terminate the session.</p>
+                     <p>On the monitoring terminal, <codeph>ip mptcp monitor</codeph> now logs:</p>
+                     <codeblock>[        CLOSED] token=63c070d2</codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+      </steps>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#con_how-networkmanager-manages-multiple-default-gateways_managing-the-default-gateway-setting">How NetworkManager manages multiple default gateways</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

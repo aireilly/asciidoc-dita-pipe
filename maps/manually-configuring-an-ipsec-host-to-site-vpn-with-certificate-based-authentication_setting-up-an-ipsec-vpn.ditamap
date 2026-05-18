@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Manually configuring an IPsec host-to-site VPN with certificate-based authentication</title>
+   <topicref href="../topics/setting-up-an-ipsec-gateway-manually_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication.dita"/>
+   <topicref href="../topics/configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication.dita"/>
+</map>

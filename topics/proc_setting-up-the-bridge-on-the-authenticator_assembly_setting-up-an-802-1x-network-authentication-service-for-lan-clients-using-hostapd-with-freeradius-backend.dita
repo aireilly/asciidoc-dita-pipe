@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_setting-up-the-bridge-on-the-authenticator_assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend">
+   <title>Setting up the bridge on the authenticator</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The server has multiple Ethernet interfaces.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>A network bridge is a link-layer device that forwards traffic between hosts and networks based on a table of MAC addresses. If you set up RHEL as an 802.1X authenticator, add both the interfaces on which to perform authentication and the LAN interface to the bridge.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>If the bridge interface does not exist, create it:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type bridge con-name br0 ifname br0</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Assign the Ethernet interfaces to the bridge:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type ethernet port-type bridge con-name br0-port1 ifname enp1s0 controller br0</b>
+# <b>nmcli connection add type ethernet port-type bridge con-name br0-port2 ifname enp7s0 controller br0</b>
+# <b>nmcli connection add type ethernet port-type bridge con-name br0-port3 ifname enp8s0 controller br0</b>
+# <b>nmcli connection add type ethernet port-type bridge con-name br0-port4 ifname enp9s0 controller br0</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Enable the bridge to forward extensible authentication protocol over LAN (EAPOL) packets:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify br0 group-forward-mask 8</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Disable the Spanning Tree Protocol (STP) on the bridge device:</cmd>
+            <info>
+               <codeblock># *nmcli connection modify br0 stp off"</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the connection to automatically activate the ports:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify br0 connection.autoconnect-ports 1</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up br0</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the link status of Ethernet devices that are ports of a specific bridge:</p>
+               <codeblock># <b>ip link show master br0</b>
+3: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel master br0 state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:62:61:0e brd ff:ff:ff:ff:ff:ff
+...</codeblock>
+            </li>
+            <li>
+               <p>Verify if forwarding of EAPOL packets is enabled on the <codeph>br0</codeph> device:</p>
+               <codeblock># <b>cat /sys/class/net/br0/bridge/group_fwd_mask</b>
+0x8</codeblock>
+               <p>If the command returns <codeph>0x8</codeph>, forwarding is enabled.</p>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

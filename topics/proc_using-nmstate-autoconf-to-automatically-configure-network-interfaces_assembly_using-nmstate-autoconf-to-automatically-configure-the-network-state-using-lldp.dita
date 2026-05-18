@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_using-nmstate-autoconf-to-automatically-configure-network-interfaces_assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp">
+   <title>Using nmstate-autoconf to automatically configure network interfaces</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>nmstate</codeph> package is installed.</p>
+            </li>
+            <li>
+               <p>LLDP is enabled on the network switch.</p>
+            </li>
+            <li>
+               <p>The Ethernet interfaces are up.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>The <codeph>nmstate-autoconf</codeph> utility uses LLDP to identify the VLAN settings of interfaces connected to a switch to configure local devices.</p>
+         <p>This procedure assumes the following scenario and that the switch broadcasts the VLAN settings using LLDP:</p>
+         <ul>
+            <li>
+               <p>The <codeph>enp1s0</codeph> and <codeph>enp2s0</codeph> interfaces of the RHEL server are connected to switch ports that are configured with VLAN ID <codeph>100</codeph> and VLAN name <codeph>prod-net</codeph>.</p>
+            </li>
+            <li>
+               <p>The <codeph>enp3s0</codeph> interface of the RHEL server is connected to a switch port that is configured with VLAN ID <codeph>200</codeph> and VLAN name <codeph>mgmt-net</codeph>.</p>
+            </li>
+         </ul>
+         <p>The <codeph>nmstate-autoconf</codeph> utility then uses this information to create the following interfaces on the server:</p>
+         <ul>
+            <li>
+               <p>
+                  <codeph>bond100</codeph> - A bond interface with <codeph>enp1s0</codeph> and <codeph>enp2s0</codeph> as ports.</p>
+            </li>
+            <li>
+               <p>
+                  <codeph>prod-net</codeph> - A VLAN interface on top of <codeph>bond100</codeph> with VLAN ID <codeph>100</codeph>.</p>
+            </li>
+            <li>
+               <p>
+                  <codeph>mgmt-net</codeph> - A VLAN interface on top of <codeph>enp3s0</codeph> with VLAN ID <codeph>200</codeph>
+               </p>
+            </li>
+         </ul>
+         <p>If you connect multiple network interfaces to different switch ports for which LLDP broadcasts the same VLAN ID, <codeph>nmstate-autoconf</codeph> creates a bond with these interfaces and, additionally, configures the common VLAN ID on top of it.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Enable LLDP on the Ethernet interfaces:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Create a YAML file, for example <codeph>~/enable-lldp.yml</codeph>, with the following content:</p>
+                     <codeblock outputclass="language-yaml">interfaces:
+  - name: enp1s0
+    type: ethernet
+    lldp:
+      enabled: true
+  - name: enp2s0
+    type: ethernet
+    lldp:
+      enabled: true
+  - name: enp3s0
+    type: ethernet
+    lldp:
+      enabled: true</codeblock>
+                  </li>
+                  <li>
+                     <p>Apply the settings to the system:</p>
+                     <codeblock># <b>nmstatectl apply ~/enable-lldp.yml</b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the network interfaces using LLDP:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Optional, start a dry-run to display and verify the YAML configuration that <codeph>nmstate-autoconf</codeph> generates:</p>
+                     <codeblock># <b>nmstate-autoconf -d <i>enp1s0</i>,<i>enp2s0</i>,<i>enp3s0</i>
+                        </b>
+---
+interfaces:
+- name: prod-net
+  type: vlan
+  state: up
+  vlan:
+    base-iface: bond100
+    id: 100
+- name: mgmt-net
+  type: vlan
+  state: up
+  vlan:
+    base-iface: enp3s0
+    id: 200
+- name: bond100
+  type: bond
+  state: up
+  link-aggregation:
+    mode: balance-rr
+    port:
+    - enp1s0
+    - enp2s0</codeblock>
+                  </li>
+                  <li>
+                     <p>Use <codeph>nmstate-autoconf</codeph> to generate the configuration based on information received from LLDP, and apply the settings to the system:</p>
+                     <codeblock># <b>nmstate-autoconf <i>enp1s0</i>,<i>enp2s0</i>,<i>enp3s0</i>
+                        </b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the settings of the individual interfaces:</p>
+               <codeblock># <b>nmstatectl show <i>&lt;interface_name&gt;</i>
+                  </b>
+               </codeblock>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>If there is no DHCP server in your network that provides the IP settings to the interfaces, configure them manually. For details, see:</p>
+               <ul>
+                  <li>
+                     <p>
+                        <xref href="#configuring-an-ethernet-connection_configuring-and-managing-networking">Configuring an Ethernet connection</xref>
+                     </p>
+                  </li>
+                  <li>
+                     <p>
+                        <xref href="#configuring-network-bonding_configuring-and-managing-networking">Configuring a network bond</xref>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

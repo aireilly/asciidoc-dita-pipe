@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="assigning-alternative-names-to-a-network-interface-by-using-systemd-link-files_consistent-network-interface-device-naming">
+   <title>Assigning alternative names to a network interface by using systemd link files</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You must use ASCII characters for the alternative name.</p>
+            </li>
+            <li>
+               <p>The alternative name must be shorter than 128 characters.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>With alternative interface naming, the kernel can assign additional names to network interfaces. You can use these alternative names in the same way as the normal interface names in commands that require a network interface name.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Display the network interface names and their MAC addresses:</cmd>
+            <info>
+               <codeblock># <b>ip link show</b>
+...
+enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+...</codeblock>
+               <p>Record the MAC address of the interface to which you want to assign an alternative name.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>If it does not already exist, create the <codeph>/etc/systemd/network/</codeph> directory:</cmd>
+            <info>
+               <codeblock># <b>mkdir -p /etc/systemd/network/</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>For each interface that must have an alternative name, create a copy of the <codeph>/usr/lib/systemd/network/99-default.link</codeph> file with a unique name and <codeph>.link</codeph> suffix in the <codeph>/etc/systemd/network/</codeph> directory, for example:</cmd>
+            <info>
+               <codeblock># <b>cp /usr/lib/systemd/network/99-default.link /etc/systemd/network/98-lan.link</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Modify the file you created in the previous step. Rewrite the <codeph>[Match]</codeph> section as follows, and append the <codeph>AlternativeName</codeph> entries to the <codeph>[Link]</codeph> section:</cmd>
+            <info>
+               <codeblock outputclass="language-console">[Match]
+MACAddress=<i>&lt;MAC_address&gt;</i>
+
+[Link]
+...
+AlternativeName=<i>&lt;alternative_interface_name_1&gt;</i>
+AlternativeName=<i>&lt;alternative_interface_name_2&gt;</i>
+AlternativeName=<i>&lt;alternative_interface_name_n&gt;</i>
+               </codeblock>
+               <p>For example, create the <codeph>/etc/systemd/network/70-altname.link</codeph> file with the following content to assign <codeph>provider</codeph> as an alternative name to the interface with MAC address <codeph>00:00:5e:00:53:1a</codeph>:</p>
+               <codeblock outputclass="language-console">[Match]
+MACAddress=00:00:5e:00:53:1a
+
+[Link]
+NamePolicy=keep kernel database onboard slot path
+AlternativeNamesPolicy=database onboard slot path
+MACAddressPolicy=none
+AlternativeName=provider</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Regenerate the <codeph>initrd</codeph> RAM disk image:</cmd>
+            <info>
+               <codeblock># <b>dracut -f</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Reboot the system:</cmd>
+            <info>
+               <codeblock># <b>reboot</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Use the alternative interface name. For example, display the IP address settings of the device with the alternative name <codeph>provider</codeph>:</p>
+               <codeblock># <b>ip address show provider</b>
+2: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:00:5e:00:53:1a brd ff:ff:ff:ff:ff:ff
+    altname <b>provider</b>
+    ...</codeblock>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/solutions/6964829"
+                        format="html"
+                        scope="external">What is AlternativeNamesPolicy in Interface naming scheme? (Red Hat Knowledgebase)</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

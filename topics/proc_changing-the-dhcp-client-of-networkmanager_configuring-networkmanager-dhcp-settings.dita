@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_changing-the-dhcp-client-of-networkmanager_configuring-networkmanager-dhcp-settings">
+   <title>Changing the DHCP client of NetworkManager</title>
+   <taskbody>
+      <context>
+         <p>By default, NetworkManager uses its internal DHCP client. However, if you require a DHCP client with features that the built-in client does not provide, you can alternatively configure NetworkManager to use <codeph>dhclient</codeph>.</p>
+         <p>Note that RHEL does not provide <codeph>dhcpcd</codeph> and, therefore, NetworkManager cannot use this client.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create the <codeph>/etc/NetworkManager/conf.d/dhcp-client.conf</codeph> file with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-console">[main]
+dhcp=dhclient</codeblock>
+               <p>You can set the <codeph>dhcp</codeph> parameter to <codeph>internal</codeph> (default) or <codeph>dhclient</codeph>.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>If you set the <codeph>dhcp</codeph> parameter to <codeph>dhclient</codeph>, install the <codeph>dhcp-client</codeph> package:</cmd>
+            <info>
+               <codeblock># <b>dnf install dhcp-client</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Restart NetworkManager:</cmd>
+            <info>
+               <codeblock># <b>systemctl restart NetworkManager</b>
+               </codeblock>
+               <p>Note that the restart temporarily interrupts all network connections.</p>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Search in the <codeph>/var/log/messages</codeph> log file for an entry similar to the following:</p>
+               <codeblock>Apr 26 09:54:19 server NetworkManager[27748]: &lt;info&gt;  [1650959659.8483] dhcp-init: Using DHCP client 'dhclient'</codeblock>
+               <p>This log entry confirms that NetworkManager uses <codeph>dhclient</codeph> as DHCP client.</p>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

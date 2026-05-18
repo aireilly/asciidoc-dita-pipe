@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-multiple-ethernet-interfaces-by-using-a-single-connection-profile-by-interface-name_configuring-an-ethernet-connection">
+   <title>Configuring multiple Ethernet interfaces by using a single connection profile by interface name</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>Multiple physical or virtual Ethernet devices exist in the server’s configuration.</p>
+            </li>
+            <li>
+               <p>A DHCP server is available in the network.</p>
+            </li>
+            <li>
+               <p>No connection profile exists on the host.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>NetworkManager supports using wildcards for interface names in connection profiles. This lets you create a single profile for multiple Ethernet interfaces, which is useful when a host roams between Ethernet networks with dynamic IP address assignment.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Add a connection profile that applies to all interface names starting with <codeph>enp</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add con-name "Wired connection 1" connection.multi-connect multiple match.interface-name enp* type ethernet</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display all settings of the single connection profile:</p>
+               <codeblock># <b>nmcli connection show "Wired connection 1"</b>
+connection.id:                      Wired connection 1
+...
+connection.multi-connect:           3 (multiple)
+match.interface-name:               <codeph>enp*</codeph>
+...</codeblock>
+               <p>
+                  <codeph>3</codeph> indicates that the interface can be active multiple times at a particular moment. The connection profile uses all devices that match the pattern in the <codeph>match.interface-name</codeph> parameter and, therefore, the connection profiles have the same Universally Unique Identifier (UUID).</p>
+            </li>
+            <li>
+               <p>Display the status of the connections:</p>
+               <codeblock># <b>nmcli connection show</b>
+NAME                UUID                                  TYPE      DEVICE
+...
+Wired connection 1  6f22402e-c0cc-49cf-b702-eaf0cd5ea7d1  ethernet  enp7s0
+Wired connection 1  6f22402e-c0cc-49cf-b702-eaf0cd5ea7d1  ethernet  enp8s0
+Wired connection 1  6f22402e-c0cc-49cf-b702-eaf0cd5ea7d1  ethernet  enp9s0</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

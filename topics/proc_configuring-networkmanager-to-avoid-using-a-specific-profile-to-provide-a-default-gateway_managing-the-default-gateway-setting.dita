@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-networkmanager-to-avoid-using-a-specific-profile-to-provide-a-default-gateway_managing-the-default-gateway-setting">
+   <title>Configuring NetworkManager to avoid using a specific profile to provide a default gateway</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The NetworkManager connection profile for the connection that is not connected to the default gateway exists.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>In connection profiles that are not connected to the default gateway, you can configure that NetworkManager never uses this profile to provide the default gateway.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>If the connection uses a dynamic IP configuration, configure that NetworkManager does not use this connection as the default connection for the corresponding IP type, meaning that NetworkManager will never assign the default route to it:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>&lt;connection_name&gt;</i> ipv4.never-default yes ipv6.never-default yes</b>
+               </codeblock>
+               <p>Note that setting <codeph>ipv4.never-default</codeph> and <codeph>ipv6.never-default</codeph> to <codeph>yes</codeph>, automatically removes the default gateway’s IP address for the corresponding protocol from the connection profile.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>&lt;connection_name&gt;</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Use the <codeph>ip -4 route</codeph> and <codeph>ip -6 route</codeph> commands to verify that RHEL does not use the network interface for the default route for the IPv4 and IPv6 protocol.</p>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

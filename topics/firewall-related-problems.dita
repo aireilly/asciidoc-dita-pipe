@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="firewall-related-problems">
+   <title>Firewall-related problems</title>
+   <refbody>
+      <section>
+         <p>Diagnose IPsec connection failures caused by firewall-related problems.</p>
+         <p>If a firewall on an endpoint or an intermediate route drops Internet Key Exchange version 2 (IKEv2) packets, the <codeph>ipsec auto --up</codeph> command times out and shows repeated <i>retransmission</i> messages:</p>
+         <codeblock outputclass="language-text">181 "vpn.example.com"[1] 192.0.2.2 #15: initiating IKEv2 IKE SA
+181 "vpn.example.com"[1] 192.0.2.2 #15: STATE_PARENT_I1: sent v2I1, expected v2R1
+010 "vpn.example.com"[1] 192.0.2.2 #15: STATE_PARENT_I1: retransmission; will wait 0.5 seconds for response
+010 "vpn.example.com"[1] 192.0.2.2 #15: STATE_PARENT_I1: retransmission; will wait 1 seconds for response
+010 "vpn.example.com"[1] 192.0.2.2 #15: STATE_PARENT_I1: retransmission; will wait 2 seconds for response
+...</codeblock>
+         <p>You can use the <codeph>tcpdump</codeph> utility to capture traffic and verify if IKE or IPsec packets are dropped by a firewall, for example:</p>
+         <codeblock># tcpdump -i <i>&lt;interface&gt;</i> -n -n esp or udp port 500 or udp port 4500 or tcp port 4500</codeblock>
+         <p>Note that <codeph>tcpdump</codeph> is of limited use for diagnosing other types of IPsec problems because the IKE protocol is encrypted.</p>
+      </section>
+   </refbody>
+</reference>
