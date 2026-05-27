@@ -75,8 +75,11 @@ def main():
     src_dir = sys.argv[1] if len(sys.argv) > 1 else "src"
 
     root = ET.Element("manifest")
+    seen_ids = set()
 
-    for dirpath, _, filenames in os.walk(src_dir):
+    for dirpath, dirnames, filenames in os.walk(src_dir):
+        dirnames[:] = [d for d in dirnames if not d.startswith(('.', '_'))]
+
         for fname in sorted(filenames):
             if not fname.endswith(".adoc"):
                 continue
@@ -85,7 +88,8 @@ def main():
 
             filepath = os.path.join(dirpath, fname)
             for section_id, content_type, source in extract_content_types(filepath):
-                if content_type:
+                if content_type and section_id not in seen_ids:
+                    seen_ids.add(section_id)
                     entry = ET.SubElement(root, "entry")
                     entry.set("id", section_id)
                     entry.set("type", content_type)
