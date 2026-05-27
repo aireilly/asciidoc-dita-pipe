@@ -189,7 +189,14 @@
           <xsl:attribute name="xml:lang"><xsl:value-of select="@xml:lang"/></xsl:attribute>
         </xsl:if>
 
-        <xsl:apply-templates select="title"/>
+        <xsl:choose>
+          <xsl:when test="not(title) or normalize-space(title) = ''">
+            <title><xsl:value-of select="ancestor::*[self::topic|self::concept|self::task|self::reference][last()]/title"/></title>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="title"/>
+          </xsl:otherwise>
+        </xsl:choose>
 
         <xsl:if test="shortdesc">
           <xsl:apply-templates select="shortdesc"/>

@@ -435,8 +435,12 @@
       <xsl:choose>
         <!-- programlisting with language: "db.programlisting language-yaml" -->
         <xsl:when test="contains($oc, 'language-')">
+          <xsl:variable name="raw-lang" select="substring-after($oc, 'db.programlisting ')"/>
           <xsl:attribute name="outputclass">
-            <xsl:value-of select="substring-after($oc, 'db.programlisting ')"/>
+            <xsl:choose>
+              <xsl:when test="$raw-lang = 'language-terminal'">language-bash</xsl:when>
+              <xsl:otherwise><xsl:value-of select="$raw-lang"/></xsl:otherwise>
+            </xsl:choose>
           </xsl:attribute>
         </xsl:when>
         <!-- plain programlisting without language -->
