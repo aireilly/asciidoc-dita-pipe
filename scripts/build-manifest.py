@@ -30,27 +30,30 @@ PREFIX_MAP = {
 }
 
 
-def extract_content_type(filepath):
-    """Extract content type from .adoc file."""
+def extract_content_types(filepath):
+    """Extract content type and all section IDs from .adoc file.
+
+    Returns a list of (section_id, content_type, source) tuples.
+    The file-level content type is inherited by all subsection IDs.
+    """
     basename = os.path.basename(filepath)
     content_type = None
-    section_id = None
+    section_ids = []
 
     try:
         with open(filepath, "r", errors="replace") as f:
             for line in f:
-                # Check for :_mod-docs-content-type:
-                m = re.match(r'^:_mod-docs-content-type:\s*(\w+)', line)
-                if m:
-                    raw_type = m.group(1).upper()
-                    content_type = CONTENT_TYPE_MAP.get(raw_type)
+                if not content_type:
+                    m = re.match(r'^:_mod-docs-content-type:\s*(\w+)', line)
+                    if m:
+                        raw_type = m.group(1).upper()
+                        content_type = CONTENT_TYPE_MAP.get(raw_type)
 
-                # Check for [id="..."]
                 m = re.match(r'^\[id=["\']([^"\']+)["\']', line)
                 if m:
-                    section_id = m.group(1)
-                    # Strip context suffix like _{context}
-                    section_id = re.sub(r'_\{[^}]+\}$', '', section_id)
+                    sid = m.group(1)
+                    sid = re.sub(r'_\{[^}]+\}$', '', sid)
+                    section_ids.append(sid)
     except Exception:
         pass
 
@@ -62,10 +65,10 @@ def extract_content_type(filepath):
                 break
 
     # Fallback: derive ID from filename
-    if not section_id:
-        section_id = os.path.splitext(basename)[0]
+    if not section_ids:
+        section_ids.append(os.path.splitext(basename)[0])
 
-    return section_id, content_type, basename
+    return [(sid, content_type, basename) for sid in section_ids]
 
 
 def main():
@@ -81,13 +84,12 @@ def main():
                 continue
 
             filepath = os.path.join(dirpath, fname)
-            section_id, content_type, source = extract_content_type(filepath)
-
-            if content_type:
-                entry = ET.SubElement(root, "entry")
-                entry.set("id", section_id)
-                entry.set("type", content_type)
-                entry.set("source", source)
+            for section_id, content_type, source in extract_content_types(filepath):
+                if content_type:
+                    entry = ET.SubElement(root, "entry")
+                    entry.set("id", section_id)
+                    entry.set("type", content_type)
+                    entry.set("source", source)
 
     xml_str = minidom.parseString(ET.tostring(root, encoding="unicode")).toprettyxml(indent="  ")
     # Remove extra XML declaration from minidom
