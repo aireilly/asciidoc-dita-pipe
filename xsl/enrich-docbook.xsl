@@ -30,8 +30,8 @@
   <!-- Key for manifest lookup -->
   <xsl:key name="manifest-by-id" match="entry" use="@id"/>
 
-  <!-- Match sections, chapters, and prefaces, inject role from manifest -->
-  <xsl:template match="d:section[@xml:id] | d:chapter[@xml:id] | d:preface[@xml:id] | d:simplesect[@xml:id]">
+  <!-- Match structural elements with IDs, inject role from manifest -->
+  <xsl:template match="d:book[@xml:id] | d:article[@xml:id] | d:section[@xml:id] | d:chapter[@xml:id] | d:preface[@xml:id] | d:simplesect[@xml:id]">
     <xsl:variable name="full-id" select="string(@xml:id)"/>
 
     <!-- Strip context suffix: the part after the last underscore that looks like a context

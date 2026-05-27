@@ -85,7 +85,7 @@
 
       <xsl:otherwise>
         <!-- Warn for non-assembly topics that lack specialization -->
-        <xsl:if test="@outputclass != 'assembly' and @outputclass != 'db.article'">
+        <xsl:if test="@outputclass != 'assembly' and @outputclass != 'db.article' and not(starts-with(@id, 'id.d'))">
           <xsl:message>
             <xsl:text>WARNING: Topic "</xsl:text>
             <xsl:value-of select="@id"/>
