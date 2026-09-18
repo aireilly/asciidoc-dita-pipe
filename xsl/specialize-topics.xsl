@@ -399,10 +399,10 @@
     </xsl:for-each-group>
   </xsl:template>
 
-  <!-- Fatal error: xref with empty href -->
+  <!-- Warn and omit xref with empty href -->
   <xsl:template match="xref[@href][not(normalize-space(@href))]" priority="10">
-    <xsl:message terminate="yes">
-      <xsl:text>FATAL: Empty @href on &lt;xref&gt; in topic "</xsl:text>
+    <xsl:message>
+      <xsl:text>WARNING: Empty @href on &lt;xref&gt; in topic "</xsl:text>
       <xsl:value-of select="ancestor::*[self::topic|self::concept|self::task|self::reference][1]/@id"/>
       <xsl:text>". Fix the xref in the AsciiDoc source (link text: "</xsl:text>
       <xsl:value-of select="normalize-space(.)"/>
@@ -410,10 +410,10 @@
     </xsl:message>
   </xsl:template>
 
-  <!-- Fatal error: xref with neither href nor keyref -->
+  <!-- Warn and omit xref with neither href nor keyref -->
   <xsl:template match="xref[not(@href) and not(@keyref)]" priority="10">
-    <xsl:message terminate="yes">
-      <xsl:text>FATAL: &lt;xref&gt; with no @href or @keyref in topic "</xsl:text>
+    <xsl:message>
+      <xsl:text>WARNING: &lt;xref&gt; with no @href or @keyref in topic "</xsl:text>
       <xsl:value-of select="ancestor::*[self::topic|self::concept|self::task|self::reference][1]/@id"/>
       <xsl:text>". Fix the xref in the AsciiDoc source (link text: "</xsl:text>
       <xsl:value-of select="normalize-space(.)"/>
