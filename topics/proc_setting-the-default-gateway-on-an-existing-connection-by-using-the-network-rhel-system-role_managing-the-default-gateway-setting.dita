@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_setting-the-default-gateway-on-an-existing-connection-by-using-the-network-rhel-system-role_managing-the-default-gateway-setting">
+   <title>Setting the default gateway on an existing connection by using the <codeph>network</codeph> RHEL system role</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles"
+                        format="html"
+                        scope="external">You have prepared the control node and the managed nodes</xref>.</p>
+            </li>
+            <li>
+               <p>The account you use to connect to the managed nodes has <codeph>sudo</codeph> permissions for these nodes.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>By using the <codeph>network</codeph> RHEL system role, you can automate setting the default gateway in a NetworkManager connection profile. With this method, you can remotely configure the default gateway on hosts defined in a playbook.</p>
+         <p>In most situations, administrators set the default gateway when they create a connection. However, you can also set or update the default gateway setting on a previously-created connection.</p>
+         <note type="attention">
+            <p>You cannot use the <codeph>network</codeph> RHEL system role to update only specific values in an existing connection profile. The role ensures that a connection profile exactly matches the settings in a playbook. If a connection profile with the same name already exists, the role applies the settings from the playbook and resets all other settings in the profile to their defaults. To prevent resetting values, always specify the whole configuration of the network connection profile in the playbook, including the settings that you do not want to change.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a playbook file, for example, <codeph>~/playbook.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Ethernet connection profile with static IP address settings
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: enp1s0
+            type: ethernet
+            autoconnect: yes
+            ip:
+              address:
+                - 198.51.100.20/24
+                - 2001:db8:1::1/64
+              <b>gateway4: 198.51.100.254</b>
+                  <b>gateway6: 2001:db8:1::fffe</b>
+              dns:
+                - 198.51.100.200
+                - 2001:db8:1::ffbb
+              dns_search:
+                - example.com
+            state: up</codeblock>
+               <p>For details about all variables used in the playbook, see the <codeph>/usr/share/ansible/roles/rhel-system-roles.network/README.md</codeph> file on the control node.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Validate the playbook syntax:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook --syntax-check ~/playbook.yml</b>
+               </codeblock>
+               <p>Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Run the playbook:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook ~/playbook.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Query the Ansible facts of the managed node and verify the active network settings:</p>
+               <codeblock># <b>ansible managed-node-01.example.com -m ansible.builtin.setup</b>
+...
+        "ansible_default_ipv4": {
+	    ...
+            "gateway": "198.51.100.254",
+            "interface": "enp1s0",
+	    ...
+        },
+        "ansible_default_ipv6": {
+	    ...
+            "gateway": "2001:db8:1::fffe",
+            "interface": "enp1s0",
+	    ...
+	}
+...</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

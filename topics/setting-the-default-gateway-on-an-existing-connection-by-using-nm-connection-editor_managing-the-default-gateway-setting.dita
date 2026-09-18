@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="setting-the-default-gateway-on-an-existing-connection-by-using-nm-connection-editor_managing-the-default-gateway-setting">
+   <title>Setting the default gateway on an existing connection by using nm-connection-editor</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>At least one static IP address must be configured on the connection on which the default gateway will be set.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>In most situations, administrators set the default gateway when they create a connection. However, you can also set or update the default gateway setting on a previously created connection using the <codeph>nm-connection-editor</codeph> application.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Open a terminal, and enter <codeph>nm-connection-editor</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nm-connection-editor</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Select the connection to modify, and click the gear wheel icon to edit the existing connection.</cmd>
+         </step>
+         <step>
+            <cmd>Set the IPv4 default gateway. For example, to set the IPv4 address of the default gateway on the connection to <codeph>192.0.2.1</codeph>:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Open the <codeph>IPv4 Settings</codeph> tab.</p>
+                  </li>
+                  <li>
+                     <p>Enter the address in the <codeph>gateway</codeph> field next to the IP range the gateway’s address is within:</p>
+                     <fig>
+                        <image href="../images/set-default-gw-in-nm-connection-editor_ipv4.png"
+                               placement="break">
+                           <alt>IPv4 address settings in `nm-connection-editor</alt>
+                        </image>
+                     </fig>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the IPv6 default gateway. For example, to set the IPv6 address of the default gateway on the connection to <codeph>2001:db8:1::1</codeph>:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Open the <codeph>IPv6</codeph> tab.</p>
+                  </li>
+                  <li>
+                     <p>Enter the address in the <codeph>gateway</codeph> field next to the IP range the gateway’s address is within:</p>
+                     <fig>
+                        <image href="../images/set-default-gw-in-nm-connection-editor_ipv6.png"
+                               placement="break">
+                           <alt>IPv6 address settings in `nm-connection-editor</alt>
+                        </image>
+                     </fig>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>OK</uicontrol>.</cmd>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>Save</uicontrol>.</cmd>
+         </step>
+         <step>
+            <cmd>Restart the network connection for changes to take effect. For example, to restart the <codeph>
+                  <i>example</i>
+               </codeph> connection using the command line:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>example</i>
+                  </b>
+               </codeblock>
+               <note type="attention">
+                  <p>All connections currently using this network connection are temporarily interrupted during the restart.</p>
+               </note>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Verify that the route is active.</p>
+               <p>To display the IPv4 default gateway:</p>
+               <codeblock># <b>ip -4 route</b>
+default via 192.0.2.1 dev <i>example</i> proto static metric 100</codeblock>
+               <p>To display the IPv6 default gateway:</p>
+               <codeblock># <b>ip -6 route</b>
+default via 2001:db8:1::1 dev <i>example</i> proto static metric 100 pref medium</codeblock>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#configuring-an-ethernet-connection-by-using-nm-connection-editor_configuring-an-ethernet-connection">Configuring an Ethernet connection by using nm-connection-editor</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

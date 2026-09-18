@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_enabling-mptcp-sockets-for-a-services-using-the-mptcpize-utility_assembly_managing-the-mptcpd-service">
+   <title>Enabling MPTCP sockets for a service by using the mptcpize utility</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>mptcpd</codeph> package is installed</p>
+            </li>
+            <li>
+               <p>The <codeph>nginx</codeph> package is installed</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>The following set of commands instruct you how to manage services using the <codeph>mptcpize</codeph> tool. You can enable or disable the <codeph>mptcp</codeph> socket for a service.</p>
+         <p>Assuming, you need to manage <codeph>mptcp</codeph> socket for the <codeph>nginx</codeph> service. You can achieve this goal by following the procedure below.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Enable <codeph>MPTCP</codeph> sockets for a service:</cmd>
+            <info>
+               <codeblock># <b>mptcpize enable nginx</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Disable the <codeph>MPTCP</codeph> sockets for a service:</cmd>
+            <info>
+               <codeblock># <b>mptcpize disable nginx</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Restart the service to make the changes to take effect:</cmd>
+            <info>
+               <codeblock># <b>systemctl restart nginx</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

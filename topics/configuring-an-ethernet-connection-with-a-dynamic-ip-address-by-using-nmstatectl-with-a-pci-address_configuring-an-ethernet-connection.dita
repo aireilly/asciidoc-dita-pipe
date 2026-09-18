@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-an-ethernet-connection-with-a-dynamic-ip-address-by-using-nmstatectl-with-a-pci-address_configuring-an-ethernet-connection">
+   <title>Configuring an Ethernet connection with a dynamic IP address by using <codeph>nmstatectl</codeph> with a PCI address</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A physical Ethernet device exists in the server’s configuration.</p>
+            </li>
+            <li>
+               <p>A DHCP server and SLAAC are available in the network.</p>
+            </li>
+            <li>
+               <p>The managed hosts use NetworkManager to configure the network.</p>
+            </li>
+            <li>
+               <p>You know the PCI address of the device. You can display the PCI address by using the <codeph>ethtool -i <i>&lt;interface_name&gt;</i> | grep bus-info</codeph> command.</p>
+            </li>
+            <li>
+               <p>The <codeph>nmstate</codeph> package is installed.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the declarative Nmstate API to configure an Ethernet connection with DHCP and IPv6 stateless address autoconfiguration (SLAAC) and assign the configuration to a device based on its PCI address. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a YAML file, for example <codeph>~/create-ethernet-profile.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+interfaces:
+- name: <i>&lt;profile_name&gt;</i>
+  type: ethernet
+  state: up
+  identifier: pci-address
+  pci-address: 0000:00:14.3
+  ipv4:
+    enabled: true
+    auto-dns: true
+    auto-gateway: true
+    auto-routes: true
+    dhcp: true
+  ipv6:
+    enabled: true
+    auto-dns: true
+    auto-gateway: true
+    auto-routes: true
+    autoconf: true
+    dhcp: true</codeblock>
+               <p>These settings define an Ethernet connection profile for the device with the ID <codeph>0000:00:14.3</codeph>. The connection retrieves IPv4 addresses, IPv6 addresses, default gateway, routes, DNS servers, and search domains from a DHCP server and IPv6 stateless address autoconfiguration (SLAAC).</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Apply the settings to the system:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl apply ~/create-ethernet-profile.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the current state in YAML format:</p>
+               <codeblock># <b>nmstatectl show <i>&lt;interface_name&gt;</i>
+                  </b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display the IP settings of the NIC:</p>
+               <codeblock># <b>ip address show <i>&lt;interface_name&gt;</i>
+                  </b>
+2: <i>&lt;interface_name&gt;</i>: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:17:b8:b6 brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute <i>&lt;interface_name&gt;</i>
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::fffe/64 scope global noprefixroute
+       valid_lft forever preferred_lft forever</codeblock>
+            </li>
+            <li>
+               <p>Display the IPv4 default gateway:</p>
+               <codeblock># <b>ip route show default</b>
+default via 192.0.2.254 dev <i>&lt;interface_name&gt;</i> proto static metric 102</codeblock>
+            </li>
+            <li>
+               <p>Display the IPv6 default gateway:</p>
+               <codeblock># <b>ip -6 route show default</b>
+default via 2001:db8:1::fffe dev <i>&lt;interface_name&gt;</i> proto static metric 102 pref medium</codeblock>
+            </li>
+            <li>
+               <p>Display the DNS settings:</p>
+               <codeblock># <b>cat /etc/resolv.conf</b>
+search example.com
+nameserver 192.0.2.200
+nameserver 2001:db8:1::ffbb</codeblock>
+            </li>
+            <li>
+               <p>Use the <codeph>ping</codeph> utility to verify that this host can send packets to other hosts:</p>
+               <codeblock># <b>ping <i>&lt;host-name-or-IP-address&gt;</i>
+                  </b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

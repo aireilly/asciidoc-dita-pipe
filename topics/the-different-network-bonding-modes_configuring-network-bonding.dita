@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="the-different-network-bonding-modes_configuring-network-bonding">
+   <title>The different network bonding modes</title>
+   <refbody>
+      <section>
+         <p>Bonding aggregates multiple network interfaces into a single logical one. The behavior of a bonded interface depends on its bonding policy, also known as mode, which provides either load-balancing or hot standby services.</p>
+         <p>The Linux bonding driver supports the following modes:</p>
+         <dl>
+            <dlentry>
+               <dt>Balance-rr (Mode 0)</dt>
+               <dd>
+                  <p>
+                     <codeph>Balance-rr</codeph> uses the round-robin algorithm that sequentially transmits packets from the first available port to the last one. This mode provides load balancing and fault tolerance.</p>
+                  <p>This mode requires switch configuration of a port aggregation group, also called EtherChannel or similar port grouping. An EtherChannel is a port link aggregation technology to group multiple physical Ethernet links to one logical Ethernet link.</p>
+                  <p>The drawback of this mode is that it is not suitable for heavy workloads and if TCP throughput or ordered packet delivery is essential.</p>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Active-backup (Mode 1)</dt>
+               <dd>
+                  <p>
+                     <codeph>Active-backup</codeph> uses the policy that determines that only one port is active in the bond. This mode provides fault tolerance and does not require any switch configuration.</p>
+                  <p>If the active port fails, an alternate port becomes active. The bond sends a gratuitous address resolution protocol (ARP) response to the network. The gratuitous ARP forces the receiver of the ARP frame to update their forwarding table. The <codeph>Active-backup</codeph> mode transmits a gratuitous ARP to announce the new path to maintain connectivity for the host.</p>
+                  <p>The <codeph>primary</codeph> option defines the preferred port of the bonding interface.</p>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Balance-xor (Mode 2)</dt>
+               <dd>
+                  <p>
+                     <codeph>Balance-xor</codeph> uses the selected transmit hash policy to send the packets. This mode provides load balancing, fault tolerance, and requires switch configuration to set up an Etherchannel or similar port grouping.</p>
+                  <p>To alter packet transmission and balance transmit, this mode uses the <codeph>xmit_hash_policy</codeph> option. Depending on the source or destination of traffic on the interface, the interface requires an additional load-balancing configuration. See description <xref href="#ref_xmit-hash-policy-bonding-parameter_configuring-network-bonding">xmit_hash_policy bonding parameter</xref>.</p>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Broadcast (Mode 3)</dt>
+               <dd>
+                  <p>
+                     <codeph>Broadcast</codeph> uses a policy that transmits every packet on all interfaces. This mode provides fault tolerance and requires a switch configuration to set up an EtherChannel or similar port grouping.</p>
+                  <p>The drawback of this mode is that it is not suitable for heavy workloads and if TCP throughput or ordered packet delivery is essential.</p>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>802.3ad (Mode 4)</dt>
+               <dd>
+                  <p>
+                     <codeph>802.3ad</codeph> uses the same-named IEEE standard dynamic link aggregation policy. This mode provides fault tolerance. This mode requires switch configuration to set up a Link Aggregation Control Protocol (LACP) port grouping.</p>
+                  <p>This mode creates aggregation groups that share the same speed and duplex settings and utilizes all ports in the active aggregator. Depending on the source or destination of traffic on the interface, this mode requires an additional load-balancing configuration.</p>
+                  <p>By default, the port selection for outgoing traffic depends on the transmit hash policy. Use the <codeph>xmit_hash_policy</codeph> option of the transmit hash policy to change the port selection and balance transmit.</p>
+                  <p>The difference between the <codeph>802.3ad</codeph> and the <codeph>Balance-xor</codeph> is compliance. The <codeph>802.3ad</codeph> policy negotiates LACP between the port aggregation groups. See description <xref href="#ref_xmit-hash-policy-bonding-parameter_configuring-network-bonding">xmit_hash_policy bonding parameter</xref>
+                  </p>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Balance-tlb (Mode 5)</dt>
+               <dd>
+                  <p>
+                     <codeph>Balance-tlb</codeph> uses the transmit load balancing policy. This mode provides fault tolerance, load balancing, and establishes channel bonding that does not require any switch support.</p>
+                  <p>The active port receives the incoming traffic. In case of failure of the active port, another one takes over the MAC address of the failed port. To decide which interface processes the outgoing traffic, use one of the following modes:</p>
+                  <ul>
+                     <li>
+                        <p>Value <codeph>0</codeph>: Uses the hash distribution policy to distribute traffic without load balancing</p>
+                     </li>
+                     <li>
+                        <p>Value <codeph>1</codeph>: Distributes traffic to each port by using load balancing</p>
+                        <p>With the bonding option <codeph>tlb_dynamic_lb=0</codeph>, this bonding mode uses the <codeph>xmit_hash_policy</codeph> bonding option to balance transmit. The <codeph>primary</codeph> option defines the preferred port of the bonding interface.</p>
+                     </li>
+                  </ul>
+                  <p>See description <xref href="#ref_xmit-hash-policy-bonding-parameter_configuring-network-bonding">xmit_hash_policy bonding parameter</xref>.</p>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Balance-alb (Mode 6)</dt>
+               <dd>
+                  <p>
+                     <codeph>Balance-alb</codeph> uses an adaptive load balancing policy. This mode provides fault tolerance, load balancing, and does not require any special switch support.</p>
+                  <p>This mode includes balance-transmit load balancing (<codeph>balance-tlb</codeph>) and receive-load balancing for IPv4 and IPv6 traffic. The bonding intercepts ARP replies sent by the local system and overwrites the source hardware address of one of the ports in the bond. ARP negotiation manages the receive-load balancing. Therefore, different ports use different hardware addresses for the server.</p>
+                  <p>The <codeph>primary</codeph> option defines the preferred port of the bonding interface. With the bonding option <codeph>tlb_dynamic_lb=0</codeph>, this bonding mode uses the <codeph>xmit_hash_policy</codeph> bonding option to balance transmit. See description <xref href="#ref_xmit-hash-policy-bonding-parameter_configuring-network-bonding">xmit_hash_policy bonding parameter</xref>.</p>
+               </dd>
+            </dlentry>
+         </dl>
+         <p>Additionally, you can use NetworkManager to configure the following mode:</p>
+         <dl>
+            <dlentry>
+               <dt>Balance-slb</dt>
+               <dd>
+                  <p>The source load balancing (SLB) bonding mode distributes outgoing data streams across multiple network interfaces based on the source address of the traffic and a VLAN hash. This mode does not require any switch configuration.</p>
+                  <p>NetworkManager uses the <codeph>balance-xor</codeph> mode in combination with <codeph>nftables</codeph> rules to provide SLB. For details about configuring this mode, see the Red Hat Knowledgebase solution <xref href="https://access.redhat.com/solutions/7094905"
+                           format="html"
+                           scope="external">Configuring a network bond on RHEL with source load balancing</xref>.</p>
+               </dd>
+            </dlentry>
+         </dl>
+         <p>Additional resources</p>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/solutions/67546"
+                        format="html"
+                        scope="external">Which bonding modes work when used with a bridge that virtual machine guests or containers connect to? (Red Hat Knowledgebase)</xref>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/solutions/71883"
+                        format="html"
+                        scope="external">How are the values for different policies in "xmit_hash_policy" bonding parameter calculated? (Red Hat Knowledgebase)</xref>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </refbody>
+</reference>

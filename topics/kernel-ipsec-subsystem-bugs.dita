@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="kernel-ipsec-subsystem-bugs">
+   <title>Kernel IPsec subsystem bugs</title>
+   <refbody>
+      <section>
+         <p>A defect in the kernel’s IPsec subsystem can cause it to lose sync with the IKE daemon. This can lead to discrepancies between negotiated security associations and actual IPsec policy enforcement, disrupting secure network communication.</p>
+         <p>To check for kernel-level errors, display the transform (XFRM) statistics:</p>
+         <codeblock># <b>cat /proc/net/xfrm_stat</b>
+         </codeblock>
+         <p>If any of the counters in the output, such as <codeph>XfrmInError</codeph>, show a nonzero value, it indicates a problem with the kernel subsystem. In this case, open a <xref href="https://access.redhat.com/support"
+                  format="html"
+                  scope="external">support case</xref>, and attach the output of the command along with the corresponding IKE logs.</p>
+      </section>
+   </refbody>
+</reference>

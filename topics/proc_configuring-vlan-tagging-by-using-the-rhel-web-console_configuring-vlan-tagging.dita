@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-vlan-tagging-by-using-the-rhel-web-console_configuring-vlan-tagging">
+   <title>Configuring VLAN tagging by using the RHEL web console</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The interface you plan to use as a parent to the virtual VLAN interface supports VLAN tags.</p>
+            </li>
+            <li>
+               <p>If you configure the VLAN on top of a bond interface:</p>
+               <ul>
+                  <li>
+                     <p>The ports of the bond are up.</p>
+                  </li>
+                  <li>
+                     <p>The bond is not configured with the <codeph>fail_over_mac=follow</codeph> option. A VLAN virtual device cannot change its MAC address to match the parent’s new MAC address. In such a case, the traffic would still be sent with the incorrect source MAC address.</p>
+                  </li>
+                  <li>
+                     <p>The bond is usually not expected to get IP addresses from a DHCP server or IPv6 auto-configuration. Ensure it by disabling the IPv4 and IPv6 protocol creating the bond. Otherwise, if DHCP or IPv6 auto-configuration fails after some time, the interface might be brought down.</p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>The switch, the host is connected to, is configured to support VLAN tags. For details, see the documentation of your switch.</p>
+            </li>
+         </ul>
+         <ul>
+            <li>
+               <p>You have installed the RHEL 9 web console.</p>
+            </li>
+            <li>
+               <p>You have enabled the cockpit service.</p>
+            </li>
+            <li>
+               <p>Your user account is allowed to log in to the web console.</p>
+               <p>For instructions, see
+<xref href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_systems_using_the_rhel_9_web_console/getting-started-with-the-rhel-9-web-console_system-management-using-the-rhel-9-web-console#installing-the-web-console_getting-started-with-the-rhel-9-web-console"
+                        format="html"
+                        scope="external">Installing and enabling the web console</xref>.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can configure VLAN tagging if you prefer to manage network settings using a web browser-based interface in the RHEL web console.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Log in to the RHEL 9 web console.</cmd>
+            <info>
+               <p>For details, see <xref href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_systems_using_the_rhel_9_web_console/getting-started-with-the-rhel-9-web-console_system-management-using-the-rhel-9-web-console#logging-in-to-the-web-console_getting-started-with-the-rhel-9-web-console"
+                        format="html"
+                        scope="external">Logging in to the web console</xref>.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Select the <codeph>Networking</codeph> tab in the navigation on the left side of the screen.</cmd>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>Add VLAN</uicontrol> in the <codeph>Interfaces</codeph> section.</cmd>
+         </step>
+         <step>
+            <cmd>Select the parent device.</cmd>
+         </step>
+         <step>
+            <cmd>Enter the VLAN ID.</cmd>
+         </step>
+         <step>
+            <cmd>Enter the name of the VLAN device or keep the automatically-generated name.</cmd>
+            <info>
+               <fig>
+                  <image href="../images/vlan-settings.png" placement="break">
+                     <alt>The VLAN settings dialog in the RHEL web console</alt>
+                  </image>
+               </fig>
+            </info>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>Apply</uicontrol>.</cmd>
+         </step>
+         <step>
+            <cmd>By default, the VLAN device uses a dynamic IP address. If you want to set a static IP address:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Click the name of the VLAN device in the <codeph>Interfaces</codeph> section.</p>
+                  </li>
+                  <li>
+                     <p>Click <codeph>Edit</codeph> next to the protocol you want to configure.</p>
+                  </li>
+                  <li>
+                     <p>Select <codeph>Manual</codeph> next to <codeph>Addresses</codeph>, and enter the IP address, prefix, and default gateway.</p>
+                  </li>
+                  <li>
+                     <p>In the <codeph>DNS</codeph> section, click the <uicontrol>+</uicontrol> button, and enter the IP address of the DNS server. Repeat this step to set multiple DNS servers.</p>
+                  </li>
+                  <li>
+                     <p>In the <codeph>DNS search domains</codeph> section, click the <uicontrol>+</uicontrol> button, and enter the search domain.</p>
+                  </li>
+                  <li>
+                     <p>If the interface requires static routes, configure them in the <codeph>Routes</codeph> section.</p>
+                     <fig>
+                        <image href="../images/bond-team-bridge-vlan.ipv4.png" placement="break">
+                           <alt>The IPv4 settings in the RHEL web console</alt>
+                        </image>
+                     </fig>
+                  </li>
+                  <li>
+                     <p>Click <uicontrol>Apply</uicontrol>
+                     </p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Select the <codeph>Networking</codeph> tab in the navigation on the left side of the screen, and check if there is incoming and outgoing traffic on the interface:</p>
+               <fig>
+                  <image href="../images/vlan-verify.png" placement="break">
+                     <alt>VLAN interface statistics</alt>
+                  </image>
+               </fig>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

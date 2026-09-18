@@ -1,0 +1,4 @@
+/* Force numeric list style on callout lists that follow codeblocks */
+pre + ol {
+  list-style-type: decimal !important;
+}

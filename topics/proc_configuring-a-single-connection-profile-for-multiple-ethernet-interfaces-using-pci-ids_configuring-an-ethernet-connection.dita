@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-single-connection-profile-for-multiple-ethernet-interfaces-using-pci-ids_configuring-an-ethernet-connection">
+   <title>Configuring a single connection profile for multiple Ethernet interfaces using PCI IDs</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>Multiple physical or virtual Ethernet devices exist in the server’s configuration.</p>
+            </li>
+            <li>
+               <p>A DHCP server is available in the network.</p>
+            </li>
+            <li>
+               <p>No connection profile exists on the host.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>A PCI ID uniquely identifies devices on a system. A connection profile can add multiple devices by matching interfaces to a list of PCI IDs. With this feature, you can link multiple devices to one connection profile.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Identify the device path. For example, to display the device paths of all interfaces starting with <codeph>enp</codeph>, enter :</cmd>
+            <info>
+               <codeblock># <b>udevadm info /sys/class/net/enp* | grep ID_PATH=</b>
+...
+E: ID_PATH=pci-0000:07:00.0
+E: ID_PATH=pci-0000:08:00.0</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Add a connection profile that applies to all PCI IDs matching the <codeph>0000:00:0[7-8].0</codeph> expression:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type ethernet connection.multi-connect multiple match.path "pci-0000:07:00.0 pci-0000:08:00.0" con-name "Wired connection 1"</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the status of the connection:</p>
+               <codeblock># <b>nmcli connection show</b>
+NAME                 UUID                                  TYPE      DEVICE
+Wired connection 1   9cee0958-512f-4203-9d3d-b57af1d88466  ethernet  enp7s0
+Wired connection 1   9cee0958-512f-4203-9d3d-b57af1d88466  ethernet  enp8s0
+...</codeblock>
+            </li>
+            <li>
+               <p>To display all settings of the connection profile:</p>
+               <codeblock># <b>nmcli connection show "Wired connection 1"</b>
+connection.id:               Wired connection 1
+...
+connection.multi-connect:    3 (multiple)
+match.path:                  pci-0000:07:00.0,pci-0000:08:00.0
+...</codeblock>
+               <p>This connection profile uses all devices with a PCI ID which match the pattern in the <codeph>match.path</codeph> parameter and, therefore, the connection profiles have the same Universally Unique Identifier (UUID).</p>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

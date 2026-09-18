@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="debugging-levels-and-domains_introduction-to-networkmanager-debugging">
+   <title>Debugging levels and domains</title>
+   <refbody>
+      <section>
+         <p>You can use the <codeph>levels</codeph> and <codeph>domains</codeph> parameters to manage the debugging for NetworkManager. The level defines the verbosity level, whereas the domains define the category of the messages to record the logs with given severity (<codeph>level</codeph>).</p>
+      </section>
+      <table colsep="1" rowsep="1" frame="all">
+         <tgroup cols="2">
+            <colspec colname="col_1" colwidth="25*"/>
+            <colspec colname="col_2" colwidth="75*"/>
+            <thead>
+               <row>
+                  <entry align="left" valign="top">Log levels</entry>
+                  <entry align="left" valign="top">Description</entry>
+               </row>
+            </thead>
+            <tbody>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>OFF</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Does not log any messages about NetworkManager</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>ERR</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Logs only critical errors</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>WARN</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Logs warnings that can reflect the operation</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>INFO</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Logs various informational messages that are useful for tracking state and operations</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>DEBUG</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Enables verbose logging for debugging purposes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>TRACE</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Enables more verbose logging than the <codeph>DEBUG</codeph> level</p>
+                  </entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+      <section>
+         <p>Note that subsequent levels log all messages from earlier levels. For example, setting the log level to <codeph>INFO</codeph> also logs messages contained in the <codeph>ERR</codeph> and <codeph>WARN</codeph> log level.</p>
+      </section>
+   </refbody>
+</reference>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-network-bond-by-using-network-rhel-system-role_configuring-network-bonding">
+   <title>Configuring a network bond by using the <codeph>network</codeph> RHEL system role</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles"
+                        format="html"
+                        scope="external">You have prepared the control node and the managed nodes</xref>.</p>
+            </li>
+            <li>
+               <p>The account you use to connect to the managed nodes has <codeph>sudo</codeph> permissions for these nodes.</p>
+            </li>
+            <li>
+               <p>Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the <codeph>network</codeph> RHEL system role to configure a network bond and, if a connection profile for the bond’s parent device does not exist, the role can create it as well.</p>
+         <p>You can combine network interfaces in a bond to provide a logical interface with higher throughput or redundancy. To configure a bond, create a NetworkManager connection profile. By using Ansible and the <codeph>network</codeph> RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a playbook file, for example, <codeph>~/playbook.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Bond connection profile with two Ethernet ports
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          # Bond profile
+          - name: bond0
+            type: bond
+            interface_name: bond0
+            ip:
+              dhcp4: yes
+              auto6: yes
+            bond:
+              mode: active-backup
+            state: up
+
+          # Port profile for the 1st Ethernet device
+          - name: bond0-port1
+            interface_name: enp7s0
+            type: ethernet
+            controller: bond0
+            state: up
+
+          # Port profile for the 2nd Ethernet device
+          - name: bond0-port2
+            interface_name: enp8s0
+            type: ethernet
+            controller: bond0
+            state: up</codeblock>
+               <p>The settings specified in the example playbook include the following:</p>
+               <dl>
+                  <dlentry>
+                     <dt>
+                        <codeph>type: <i>&lt;profile_type&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Sets the type of the profile to create. The example playbook creates three connection profiles: One for the bond and two for the Ethernet devices.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>dhcp4: yes</codeph>
+                     </dt>
+                     <dd>
+                        <p>Enables automatic IPv4 address assignment from DHCP, PPP, or similar services.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>auto6: yes</codeph>
+                     </dt>
+                     <dd>
+                        <p>Enables IPv6 auto-configuration. By default, NetworkManager uses Router Advertisements. If the router announces the <codeph>managed</codeph> flag, NetworkManager requests an IPv6 address and prefix from a DHCPv6 server.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>mode: <i>&lt;bond_mode&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Sets the bonding mode. Possible values are:</p>
+                        <ul>
+                           <li>
+                              <p>
+                                 <codeph>balance-rr</codeph> (default)</p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>active-backup</codeph>
+                              </p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>balance-xor</codeph>
+                              </p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>broadcast</codeph>
+                              </p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>802.3ad</codeph>
+                              </p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>balance-tlb</codeph>
+                              </p>
+                           </li>
+                           <li>
+                              <p>
+                                 <codeph>balance-alb</codeph>.</p>
+                           </li>
+                        </ul>
+                        <p>Depending on the mode you set, you need to set additional variables in the playbook.</p>
+                     </dd>
+                  </dlentry>
+               </dl>
+               <p>For details about all variables used in the playbook, see the <codeph>/usr/share/ansible/roles/rhel-system-roles.network/README.md</codeph> file on the control node.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Validate the playbook syntax:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook --syntax-check ~/playbook.yml</b>
+               </codeblock>
+               <p>Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Run the playbook:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook ~/playbook.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Temporarily remove the network cable from one of the network devices and check if the other device in the bond is handling the traffic.</p>
+               <p>Note that there is no method to properly test link failure events using software utilities. Tools that deactivate connections, such as <codeph>nmcli</codeph>, show only the bonding driver’s ability to handle port configuration changes and not actual link failure events.</p>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

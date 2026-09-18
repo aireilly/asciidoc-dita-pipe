@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-a-static-route-by-using-the-nmcli-interactive-mode_configuring-static-routes">
+   <title>Configuring a static route by using the <codeph>nmcli</codeph> interactive mode</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>example</codeph> connection profile exists and it configures this host to be in the same IP subnet as the gateways.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the interactive mode of the <codeph>nmcli</codeph> utility to add a static route to the configuration of a network connection.</p>
+         <p>The procedure below configures the following routes:</p>
+         <ul>
+            <li>
+               <p>An IPv4 route to the remote <codeph>198.51.100.0/24</codeph> network. The corresponding gateway with the IP address <codeph>192.0.2.10</codeph> is reachable through the <codeph>example</codeph> connection.</p>
+            </li>
+            <li>
+               <p>An IPv6 route to the remote <codeph>2001:db8:2::/64</codeph> network. The corresponding gateway with the IP address <codeph>2001:db8:1::10</codeph> is reachable through the <codeph>example</codeph> connection.</p>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Open the <codeph>nmcli</codeph> interactive mode for the <codeph>example</codeph> connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection edit <i>example</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Add the static IPv4 route:</cmd>
+            <info>
+               <codeblock>nmcli&gt; <b>set ipv4.routes <i>198.51.100.0/24 192.0.2.10</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Add the static IPv6 route:</cmd>
+            <info>
+               <codeblock>nmcli&gt; <b>set ipv6.routes <i>2001:db8:2::/64 2001:db8:1::10</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: Verify that the routes were added correctly to the configuration:</cmd>
+            <info>
+               <codeblock>nmcli&gt; <b>print</b>
+...
+ipv4.routes:    { ip = <i>198.51.100.0/24</i>, nh = <i>192.0.2.10</i> }
+...
+ipv6.routes:    { ip = <i>2001:db8:2::/64</i>, nh = <i>2001:db8:1::10</i> }
+...</codeblock>
+               <p>The <codeph>ip</codeph> attribute displays the network to route and the <codeph>nh</codeph> attribute the gateway (next hop).</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Save the configuration:</cmd>
+            <info>
+               <codeblock>nmcli&gt; <b>save persistent</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Restart the network connection:</cmd>
+            <info>
+               <codeblock>nmcli&gt; <b>activate <i>example</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Leave the <codeph>nmcli</codeph> interactive mode:</cmd>
+            <info>
+               <codeblock>nmcli&gt; <b>quit</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IPv4 routes:</p>
+               <codeblock># <b>ip -4 route</b>
+...
+<i>198.51.100.0/24</i> via <i>192.0.2.10</i> dev <i>enp1s0</i>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display the IPv6 routes:</p>
+               <codeblock># <b>ip -6 route</b>
+...
+<i>2001:db8:2::/64</i> via <i>2001:db8:1::10</i> dev <i>enp1s0</i> metric <i>1024</i> pref <i>medium</i>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

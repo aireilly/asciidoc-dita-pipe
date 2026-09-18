@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="temporarily-configuring-a-device-as-unmanaged-in-networkmanager_configuring-networkmanager-to-ignore-certain-devices">
+   <title>Temporarily configuring a device as unmanaged in NetworkManager</title>
+   <taskbody>
+      <context>
+         <p>You can temporarily configure devices as <codeph>unmanaged</codeph>, for example, for testing purposes. This change persists a reload and restart of the <codeph>NetworkManager</codeph> systemd service, but not a system reboot.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: Display the list of devices to identify the device you want to set as <codeph>unmanaged</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmcli device status</b>
+DEVICE  TYPE      STATE         CONNECTION
+enp1s0  ethernet  disconnected  --
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the <codeph>enp1s0</codeph> device to the <codeph>unmanaged</codeph> state:</cmd>
+            <info>
+               <codeblock># <b>nmcli device set enp1s0 managed no</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the list of devices:</p>
+               <codeblock># <b>nmcli device status</b>
+DEVICE  TYPE      STATE      CONNECTION
+enp1s0  ethernet  <b>unmanaged</b>  --
+...</codeblock>
+               <p>The <codeph>unmanaged</codeph> state next to the <codeph>enp1s0</codeph> device indicates that NetworkManager does not manage this device.</p>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

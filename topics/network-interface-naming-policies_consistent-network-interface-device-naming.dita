@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="network-interface-naming-policies_consistent-network-interface-device-naming">
+   <title>Network interface naming policies</title>
+   <conbody>
+      <p>By default, the <codeph>udev</codeph> device manager uses the <codeph>/usr/lib/systemd/network/99-default.link</codeph> file to determine how it renames interfaces. The <codeph>NamePolicy</codeph> parameter in this file defines which naming policies <codeph>udev</codeph> applies and in what order.</p>
+      <p>Default order:</p>
+      <codeblock>NamePolicy=keep kernel database onboard slot path</codeblock>
+      <p>The following table describes the different actions of <codeph>udev</codeph> based on which policy matches first as specified by the <codeph>NamePolicy</codeph> parameter:</p>
+      <table colsep="1" rowsep="1" frame="all">
+         <tgroup cols="3">
+            <colspec colname="col_1" colwidth="20*"/>
+            <colspec colname="col_2" colwidth="60*"/>
+            <colspec colname="col_3" colwidth="20*"/>
+            <thead>
+               <row>
+                  <entry align="left" valign="top">Policy</entry>
+                  <entry align="left" valign="top">Description</entry>
+                  <entry align="left" valign="top">Example name</entry>
+               </row>
+            </thead>
+            <tbody>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>keep</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>If the device already has a name that was assigned in the user space, <codeph>udev</codeph> does not rename this device. For example, this is the case if the name was assigned during device creation or by a rename operation.</p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>kernel</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>If the kernel indicates that a device name is predictable, <codeph>udev</codeph> does not rename this device.</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>lo</codeph>
+                     </p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>database</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>This policy assigns names based on mappings in the <codeph>udev</codeph> hardware database. For details, see the <codeph>hwdb(7)</codeph> man page on your system.</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>idrac</codeph>
+                     </p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>onboard</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Device names incorporate firmware or BIOS-provided index numbers for onboard devices.</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>eno1</codeph>
+                     </p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>slot</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Device names incorporate firmware or BIOS-provided PCI Express (PCIe) hot-plug slot-index numbers.</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>ens1</codeph>
+                     </p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>path</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Device names incorporate the physical location of the connector of the hardware.</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>enp1s0</codeph>
+                     </p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>mac</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Device names incorporate the MAC address. By default, Red Hat Enterprise Linux does not use this policy, but administrators can enable it.</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>enx525400d5e0fb</codeph>
+                     </p>
+                  </entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+      <p>Additional resources</p>
+      <ul>
+         <li>
+            <p>
+               <xref href="#how-the-udev-device-manager-renames-network-interfaces_consistent-network-interface-device-naming">How the udev device manager renames network interfaces</xref>
+            </p>
+         </li>
+      </ul>
+   </conbody>
+</concept>

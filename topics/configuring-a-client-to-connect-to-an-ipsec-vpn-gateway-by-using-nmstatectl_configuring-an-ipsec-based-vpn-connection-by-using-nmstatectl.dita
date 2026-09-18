@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-nmstatectl_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl">
+   <title>Configuring a client to connect to an IPsec VPN gateway by using <codeph>nmstatectl</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The remote gateway runs Libreswan IPsec and is prepared for a <xref href="#manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication_setting-up-an-ipsec-vpn">host-to-site</xref> connection with certificate-based authentication.</p>
+               <p>Due to the design of the <codeph>NetworkManager-libreswan</codeph> plugin, Nmstate cannot communicate with other peers that also use this plugin for the same connection.</p>
+            </li>
+            <li>
+               <p>The PKCS#12 file <codeph>~/file.p12</codeph> exists on the client with the following contents:</p>
+               <ul>
+                  <li>
+                     <p>The private key of the user</p>
+                  </li>
+                  <li>
+                     <p>The user certificate</p>
+                  </li>
+                  <li>
+                     <p>The CA certificate</p>
+                  </li>
+                  <li>
+                     <p>If required, intermediate certificates</p>
+                  </li>
+               </ul>
+               <p>For details about creating a private key and certificate signing request (CSR), as well as about requesting a certificate from a CA, see your CA’s documentation.</p>
+            </li>
+            <li>
+               <p>The Extended Key Usage (EKU) in the certificate is set to <codeph>TLS Web Client Authentication</codeph>.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>To access resources on a remote private network, users must first configure an IPsec VPN connection. By using Nmstate, you can create the connection with an existing Libreswan IPsec gateway by using a declarative API.</p>
+         <note>
+            <p>In general, the choice of which host is named <i>left</i> and <i>right</i> is arbitrary. However, NetworkManager always uses the term <i>left</i> for the local host and <i>right</i> for the remote host.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>If Libreswan is not yet installed:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Install the required packages:</p>
+                     <codeblock># <b>dnf install nmstate libreswan NetworkManager-libreswan</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Restart the NetworkManager service:</p>
+                     <codeblock># <b>systemctl restart NetworkManager</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Initialize the Network Security Services (NSS) database:</p>
+                     <codeblock># <b>ipsec initnss</b>
+                     </codeblock>
+                     <p>The command creates the database in the <codeph>/var/lib/ipsec/nss/</codeph> directory.</p>
+                  </li>
+                  <li>
+                     <p>Open the IPsec ports and protocols in the firewall:</p>
+                     <codeblock># <b>firewall-cmd --permanent --add-service="ipsec"</b>
+# <b>firewall-cmd --reload</b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Import the PKCS #12 file into the NSS database:</cmd>
+            <info>
+               <codeblock># <b>ipsec import ~/file.p12</b>
+Enter password for PKCS12 file: <i>&lt;password&gt;</i>
+pk12util: PKCS12 IMPORT SUCCESSFUL
+correcting trust bits for Example-CA</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Display the nicknames of the user and CA certificates:</cmd>
+            <info>
+               <codeblock># <b>certutil -L -d  /var/lib/ipsec/nss/</b>
+Certificate Nickname     Trust Attributes
+                         SSL,S/MIME,JAR/XPI
+
+user                     u,u,u
+Example-CA               CT,,
+...</codeblock>
+               <p>You require this information in the Nmstate YAML file.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Create a YAML file, for example, <codeph>~/ipsec-host-to-site-cert-auth.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+interfaces:
+- name: '<i>&lt;connection_name&gt;</i>'
+  type: ipsec
+  libreswan:
+    ikev2: insist
+
+    left: <i>&lt;ip_address_or_fqdn_of_left_peer&gt;</i>
+    leftid: '%fromcert'
+    leftcert: <i>&lt;user_certificate_nickname&gt;</i>
+
+    right: <i>&lt;ip_address_or_fqdn_of_right_peer&gt;</i>
+    rightid: '%fromcert'
+    rightsubnet: 192.0.2.0/24</codeblock>
+               <p>The settings specified in the example include the following:</p>
+               <dl>
+                  <dlentry>
+                     <dt>
+                        <codeph>ikev2: insist</codeph>
+                     </dt>
+                     <dd>
+                        <p>Defines the modern IKEv2 protocol as the only allowed protocol without fallback to IKEv1. This setting is mandatory in a host-to-site configuration with Nmstate.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>left=<i>&lt;ip_address_or_fqdn_of_left_peer&gt;</i>
+                        </codeph> and <codeph>right=<i>&lt;ip_address_or_fqdn_of_right_peer&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Defines the IP address or DNS name of the peers.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>leftid=%fromcert</codeph> and <codeph>rightid=%fromcert</codeph>
+                     </dt>
+                     <dd>
+                        <p>Configures Libreswan to retrieve the identity from the distinguished name (DN) field of the certificate.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>leftcert="<i>&lt;server_certificate_nickname&gt;</i>"</codeph>
+                     </dt>
+                     <dd>
+                        <p>Sets the nickname of the server’s certificate used in the NSS database.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>rightsubnet: <i>&lt;subnet&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Defines the subnet in classless inter-domain routing (CIDR) format that is connected to the gateway.</p>
+                     </dd>
+                  </dlentry>
+               </dl>
+            </info>
+         </step>
+         <step>
+            <cmd>Apply the settings to the system:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl apply ~/ipsec-host-to-site-cert-auth.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Establish a connection to a host in the remote network or ping it.</p>
+            </li>
+         </ul>
+      </result>
+      <tasktroubleshooting>
+         <ul>
+            <li>
+               <p>To display the actual configuration NetworkManager passes to Libreswan, enter:</p>
+               <codeblock># <b>nmcli connection export <i>&lt;connection_name&gt;</i>
+                  </b>
+               </codeblock>
+               <p>The output can help to identify deviating settings, such as IDs and keys, when you compare them with the Libreswan configuration on the remote host.</p>
+            </li>
+         </ul>
+      </tasktroubleshooting>
+      <postreq>
+         <ul>
+            <li>
+               <p>If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <xref href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</xref>.</p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

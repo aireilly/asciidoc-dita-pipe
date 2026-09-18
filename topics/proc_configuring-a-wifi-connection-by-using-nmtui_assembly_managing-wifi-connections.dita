@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-wifi-connection-by-using-nmtui_assembly_managing-wifi-connections">
+   <title>Configuring a wifi connection by using <codeph>nmtui</codeph>
+   </title>
+   <taskbody>
+      <context>
+         <p>The <codeph>nmtui</codeph> application provides a text-based user interface for NetworkManager. You can use <codeph>nmtui</codeph> to connect to a wifi network.</p>
+         <note>
+            <p>In <codeph>nmtui</codeph>:</p>
+            <ul>
+               <li>
+                  <p>Navigate by using the cursor keys.</p>
+               </li>
+               <li>
+                  <p>Press a button by selecting it and hitting <ph>Enter</ph>.</p>
+               </li>
+               <li>
+                  <p>Select and clear checkboxes by using <ph>Space</ph>.</p>
+               </li>
+               <li>
+                  <p>To return to the previous screen, use <ph>ESC</ph>.</p>
+               </li>
+            </ul>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Start <codeph>nmtui</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmtui</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Select <codeph>Edit a connection</codeph>, and press <ph>Enter</ph>.</cmd>
+         </step>
+         <step>
+            <cmd>Press the <codeph>Add</codeph> button.</cmd>
+         </step>
+         <step>
+            <cmd>Select <codeph>Wi-Fi</codeph> from the list of network types, and press <ph>Enter</ph>.</cmd>
+         </step>
+         <step>
+            <cmd>Optional: Enter a name for the NetworkManager profile to be created.</cmd>
+            <info>
+               <p>On hosts with multiple profiles, a meaningful name makes it easier to identify the purpose of a profile.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Enter the name of the Wi-Fi network, the Service Set Identifier (SSID), into the <codeph>SSID</codeph> field.</cmd>
+         </step>
+         <step>
+            <cmd>Leave the <codeph>Mode</codeph> field set to its default, <codeph>Client</codeph>.</cmd>
+         </step>
+         <step>
+            <cmd>Select the <codeph>Security</codeph> field, press <ph>Enter</ph>, and set the authentication type of the network from the list.</cmd>
+            <info>
+               <p>Depending on the authentication type you have selected, <codeph>nmtui</codeph> displays different fields.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Fill the authentication type-related fields.</cmd>
+         </step>
+         <step>
+            <cmd>If the Wi-Fi network requires static IP addresses:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Press the <codeph>Automatic</codeph> button next to the protocol, and select <codeph>Manual</codeph> from the displayed list.</p>
+                  </li>
+                  <li>
+                     <p>Press the <codeph>Show</codeph> button next to the protocol you want to configure to display additional fields, and fill them.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Press the <codeph>OK</codeph> button to create and automatically activate the new connection.</cmd>
+            <info>
+               <fig>
+                  <image href="../images/nmtui-wi-fi-dynamic-IP.png" placement="break">
+                     <alt>Dynamic IP address settings in `nmtui`</alt>
+                  </image>
+               </fig>
+            </info>
+         </step>
+         <step>
+            <cmd>Press the <codeph>Back</codeph> button to return to the main menu.</cmd>
+         </step>
+         <step>
+            <cmd>Select <codeph>Quit</codeph>, and press <ph>Enter</ph> to close the <codeph>nmtui</codeph> application.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the active connections:</p>
+               <codeblock># <b>nmcli connection show --active</b>
+NAME    ID                                    TYPE  DEVICE
+Office  2501eb7e-7b16-4dc6-97ef-7cc460139a58  wifi  wlp0s20f3</codeblock>
+               <p>If the output lists the wifi connection you have created, the connection is active.</p>
+            </li>
+            <li>
+               <p>Ping a hostname or IP address:</p>
+               <codeblock># <b>ping -c 3 example.com</b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

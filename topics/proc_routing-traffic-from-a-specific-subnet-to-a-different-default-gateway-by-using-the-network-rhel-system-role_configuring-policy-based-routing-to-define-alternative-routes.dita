@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-by-using-the-network-rhel-system-role_configuring-policy-based-routing-to-define-alternative-routes">
+   <title>Routing traffic from a specific subnet to a different default gateway by using the <codeph>network</codeph> RHEL system role</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles"
+                        format="html"
+                        scope="external">You have prepared the control node and the managed nodes</xref>.</p>
+            </li>
+            <li>
+               <p>The account you use to connect to the managed nodes has <codeph>sudo</codeph> permissions for these nodes.</p>
+            </li>
+            <li>
+               <p>The managed nodes use NetworkManager and the <codeph>firewalld</codeph> service.</p>
+            </li>
+            <li>
+               <p>The managed nodes you want to configure has four network interfaces:</p>
+               <ul>
+                  <li>
+                     <p>The <codeph>enp7s0</codeph> interface is connected to the network of provider A. The gateway IP in the provider’s network is <codeph>198.51.100.2</codeph>, and the network uses a <codeph>/30</codeph> network mask.</p>
+                  </li>
+                  <li>
+                     <p>The <codeph>enp1s0</codeph> interface is connected to the network of provider B. The gateway IP in the provider’s network is <codeph>192.0.2.2</codeph>, and the network uses a <codeph>/30</codeph> network mask.</p>
+                  </li>
+                  <li>
+                     <p>The <codeph>enp8s0</codeph> interface is connected to the <codeph>10.0.0.0/24</codeph> subnet with internal workstations.</p>
+                  </li>
+                  <li>
+                     <p>The <codeph>enp9s0</codeph> interface is connected to the <codeph>203.0.113.0/24</codeph> subnet with the company’s servers.</p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>Hosts in the internal workstations subnet use <codeph>10.0.0.1</codeph> as the default gateway. In the procedure, you assign this IP address to the <codeph>enp8s0</codeph> network interface of the router.</p>
+            </li>
+            <li>
+               <p>Hosts in the server subnet use <codeph>203.0.113.1</codeph> as the default gateway. In the procedure, you assign this IP address to the <codeph>enp9s0</codeph> network interface of the router.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use policy-based routing to configure a different default gateway for traffic from certain subnets. By using the <codeph>network</codeph> RHEL system role, you can automate the creation of the connection profiles, including routing tables and rules.</p>
+         <p>For example, you can configure RHEL as a router that, by default, routes all traffic to internet provider A using the default route. However, traffic received from the internal workstations subnet is routed to provider B. By using Ansible and the <codeph>network</codeph> RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.</p>
+         <p>This procedure assumes the following network topology:</p>
+         <fig>
+            <image href="../images/policy-based-routing.png" placement="break">
+               <alt>Example topology used for policy-based routing.</alt>
+            </image>
+         </fig>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a playbook file, for example, <codeph>~/playbook.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+- name: Configuring policy-based routing
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Routing traffic from a specific subnet to a different default gateway
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: Provider-A
+            interface_name: enp7s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 198.51.100.1/30
+              gateway4: 198.51.100.2
+              dns:
+                - 198.51.100.200
+            state: up
+            zone: external
+
+          - name: Provider-B
+            interface_name: enp1s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 192.0.2.1/30
+              route:
+                - network: 0.0.0.0
+                  prefix: 0
+                  gateway: 192.0.2.2
+                  table: 5000
+            state: up
+            zone: external
+
+          - name: Internal-Workstations
+            interface_name: enp8s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 10.0.0.1/24
+              route:
+                - network: 10.0.0.0
+                  prefix: 24
+                  table: 5000
+              routing_rule:
+                - priority: 5
+                  from: 10.0.0.0/24
+                  table: 5000
+            state: up
+            zone: trusted
+
+          - name: Servers
+            interface_name: enp9s0
+            type: ethernet
+            autoconnect: True
+            ip:
+              address:
+                - 203.0.113.1/24
+            state: up
+            zone: trusted</codeblock>
+               <p>The settings specified in the example playbook include the following:</p>
+               <dl>
+                  <dlentry>
+                     <dt>
+                        <codeph>table: <i>&lt;value&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Assigns the route from the same list entry as the <codeph>table</codeph> variable to the specified routing table.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>routing_rule: <i>&lt;list&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Defines the priority of the specified routing rule and from a connection profile to which routing table the rule is assigned.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>zone: <i>&lt;zone_name&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Assigns the network interface from a connection profile to the specified <codeph>firewalld</codeph> zone.</p>
+                     </dd>
+                  </dlentry>
+               </dl>
+               <p>For details about all variables used in the playbook, see the <codeph>/usr/share/ansible/roles/rhel-system-roles.network/README.md</codeph> file on the control node.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Validate the playbook syntax:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook --syntax-check ~/playbook.yml</b>
+               </codeblock>
+               <p>Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Run the playbook:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook ~/playbook.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>On a RHEL host in the internal workstation subnet:</p>
+               <ol>
+                  <li>
+                     <p>Install the <codeph>traceroute</codeph> package:</p>
+                     <codeblock># <b>dnf install traceroute</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Use the <codeph>traceroute</codeph> utility to display the route to a host on the internet:</p>
+                     <codeblock># <b>traceroute redhat.com</b>
+traceroute to redhat.com (209.132.183.105), 30 hops max, 60 byte packets
+ 1  10.0.0.1 (10.0.0.1)     0.337 ms  0.260 ms  0.223 ms
+ 2  192.0.2.2 (192.0.2.2)   0.884 ms  1.066 ms  1.248 ms
+ ...</codeblock>
+                     <p>The output of the command displays that the router sends packets over <codeph>192.0.2.1</codeph>, which is the network of provider B.</p>
+                  </li>
+               </ol>
+            </li>
+            <li>
+               <p>On a RHEL host in the server subnet:</p>
+               <ol>
+                  <li>
+                     <p>Install the <codeph>traceroute</codeph> package:</p>
+                     <codeblock># <b>dnf install traceroute</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Use the <codeph>traceroute</codeph> utility to display the route to a host on the internet:</p>
+                     <codeblock># <b>traceroute redhat.com</b>
+traceroute to redhat.com (209.132.183.105), 30 hops max, 60 byte packets
+ 1  203.0.113.1 (203.0.113.1)    2.179 ms  2.073 ms  1.944 ms
+ 2  198.51.100.2 (198.51.100.2)  1.868 ms  1.798 ms  1.549 ms
+ ...</codeblock>
+                     <p>The output of the command displays that the router sends packets over <codeph>198.51.100.2</codeph>, which is the network of provider A.</p>
+                  </li>
+               </ol>
+            </li>
+            <li>
+               <p>On the RHEL router that you configured using the RHEL system role:</p>
+               <ol>
+                  <li>
+                     <p>Display the rule list:</p>
+                     <codeblock># <b>ip rule list</b>
+0:      from all lookup local
+<b>5</b>:    <b>from 10.0.0.0/24 lookup 5000</b>
+32766:  from all lookup main
+32767:  from all lookup default</codeblock>
+                     <p>By default, RHEL contains rules for the tables <codeph>local</codeph>, <codeph>main</codeph>, and <codeph>default</codeph>.</p>
+                  </li>
+                  <li>
+                     <p>Display the routes in table <codeph>5000</codeph>:</p>
+                     <codeblock># <b>ip route list table 5000</b>
+0.0.0.0/0 via 192.0.2.2 dev enp1s0 proto static metric 100
+10.0.0.0/24 dev enp8s0 proto static scope link src 192.0.2.1 metric 102</codeblock>
+                  </li>
+                  <li>
+                     <p>Display the interfaces and firewall zones:</p>
+                     <codeblock># <b>firewall-cmd --get-active-zones</b>
+external
+  interfaces: enp1s0 enp7s0
+trusted
+  interfaces: enp8s0 enp9s0</codeblock>
+                  </li>
+                  <li>
+                     <p>Verify that the <codeph>external</codeph> zone has masquerading enabled:</p>
+                     <codeblock># <b>firewall-cmd --info-zone=external</b>
+external (active)
+  target: default
+  icmp-block-inversion: no
+  interfaces: enp1s0 enp7s0
+  sources:
+  services: ssh
+  ports:
+  protocols:
+  <b>masquerade: yes</b>
+  ...</codeblock>
+                  </li>
+               </ol>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

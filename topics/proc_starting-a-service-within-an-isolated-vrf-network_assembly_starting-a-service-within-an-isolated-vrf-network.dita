@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_starting-a-service-within-an-isolated-vrf-network_assembly_starting-a-service-within-an-isolated-vrf-network">
+   <title>Starting a service within an isolated VRF network</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You configured the <codeph>vrf0</codeph> device.</p>
+            </li>
+            <li>
+               <p>You configured Apache HTTP Server to listen only on the IP address that is assigned to the interface associated with the <codeph>vrf0</codeph> device.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can configure a service, such as the Apache HTTP Server, to start within an isolated virtual routing and forwarding (VRF) network.</p>
+         <note type="important">
+            <p>Services can only bind to local IP addresses that are in the same VRF network.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Display the content of the <codeph>httpd</codeph> systemd service:</cmd>
+            <info>
+               <codeblock># <b>systemctl cat httpd</b>
+...
+[Service]
+ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND
+...</codeblock>
+               <p>You require the content of the <codeph>ExecStart</codeph> parameter in a later step to run the same command within the isolated VRF network.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Create the <codeph>/etc/systemd/system/httpd.service.d/</codeph> directory:</cmd>
+            <info>
+               <codeblock># <b>mkdir /etc/systemd/system/httpd.service.d/</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Create the <codeph>/etc/systemd/system/httpd.service.d/override.conf</codeph> file with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-console">[Service]
+ExecStart=
+ExecStart=/usr/sbin/ip vrf exec <i>vrf0</i> /usr/sbin/httpd $OPTIONS -DFOREGROUND</codeblock>
+               <p>To override the <codeph>ExecStart</codeph> parameter, you first need to unset it and then set it to the new value as shown.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Reload systemd.</cmd>
+            <info>
+               <codeblock># <b>systemctl daemon-reload</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Restart the <codeph>httpd</codeph> service.</cmd>
+            <info>
+               <codeblock># <b>systemctl restart httpd</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the process IDs (PID) of <codeph>httpd</codeph> processes:</p>
+               <codeblock># <b>pidof -c httpd</b>
+1904 ...</codeblock>
+            </li>
+            <li>
+               <p>Display the VRF association for the PIDs, for example:</p>
+               <codeblock># <b>ip vrf identify 1904</b>
+vrf0</codeblock>
+            </li>
+            <li>
+               <p>Display all PIDs associated with the <codeph>vrf0</codeph> device:</p>
+               <codeblock># <b>ip vrf pids vrf0</b>
+1904  httpd
+...</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

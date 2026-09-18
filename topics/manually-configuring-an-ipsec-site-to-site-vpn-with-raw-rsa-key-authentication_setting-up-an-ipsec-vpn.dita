@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="manually-configuring-an-ipsec-site-to-site-vpn-with-raw-rsa-key-authentication_setting-up-an-ipsec-vpn">
+   <title>Manually configuring an IPsec site-to-site VPN with raw RSA key authentication</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>Routes in both networks ensure that the traffic to the remote networks is sent through the local VPN gateway devices.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>A site-to-site VPN establishes a secure, encrypted tunnel between two distinct networks, seamlessly linking them across an insecure public network such as the internet.</p>
+         <p>For example, a site-to-site VPN enables devices in a branch office to access resources at a corporate headquarters just as if they were all part of the same local network.</p>
+         <p>For authenticating the gateway devices, RSA keys are more secure than pre-shared keys (PSKs) because their asymmetric encryption eliminates the risk of a shared secret. Using RSA keys also simplifies deployment by avoiding the need for a certificate authority (CA), while still providing strong peer-to-peer authentication.</p>
+         <p>Perform the steps on both gateway devices.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>If Libreswan is not yet installed, perform the following steps:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Install the <codeph>libreswan</codeph> package:</p>
+                     <codeblock># <b>dnf install libreswan</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Initialize the Network Security Services (NSS) database:</p>
+                     <codeblock># <b>ipsec initnss</b>
+                     </codeblock>
+                     <p>The command creates the database in the <codeph>/var/lib/ipsec/nss/</codeph> directory.</p>
+                  </li>
+                  <li>
+                     <p>Enable and start the <codeph>ipsec</codeph> service:</p>
+                     <codeblock># <b>systemctl enable --now ipsec</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Open the IPsec ports and protocols in the firewall:</p>
+                     <codeblock># <b>firewall-cmd --permanent --add-service="ipsec"</b>
+# <b>firewall-cmd --reload</b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Create an RSA key pair:</cmd>
+            <info>
+               <codeblock># <b>ipsec newhostkey</b>
+               </codeblock>
+               <p>The <codeph>ipsec</codeph> utility stores the key pair in the NSS database.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Designate your peers. In an IPsec tunnel, you must designate one host as <i>left</i> and the other as <i>right</i>. This is an arbitrary choice. A common practice is to call your local host <i>left</i> and the remote host <i>right</i>.</cmd>
+         </step>
+         <step>
+            <cmd>Display the Certificate Key Attribute ID (CKAID) on both the left and right peer:</cmd>
+            <info>
+               <codeblock># <b>ipsec showhostkey --list</b>
+&lt; 1&gt; RSA keyid: <i>&lt;key_id&gt;</i> ckaid: <i>&lt;ckaid&gt;</i>
+               </codeblock>
+               <p>You require the CKAIDs of both peers in the next steps.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Display the public keys:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>On the left peer, enter:</p>
+                     <codeblock># <b>ipsec showhostkey --left --ckaid <i>&lt;ckaid_of_left_peer&gt;</i>
+                        </b>
+	# rsakey AwEAAdKCx
+	leftrsasigkey=0sAwEAAdKCxpc9db48cehzQiQD...</codeblock>
+                  </li>
+                  <li>
+                     <p>On the right peer, enter:</p>
+                     <codeblock># <b>ipsec showhostkey --right --ckaid <i>&lt;ckaid_of_right_peer&gt;</i>
+                        </b>
+	# rsakey AwEAAcNWC
+	rightrsasigkey=0sAwEAAcNWCzZO+PR1j8WbO8X...</codeblock>
+                  </li>
+               </ol>
+               <p>The commands display the public keys with the corresponding parameters that you must use in the configuration file.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Create a <codeph>.conf</codeph> file for the connection in the <codeph>/etc/ipsec.d/</codeph> directory. For example, create the <codeph>/etc/ipsec.d/site-to-site.conf</codeph> file with the following settings:</cmd>
+            <info>
+               <codeblock outputclass="language-bash">conn <i>&lt;connection_name&gt;</i>
+    # General setup and authentication type
+    auto=start
+    authby=rsasig
+
+    # Site A
+    left=<i>&lt;ip_address_or_fqdn_of_left_peer&gt;</i>
+    leftid=@site_a
+    leftrsasigkey=<i>&lt;public_key_of_left_peer&gt;</i>
+    leftsubnet=192.0.2.0/24
+
+    # Site B
+    right=<i>&lt;ip_address_or_fqdn_of_right_peer&gt;</i>
+    rightid=@site_b
+    rightrsasigkey=<i>&lt;public_key_of_right_peer&gt;</i>
+    rightsubnet={198.51.100.0/24, 203.0.113.0/24}</codeblock>
+               <note>
+                  <p>You can use the same configuration file on both gateway devices, and Libreswan identifies whether it is operating on the left or right host by using internal information. However, it is important that all values in <codeph>left*</codeph> parameters belong to one peer and the values in <codeph>right*</codeph> parameters belong to the other.</p>
+               </note>
+               <p>The settings specified in the example include the following:</p>
+               <dl>
+                  <dlentry>
+                     <dt>
+                        <codeph>conn <i>&lt;connection_name&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Defines the connection name. The name is arbitrary, and Libreswan uses it to identify the connection. You must indent parameters in this connection by at least one space or tab.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>auto=<i>&lt;type&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Controls how the connection is initiated. If you set the value to <codeph>start</codeph>, Libreswan activates the connection automatically when the service starts.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>authby=rsasig</codeph>
+                     </dt>
+                     <dd>
+                        <p>Enables RSA signature authentication for this connection.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>left=<i>&lt;ip_address_or_fqdn_of_left_peer&gt;</i>
+                        </codeph> and <codeph>right=<i>&lt;ip_address_or_fqdn_of_right_peer&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Defines the IP address or DNS name of the peers.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>leftid=<i>&lt;id&gt;</i>
+                        </codeph> and <codeph>rightid=<i>&lt;id&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Defines how each peer is identified during the Internet Key Exchange (IKE) negotiation process. This can be a fully-qualified domain name (FQDN), an IP address, or a literal string. In the latter case, precede the string with an <codeph>@</codeph> sign.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>leftrsasigkey=<i>&lt;public_key&gt;</i>
+                        </codeph> and <codeph>rightrsasigkey=<i>&lt;public_key&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Specifies the public key of the peers. Use the values displayed by the <codeph>ipsec showhostkey</codeph> command in a previous step.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>leftsubnet=<i>&lt;subnet&gt;</i>
+                        </codeph> and <codeph>rightsubnet=<i>&lt;subnet&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Defines subnets in classless inter-domain routing (CIDR) format that are connected through the tunnel. If you want to tunnel multiple subnets on one side, specify them in curly brackets and separate them with a comma.</p>
+                     </dd>
+                  </dlentry>
+               </dl>
+            </info>
+         </step>
+         <step>
+            <cmd>Enable packet forwarding:</cmd>
+            <info>
+               <codeblock># <b>echo "net.ipv4.ip_forward=1" &gt; /etc/sysctl.d/95-IPv4-forwarding.conf</b>
+# <b>sysctl -p /etc/sysctl.d/95-IPv4-forwarding.conf</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Restart the <codeph>ipsec</codeph> service:</cmd>
+            <info>
+               <codeblock># <b>systemctl restart ipsec</b>
+               </codeblock>
+               <p>If you use <codeph>auto=start</codeph> in the configuration file, the connection is automatically activated. With other methods, additional steps are required to activate the connection. For details, see the <codeph>ipsec.conf(5)</codeph> man page on your system.</p>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IPsec status:</p>
+               <codeblock># <b>ipsec status</b>
+               </codeblock>
+               <p>If the connection is successfully established, the output contains lines as follows:</p>
+               <ul>
+                  <li>
+                     <p>Phase 1 of an Internet Key Exchange version 2 (IKEv2) negotiation has been successfully completed:</p>
+                     <codeblock outputclass="language-txt">000 #2: "<i>&lt;connection_name&gt;</i>":500 STATE_V2_ESTABLISHED_IKE_SA (established IKE SA); REKEY in 27935s; REPLACE in 28610s; newest; idle;</codeblock>
+                     <p>The Security Association (SA) is now ready to negotiate the actual data encryption tunnels, known as child SAs or Phase 2 SAs.</p>
+                  </li>
+                  <li>
+                     <p>A child SA has been established:</p>
+                     <codeblock outputclass="language-txt">000 #3: "<i>&lt;connection_name&gt;</i>":500 STATE_V2_ESTABLISHED_CHILD_SA (established Child SA); REKEY in 27671s; REPLACE in 28610s; IKE SA #2; idle;</codeblock>
+                     <p>This is the actual tunnel that your data traffic flows through.</p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>From a client in the local subnet, ping a client in the remote subnet.</p>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <xref href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</xref>.</p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

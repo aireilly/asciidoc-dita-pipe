@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-static-route-by-using-nmtui_configuring-static-routes">
+   <title>Configuring a static route by using <codeph>nmtui</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The network is configured.</p>
+            </li>
+            <li>
+               <p>The gateway for the static route must be directly reachable on the interface.</p>
+            </li>
+            <li>
+               <p>If the user is logged in on a physical console, user permissions are sufficient. Otherwise, the command requires root permissions.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>The <codeph>nmtui</codeph> application provides a text-based user interface for NetworkManager. You can use <codeph>nmtui</codeph> to configure static routes on a host without a graphical interface.</p>
+         <p>For example, the procedure below adds a route to the <codeph>192.0.2.0/24</codeph> network that uses the gateway running on <codeph>198.51.100.1</codeph>, which is reachable through an existing connection profile.</p>
+         <note>
+            <p>In <codeph>nmtui</codeph>:</p>
+            <ul>
+               <li>
+                  <p>Navigate by using the cursor keys.</p>
+               </li>
+               <li>
+                  <p>Press a button by selecting it and hitting <ph>Enter</ph>.</p>
+               </li>
+               <li>
+                  <p>Select and clear checkboxes by using <ph>Space</ph>.</p>
+               </li>
+               <li>
+                  <p>To return to the previous screen, use <ph>ESC</ph>.</p>
+               </li>
+            </ul>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Start <codeph>nmtui</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmtui</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Select <b>Edit a connection</b>, and press <ph>Enter</ph>.</cmd>
+         </step>
+         <step>
+            <cmd>Select the connection profile through which you can reach the next hop to the destination network, and press <ph>Enter</ph>.</cmd>
+         </step>
+         <step>
+            <cmd>Depending on whether it is an IPv4 or IPv6 route, press the <b>Show</b> button next to the protocol’s configuration area.</cmd>
+         </step>
+         <step>
+            <cmd>Press the <b>Edit</b> button next to <b>Routing</b>. This opens a new window where you configure static routes:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Press the <b>Add</b> button and fill in:</p>
+                     <ul>
+                        <li>
+                           <p>The destination network, including the prefix in Classless Inter-Domain Routing (CIDR) format</p>
+                        </li>
+                        <li>
+                           <p>The IP address of the next hop</p>
+                        </li>
+                        <li>
+                           <p>A metric value, if you add multiple routes to the same network and want to prioritize the routes by efficiency</p>
+                        </li>
+                     </ul>
+                  </li>
+                  <li>
+                     <p>Repeat the previous step for every route you want to add and that is reachable through this connection profile.</p>
+                  </li>
+                  <li>
+                     <p>Press the <b>OK</b> button to return to the window with the connection settings.</p>
+                     <fig>
+                        <p>Example of a static route without metric</p>
+                        <image href="../images/nmtui-add-static-route.png" placement="break">
+                           <alt>Setting the destination, next hop, and metric, for a static route in `nmtui`</alt>
+                        </image>
+                     </fig>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Press the OK button to return to the <codeph>nmtui</codeph> main menu.</cmd>
+         </step>
+         <step>
+            <cmd>Select <b>Activate a connection</b> and press <ph>Enter</ph>.</cmd>
+         </step>
+         <step>
+            <cmd>Select the connection profile that you edited, and press <ph>Enter</ph> twice to deactivate and activate it again.</cmd>
+            <info>
+               <note type="important">
+                  <p>Skip this step if you run <codeph>nmtui</codeph> over a remote connection, such as SSH, that uses the connection profile you want to reactivate. In this case, if you deactivate it in <codeph>nmtui</codeph>, the connection is terminated and, consequently, you cannot activate it again. To avoid this problem, use the <codeph>nmcli connection <i>&lt;connection_profile&gt;</i> up</codeph> command to reactivate the connection in the mentioned scenario.</p>
+               </note>
+            </info>
+         </step>
+         <step>
+            <cmd>Press the <b>Back</b> button to return to the main menu.</cmd>
+         </step>
+         <step>
+            <cmd>Select <b>Quit</b>, and press <ph>Enter</ph> to close the <codeph>nmtui</codeph> application.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Verify that the route is active:</p>
+               <codeblock>$ <b>ip route</b>
+...
+192.0.2.0/24 via 198.51.100.1 dev <i>example</i> proto static metric 100</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="how-to-use-the-nmcli-command-to-configure-a-static-route_configuring-static-routes">
+   <title>How to use the <codeph>nmcli</codeph> utility to configure a static route</title>
+   <conbody>
+      <p>You can use the <codeph>nmcli</codeph> utility to configure a static route on the command line.</p>
+      <p>Use following syntax:</p>
+      <codeblock>$ <b>nmcli connection modify <i>connection_name</i> ipv4.routes "<i>ip</i>[/<i>prefix</i>] [<i>next_hop</i>] [<i>metric</i>] [<i>attribute</i>=<i>value</i>] [<i>attribute</i>=<i>value</i>] ..."</b>
+      </codeblock>
+      <p>The command supports the following route attributes:</p>
+      <ul>
+         <li>
+            <p>
+               <codeph>cwnd=<i>n</i>
+               </codeph>: Sets the congestion window (CWND) size, defined in the number of packets.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>lock-cwnd=true|false</codeph>: Defines whether or not the kernel can update the CWND value.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>lock-mtu=true|false</codeph>: Defines whether or not the kernel can update the MTU to path MTU discovery.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>lock-window=true|false</codeph>: Defines whether or not the kernel can update the maximum window size for TCP packets.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>mtu=<i>&lt;mtu_value&gt;</i>
+               </codeph>: Sets the maximum transfer unit (MTU) to use along the path to the destination.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>onlink=true|false</codeph>: Defines whether the next hop is directly attached to this link even if it does not match any interface prefix.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>scope=<i>&lt;scope&gt;</i>
+               </codeph>: For an IPv4 route, this attribute sets the scope of the destinations covered by the route prefix. Set the value as an integer (0-255).</p>
+         </li>
+         <li>
+            <p>
+               <codeph>src=<i>&lt;source_address&gt;</i>
+               </codeph>: Sets the source address to prefer when sending traffic to the destinations covered by the route prefix.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>table=<i>&lt;table_id&gt;</i>
+               </codeph>: Sets the ID of the table the route should be added to. If you omit this parameter, NetworkManager uses the <codeph>main</codeph> table.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>tos=<i>&lt;type_of_service_key&gt;</i>
+               </codeph>: Sets the type of service (TOS) key. Set the value as an integer (0-255).</p>
+         </li>
+         <li>
+            <p>
+               <codeph>type=<i>&lt;route_type&gt;</i>
+               </codeph>: Sets the route type. NetworkManager supports the <codeph>unicast</codeph>, <codeph>local</codeph>, <codeph>blackhole</codeph>, <codeph>unreachable</codeph>, <codeph>prohibit</codeph>, and <codeph>throw</codeph> route types. The default is <codeph>unicast</codeph>.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>window=<i>&lt;window_size&gt;</i>
+               </codeph>: Sets the maximal window size for TCP to advertise to these destinations, measured in bytes.</p>
+         </li>
+      </ul>
+      <note type="important">
+         <p>If you use the <codeph>ipv4.routes</codeph> option without a preceding <codeph>+</codeph> sign, <codeph>nmcli</codeph> overrides all current settings of this parameter.</p>
+         <ul>
+            <li>
+               <p>To create an additional route, enter:</p>
+               <codeblock>$ <b>nmcli connection modify <i>connection_name</i> +ipv4.routes "<i>&lt;route&gt;</i>"</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>To remove a specific route, enter:</p>
+               <codeblock>$ <b>nmcli connection modify <i>connection_name</i> -ipv4.routes "<i>&lt;route&gt;</i>"</b>
+               </codeblock>
+            </li>
+         </ul>
+      </note>
+   </conbody>
+</concept>

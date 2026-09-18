@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="tracing-established-tcp-connections_network-tracing-using-the-bpf-compiler-collection">
+   <title>Tracing established TCP connections</title>
+   <taskbody>
+      <context>
+         <p>The <codeph>tcptracer</codeph> utility traces the kernel functions that connect, accept, and close TCP connections. The utility uses eBPF features and, therefore, has a very low overhead.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Use the following command to start the tracing process:</cmd>
+            <info>
+               <codeblock># <b>/usr/share/bcc/tools/tcptracer</b>
+Tracing TCP established connections. Ctrl-C to end.
+T  PID    COMM        IP SADDR        DADDR       SPORT  DPORT
+A  1088   ns-slapd    4  192.0.2.153  192.0.2.1   0      65535
+A  845    sshd        4  192.0.2.1    192.0.2.67  22     42302
+X  4502   sshd        4  192.0.2.1    192.0.2.67  22     42302
+...</codeblock>
+               <p>Each time the kernel connects, accepts, or closes a connection, <codeph>tcptracer</codeph> displays the details of the connections.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Press <ph>Ctrl</ph>+<ph>C</ph> to stop the tracing process.</cmd>
+         </step>
+      </steps>
+   </taskbody>
+</task>

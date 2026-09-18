@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-the-ethernet-interface-on-the-hosts_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms">
+   <title>Configuring the Ethernet interface on the hosts</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The host is connected to the Ethernet.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>To connect a RHEL VM host to the Ethernet, create a network connection profile, configure the IP settings, and activate the profile.</p>
+         <p>Run this procedure on both RHEL hosts, and adjust the IP address configuration accordingly.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Add a new Ethernet connection profile to NetworkManager:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add con-name <i>Example</i> ifname <i>enp1s0</i> type ethernet</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the IPv4 settings:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>Example</i> ipv4.addresses <i>198.51.100.2/24</i> ipv4.method manual ipv4.gateway <i>198.51.100.254</i> ipv4.dns <i>198.51.100.200</i> ipv4.dns-search <i>example.com</i>
+                  </b>
+               </codeblock>
+               <p>Skip this step if the network uses DHCP.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the <codeph>Example</codeph> connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>Example</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the status of the devices and connections:</p>
+               <codeblock># <b>nmcli device status</b>
+DEVICE      TYPE      STATE      CONNECTION
+enp1s0      ethernet  connected  <i>Example</i>
+               </codeblock>
+            </li>
+            <li>
+               <p>Ping a host in a remote network to verify the IP settings:</p>
+               <codeblock># <b>ping <i>RHEL-host-B.example.com</i>
+                  </b>
+               </codeblock>
+               <p>Note that you cannot ping the other VM host before you have configured the network on that host as well.</p>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

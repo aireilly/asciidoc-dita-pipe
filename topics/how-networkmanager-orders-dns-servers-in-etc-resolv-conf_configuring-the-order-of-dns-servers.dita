@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="how-networkmanager-orders-dns-servers-in-etc-resolv-conf_configuring-the-order-of-dns-servers">
+   <title>How NetworkManager orders DNS servers in <codeph>/etc/resolv.conf</codeph>
+   </title>
+   <conbody>
+      <p>NetworkManager orders DNS servers in the <codeph>/etc/resolv.conf</codeph> file by applying a specific set of rules.</p>
+      <p>The ordering depends on the following conditions:</p>
+      <ul>
+         <li>
+            <p>If only one connection profile exists, NetworkManager uses the order of IPv4 and IPv6 DNS server specified in that connection.</p>
+         </li>
+         <li>
+            <p>If multiple connection profiles are activated, NetworkManager orders DNS servers based on a DNS priority value. If you set DNS priorities, the behavior of NetworkManager depends on the value set in the <codeph>dns</codeph> parameter. You can set this parameter in the <codeph>[main]</codeph> section in the <codeph>/etc/NetworkManager/NetworkManager.conf</codeph> file:</p>
+            <ul>
+               <li>
+                  <p>
+                     <codeph>dns=default</codeph> or if the <codeph>dns</codeph> parameter is not set:</p>
+                  <p>NetworkManager orders the DNS servers from different connections based on the <codeph>ipv4.dns-priority</codeph> and <codeph>ipv6.dns-priority</codeph> parameters in each connection.</p>
+                  <p>If you set no value or you set <codeph>ipv4.dns-priority</codeph> and <codeph>ipv6.dns-priority</codeph> to <codeph>0</codeph>, NetworkManager uses the global default value.</p>
+               </li>
+               <li>
+                  <p>
+                     <codeph>dns=dnsmasq</codeph> or <codeph>dns=systemd-resolved</codeph>:</p>
+                  <p>When you use one of these settings, NetworkManager sets either <codeph>127.0.0.1</codeph> for <codeph>dnsmasq</codeph> or <codeph>127.0.0.53</codeph> as <codeph>nameserver</codeph> entry in the <codeph>/etc/resolv.conf</codeph> file.</p>
+                  <p>Both the <codeph>dnsmasq</codeph> and <codeph>systemd-resolved</codeph> services forward queries for the search domain set in a NetworkManager connection to the DNS server specified in that connection, and forwards queries to other domains to the connection with the default route. When multiple connections have the same search domain set, <codeph>dnsmasq</codeph> and <codeph>systemd-resolved</codeph> forward queries for this domain to the DNS server set in the connection with the lowest priority value.</p>
+               </li>
+            </ul>
+         </li>
+      </ul>
+      <p>NetworkManager uses the following default values for connections:</p>
+      <ul>
+         <li>
+            <p>
+               <codeph>50</codeph> for VPN connections</p>
+         </li>
+         <li>
+            <p>
+               <codeph>100</codeph> for other connections</p>
+         </li>
+      </ul>
+      <p>You can set both the global default and connection-specific <codeph>ipv4.dns-priority</codeph> and <codeph>ipv6.dns-priority</codeph> parameters to a value between <codeph>-2147483647</codeph> and <codeph>2147483647</codeph>.</p>
+      <ul>
+         <li>
+            <p>A lower value has a higher priority.</p>
+         </li>
+         <li>
+            <p>Negative values have the special effect of excluding other configurations with a greater value. For example, if at least one connection with a negative priority value exists, NetworkManager uses only the DNS servers specified in the connection profile with the lowest priority.</p>
+         </li>
+         <li>
+            <p>If multiple connections have the same DNS priority, NetworkManager prioritizes the DNS in the following order:</p>
+            <ol>
+               <li>
+                  <p>VPN connections</p>
+               </li>
+               <li>
+                  <p>Connection with an active default route. The active default route is the default route with the lowest metric.</p>
+               </li>
+            </ol>
+         </li>
+      </ul>
+      <p>Additional resources</p>
+      <ul>
+         <li>
+            <p>
+               <xref href="#using-different-dns-servers-for-different-domains_configuring-and-managing-networking">Using different DNS servers for different domains</xref>
+            </p>
+         </li>
+      </ul>
+   </conbody>
+</concept>

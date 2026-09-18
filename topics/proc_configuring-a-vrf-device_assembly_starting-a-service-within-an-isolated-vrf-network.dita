@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-vrf-device_assembly_starting-a-service-within-an-isolated-vrf-network">
+   <title>Configuring a VRF device</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You are logged in locally or using a network interface that is different to the one you want to assign to the VRF device.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>To use virtual routing and forwarding (VRF), you create a VRF device and attach a physical or virtual network interface and routing information to it.</p>
+         <note type="attention">
+            <p>To prevent that you lock yourself out yourself out remotely, perform this procedure on the local console or remotely over a network interface that you do not want to assign to the VRF device.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create the <codeph>vrf0</codeph> connection with a same-named virtual device, and attach it to routing table <codeph>1000</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type vrf ifname <i>vrf0</i> con-name <i>vrf0</i> table <i>1000</i> ipv4.method disabled ipv6.method disabled</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Add the <codeph>enp1s0</codeph> device to the <codeph>vrf0</codeph> connection, and configure the IP settings:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type ethernet con-name <i>enp1s0</i> ifname <i>enp1s0</i> controller <i>vrf0</i> ipv4.method <i>manual</i> ipv4.address <i>192.0.2.1/24</i> ipv4.gateway <i>192.0.2.254</i>
+                  </b>
+               </codeblock>
+               <p>This command creates the <codeph>enp1s0</codeph> connection as a port of the <codeph>vrf0</codeph> connection. Due to this configuration, the routing information are automatically assigned to the routing table <codeph>1000</codeph> that is associated with the <codeph>vrf0</codeph> device.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>If you require static routes in the isolated network:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Add the static routes:</p>
+                     <codeblock># <b>nmcli connection modify <i>enp1s0</i> +ipv4.routes "<i>198.51.100.0/24</i>
+                           <i>192.0.2.2</i>"</b>
+                     </codeblock>
+                     <p>This adds a route to the <codeph>198.51.100.0/24</codeph> network that uses <codeph>192.0.2.2</codeph> as the router.</p>
+                  </li>
+                  <li>
+                     <p>Activate the connection:</p>
+                     <codeblock># <b>nmcli connection up <i>enp1s0</i>
+                        </b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IP settings of the device that is associated with <codeph>vrf0</codeph>:</p>
+               <codeblock># <b>ip -br addr show vrf <i>vrf0</i>
+                  </b>
+                  <i>enp1s0</i>    UP    <i>192.0.2.1/24</i>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display the VRF devices and their associated routing table:</p>
+               <codeblock># <b>ip vrf show</b>
+Name              Table
+-----------------------
+<i>vrf0</i>
+                  <i>1000</i>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display the main routing table:</p>
+               <codeblock># <b>ip route show</b>
+default via <i>203.0.113.0/24</i> dev <i>enp7s0</i> proto static metric 100</codeblock>
+               <p>The main routing table does not mention any routes associated with the device <codeph>enp1s0</codeph> device or the <codeph>192.0.2.1/24</codeph> subnet.</p>
+            </li>
+            <li>
+               <p>Display the routing table <codeph>1000</codeph>:</p>
+               <codeblock># <b>ip route show table <i>1000</i>
+                  </b>
+default via <i>192.0.2.254</i> dev <i>enp1s0</i> proto static metric 101
+broadcast <i>192.0.2.0</i> dev <i>enp1s0</i> proto kernel scope link src <i>192.0.2.1</i>
+                  <i>192.0.2.0</i>/24 dev <i>enp1s0</i> proto kernel scope link src <i>192.0.2.1</i> metric 101
+local <i>192.0.2.1</i> dev <i>enp1s0</i> proto kernel scope host src <i>192.0.2.1</i>
+broadcast <i>192.0.2.255</i> dev <i>enp1s0</i> proto kernel scope link src <i>192.0.2.1</i>
+                  <i>198.51.100.0/24</i> via <i>192.0.2.2</i> dev <i>enp1s0</i> proto static metric 101</codeblock>
+               <p>The <codeph>default</codeph> entry indicates that services that use this routing table, use <codeph>192.0.2.254</codeph> as their default gateway and not the default gateway in the main routing table.</p>
+            </li>
+            <li>
+               <p>Execute the <codeph>traceroute</codeph> utility in the network associated with <codeph>vrf0</codeph> to verify that the utility uses the route from table <codeph>1000</codeph>:</p>
+               <codeblock># <b>ip vrf exec <i>vrf0</i> traceroute <i>203.0.113.1</i>
+                  </b>
+traceroute to <i>203.0.113.1</i> (<i>203.0.113.1</i>), 30 hops max, 60 byte packets
+ 1  <i>192.0.2.254</i> (<i>192.0.2.254</i>)  0.516 ms  0.459 ms  0.430 ms
+...</codeblock>
+               <p>The first hop is the default gateway that is assigned to the routing table <codeph>1000</codeph> and not the default gateway from the system’s main routing table.</p>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

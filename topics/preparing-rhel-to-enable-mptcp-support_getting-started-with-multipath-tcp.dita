@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="preparing-rhel-to-enable-mptcp-support_getting-started-with-multipath-tcp">
+   <title>Preparing RHEL to enable MPTCP support</title>
+   <taskbody>
+      <context>
+         <p>By default the MPTCP support is disabled in RHEL. Enable MPTCP so that applications that support this feature can use it. Additionally, you have to configure user space applications to force use MPTCP sockets if those applications have TCP sockets by default.</p>
+         <p>The following packages are installed:</p>
+         <ul>
+            <li>
+               <p>
+                  <codeph>iperf3</codeph>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <codeph>mptcpd</codeph>
+               </p>
+            </li>
+            <li>
+               <p>
+                  <codeph>systemtap</codeph>
+               </p>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Enable MPTCP sockets in the kernel:</cmd>
+            <info>
+               <codeblock># <b>echo "net.mptcp.enabled=1" &gt; /etc/sysctl.d/90-enable-MPTCP.conf</b>
+# <b>sysctl -p /etc/sysctl.d/90-enable-MPTCP.conf</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Start the <codeph>iperf3</codeph> server, and force it to create MPTCP sockets instead of TCP sockets:</cmd>
+            <info>
+               <codeblock># <b>mptcpize run iperf3 -s</b>
+
+Server listening on 5201</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Connect the client to the server, and force it to create MPTCP sockets instead of TCP sockets:</cmd>
+            <info>
+               <codeblock># <b>mptcpize iperf3 -c 127.0.0.1 -t 3</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>After the connection is established, verify the <codeph>ss</codeph> output to see the subflow-specific status:</cmd>
+            <info>
+               <codeblock># <b>ss -nti '( dport :5201 )'</b>
+
+State Recv-Q Send-Q Local Address:Port Peer Address:Port Process
+ESTAB 0      0      127.0.0.1:41842    127.0.0.1:5201
+cubic wscale:7,7 rto:205 rtt:4.455/8.878 ato:40 mss:21888 pmtu:65535 rcvmss:536 advmss:65483 cwnd:10 bytes_sent:141 bytes_acked:142 bytes_received:4 segs_out:8 segs_in:7 data_segs_out:3 data_segs_in:3 send 393050505bps lastsnd:2813 lastrcv:2772 lastack:2772 pacing_rate 785946640bps delivery_rate 10944000000bps delivered:4 busy:41ms rcv_space:43690 rcv_ssthresh:43690 minrtt:0.008 tcp-ulp-mptcp flags:Mmec token:0000(id:0)/2ff053ec(id:0) seq:3e2cbea12d7673d4 sfseq:3 ssnoff:ad3d00f4 maplen:2</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Verify MPTCP counters:</cmd>
+            <info>
+               <codeblock># <b>nstat MPTcp</b>*
+
+#kernel
+MPTcpExtMPCapableSYNRX          2                  0.0
+MPTcpExtMPCapableSYNTX          2                  0.0
+MPTcpExtMPCapableSYNACKRX       2                  0.0
+MPTcpExtMPCapableACKRX          2                  0.0</codeblock>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

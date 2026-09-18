@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="replacing-etc-resolv-conf-with-a-symbolic-link-to-manually-configure-dns-settings_manually-configuring-the-etc-resolv-conf-file">
+   <title>Replacing /etc/resolv.conf with a symbolic link to manually configure DNS settings</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The NetworkManager <codeph>rc-manager</codeph> configuration option is not set to <codeph>file</codeph>. To verify, use the <codeph>NetworkManager --print-config</codeph> command.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>By default, NetworkManager manages DNS settings in the <codeph>/etc/resolv.conf</codeph> file, and you can configure the order of DNS servers. Alternatively, you can disable DNS processing in NetworkManager if you prefer to manually configure DNS settings in <codeph>/etc/resolv.conf</codeph>. For example, NetworkManager does not automatically update the DNS configuration if <codeph>/etc/resolv.conf</codeph> is a symbolic link.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a file, such as <codeph>/etc/resolv.conf.manually-configured</codeph>, and add the DNS configuration for your environment to it. Use the same parameters and syntax as in the original <codeph>/etc/resolv.conf</codeph>.</cmd>
+         </step>
+         <step>
+            <cmd>Remove the <codeph>/etc/resolv.conf</codeph> file:</cmd>
+            <info>
+               <codeblock># <b>rm /etc/resolv.conf</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Create a symbolic link named <codeph>/etc/resolv.conf</codeph> that refers to <codeph>/etc/resolv.conf.manually-configured</codeph>:</cmd>
+            <info>
+               <codeblock># <b>ln -s /etc/resolv.conf.manually-configured /etc/resolv.conf</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#configuring-the-order-of-dns-servers_configuring-and-managing-networking">Configuring the order of DNS servers using NetworkManager</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

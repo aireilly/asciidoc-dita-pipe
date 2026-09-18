@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-an-ethernet-connection-with-a-static-ip-address-by-using-nmstatectl-with-an-interface-name_configuring-an-ethernet-connection">
+   <title>Configuring an Ethernet connection with a static IP address by using <codeph>nmstatectl</codeph> with an interface name</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A physical or virtual Ethernet Network Interface Controller (NIC) exists in the server’s configuration.</p>
+            </li>
+            <li>
+               <p>The <codeph>nmstate</codeph> package is installed.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the declarative Nmstate API to configure an Ethernet connection with static IP addresses, gateways, and DNS settings, and assign them to a specified interface name. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a YAML file, for example <codeph>~/create-ethernet-profile.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+interfaces:
+- name: enp1s0 # (1)
+  type: ethernet # (2)
+  state: up # (3)
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 24
+    dhcp: false
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+    autoconf: false
+    dhcp: false
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.0.2.254
+    next-hop-interface: enp1s0
+  - destination: ::/0
+    next-hop-address: 2001:db8:1::fffe
+    next-hop-interface: enp1s0
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb</codeblock>
+               <ol>
+                  <li>
+                     <codeph>interfaces.name</codeph>: The name of the network interface to configure</li>
+                  <li>
+                     <codeph>interfaces.type</codeph>: The type of network device</li>
+                  <li>
+                     <codeph>interfaces.state</codeph>: The desired state of the interface after configuration</li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: You can define the <codeph>identifier: mac-address</codeph> and <codeph>mac-address: <i>&lt;mac_address&gt;</i>
+               </codeph> properties in the <codeph>interfaces</codeph> property to identify the network interface card by its MAC address instead of its name, for example:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+interfaces:
+- name: <i>&lt;profile_name&gt;</i>
+  type: ethernet
+  <b>identifier: mac-address</b>
+                  <b>mac-address: <i>&lt;mac_address&gt;</i>
+                  </b>
+  ...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Apply the settings to the system:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl apply ~/create-ethernet-profile.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the current state in YAML format:</p>
+               <codeblock># <b>nmstatectl show enp1s0</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display the IP settings of the NIC:</p>
+               <codeblock># <b>ip address show enp1s0</b>
+2: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:17:b8:b6 brd ff:ff:ff:ff:ff:ff
+    inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute enp1s0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8:1::fffe/64 scope global noprefixroute
+       valid_lft forever preferred_lft forever</codeblock>
+            </li>
+            <li>
+               <p>Display the IPv4 default gateway:</p>
+               <codeblock># <b>ip route show default</b>
+default via 192.0.2.254 dev enp1s0 proto static metric 102</codeblock>
+            </li>
+            <li>
+               <p>Display the IPv6 default gateway:</p>
+               <codeblock># <b>ip -6 route show default</b>
+default via 2001:db8:1::fffe dev enp1s0 proto static metric 102 pref medium</codeblock>
+            </li>
+            <li>
+               <p>Display the DNS settings:</p>
+               <codeblock># <b>cat /etc/resolv.conf</b>
+search example.com
+nameserver 192.0.2.200
+nameserver 2001:db8:1::ffbb</codeblock>
+               <p>If multiple connection profiles are active at the same time, the order of <codeph>nameserver</codeph> entries depend on the DNS priority values in these profiles and the connection types.</p>
+            </li>
+            <li>
+               <p>Use the <codeph>ping</codeph> utility to verify that this host can send packets to other hosts:</p>
+               <codeblock># <b>ping <i>&lt;host-name-or-IP-address&gt;</i>
+                  </b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

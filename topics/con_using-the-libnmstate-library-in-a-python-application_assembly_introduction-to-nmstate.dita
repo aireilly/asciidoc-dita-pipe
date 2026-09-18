@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="con_using-the-libnmstate-library-in-a-python-application_assembly_introduction-to-nmstate">
+   <title>Using the libnmstate library in a Python application</title>
+   <conbody>
+      <p>The <codeph>libnmstate</codeph> Python library enables developers to use Nmstate in their own application.</p>
+      <p>To use the library, import it in your source code:</p>
+      <codeblock>import libnmstate</codeblock>
+      <p>Note that you must install the <codeph>nmstate</codeph> and <codeph>python3-libnmstate</codeph> packages to use this library.</p>
+      <example>
+         <title>Querying the network state by using the libnmstate library</title>
+         <p>The following Python code imports the <codeph>libnmstate</codeph> library and displays the available network interfaces and their state:</p>
+         <codeblock outputclass="language-python">import libnmstate
+from libnmstate.schema import Interface
+
+net_state = libnmstate.show()
+for iface_state in net_state[Interface.KEY]:
+    print(iface_state[Interface.NAME] + ": "
+          + iface_state[Interface.STATE])</codeblock>
+      </example>
+   </conbody>
+</concept>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="temporarily-setting-log-levels-at-run-time-using-nmcli_introduction-to-networkmanager-debugging">
+   <title>Temporarily setting log levels at run time using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <context>
+         <p>You can change the log level at run time using <codeph>nmcli</codeph>.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: Display the current logging settings:</cmd>
+            <info>
+               <codeblock># <b>nmcli general logging</b>
+  LEVEL  DOMAINS
+  INFO   PLATFORM,RFKILL,ETHER,WIFI,BT,MB,DHCP4,DHCP6,PPP,WIFI_SCAN,IP4,IP6,A
+UTOIP4,DNS,VPN,SHARING,SUPPLICANT,AGENTS,SETTINGS,SUSPEND,CORE,DEVICE,OLPC,
+WIMAX,INFINIBAND,FIREWALL,ADSL,BOND,VLAN,BRIDGE,DBUS_PROPS,TEAM,CONCHECK,DC
+B,DISPATCH</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>To modify the logging level and domains, use the following options:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>To set the log level for all domains to the same <codeph>LEVEL</codeph>, enter:</p>
+                     <codeblock># <b>nmcli general logging level <i>LEVEL</i> domains <i>ALL</i>
+                        </b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>To change the level for specific domains, enter:</p>
+                     <codeblock># <b>nmcli general logging level <i>LEVEL</i> domains <i>DOMAINS</i>
+                        </b>
+                     </codeblock>
+                     <p>Note that updating the logging level using this command disables logging for all the other domains.</p>
+                  </li>
+                  <li>
+                     <p>To change the level of specific domains and preserve the level of all other domains, enter:</p>
+                     <codeblock># <b>nmcli general logging level KEEP domains <i>DOMAIN:LEVEL</i>,<i>DOMAIN:LEVEL</i>
+                        </b>
+                     </codeblock>
+                  </li>
+               </ul>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

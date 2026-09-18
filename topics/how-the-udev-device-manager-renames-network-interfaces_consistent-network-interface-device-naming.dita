@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="how-the-udev-device-manager-renames-network-interfaces_consistent-network-interface-device-naming">
+   <title>How the udev device manager renames network interfaces</title>
+   <conbody>
+      <p>The <codeph>udev</codeph> device manager processes a set of rules to implement a consistent naming scheme for network interfaces.</p>
+      <p>Order of rule files:</p>
+      <ol>
+         <li>
+            <p>Optional: <codeph>/usr/lib/udev/rules.d/60-net.rules</codeph>
+            </p>
+            <p>This file exists only if you install the <codeph>initscripts-rename-device</codeph> package.
+The <codeph>/usr/lib/udev/rules.d/60-net.rules</codeph> file defines that the deprecated <codeph>/usr/lib/udev/rename_device</codeph> helper utility searches for the <codeph>HWADDR</codeph> parameter in <codeph>/etc/sysconfig/network-scripts/ifcfg-*</codeph> files. If the value set in the variable matches the MAC address of an interface, the helper utility renames the interface to the name set in the <codeph>DEVICE</codeph> parameter of the <codeph>ifcfg</codeph> file.</p>
+            <p>If the system uses only NetworkManager connection profiles in keyfile format, <codeph>udev</codeph> skips this step.</p>
+         </li>
+         <li>
+            <p>Only on Dell systems: <codeph>/usr/lib/udev/rules.d/71-biosdevname.rules</codeph>
+            </p>
+            <p>This file exists only if the <codeph>biosdevname</codeph> package is installed, and the rules file defines that the <codeph>biosdevname</codeph> utility renames the interface according to its naming policy, if it was not renamed in the previous step.</p>
+            <note>
+               <p>Install and use <codeph>biosdevname</codeph> only on Dell systems.</p>
+            </note>
+         </li>
+         <li>
+            <p>
+               <codeph>/usr/lib/udev/rules.d/75-net-description.rules</codeph>
+            </p>
+            <p>This file defines how <codeph>udev</codeph> examines the network interface and sets the properties in <codeph>udev</codeph>-internal variables. These variables are then processed in the next step by the <codeph>/usr/lib/udev/rules.d/80-net-setup-link.rules</codeph> file. Some of the properties can be undefined.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>/usr/lib/udev/rules.d/80-net-setup-link.rules</codeph>
+            </p>
+            <p>This file calls the <codeph>net_setup_link</codeph> builtin of the <codeph>udev</codeph> service, and <codeph>udev</codeph> renames the interface based on the order of the policies in the <codeph>NamePolicy</codeph> parameter in the <codeph>/usr/lib/systemd/network/99-default.link</codeph> file. For further details, see <xref href="#network-interface-naming-policies_consistent-network-interface-device-naming">Network interface naming policies</xref>.</p>
+            <p>If none of the policies applies, <codeph>udev</codeph> does not rename the interface.</p>
+         </li>
+      </ol>
+      <p>Additional resources</p>
+      <ul>
+         <li>
+            <p>
+               <xref href="https://access.redhat.com/solutions/5984311"
+                     format="html"
+                     scope="external">Why are systemd network interface names different between major RHEL versions (Red Hat Knowledgebase)</xref>
+            </p>
+         </li>
+      </ul>
+   </conbody>
+</concept>

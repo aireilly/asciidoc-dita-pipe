@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_creating-a-virtual-network-in-libvirt-with-an-existing-bridge_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms">
+   <title>Creating a virtual network in libvirt with an existing bridge</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>You installed the <codeph>libvirt</codeph> package.</p>
+            </li>
+            <li>
+               <p>You started and enabled the <codeph>libvirtd</codeph> service.</p>
+            </li>
+            <li>
+               <p>You configured the <codeph>br0</codeph> device with the VXLAN on RHEL.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>To enable virtual machines (VM) to use the <codeph>br0</codeph> bridge with the attached virtual extensible LAN (VXLAN), first add a virtual network to the <codeph>libvirtd</codeph> service that uses this bridge.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create the <codeph>~/vxlan10-bridge.xml</codeph> file with the following content:</cmd>
+            <info>
+               <codeblock>
+                  <b>&lt;network&gt;</b>
+                  <b>  &lt;name&gt;vxlan10-bridge&lt;/name&gt;</b>
+                  <b>  &lt;forward mode="bridge" /&gt;</b>
+                  <b>  &lt;bridge name="br0" /&gt;</b>
+                  <b>&lt;/network&gt;</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Use the <codeph>~/vxlan10-bridge.xml</codeph> file to create a new virtual network in <codeph>libvirt</codeph>:</cmd>
+            <info>
+               <codeblock># <b>virsh net-define <i>~/vxlan10-bridge.xml</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Remove the <codeph>~/vxlan10-bridge.xml</codeph> file:</cmd>
+            <info>
+               <codeblock># <b>rm <i>~/vxlan10-bridge.xml</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Start the <codeph>vxlan10-bridge</codeph> virtual network:</cmd>
+            <info>
+               <codeblock># <b>virsh net-start <i>vxlan10-bridge</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the <codeph>vxlan10-bridge</codeph> virtual network to start automatically when the <codeph>libvirtd</codeph> service starts:</cmd>
+            <info>
+               <codeblock># <b>virsh net-autostart <i>vxlan10-bridge</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the list of virtual networks:</p>
+               <codeblock># <b>virsh net-list</b>
+ Name              State    Autostart   Persistent
+----------------------------------------------------
+ <i>vxlan10-bridge</i>    active   yes         yes
+ ...</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

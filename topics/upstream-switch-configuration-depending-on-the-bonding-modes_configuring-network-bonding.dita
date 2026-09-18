@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="upstream-switch-configuration-depending-on-the-bonding-modes_configuring-network-bonding">
+   <title>Upstream switch configuration depending on the bonding modes</title>
+   <conbody>
+      <p>Depending on the bonding mode you want to use, you must configure the ports on the switch.</p>
+      <table colsep="1" rowsep="1" frame="all">
+         <tgroup cols="2">
+            <colspec colname="col_1" colwidth="40*"/>
+            <colspec colname="col_2" colwidth="60*"/>
+            <thead>
+               <row>
+                  <entry align="left" valign="top">Bonding mode</entry>
+                  <entry align="left" valign="top">Configuration on the switch</entry>
+               </row>
+            </thead>
+            <tbody>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>0</codeph> - <codeph>balance-rr</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Requires static EtherChannel enabled, not Link Aggregation Control Protocol (LACP)-negotiated.</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>1</codeph> - <codeph>active-backup</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>No configuration required on the switch.</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>2</codeph> - <codeph>balance-xor</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Requires static EtherChannel enabled, not LACP-negotiated.</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>3</codeph> - <codeph>broadcast</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Requires static EtherChannel enabled, not LACP-negotiated.</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>4</codeph> - <codeph>802.3ad</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Requires LACP-negotiated EtherChannel enabled.</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>5</codeph> - <codeph>balance-tlb</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>No configuration required on the switch.</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>6</codeph> - <codeph>balance-alb</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>No configuration required on the switch.</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>balance-slb</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>No configuration required on the switch.</p>
+                  </entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+      <p>For details on how to configure your switch, see the documentation of the switch.</p>
+      <note type="important">
+         <p>Certain network bonding features, such as the fail-over mechanism, do not support direct cable connections without a network switch. For further details, see the Red Hat Knowledgebase solution <xref href="https://access.redhat.com/solutions/202583"
+                  format="html"
+                  scope="external">Is bonding supported with direct connection using crossover cables</xref>.</p>
+      </note>
+   </conbody>
+</concept>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="routing-dns-traffic-through-a-certain-interface_using-different-dns-servers-for-different-domains">
+   <title>Routing DNS traffic through a certain interface</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The connection profiles already exist.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>If your host has multiple network interfaces and each DNS server is reachable only through a specific interface, configure RHEL to route DNS traffic correctly to prevent misdirected queries and resolution failures.</p>
+         <p>NetworkManager can configure the <codeph>systemd-resolved</codeph>, <codeph>dnsmasq</codeph>, and <codeph>dnsconf</codeph> DNS backends. To avoid DNS resolution issues on multi-interface systems, NetworkManager can automatically create dedicated routes for DNS servers tied to specific network interfaces.</p>
+         <p>Each DNS server mentioned in a connection profile is associated with a specific network interface. The DNS backend services <codeph>systemd-resolved</codeph> and <codeph>dnsmasq</codeph> ensure that each DNS name server remains accessible only through the correct network interface. However, other backend services do not support this feature. In this regard, NetworkManager has a feature that automatically adds a dedicated route so that each name server is reached only through the correct interface. You can set up the <codeph>ipv4.routed-dns</codeph> and <codeph>ipv6.routed-dns</codeph> properties to use this feature.</p>
+         <p>Example scenario:</p>
+         <ul>
+            <li>
+               <p>Connection profile 1 <i>&lt;example-connection-1&gt;</i> :</p>
+               <ul>
+                  <li>
+                     <p>Default gateway: <codeph>192.0.2.254</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>DNS server: <codeph>10.0.0.1</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>Search domain: example-domain.com</p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>Connection profile 2 <i>&lt;example-connection-2&gt;</i> :</p>
+               <ul>
+                  <li>
+                     <p>Default gateway: <codeph>198.51.100.254</codeph> (this gateway has no access to the <codeph>10.0.0.0/24</codeph> network)</p>
+                  </li>
+                  <li>
+                     <p>DNS server: <codeph>203.0.113.1</codeph>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+         <p>In this example, you have two connection profiles: <i>&lt;example-connection-1&gt;</i> and <i>&lt;example-connection-2&gt;</i> that are connected through <codeph>enp1s0</codeph> and <codeph>enp7s0</codeph> network interfaces. If the <i>&lt;example-connection-2&gt;</i> second profile was connected first, the default gateway <codeph>198.51.100.254</codeph> of this connection has a lower metric and takes precedence over the first profile. Consequently, RHEL uses the default gateway of the second connection while connecting to the DNS server <codeph>10.0.0.1</codeph> of the first profile. As a result, the DNS resolution fails. To solve this problem, enable the <codeph>ipv4.routed-dns</codeph> setting for both connection profiles so that NetworkManager creates a dedicated route for the <codeph>10.0.0.1</codeph> DNS server through the correct interface, in this case, <codeph>enp1s0</codeph>.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Modify the connection profile to enable the creation of routes to the name server:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>For connection profile 1, enter:</p>
+                     <codeblock outputclass="language-console"># <b>nmcli connection modify <i>&lt;example-connection-1&gt;</i> ipv4.routed-dns yes</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>For connection profile 2, enter:</p>
+                     <codeblock outputclass="language-console"># <b>nmcli connection modify <i>&lt;example-connection-2&gt;</i> ipv4.routed-dns yes</b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Re-activate the connections:</cmd>
+            <info>
+               <codeblock outputclass="language-console"># <b>nmcli connection up <i>&lt;example-connection-1&gt;</i>
+                  </b>
+
+# <b>nmcli connection up <i>&lt;example-connection-2&gt;</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the route to reach an IP address:</p>
+               <codeblock outputclass="language-console"># <b>ip route get 203.0.113.1</b>
+203.0.113.1  dev  enp1s0  table  20053  src  10.0.0.1  uid  0</codeblock>
+               <p>This command verifies if the name server is reached through the correct interface and uses the policy routing method that places all the routes for DNS servers in the special routing table <codeph>20053</codeph>.</p>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

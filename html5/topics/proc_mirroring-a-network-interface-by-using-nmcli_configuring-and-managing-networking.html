@@ -1,0 +1,90 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta charset="UTF-8"><meta name="copyright" content="(C) Copyright 2026"><meta name="generator" content="DITA-OT"><title>Mirroring a network interface by using nmcli</title><link rel="stylesheet" type="text/css" href="../commonltr.css"><link rel="stylesheet" type="text/css" href="../custom.css"></head><body id="proc_mirroring-a-network-interface-by-using-nmcli_configuring-and-managing-networking"><main role="main"><article role="article" aria-labelledby="ariaid-title1">
+   <h1 class="title topictitle1" id="ariaid-title1">Mirroring a network interface by using <code class="ph codeph">nmcli</code>
+   </h1>
+   <div class="body taskbody">
+      <section class="section prereq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">A network interface to mirror the network traffic to.</p>
+            </li>
+         </ul>
+      </section>
+      <section class="section context">
+         <p class="p">Network administrators can use port mirroring to replicate inbound and outbound network traffic being communicated from one network device to another. Mirroring traffic of an interface can be helpful in the following situations:</p>
+         <ul class="ul">
+            <li class="li">
+               <p class="p">To debug networking issues and tune the network flow</p>
+            </li>
+            <li class="li">
+               <p class="p">To inspect and analyze the network traffic</p>
+            </li>
+            <li class="li">
+               <p class="p">To detect an intrusion</p>
+            </li>
+         </ul>
+      </section>
+      <section><ol class="ol steps"><li class="li step stepexpand">
+            <span class="ph cmd">Add a network connection profile that you want to mirror the network traffic from:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection add type ethernet ifname <em class="ph i">enp1s0</em> con-name <em class="ph i">enp1s0</em> autoconnect <em class="ph i">no</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Attach a <code class="ph codeph">qdisc</code> of type <code class="ph codeph">prio</code>  to <code class="ph codeph">enp1s0</code> for the egress (outgoing) traffic with the <code class="ph codeph">10:</code> handle:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">enp1s0</em> +tc.qdisc "root prio handle 10:"</strong>
+               </code></pre>
+               <p class="p">The <code class="ph codeph">qdisc</code> set to <code class="ph codeph">prio</code> attached without children allows attaching filters.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Add a <code class="ph codeph">qdisc</code> for the ingress traffic, with the <code class="ph codeph">ffff:</code> handle:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">enp1s0</em> +tc.qdisc "ingress handle ffff:"</strong>
+               </code></pre>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Add the following filters to match packets on the ingress and egress <code class="ph codeph">qdiscs</code>, and to mirror them to <code class="ph codeph">enp7s0</code>:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection modify <em class="ph i">enp1s0</em> +tc.tfilter "parent ffff: matchall action mirred egress mirror dev <em class="ph i">enp7s0</em>"</strong>
+
+# <strong class="ph b">nmcli connection modify <em class="ph i">enp1s0</em> +tc.tfilter "parent 10: matchall action mirred egress mirror dev <em class="ph i">enp7s0</em>"</strong>
+               </code></pre>
+               <p class="p">The <code class="ph codeph">matchall</code> filter matches all packets, and the <code class="ph codeph">mirred</code> action redirects packets to destination.</p>
+            </div>
+         </li><li class="li step stepexpand">
+            <span class="ph cmd">Activate the connection:</span>
+            <div class="itemgroup info">
+               <pre class="pre codeblock"><code># <strong class="ph b">nmcli connection up <em class="ph i">enp1s0</em>
+                  </strong>
+               </code></pre>
+            </div>
+         </li></ol></section>
+      <section class="section result">
+         <ol class="ol">
+            <li class="li">
+               <p class="p">Install the <code class="ph codeph">tcpdump</code> utility:</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">dnf install tcpdump</strong>
+               </code></pre>
+            </li>
+            <li class="li">
+               <p class="p">Display the traffic mirrored on the target device (<code class="ph codeph">enp7s0</code>):</p>
+               <pre class="pre codeblock"><code># <strong class="ph b">tcpdump -i <em class="ph i">enp7s0</em>
+                  </strong>
+               </code></pre>
+            </li>
+         </ol>
+      </section>
+      <section class="section postreq">
+         <ul class="ul">
+            <li class="li">
+               <p class="p">
+                  <a class="xref" href="https://access.redhat.com/solutions/8787" target="_blank" rel="external noopener">How to capture network packets using <code class="ph codeph">tcpdump</code> (Red Hat Knowledgebase)</a>
+               </p>
+            </li>
+         </ul>
+      </section>
+   </div>
+</article></main></body></html>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-macsec-connection-using-nmcli_assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network">
+   <title>Configuring a MACsec connection by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <context>
+         <p>You can use the <codeph>nmcli</codeph> utility to configure Ethernet interfaces to use MACsec. For example, you can create a MACsec connection between two hosts that are connected over Ethernet.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>On the first host on which you configure MACsec:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>Create the connectivity association key (CAK) and connectivity-association key name (CKN) for the pre-shared key:</p>
+                     <ol>
+                        <li>
+                           <p>Create a 16-byte hexadecimal CAK:</p>
+                           <codeblock># <b>dd if=/dev/urandom count=16 bs=1 2&gt; /dev/null | hexdump -e '1/2 "%04x"'</b>
+50b71a8ef0bd5751ea76de6d6c98c03a</codeblock>
+                        </li>
+                        <li>
+                           <p>Create a 32-byte hexadecimal CKN:</p>
+                           <codeblock># <b>dd if=/dev/urandom count=32 bs=1 2&gt; /dev/null | hexdump -e '1/2 "%04x"'</b>
+f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550</codeblock>
+                        </li>
+                     </ol>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>On both hosts you want to connect over a MACsec connection:</cmd>
+         </step>
+         <step>
+            <cmd>Create the MACsec connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type macsec con-name macsec0 ifname macsec0 connection.autoconnect yes macsec.parent enp1s0 macsec.mode psk macsec.mka-cak 50b71a8ef0bd5751ea76de6d6c98c03a macsec.mka-ckn f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550</b>
+               </codeblock>
+               <p>Use the CAK and CKN generated in the previous step in the <codeph>macsec.mka-cak</codeph> and <codeph>macsec.mka-ckn</codeph> parameters. The values must be the same on every host in the MACsec-protected network.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Configure the IP settings on the MACsec connection.</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Configure the <codeph>IPv4</codeph> settings. For example, to set a static <codeph>IPv4</codeph> address, network mask, default gateway, and DNS server to the <codeph>macsec0</codeph> connection, enter:</p>
+                     <codeblock># <b>nmcli connection modify macsec0 ipv4.method manual ipv4.addresses '192.0.2.1/24' ipv4.gateway '192.0.2.254' ipv4.dns '192.0.2.253'</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Configure the <codeph>IPv6</codeph> settings. For example, to set a static <codeph>IPv6</codeph> address, network mask, default gateway, and DNS server to the <codeph>macsec0</codeph> connection, enter:</p>
+                     <codeblock># <b>nmcli connection modify macsec0 ipv6.method manual ipv6.addresses '2001:db8:1::1/32'  ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffd'</b>
+                     </codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up macsec0</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Verify that the traffic is encrypted:</p>
+               <codeblock># <b>tcpdump -nn -i enp1s0</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Optional: Display the unencrypted traffic:</p>
+               <codeblock># <b>tcpdump -nn -i macsec0</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display MACsec statistics:</p>
+               <codeblock># <b>ip macsec show</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display individual counters for each type of protection: integrity-only (encrypt off) and encryption (encrypt on)</p>
+               <codeblock># <b>ip -s macsec show</b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://developers.redhat.com/blog/2016/10/14/macsec-a-different-solution-to-encrypt-network-traffic"
+                        format="html"
+                        scope="external">MACsec: a different solution to encrypt network traffic</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

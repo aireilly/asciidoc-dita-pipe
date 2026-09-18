@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="identifying-the-reason-why-networkmanager-does-not-manage-a-certain-network-device_configuring-networkmanager-to-ignore-certain-devices">
+   <title>Identifying the reason why NetworkManager does not manage a certain network device</title>
+   <taskbody>
+      <context>
+         <p>In addition to the status of each network device, NetworkManager also tracks the reason why the devices are in their current status. You can use this feature to identify why NetworkManager does not manage certain devices.</p>
+      </context>
+      <steps-unordered>
+         <step>
+            <cmd>Display the status and its reason of all network devices:</cmd>
+            <info>
+               <codeblock># <b>nmcli -f GENERAL.DEVICE,GENERAL.STATE,GENERAL.REASON device show</b>
+               </codeblock>
+               <p>If you pass a device name to the command, you can display the output only of the specified device.</p>
+               <p>Example output:</p>
+               <codeblock outputclass="language-console">GENERAL.DEVICE:    enp1s0
+GENERAL.STATE:     10 (unmanaged)
+GENERAL.REASON:    75 (The device is unmanaged by explicit user decision (e.g. 'nmcli device set $DEV managed no'))
+
+GENERAL.DEVICE:    enp7s0
+GENERAL.STATE:     10 (unmanaged)
+GENERAL.REASON:    74 (The device is unmanaged by user decision in NetworkManager.conf ('unmanaged' in a [device*] section)
+
+GENERAL.DEVICE:    veth3
+GENERAL.STATE:     10 (unmanaged)
+GENERAL.REASON:    77 (The device is unmanaged via udev rule)</codeblock>
+               <note>
+                  <p>Note that the command returns the status of all devices, regardless whether they are managed or unmanaged.</p>
+               </note>
+            </info>
+         </step>
+      </steps-unordered>
+   </taskbody>
+</task>

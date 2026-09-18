@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="basic-connection-issues">
+   <title>Basic connection issues</title>
+   <refbody>
+      <section>
+         <p>Problems with VPN connections often occur due to mismatched configurations between the endpoints.</p>
+         <p>To confirm that an IPsec connection is established, enter:</p>
+         <codeblock># <b>ipsec trafficstatus</b>
+006 #8: "vpn.example.com"[1] 192.0.2.1, type=ESP, add_time=1595296930, inBytes=5999, outBytes=3231, id='@vpn.example.com', lease=198.51.100.1/32</codeblock>
+         <p>For a successful connection, the command shows an entry with the connection’s name and details. If the output is empty, the tunnel is not established.</p>
+      </section>
+   </refbody>
+</reference>

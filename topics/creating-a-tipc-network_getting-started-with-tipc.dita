@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="creating-a-tipc-network_getting-started-with-tipc">
+   <title>Creating a TIPC network</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>tipc</codeph> module has been loaded. For details,
+see <xref href="#loading-the-tipc-module-when-the-system-boots_getting-started-with-tipc">Loading the tipc module when the system boots</xref>
+               </p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>To create a TIPC network, perform this procedure on each host that should join the TIPC network.</p>
+         <note type="important">
+            <p>The commands configure the TIPC network only temporarily. To permanently configure TIPC on a node, use the commands of this procedure in a script, and configure RHEL to execute that script when the system boots.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: Set a unique node identity, such as a UUID or the node’s host name:</cmd>
+            <info>
+               <codeblock># <b>tipc node set identity <i>host_name</i>
+                  </b>
+               </codeblock>
+               <p>The identity can be any unique string consisting of a maximum 16 letters and numbers.</p>
+               <p>You cannot set or change an identity after this step.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Add a bearer. For example, to use Ethernet as media and <codeph>enp0s1</codeph> device as physical bearer device, enter:</cmd>
+            <info>
+               <codeblock># <b>tipc bearer enable media <i>eth</i> device <i>enp1s0</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Optional: For redundancy and better performance, attach further bearers using the command from the previous step. You can configure up to three bearers, but not more than two on the same media.</cmd>
+         </step>
+         <step>
+            <cmd>Repeat all previous steps on each node that should join the TIPC network.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the link status for cluster members:</p>
+               <codeblock># <b>tipc link list</b>
+broadcast-link: up
+5254006b74be:enp1s0-525400df55d1:enp1s0: up</codeblock>
+               <p>This output indicates that the link between bearer <codeph>enp1s0</codeph> on node <codeph>5254006b74be</codeph> and bearer <codeph>enp1s0</codeph> on node <codeph>525400df55d1</codeph> is <codeph>up</codeph>.</p>
+            </li>
+            <li>
+               <p>Display the TIPC publishing table:</p>
+               <codeblock># <b>tipc nametable show</b>
+Type       Lower      Upper      Scope    Port       Node
+0          1795222054 1795222054 cluster  0          5254006b74be
+0          3741353223 3741353223 cluster  0          525400df55d1
+1          1          1          node     2399405586 5254006b74be
+2          3741353223 3741353223 node     0          5254006b74be</codeblock>
+               <ul>
+                  <li>
+                     <p>The two entries with service type <codeph>0</codeph> indicate that two nodes are members of this cluster.</p>
+                  </li>
+                  <li>
+                     <p>The entry with service type <codeph>1</codeph> represents the built-in topology service tracking service.</p>
+                  </li>
+                  <li>
+                     <p>The entry with service type <codeph>2</codeph> displays the link as seen from the issuing node. The range limit <codeph>3741353223</codeph> represents the peer endpoint’s address (a unique 32-bit hash value based on the node identity) in decimal format.</p>
+                  </li>
+               </ul>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming">
+   <title>Understanding the teamd service, runners, and link-watchers</title>
+   <conbody>
+      <p>The team service, <codeph>teamd</codeph>, controls one instance of the team driver. This instance of the driver adds instances of a hardware device driver to form a team of network interfaces. The team driver presents a network interface, for example <codeph>team0</codeph>, to the kernel.</p>
+      <p>The <codeph>teamd</codeph> service implements the common logic to all methods of teaming. Those functions are unique to the different load sharing and backup methods, such as round-robin, and implemented by separate units of code referred to as <codeph>runners</codeph>. Administrators specify runners in JavaScript Object Notation (JSON) format, and the JSON code is compiled into an instance of <codeph>teamd</codeph> when the instance is created. Alternatively, when using <codeph>NetworkManager</codeph>, you can set the runner in the <codeph>team.runner</codeph> parameter, and <codeph>NetworkManager</codeph> auto-creates the corresponding JSON code.</p>
+      <p>The following runners are available:</p>
+      <ul>
+         <li>
+            <p>
+               <codeph>broadcast</codeph>: Transmits data over all ports.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>roundrobin</codeph>: Transmits data over all ports in turn.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>activebackup</codeph>: Transmits data over one port while the others are kept as a backup.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>loadbalance</codeph>: Transmits data over all ports with active Tx load balancing and Berkeley Packet Filter (BPF)-based Tx port selectors.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>random</codeph>: Transmits data on a randomly selected port.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>lacp</codeph>: Implements the 802.3ad Link Aggregation Control Protocol (LACP).</p>
+         </li>
+      </ul>
+      <p>The <codeph>teamd</codeph> services use a link watcher to monitor the state of subordinate devices. The following link-watchers are available:</p>
+      <ul>
+         <li>
+            <p>
+               <codeph>ethtool</codeph>: The <codeph>libteam</codeph> library uses the <codeph>ethtool</codeph> utility to watch for link state changes. This is the default link-watcher.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>arp_ping</codeph>: The <codeph>libteam</codeph> library uses the <codeph>arp_ping</codeph> utility to monitor the presence of a far-end hardware address using Address Resolution Protocol (ARP).</p>
+         </li>
+         <li>
+            <p>
+               <codeph>nsna_ping</codeph>: On IPv6 connections, the <codeph>libteam</codeph> library uses the Neighbor Advertisement and Neighbor Solicitation features from the IPv6 Neighbor Discovery protocol to monitor the presence of a neighbor’s interface.</p>
+         </li>
+      </ul>
+      <p>Each runner can use any link watcher, with the exception of <codeph>lacp</codeph>. This runner can only use the <codeph>ethtool</codeph> link watcher.</p>
+   </conbody>
+</concept>

@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="available-qdiscs-in-rhel_linux-traffic-control">
+   <title>Available <codeph>qdiscs</codeph> in RHEL</title>
+   <refbody>
+      <section>
+         <p>Each <codeph>qdisc</codeph> addresses unique networking-related issues. You can use any of them to shape network traffic based on your networking requirements.</p>
+         <p>These <codeph>qdiscs</codeph> are available in RHEL:</p>
+      </section>
+      <table colsep="1" rowsep="1" frame="all">
+         <title>Available schedulers in RHEL</title>
+         <tgroup cols="3">
+            <colspec colname="col_1" colwidth="33.3333*"/>
+            <colspec colname="col_2" colwidth="33.3333*"/>
+            <colspec colname="col_3" colwidth="33.3334*"/>
+            <thead>
+               <row>
+                  <entry align="left" valign="top">
+                     <codeph>qdisc</codeph> name</entry>
+                  <entry align="left" valign="top">Included in</entry>
+                  <entry align="left" valign="top">Offload support</entry>
+               </row>
+            </thead>
+            <tbody>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Credit-Based Shaper</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-modules-extra</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>CHOose and Keep for responsive flows, CHOose and Kill for unresponsive flows (CHOKE)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-modules-extra</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Controlled Delay (CoDel)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Enhanced Transmission Selection (ETS)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-modules-extra</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Fair Queue (FQ)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Fair Queuing Controlled Delay  (FQ_CODel)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Generalized Random Early Detection (GRED)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-modules-extra</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Hierarchical Fair Service Curve (HSFC)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Heavy-Hitter Filter (HHF)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Hierarchy Token Bucket (HTB)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>INGRESS</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Multi Queue Priority (MQPRIO)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-modules-extra</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Multiqueue (MULTIQ)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-modules-extra</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Network Emulator (NETEM)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-modules-extra</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Proportional Integral-controller Enhanced (PIE)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>PLUG</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Quick Fair Queueing (QFQ)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-modules-extra</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Random Early Detection (RED)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-modules-extra</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Stochastic Fair Blue (SFB)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-modules-extra</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Stochastic Fairness Queueing (SFQ)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Token Bucket Filter (TBF)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-core</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Yes</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Trivial Link Equalizer (TEQL)</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>
+                        <codeph>kernel-modules-extra</codeph>
+                     </p>
+                  </entry>
+                  <entry align="left" valign="top"/>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+      <section>
+         <note type="important">
+            <p>The <codeph>qdisc</codeph> offload requires hardware and driver support on NIC.</p>
+         </note>
+      </section>
+   </refbody>
+</reference>

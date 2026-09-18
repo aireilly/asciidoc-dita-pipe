@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-a-static-route-by-using-control-center_configuring-static-routes">
+   <title>Configuring a static route by using control-center</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The network is configured.</p>
+            </li>
+            <li>
+               <p>This host is in the same IP subnet as the gateways.</p>
+            </li>
+            <li>
+               <p>The network configuration of the connection is opened in the <codeph>control-center</codeph> application.
+See <xref href="#configuring-an-ethernet-connection-by-using-nm-connection-editor_configuring-an-ethernet-connection">Configuring an Ethernet connection by using nm-connection-editor</xref>.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use <codeph>control-center</codeph> in GNOME to add a static route to the configuration of a network connection.</p>
+         <p>The procedure below configures the following routes:</p>
+         <ul>
+            <li>
+               <p>An IPv4 route to the remote <codeph>198.51.100.0/24</codeph> network. The corresponding gateway has the IP address <codeph>192.0.2.10</codeph>.</p>
+            </li>
+            <li>
+               <p>An IPv6 route to the remote <codeph>2001:db8:2::/64</codeph> network. The corresponding gateway has the IP address <codeph>2001:db8:1::10</codeph>.</p>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>On the <codeph>IPv4</codeph> tab:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Optional: Disable automatic routes by clicking the <uicontrol>On</uicontrol> button in the <codeph>Routes</codeph> section of the <codeph>IPv4</codeph> tab to use only static routes. If automatic routes are enabled, Red Hat Enterprise Linux uses static routes and routes received from a DHCP server.</p>
+                  </li>
+                  <li>
+                     <p>Enter the address, netmask, gateway, and optionally a metric value of the IPv4 route:</p>
+                     <fig>
+                        <image href="../images/IPv4-static-route-in-control-center.png"
+                               placement="break">
+                           <alt>Static IPv4 address settings in `control-center`</alt>
+                        </image>
+                     </fig>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>On the <codeph>IPv6</codeph> tab:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Optional: Disable automatic routes by clicking the <uicontrol>On</uicontrol> button in the <codeph>Routes</codeph> section of the <codeph>IPv4</codeph> tab to use only static routes.</p>
+                  </li>
+                  <li>
+                     <p>Enter the address, netmask, gateway, and optionally a metric value of the IPv6 route:</p>
+                     <fig>
+                        <image href="../images/IPv6-static-route-in-control-center.png"
+                               placement="break">
+                           <alt>Static IPv6 address settings in `control-center`</alt>
+                        </image>
+                     </fig>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>Apply</uicontrol>.</cmd>
+         </step>
+         <step>
+            <cmd>Back in the <codeph>Network</codeph> window, disable and re-enable the connection by switching the button for the connection to <uicontrol>Off</uicontrol> and back to <uicontrol>On</uicontrol> for changes to take effect.</cmd>
+            <info>
+               <note type="attention">
+                  <p>Restarting the connection briefly disrupts connectivity on that interface.</p>
+               </note>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the IPv4 routes:</p>
+               <codeblock># <b>ip -4 route</b>
+...
+<i>198.51.100.0/24</i> via <i>192.0.2.10</i> dev <i>enp1s0</i>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display the IPv6 routes:</p>
+               <codeblock># <b>ip -6 route</b>
+...
+<i>2001:db8:2::/64</i> via <i>2001:db8:1::10</i> dev <i>enp1s0</i> metric <i>1024</i> pref <i>medium</i>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

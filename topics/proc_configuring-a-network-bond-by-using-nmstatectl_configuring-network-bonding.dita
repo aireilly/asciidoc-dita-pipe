@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-network-bond-by-using-nmstatectl_configuring-network-bonding">
+   <title>Configuring a network bond by using <codeph>nmstatectl</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li>
+               <p>To use Ethernet devices as ports in the bond, the physical or virtual Ethernet devices must be installed on the server.</p>
+            </li>
+            <li>
+               <p>To use team, bridge, or VLAN devices as ports in the bond, set the interface name in the <codeph>port</codeph> list, and define the corresponding interfaces.</p>
+            </li>
+            <li>
+               <p>The <codeph>nmstate</codeph> package is installed.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the declarative Nmstate API to configure a network bond. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+         <p>Depending on your environment, adjust the YAML file accordingly. For example, to use different devices than Ethernet adapters in the bond, adapt the <codeph>base-iface</codeph> attribute and <codeph>type</codeph> attributes of the ports you use in the bond.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a YAML file, for example <codeph>~/create-bond.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+interfaces:
+- name: bond0 # (1)
+  type: bond # (2)
+  state: up
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 24
+    dhcp: false
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+    autoconf: false
+    dhcp: false
+  link-aggregation:
+    mode: active-backup # (3)
+    port:
+    - enp1s0
+    - enp7s0 # (4)
+- name: enp1s0
+  type: ethernet
+  state: up
+- name: enp7s0
+  type: ethernet
+  state: up
+
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.0.2.254
+    next-hop-interface: bond0
+    metric: 300
+  - destination: ::/0
+    next-hop-address: 2001:db8:1::fffe
+    next-hop-interface: bond0
+    metric: 300
+
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb # (5)</codeblock>
+               <ol>
+                  <li>
+                     <codeph>interfaces.name</codeph>: The name of the bond interface</li>
+                  <li>
+                     <codeph>interfaces.type</codeph>: The type of network interface</li>
+                  <li>
+                     <codeph>link-aggregation.mode</codeph>: The bonding mode, set to active-backup for failover</li>
+                  <li>
+                     <codeph>link-aggregation.port</codeph>: The list of physical interfaces used as bond ports</li>
+                  <li>
+                     <codeph>dns-resolver.config.server</codeph>: The DNS server IP addresses for name resolution</li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Apply the settings to the system:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl apply ~/create-bond.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the status of the devices and connections:</p>
+               <codeblock># <b>nmcli device status</b>
+DEVICE      TYPE      STATE      CONNECTION
+bond0       bond      <b>connected</b>  bond0</codeblock>
+            </li>
+            <li>
+               <p>Display all settings of the connection profile:</p>
+               <codeblock># <b>nmcli connection show bond0</b>
+connection.id:              bond0
+connection.uuid:            79cbc3bd-302e-4b1f-ad89-f12533b818ee
+connection.stable-id:       --
+connection.type:            bond
+connection.interface-name:  bond0
+...</codeblock>
+            </li>
+            <li>
+               <p>Display the connection settings in YAML format:</p>
+               <codeblock># <b>nmstatectl show bond0</b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+  PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="_additional_resources">
+   <title>Additional resources</title>
+   <body>
+      <ul>
+         <li>
+            <p>
+               <xref href="https://access.redhat.com/solutions/8787"
+                     format="html"
+                     scope="external">How to capture network packets with tcpdump? (Red Hat Knowledgebase)</xref>
+            </p>
+         </li>
+      </ul>
+   </body>
+</topic>

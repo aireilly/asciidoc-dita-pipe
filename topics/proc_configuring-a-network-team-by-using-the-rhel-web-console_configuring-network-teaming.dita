@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-network-team-by-using-the-rhel-web-console_configuring-network-teaming">
+   <title>Configuring a NIC team by using the RHEL web console</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>teamd</codeph> and <codeph>NetworkManager-team</codeph> packages are installed.</p>
+            </li>
+            <li>
+               <p>Two or more physical or virtual network devices are installed on the server.</p>
+            </li>
+            <li>
+               <p>To use Ethernet devices as ports of the team, the physical or virtual Ethernet devices must be installed on the server and connected to a switch.</p>
+            </li>
+            <li>
+               <p>To use bond, bridge, or VLAN devices as ports of the team, create them in advance as described in:</p>
+               <ul>
+                  <li>
+                     <p>
+                        <xref href="#proc_configuring-a-network-bond-by-using-the-rhel-web-console_configuring-network-bonding">Configuring a network bond by using the RHEL web console</xref>
+                     </p>
+                  </li>
+                  <li>
+                     <p>
+                        <xref href="#proc_configuring-a-network-bridge-by-using-the-rhel-web-console_configuring-a-network-bridge">Configuring a network bridge by using the RHEL web console</xref>
+                     </p>
+                  </li>
+                  <li>
+                     <p>
+                        <xref href="#proc_configuring-vlan-tagging-by-using-the-rhel-web-console_configuring-vlan-tagging">Configuring VLAN tagging by using the RHEL web console</xref>
+                     </p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+         <ul>
+            <li>
+               <p>You have installed the RHEL 9 web console.</p>
+            </li>
+            <li>
+               <p>You have enabled the cockpit service.</p>
+            </li>
+            <li>
+               <p>Your user account is allowed to log in to the web console.</p>
+               <p>For instructions, see
+<xref href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_systems_using_the_rhel_9_web_console/getting-started-with-the-rhel-9-web-console_system-management-using-the-rhel-9-web-console#installing-the-web-console_getting-started-with-the-rhel-9-web-console"
+                        format="html"
+                        scope="external">Installing and enabling the web console</xref>.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>Use the RHEL web console to configure a network interface controller (NIC) team if you prefer to manage network settings using a web browser-based interface.</p>
+         <note type="important">
+            <p>NIC teaming is deprecated in Red Hat Enterprise Linux 9. Consider using the network bonding driver as an alternative. For details, see
+<xref href="#configuring-network-bonding_configuring-and-managing-networking">Configuring a network bond</xref>.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Log in to the RHEL 9 web console.</cmd>
+            <info>
+               <p>For details, see <xref href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_systems_using_the_rhel_9_web_console/getting-started-with-the-rhel-9-web-console_system-management-using-the-rhel-9-web-console#logging-in-to-the-web-console_getting-started-with-the-rhel-9-web-console"
+                        format="html"
+                        scope="external">Logging in to the web console</xref>.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Select the <codeph>Networking</codeph> tab in the navigation on the left side of the screen.</cmd>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>Add team</uicontrol> in the <codeph>Interfaces</codeph> section.</cmd>
+         </step>
+         <step>
+            <cmd>Enter the name of the team device you want to create.</cmd>
+         </step>
+         <step>
+            <cmd>Select the interfaces that should be ports of the team.</cmd>
+         </step>
+         <step>
+            <cmd>Select the runner of the team.</cmd>
+            <info>
+               <p>If you select <codeph>Load balancing</codeph> or <codeph>802.3ad LACP</codeph>, the web console shows the additional field <codeph>Balancer</codeph>.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the link watcher:</cmd>
+            <info>
+               <ul>
+                  <li>
+                     <p>If you select <codeph>Ethtool</codeph>, additionally, set a link up and link down delay.</p>
+                  </li>
+                  <li>
+                     <p>If you set <codeph>ARP ping</codeph> or <codeph>NSNA ping</codeph>, additionally, set a ping interval and ping target.</p>
+                  </li>
+               </ul>
+               <fig>
+                  <image href="../images/team-settings.png" placement="break">
+                     <alt>The team settings dialog in the RHEL web console</alt>
+                  </image>
+               </fig>
+            </info>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>Apply</uicontrol>.</cmd>
+         </step>
+         <step>
+            <cmd>By default, the team uses a dynamic IP address. If you want to set a static IP address:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Click the name of the team in the <codeph>Interfaces</codeph> section.</p>
+                  </li>
+                  <li>
+                     <p>Click <codeph>Edit</codeph> next to the protocol you want to configure.</p>
+                  </li>
+                  <li>
+                     <p>Select <codeph>Manual</codeph> next to <codeph>Addresses</codeph>, and enter the IP address, prefix, and default gateway.</p>
+                  </li>
+                  <li>
+                     <p>In the <codeph>DNS</codeph> section, click the <uicontrol>+</uicontrol> button, and enter the IP address of the DNS server. Repeat this step to set multiple DNS servers.</p>
+                  </li>
+                  <li>
+                     <p>In the <codeph>DNS search domains</codeph> section, click the <uicontrol>+</uicontrol> button, and enter the search domain.</p>
+                  </li>
+                  <li>
+                     <p>If the interface requires static routes, configure them in the <codeph>Routes</codeph> section.</p>
+                     <fig>
+                        <image href="../images/bond-team-bridge-vlan.ipv4.png" placement="break">
+                           <alt>The IPv4 settings in the RHEL web console</alt>
+                        </image>
+                     </fig>
+                  </li>
+                  <li>
+                     <p>Click <uicontrol>Apply</uicontrol>
+                     </p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Select the <codeph>Networking</codeph> tab in the navigation on the left side of the screen, and check if there is incoming and outgoing traffic on the interface.</p>
+               <fig>
+                  <image href="../images/team-verify.png" placement="break">
+                     <alt>Team interface statistics</alt>
+                  </image>
+               </fig>
+            </li>
+            <li>
+               <p>Display the status of the team:</p>
+               <codeblock># <b>teamdctl team0 state</b>
+setup:
+  runner: activebackup
+ports:
+  enp7s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+  enp8s0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+runner:
+  active port: enp7s0</codeblock>
+               <p>In this example, both ports are up.</p>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#understanding-the-teamd-service-runners-and-link-watchers_configuring-network-teaming">Understanding the teamd service, runners, and link-watchers</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

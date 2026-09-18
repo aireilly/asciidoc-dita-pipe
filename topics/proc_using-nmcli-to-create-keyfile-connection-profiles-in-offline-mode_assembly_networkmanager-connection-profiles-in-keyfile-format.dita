@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_using-nmcli-to-create-keyfile-connection-profiles-in-offline-mode_assembly_networkmanager-connection-profiles-in-keyfile-format">
+   <title>Using <codeph>nmcli</codeph> to create keyfile connection profiles in offline mode</title>
+   <taskbody>
+      <context>
+         <p>You can use the <codeph>nmcli</codeph> utility in offline mode to create and manage NetworkManager connection profiles. In this mode, <codeph>nmcli</codeph> operates without the <codeph>NetworkManager</codeph> service to produce keyfile connection profiles through standard output.</p>
+         <p>This feature can be useful in the following scenarios:</p>
+         <ul>
+            <li>
+               <p>You want to create your connection profiles that need to be pre-deployed somewhere. For example in a container image, or as an RPM package.</p>
+            </li>
+            <li>
+               <p>You want to create your connection profiles in an environment where the <codeph>NetworkManager</codeph> service is not available, for example, when you want to use the <codeph>chroot</codeph> utility. Alternatively, when you want to create or modify the network configuration of the RHEL system to be installed through the Kickstart <codeph>%post</codeph> script.</p>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a new connection profile in the keyfile format. For example, for a connection profile of an Ethernet device that does not use DHCP, run a similar <codeph>nmcli</codeph> command:</cmd>
+            <info>
+               <codeblock># <b>nmcli --offline connection add type ethernet con-name Example-Connection ipv4.addresses 192.0.2.1/24 ipv4.dns 192.0.2.200 ipv4.method manual &gt; /etc/NetworkManager/system-connections/example.nmconnection</b>
+               </codeblock>
+               <note>
+                  <p>The connection name you specified with the <codeph>con-name</codeph> key is saved into the <codeph>id</codeph> variable of the generated profile. When you use the <codeph>nmcli</codeph> command to manage this connection later, specify the connection as follows:</p>
+                  <ul>
+                     <li>
+                        <p>When the <codeph>id</codeph> variable is not omitted, use the connection name, for example <codeph>Example-Connection</codeph>.</p>
+                     </li>
+                     <li>
+                        <p>When the <codeph>id</codeph> variable is omitted, use the file name without the <codeph>.nmconnection</codeph> suffix, for example <codeph>output</codeph>.</p>
+                     </li>
+                  </ul>
+               </note>
+            </info>
+         </step>
+         <step>
+            <cmd>Set permissions to the configuration file so that only the <codeph>root</codeph> user can read and update it:</cmd>
+            <info>
+               <codeblock># <b>chmod 600 /etc/NetworkManager/system-connections/example.nmconnection</b>
+# <b>chown root:root /etc/NetworkManager/system-connections/example.nmconnection</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Start the <codeph>NetworkManager</codeph> service:</cmd>
+            <info>
+               <codeblock># <b>systemctl start NetworkManager.service</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>If you set the <codeph>autoconnect</codeph> variable in the profile to <codeph>false</codeph>, activate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up Example-Connection</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Verify that the <codeph>NetworkManager</codeph> service is running:</p>
+               <codeblock># <b>systemctl status NetworkManager.service</b>
+● NetworkManager.service - Network Manager
+   Loaded: loaded (/usr/lib/systemd/system/NetworkManager.service; enabled; vendor preset: enabled)
+   Active: active (running) since Wed 2022-08-03 13:08:32 CEST; 1min 40s ago
+...</codeblock>
+            </li>
+            <li>
+               <p>Verify that NetworkManager can read the profile from the configuration file:</p>
+               <codeblock># <b>nmcli -f TYPE,FILENAME,NAME connection</b>
+TYPE      FILENAME                                                     NAME
+<b>ethernet  /etc/NetworkManager/system-connections/examaple.nmconnection  Example-Connection</b>
+ethernet  /etc/sysconfig/network-scripts/ifcfg-enp1s0                  enp1s0
+...</codeblock>
+               <p>If the output does not show the newly created connection, verify that the keyfile permissions and the syntax you used are correct.</p>
+            </li>
+            <li>
+               <p>Display the connection profile:</p>
+               <codeblock># <b>nmcli connection show Example-Connection</b>
+connection.id:                          Example-Connection
+connection.uuid:                        232290ce-5225-422a-9228-cb83b22056b4
+connection.stable-id:                   --
+connection.type:                        802-3-ethernet
+connection.interface-name:              --
+connection.autoconnect:                 yes
+...</codeblock>
+            </li>
+         </ol>
+      </result>
+   </taskbody>
+</task>

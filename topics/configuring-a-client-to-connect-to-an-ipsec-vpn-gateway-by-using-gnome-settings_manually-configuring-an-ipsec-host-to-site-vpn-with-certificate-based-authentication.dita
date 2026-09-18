@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication">
+   <title>Configuring a client to connect to an IPsec VPN gateway by using GNOME Settings</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="#setting-up-an-ipsec-gateway-manually_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication">You configured the IPsec VPN gateway</xref>.</p>
+            </li>
+            <li>
+               <p>The <codeph>NetworkManager-libreswan-gnome</codeph> package is installed.</p>
+            </li>
+            <li>
+               <p>The PKCS #12 file <codeph>~/file.p12</codeph> exists on the client with the following contents:</p>
+               <ul>
+                  <li>
+                     <p>The private key of the user</p>
+                  </li>
+                  <li>
+                     <p>The user certificate</p>
+                  </li>
+                  <li>
+                     <p>The CA certificate</p>
+                  </li>
+                  <li>
+                     <p>If required, intermediate certificates</p>
+                  </li>
+               </ul>
+               <p>For details about creating a private key and certificate signing request (CSR), as well as about requesting a certificate from a CA, see your CA’s documentation.</p>
+            </li>
+            <li>
+               <p>The Extended Key Usage (EKU) in the certificate is set to <codeph>TLS Web Client Authentication</codeph>.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>To access resources on a remote private network, users must first configure an IPsec VPN connection. The GNOME Settings application provides a graphical solution to create an IPsec VPN connection profile in NetworkManager and to establish the tunnel.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Initialize the Network Security Services (NSS) database:</cmd>
+            <info>
+               <codeblock># <b>ipsec initnss</b>
+               </codeblock>
+               <p>The command creates the database in the <codeph>/var/lib/ipsec/nss/</codeph> directory.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Import the PKCS #12 file into the NSS database:</cmd>
+            <info>
+               <codeblock># <b>ipsec import ~/file.p12</b>
+Enter password for PKCS12 file: <i>&lt;password&gt;</i>
+pk12util: PKCS12 IMPORT SUCCESSFUL
+correcting trust bits for Example-CA</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Display the nicknames of the user and CA certificates:</cmd>
+            <info>
+               <codeblock># <b>certutil -L -d  /var/lib/ipsec/nss/</b>
+Certificate Nickname     Trust Attributes
+                         SSL,S/MIME,JAR/XPI
+
+user                     u,u,u
+Example-CA               CT,,
+...</codeblock>
+               <p>You require this information in the configuration file.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Press the <ph>Super</ph> key, type <b>Settings</b>, and press <ph>Enter</ph> to open the GNOME <b>Settings</b> application.</cmd>
+         </step>
+         <step>
+            <cmd>Click the <uicontrol>+</uicontrol> button next to the <b>VPN</b> entry.</cmd>
+         </step>
+         <step>
+            <cmd>Select <b>IPsec based VPN</b> from the list.</cmd>
+         </step>
+         <step>
+            <cmd>On the <b>Identity</b> tab, fill the fields as follows:</cmd>
+            <info>
+               <table colsep="1" rowsep="1" frame="all">
+                  <title>
+                     <b>Identity</b> tab settings</title>
+                  <tgroup cols="3">
+                     <colspec colname="col_1" colwidth="33.3333*"/>
+                     <colspec colname="col_2" colwidth="50*"/>
+                     <colspec colname="col_3" colwidth="16.6667*"/>
+                     <thead>
+                        <row>
+                           <entry align="left" valign="top">Field name</entry>
+                           <entry align="left" valign="top">Value</entry>
+                           <entry align="left" valign="top">Corresponding <codeph>ipsec.conf</codeph> parameter</entry>
+                        </row>
+                     </thead>
+                     <tbody>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Name</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>
+                                    <i>&lt;networkmanager_profile_name&gt;</i>
+                                 </codeph>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>N/A</p>
+                           </entry>
+                        </row>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Gateway</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>
+                                    <i>&lt;ip_address_or_fqdn_of_the_gateway&gt;</i>
+                                 </codeph>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>right</codeph>
+                              </p>
+                           </entry>
+                        </row>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Type</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>IKEv2 (certificate)</codeph>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>authby</codeph>
+                              </p>
+                           </entry>
+                        </row>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Group name</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>%fromcert</codeph>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>leftid</codeph>
+                              </p>
+                           </entry>
+                        </row>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Certificate name</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>
+                                    <i>&lt;user_certificate_nickname&gt;</i>
+                                 </codeph>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>leftcert</codeph>
+                              </p>
+                           </entry>
+                        </row>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Remote ID</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>%fromcert</codeph>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>rightid</codeph>
+                              </p>
+                           </entry>
+                        </row>
+                     </tbody>
+                  </tgroup>
+               </table>
+            </info>
+         </step>
+         <step>
+            <cmd>Click <b>Advanced</b>.</cmd>
+         </step>
+         <step>
+            <cmd>In the <b>Advanced properties</b> window, fill the fields of the <b>Connectivity</b> tab as follows:</cmd>
+            <info>
+               <table colsep="1" rowsep="1" frame="all">
+                  <title>
+                     <b>Connectivity</b> tab settings</title>
+                  <tgroup cols="3">
+                     <colspec colname="col_1" colwidth="33.3333*"/>
+                     <colspec colname="col_2" colwidth="50*"/>
+                     <colspec colname="col_3" colwidth="16.6667*"/>
+                     <thead>
+                        <row>
+                           <entry align="left" valign="top">Field name</entry>
+                           <entry align="left" valign="top">Value</entry>
+                           <entry align="left" valign="top">Corresponding <codeph>ipsec.conf</codeph> parameter</entry>
+                        </row>
+                     </thead>
+                     <tbody>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Remote Network</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>192.0.2.0/24</codeph>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>rightsubnet</codeph>
+                              </p>
+                           </entry>
+                        </row>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Narrowing</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>Selected</p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>narrowing</codeph>
+                              </p>
+                           </entry>
+                        </row>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Enable MOBIKE</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>yes</codeph>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>mobike</codeph>
+                              </p>
+                           </entry>
+                        </row>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Delay</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>30</codeph>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>dpddelay</codeph>
+                              </p>
+                           </entry>
+                        </row>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Timeout</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>120</codeph>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>dpdtimeout</codeph>
+                              </p>
+                           </entry>
+                        </row>
+                        <row>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <b>Action</b>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>Clear</codeph>
+                              </p>
+                           </entry>
+                           <entry align="left" valign="top">
+                              <p>
+                                 <codeph>dpdaction</codeph>
+                              </p>
+                           </entry>
+                        </row>
+                     </tbody>
+                  </tgroup>
+               </table>
+            </info>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>Apply</uicontrol> to return to the connection settings.</cmd>
+         </step>
+         <step>
+            <cmd>Click <uicontrol>Apply</uicontrol> to save the connection.</cmd>
+         </step>
+         <step>
+            <cmd>In the <b>Network</b> tab of the <b>Settings</b> application, toggle the switch next to the VPN profile to activate the connection.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Establish a connection to a host in the remote network or ping it.</p>
+            </li>
+         </ul>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>If you use this host in a network with DHCP or Stateless Address Autoconfiguration (SLAAC), the connection can be vulnerable to being redirected. For details and mitigation steps, see <xref href="#assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn">Assigning a VPN connection to a dedicated routing table to prevent the connection from bypassing the tunnel</xref>.</p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

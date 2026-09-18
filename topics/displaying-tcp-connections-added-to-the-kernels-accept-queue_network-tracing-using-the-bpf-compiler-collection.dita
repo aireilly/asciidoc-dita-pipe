@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="displaying-tcp-connections-added-to-the-kernels-accept-queue_network-tracing-using-the-bpf-compiler-collection">
+   <title>Displaying TCP connections added to the Kernel’s accept queue</title>
+   <taskbody>
+      <context>
+         <p>By using the <codeph>tcpaccept</codeph> utility, you can monitor newly accepted connections by tracing the kernel’s <codeph>accept()</codeph> function.</p>
+         <p>After the kernel receives the <codeph>ACK</codeph> packet in a TCP 3-way handshake, the kernel moves the connection from the <codeph>SYN</codeph> queue to the <codeph>accept</codeph> queue after the connection’s state changes to <codeph>ESTABLISHED</codeph>. Therefore, only successful TCP connections are visible in this queue.</p>
+         <p>The <codeph>tcpaccept</codeph> utility uses eBPF features to display all connections the kernel adds to the <codeph>accept</codeph> queue. The utility is lightweight because it traces the <codeph>accept()</codeph> function of the kernel instead of capturing packets and filtering them. For example, use <codeph>tcpaccept</codeph> for general troubleshooting to display new connections the server has accepted.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Enter the following command to start the tracing the kernel <codeph>accept</codeph> queue:</cmd>
+            <info>
+               <codeblock># <b>/usr/share/bcc/tools/tcpaccept</b>
+PID   COMM      IP RADDR         RPORT  LADDR    LPORT
+843   sshd      4  192.0.2.17    50598  192.0.2.1  22
+1107  ns-slapd  4  198.51.100.6  38772  192.0.2.1  389
+1107  ns-slapd  4  203.0.113.85  38774  192.0.2.1  389
+...</codeblock>
+               <p>Each time the kernel accepts a connection, <codeph>tcpaccept</codeph> displays the details of the connections.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Press <ph>Ctrl</ph>+<ph>C</ph> to stop the tracing process.</cmd>
+         </step>
+      </steps>
+   </taskbody>
+</task>
