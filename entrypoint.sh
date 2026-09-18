@@ -221,24 +221,19 @@ if [ -z "${DITAMAP}" ]; then
 fi
 
 # --- Generate HTML5 ---
-# DITA-OT with generate.copy.outer=3 mirrors the input directory name in
-# the output tree.  Symlink the DITA output into a directory named "html"
-# so the mirrored prefix becomes the output folder itself:
-#   {output-dir}/html/index.html + {output-dir}/html/topics/*.html
+# Write HTML5 straight into {output-dir}/html so the output tree is
+# {output-dir}/html/index.html + {output-dir}/html/topics/*.html.
 stage "html" "Generating HTML5 output"
 if command -v dita >/dev/null 2>&1; then
-    DITA_LINK="${BUILD}/html"
-    ln -sfn "${OUTPUT_DIR}/dita" "${DITA_LINK}"
-    dita -i "${DITA_LINK}/$(basename "${DITAMAP}")" -f html5 \
-        -o "${OUTPUT_DIR}" \
+    dita -i "${DITAMAP}" -f html5 \
+        -o "${OUTPUT_DIR}/html" \
         --generate.copy.outer=3 \
         --outer.control=warn \
         --args.cssroot="${PIPE}/css" --args.css=custom.css --args.copycss=yes 2>&1 || {
         warn "HTML5 generation completed with errors (see above)"
     }
-    rm -f "${DITA_LINK}"
 
-    HTML_COUNT=$(find "${OUTPUT_DIR}/html" -name '*.html' | wc -l)
+    HTML_COUNT=$(find "${OUTPUT_DIR}/html" -name '*.html' 2>/dev/null | wc -l)
     ok "HTML: ${HTML_COUNT} pages"
 else
     warn "dita command not found — skipping HTML generation"
