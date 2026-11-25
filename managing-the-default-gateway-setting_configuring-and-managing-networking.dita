@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="managing-the-default-gateway-setting_configuring-and-managing-networking">
+   <title>Managing the default gateway setting</title>
+   <conbody>
+      <p>The default gateway is a router that forwards network packets when no other route matches the destination of a packet. In a local network, the default gateway is typically the host that is one hop closer to the internet.</p>
+   </conbody>
+</concept>

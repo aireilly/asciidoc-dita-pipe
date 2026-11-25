@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="ref_network-states-for-the-network-rhel-system-roles_assembly_introduction-to-nmstate">
+   <title>Network states for the <codeph>network</codeph> RHEL system role</title>
+   <refbody>
+      <section>
+         <p>The <codeph>network</codeph> RHEL system role supports state configurations in playbooks to configure the devices. For this, use the <codeph>network_state</codeph> variable followed by the state configurations.</p>
+         <p>Benefits of using the <codeph>network_state</codeph> variable in a playbook:</p>
+         <ul>
+            <li>
+               <p>Using the declarative method with the state configurations, you can configure interfaces, and the NetworkManager creates a profile for these interfaces in the background.</p>
+            </li>
+            <li>
+               <p>With the <codeph>network_state</codeph> variable, you can specify the options that you require to change, and all the other options will remain the same as they are. However, with the <codeph>network_connections</codeph> variable, you must specify all settings to change the network connection profile.</p>
+            </li>
+         </ul>
+         <note type="important">
+            <p>You can set only Nmstate YAML instructions in <codeph>network_state</codeph>. These instructions differ from the variables you can set in <codeph>network_connections</codeph>.</p>
+         </note>
+         <p>For example, to create an Ethernet connection with dynamic IP address settings, use the following <codeph>vars</codeph> block in your playbook:</p>
+      </section>
+      <table colsep="1" rowsep="1" frame="all">
+         <tgroup cols="2">
+            <colspec colname="col_1" colwidth="50*"/>
+            <colspec colname="col_2" colwidth="50*"/>
+            <tbody>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Playbook with state configurations</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Regular playbook</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <codeblock outputclass="language-yaml">vars:
+  network_state:
+    interfaces:
+    - name: enp7s0
+      type: ethernet
+      state: up
+      ipv4:
+        enabled: true
+        auto-dns: true
+        auto-gateway: true
+        auto-routes: true
+        dhcp: true
+      ipv6:
+        enabled: true
+        auto-dns: true
+        auto-gateway: true
+        auto-routes: true
+        autoconf: true
+        dhcp: true</codeblock>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <codeblock outputclass="language-yaml">vars:
+  network_connections:
+    - name: enp7s0
+      interface_name: enp7s0
+      type: ethernet
+      autoconnect: yes
+      ip:
+        dhcp4: yes
+        auto6: yes
+      state: up</codeblock>
+                  </entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+      <section>
+         <p>For example, to only change the connection status of dynamic IP address settings that you created as above, use the following <codeph>vars</codeph> block in your playbook:</p>
+      </section>
+      <table colsep="1" rowsep="1" frame="all">
+         <tgroup cols="2">
+            <colspec colname="col_1" colwidth="50*"/>
+            <colspec colname="col_2" colwidth="50*"/>
+            <tbody>
+               <row>
+                  <entry align="left" valign="top">
+                     <p>Playbook with state configurations</p>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <p>Regular playbook</p>
+                  </entry>
+               </row>
+               <row>
+                  <entry align="left" valign="top">
+                     <codeblock outputclass="language-yaml">vars:
+  network_state:
+    interfaces:
+    - name: enp7s0
+      type: ethernet
+      state: down</codeblock>
+                  </entry>
+                  <entry align="left" valign="top">
+                     <codeblock outputclass="language-yaml">vars:
+  network_connections:
+    - name: enp7s0
+      interface_name: enp7s0
+      type: ethernet
+      autoconnect: yes
+      ip:
+        dhcp4: yes
+        auto6: yes
+      state: down</codeblock>
+                  </entry>
+               </row>
+            </tbody>
+         </tgroup>
+      </table>
+   </refbody>
+</reference>

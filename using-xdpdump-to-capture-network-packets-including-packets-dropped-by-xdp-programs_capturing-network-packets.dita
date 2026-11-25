@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="using-xdpdump-to-capture-network-packets-including-packets-dropped-by-xdp-programs_capturing-network-packets">
+   <title>Using <codeph>xdpdump</codeph> to capture network packets including packets dropped by XDP programs</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A network driver that supports XDP programs.</p>
+            </li>
+            <li>
+               <p>An XDP program is loaded to the <codeph>enp1s0</codeph> interface. If no program is loaded, <codeph>xdpdump</codeph> captures packets in a similar way <codeph>tcpdump</codeph> does, for backward compatibility.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>The <codeph>xdpdump</codeph> utility captures network packets, including those dropped or modified by XDP programs. Unlike <codeph>tcpdump</codeph>, <codeph>xdpdump</codeph> uses an eBPF program, allowing it to capture packets that traditional user-space utilities cannot.</p>
+         <p>You can use <codeph>xdpdump</codeph> to debug XDP programs that are already attached to an interface. Therefore, the utility can capture packets before an XDP program is started and after it has finished. In the latter case, <codeph>xdpdump</codeph> also captures the XDP action. By default, <codeph>xdpdump</codeph> captures incoming packets at the entry of the XDP program.</p>
+         <note type="important">
+            <p>On other architectures than AMD and Intel 64-bit, the <codeph>xdpdump</codeph> utility is provided as a Technology Preview only. Technology Preview features are not supported with Red Hat production Service Level Agreements (SLAs), might not be functionally complete, and Red Hat does not recommend using them for production. These previews provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.</p>
+            <p>See <xref href="https://access.redhat.com/support/offerings/techpreview"
+                     format="html"
+                     scope="external">Technology Preview Features Support Scope</xref> on the Red Hat Customer Portal for information about the support scope for Technology Preview features.</p>
+         </note>
+         <p>Note that <codeph>xdpdump</codeph> has no packet filter or decode capabilities. However, you can use it in combination with <codeph>tcpdump</codeph> for packet decoding.</p>
+         <p>If you are a developer and you are interested in the source code of <codeph>xdpdump</codeph>, download and install the corresponding source RPM (SRPM) from the Red Hat Customer Portal.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>To capture packets on the <codeph>enp1s0</codeph> interface and write them to the <codeph>/root/capture.pcap</codeph> file, enter:</cmd>
+            <info>
+               <codeblock># <b>xdpdump -i enp1s0 -w /root/capture.pcap</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>To stop capturing packets, press <ph>
+                  <ph>Ctrl</ph>
+                  <ph>C</ph>
+               </ph>.</cmd>
+         </step>
+      </steps>
+   </taskbody>
+</task>

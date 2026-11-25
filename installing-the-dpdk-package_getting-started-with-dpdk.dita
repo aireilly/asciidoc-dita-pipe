@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="installing-the-dpdk-package_getting-started-with-dpdk">
+   <title>Installing the dpdk package</title>
+   <taskbody>
+      <context>
+         <p>To use DPDK, install the <codeph>dpdk</codeph> package.</p>
+      </context>
+      <steps-unordered>
+         <step>
+            <cmd>Use the <codeph>dnf</codeph> utility to install the <codeph>dpdk</codeph> package:</cmd>
+            <info>
+               <codeblock># <b>dnf install dpdk</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps-unordered>
+   </taskbody>
+</task>

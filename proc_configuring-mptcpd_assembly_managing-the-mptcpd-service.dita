@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-mptcpd_assembly_managing-the-mptcpd-service">
+   <title>Configuring mptcpd</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>mptcpd</codeph> package installed</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>The <codeph>mptcpd</codeph> service is a component of the <codeph>mptcp</codeph> protocol which provides an instrument to configure <codeph>mptcp</codeph> endpoints. The <codeph>mptcpd</codeph> service creates a subflow endpoint for each address by default. The endpoint list is updated dynamically according to IP addresses modification on the running host. The <codeph>mptcpd</codeph> service creates the list of endpoints automatically. It enables multiple paths as an alternative to using the <codeph>ip</codeph> utility.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Enable <codeph>mptcp.enabled</codeph> option in the kernel with the following command:</cmd>
+            <info>
+               <codeblock># <b>echo "net.mptcp.enabled=1" &gt; /etc/sysctl.d/90-enable-MPTCP.conf</b>
+# <b>sysctl -p /etc/sysctl.d/90-enable-MPTCP.conf</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Start the <codeph>mptcpd</codeph> service:</cmd>
+            <info>
+               <codeblock># <b>systemctl start mptcp.service</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Verify endpoint creation:</cmd>
+            <info>
+               <codeblock># <b>ip mptcp endpoint</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>To stop the <codeph>mptcpd</codeph> service, use the following command:</cmd>
+            <info>
+               <codeblock># <b>systemctl stop mptcp.service</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>To configure <codeph>mptcpd</codeph> service manually, modify the <codeph>/etc/mptcpd/mptcpd.conf</codeph> configuration file.</cmd>
+            <info>
+               <p>Note, that the endpoint, which mptcpd service creates, lasts till the host shutdown.</p>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

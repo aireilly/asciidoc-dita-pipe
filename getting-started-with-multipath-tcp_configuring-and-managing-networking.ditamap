@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Getting started with Multipath TCP</title>
+   <topicref href="getting-started-with-multipath-tcp_configuring-and-managing-networking.dita">
+      <topicref href="understanding-mptcp_getting-started-with-multipath-tcp.dita"/>
+      <topicref href="preparing-rhel-to-enable-mptcp-support_getting-started-with-multipath-tcp.dita"/>
+      <topicref href="using-iproute2-to-temporarily-configure-and-enable-multiple-paths-for-mptcp-applications_getting-started-with-multipath-tcp.dita"/>
+      <topicref href="proc_permanently-configuring-multiple-paths-for-mptcp-applications_getting-started-with-multipath-tcp.dita"/>
+      <topicref href="proc_monitoring-mptcp-sub-flows_getting-started-with-multipath-tcp.dita"/>
+      <topicref href="disabling-multipath-tcp-in-the-kernel_getting-started-with-multipath-tcp.dita"/>
+   </topicref>
+</map>

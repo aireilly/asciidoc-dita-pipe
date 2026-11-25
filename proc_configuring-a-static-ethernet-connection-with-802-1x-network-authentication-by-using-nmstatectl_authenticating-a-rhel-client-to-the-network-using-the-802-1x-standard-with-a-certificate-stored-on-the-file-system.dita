@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-a-static-ethernet-connection-with-802-1x-network-authentication-by-using-nmstatectl_authenticating-a-rhel-client-to-the-network-using-the-802-1x-standard-with-a-certificate-stored-on-the-file-system">
+   <title>Configuring a static Ethernet connection with 802.1X network authentication by using <codeph>nmstatectl</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The network supports 802.1X network authentication.</p>
+            </li>
+            <li>
+               <p>The managed node uses NetworkManager.</p>
+            </li>
+            <li>
+               <p>The following files required for TLS authentication exist on the client:</p>
+               <ul>
+                  <li>
+                     <p>The client key stored is in the <codeph>/etc/pki/tls/private/client.key</codeph> file, and the file is owned and only readable by the <codeph>root</codeph> user.</p>
+                  </li>
+                  <li>
+                     <p>The client certificate is stored in the <codeph>/etc/pki/tls/certs/client.crt</codeph> file.</p>
+                  </li>
+                  <li>
+                     <p>The Certificate Authority (CA) certificate is stored in the <codeph>/etc/pki/tls/certs/ca.crt</codeph> file.</p>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the declarative Nmstate API to configure an Ethernet connection with 802.1X network authentication. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+         <note>
+            <p>The <codeph>nmstate</codeph> library only supports the <codeph>TLS</codeph> Extensible Authentication Protocol (EAP) method.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a YAML file, for example <codeph>~/create-ethernet-profile.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+interfaces:
+- name: enp1s0
+  type: ethernet
+  state: up
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 24
+    dhcp: false
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+    autoconf: false
+    dhcp: false
+  802.1x:
+    ca-cert: /etc/pki/tls/certs/ca.crt
+    client-cert: /etc/pki/tls/certs/client.crt
+    eap-methods:
+      - tls
+    identity: client.example.org
+    private-key: /etc/pki/tls/private/client.key
+    private-key-password: password
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.0.2.254
+    next-hop-interface: enp1s0
+  - destination: ::/0
+    next-hop-address: 2001:db8:1::fffe
+    next-hop-interface: enp1s0
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb</codeblock>
+               <p>These settings define an Ethernet connection profile for the <codeph>enp1s0</codeph> device with the following settings:</p>
+               <ul>
+                  <li>
+                     <p>A static IPv4 address - <codeph>192.0.2.1</codeph> with a <codeph>/24</codeph> subnet mask</p>
+                  </li>
+                  <li>
+                     <p>A static IPv6 address - <codeph>2001:db8:1::1</codeph> with a <codeph>/64</codeph> subnet mask</p>
+                  </li>
+                  <li>
+                     <p>An IPv4 default gateway - <codeph>192.0.2.254</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>An IPv6 default gateway - <codeph>2001:db8:1::fffe</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>An IPv4 DNS server - <codeph>192.0.2.200</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>An IPv6 DNS server - <codeph>2001:db8:1::ffbb</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>A DNS search domain - <codeph>example.com</codeph>
+                     </p>
+                  </li>
+                  <li>
+                     <p>802.1X network authentication using the <codeph>TLS</codeph> EAP protocol</p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Apply the settings to the system:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl apply ~/create-ethernet-profile.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Access resources on the network that require network authentication.</p>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

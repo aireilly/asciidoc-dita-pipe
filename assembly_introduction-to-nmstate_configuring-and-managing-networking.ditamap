@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Introduction to Nmstate</title>
+   <topicref href="assembly_introduction-to-nmstate_configuring-and-managing-networking.dita">
+      <topicref href="con_using-the-libnmstate-library-in-a-python-application_assembly_introduction-to-nmstate.dita"/>
+      <topicref href="proc_updating-the-current-network-configuration-using-nmstatectl_assembly_introduction-to-nmstate.dita"/>
+      <topicref href="the-nmstate-systemd-service_assembly_introduction-to-nmstate.dita"/>
+      <topicref href="ref_network-states-for-the-network-rhel-system-roles_assembly_introduction-to-nmstate.dita"/>
+   </topicref>
+</map>

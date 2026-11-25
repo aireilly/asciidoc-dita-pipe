@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-an-ethtool-offload-feature-by-using-nmcli_configuring-ethtool-settings-in-networkmanager-connection-profiles">
+   <title>Configuring an ethtool offload feature by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <context>
+         <p>You can use NetworkManager to enable and disable <codeph>ethtool</codeph> offload features in a connection profile.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>For example, to enable the RX offload feature and disable TX offload in the <codeph>enp1s0</codeph> connection profile, enter:</cmd>
+            <info>
+               <codeblock># <b>nmcli con modify <i>enp1s0</i> ethtool.feature-rx on ethtool.feature-tx off</b>
+               </codeblock>
+               <p>This command explicitly enables RX offload and disables TX offload.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>To remove the setting of an offload feature that you previously enabled or disabled, set the feature’s parameter to a null value. For example, to remove the configuration for TX offload, enter:</cmd>
+            <info>
+               <codeblock># <b>nmcli con modify <i>enp1s0</i> ethtool.feature-tx ""</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Reactivate the network profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>enp1s0</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Use the <codeph>ethtool -k</codeph> command to display the current offload features of a network device:</p>
+               <codeblock># <b>ethtool -k <i>network_device</i>
+                  </b>
+               </codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

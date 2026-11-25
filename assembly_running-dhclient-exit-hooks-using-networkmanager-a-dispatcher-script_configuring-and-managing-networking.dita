@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script_configuring-and-managing-networking">
+   <title>Running dhclient exit hooks using NetworkManager a dispatcher script</title>
+   <conbody>
+      <p>You can use a NetworkManager dispatcher script to execute <codeph>dhclient</codeph> exit hooks.</p>
+   </conbody>
+</concept>

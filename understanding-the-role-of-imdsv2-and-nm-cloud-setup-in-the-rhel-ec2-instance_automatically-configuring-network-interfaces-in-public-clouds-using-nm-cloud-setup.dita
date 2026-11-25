@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="understanding-the-role-of-imdsv2-and-nm-cloud-setup-in-the-rhel-ec2-instance_automatically-configuring-network-interfaces-in-public-clouds-using-nm-cloud-setup">
+   <title>Understanding the role of IMDSv2 and nm-cloud-setup in the RHEL EC2 instance</title>
+   <conbody>
+      <p>The instance metadata service (IMDS) in Amazon EC2 allows you to manage permissions to access instance metadata of a running Red Hat Enterprise Linux (RHEL) EC2 instance. The RHEL EC2 instance uses IMDS version 2 (IMDSv2), a session-oriented method. By using the <codeph>nm-cloud-setup</codeph> utility, administrators can reconfigure the network and automatically update the configuration of running RHEL EC2 instances. The <codeph>nm-cloud-setup</codeph> utility handles IMDSv2 API calls by using IMDSv2 tokens without any user intervention.</p>
+      <ul>
+         <li>
+            <p>IMDS runs on a link-local address <codeph>169.254.169.254</codeph> for providing access to native applications on a RHEL EC2 instance.</p>
+         </li>
+         <li>
+            <p>After you have specified and configured IMDSv2 for each RHEL EC2 instance for applications and users, you can no longer access IMDSv1.</p>
+         </li>
+         <li>
+            <p>By using IMDSv2, the RHEL EC2 instance maintains metadata without using the IAM role while remaining accessible through the IAM role.</p>
+         </li>
+         <li>
+            <p>When the RHEL EC2 instance boots, the <codeph>nm-cloud-setup</codeph> utility automatically runs to fetch the EC2 instance API access token for using the RHEL EC2 instance API.</p>
+         </li>
+      </ul>
+      <note>
+         <p>Use the IMDSv2 token as an HTTP header to check the details of the EC2 environment.</p>
+      </note>
+   </conbody>
+</concept>

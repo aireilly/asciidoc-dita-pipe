@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="configuring-the-order-of-dns-servers_configuring-and-managing-networking">
+   <title>Configuring the order of DNS servers</title>
+   <conbody>
+      <p>The <codeph>getaddrinfo()</codeph> function of the <codeph>glibc</codeph> library sends all DNS requests to the first DNS server specified in the <codeph>/etc/resolv.conf</codeph> file. If this server does not reply, RHEL tries all other name servers. You can configure NetworkManager to influence the DNS server order in <codeph>/etc/resolv.conf</codeph>.</p>
+   </conbody>
+</concept>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Changing a hostname</title>
+   <topicref href="assembly_changing-a-hostname_configuring-and-managing-networking.dita">
+      <topicref href="proc_changing-a-hostname-using-nmcli_assembly_changing-a-hostname.dita"/>
+      <topicref href="proc_changing-a-hostname-using-hostnamectl_assembly_changing-a-hostname.dita"/>
+   </topicref>
+</map>

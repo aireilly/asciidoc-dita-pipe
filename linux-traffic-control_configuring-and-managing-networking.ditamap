@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Linux traffic control</title>
+   <topicref href="linux-traffic-control_configuring-and-managing-networking.dita">
+      <topicref href="overview-of-queuing-disciplines_linux-traffic-control.dita"/>
+      <topicref href="introduction-to-connection-tracking_linux-traffic-control.dita"/>
+      <topicref href="inspecting-qdisc-of-a-network-interface-using-the-tc-utility_linux-traffic-control.dita"/>
+      <topicref href="updating-the-default-qdisc_linux-traffic-control.dita"/>
+      <topicref href="temporarily-setting-the-current-qdisc-of-a-network-interface-using-the-tc-utility_linux-traffic-control.dita"/>
+      <topicref href="proc_permanently-setting-the-current-qdisc-of-a-network-interface-using-networkmanager_linux-traffic-control.dita"/>
+      <topicref href="configuring-the-rate-limiting-of-packets-by-using-the-tc-ctinfo-utility_linux-traffic-control.dita"/>
+      <topicref href="available-qdiscs-in-rhel_linux-traffic-control.dita"/>
+   </topicref>
+</map>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="_additional_resources_2">
+   <title>Additional resources</title>
+   <conbody>
+      <ul>
+         <li>
+            <p>
+               <xref href="https://access.redhat.com/articles/3538141"
+                     format="html"
+                     scope="external">Network Adapter Fast Datapath Feature Support Matrix</xref>
+            </p>
+         </li>
+      </ul>
+   </conbody>
+</concept>

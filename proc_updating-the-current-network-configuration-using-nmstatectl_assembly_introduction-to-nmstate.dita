@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_updating-the-current-network-configuration-using-nmstatectl_assembly_introduction-to-nmstate">
+   <title>Updating the current network configuration by using <codeph>nmstatectl</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>nmstate</codeph> package is installed.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the <codeph>nmstatectl</codeph> utility to store the current network configuration of one or all interfaces in a file.</p>
+         <p>You can then use this file to:</p>
+         <ul>
+            <li>
+               <p>Modify the configuration and apply it to the same system.</p>
+            </li>
+            <li>
+               <p>Copy the file to a different host and configure the host with the same or modified settings.</p>
+            </li>
+         </ul>
+         <p>For example, you can export the settings of the <codeph>enp1s0</codeph> interface to a file, modify the configuration, and apply the settings to the host.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Export the settings of the <codeph>enp1s0</codeph> interface to the <codeph>~/network-config.yml</codeph> file:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl show <i>enp1s0</i> &gt; <i>~/network-config.yml</i>
+                  </b>
+               </codeblock>
+               <p>This command stores the configuration of <codeph>enp1s0</codeph> in YAML format. To store the output in JSON format, pass the <codeph>--json</codeph> option to the command.</p>
+               <p>If you do not specify an interface name, <codeph>nmstatectl</codeph> exports the configuration of all interfaces.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Modify the <codeph>~/network-config.yml</codeph> file using a text editor to update the configuration.</cmd>
+         </step>
+         <step>
+            <cmd>Apply the settings from the <codeph>~/network-config.yml</codeph> file:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl apply <i>~/network-config.yml</i>
+                  </b>
+               </codeblock>
+               <p>If you exported the settings in JSON format, pass the <codeph>--json</codeph> option to the command.</p>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

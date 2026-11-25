@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="mismatched-configurations">
+   <title>Mismatched Configurations</title>
+   <refbody>
+      <section>
+         <p>VPN connections fail if the endpoints are not configured with matching Internet Key Exchange (IKE) versions, algorithms, IP address ranges, or pre-shared keys (PSK). If you identify a mismatch, you must align the settings on both endpoints to resolve the issue.</p>
+         <dl>
+            <dlentry>
+               <dt>Remote Peer Not Running IKE/IPsec</dt>
+               <dd>
+                  <p>If the connection was refused, an ICMP error is displayed:</p>
+                  <codeblock># <b>ipsec auto --up vpn.example.com</b>
+...
+000 "vpn.example.com"[1] 192.0.2.2 #16: ERROR: asynchronous network error report on wlp2s0 (192.0.2.2:500), complainant 198.51.100.1: Connection refused [errno 111, origin ICMP type 3 code 3 (not authenticated)]</codeblock>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Mismatched IKE Algorithms</dt>
+               <dd>
+                  <p>The connection fails with a <codeph>NO_PROPOSAL_CHOSEN</codeph> notification during the initial setup:</p>
+                  <codeblock># <b>ipsec auto --up vpn.example.com</b>
+...
+003 "vpn.example.com"[1] 193.110.157.148 #3: dropping unexpected IKE_SA_INIT message containing NO_PROPOSAL_CHOSEN notification; message payloads: N; missing payloads: SA,KE,Ni</codeblock>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Mismatched IPsec Algorithms</dt>
+               <dd>
+                  <p>The connection fails with a <codeph>NO_PROPOSAL_CHOSEN</codeph> error after the initial exchange:</p>
+                  <codeblock># <b>ipsec auto --up vpn.example.com</b>
+...
+182 "vpn.example.com"[1] 193.110.157.148 #5: STATE_PARENT_I2: sent v2I2, expected v2R2 {auth=IKEv2 cipher=AES_GCM_16_256 integ=n/a prf=HMAC_SHA2_256 group=MODP2048}
+002 "vpn.example.com"[1] 193.110.157.148 #6: IKE_AUTH response contained the error notification NO_PROPOSAL_CHOSEN</codeblock>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Mismatched IP Address Ranges (IKEv2)</dt>
+               <dd>
+                  <p>The remote peer responds with a <codeph>TS_UNACCEPTABLE</codeph> error:</p>
+                  <codeblock># <b>ipsec auto --up vpn.example.com</b>
+...
+1v2 "vpn.example.com" #1: STATE_PARENT_I2: sent v2I2, expected v2R2 {auth=IKEv2 cipher=AES_GCM_16_256 integ=n/a prf=HMAC_SHA2_512 group=MODP2048}
+002 "vpn.example.com" #2: IKE_AUTH response contained the error notification TS_UNACCEPTABLE</codeblock>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Mismatched IP Address Ranges (IKEv1)</dt>
+               <dd>
+                  <p>The connection times out during quick mode, with a message indicating the peer did not accept the proposal:</p>
+                  <codeblock># <b>ipsec auto --up vpn.example.com</b>
+...
+031 "vpn.example.com" #2: STATE_QUICK_I1: 60 second timeout exceeded after 0 retransmits.  No acceptable response to our first Quick Mode message: perhaps peer likes no proposal</codeblock>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Mismatched PSK (IKEv2)</dt>
+               <dd>
+                  <p>The peer rejects the connection with an <codeph>AUTHENTICATION_FAILED</codeph> error:</p>
+                  <codeblock># <b>ipsec auto --up vpn.example.com</b>
+...
+003 "vpn.example.com" #1: received Hash Payload does not match computed value
+223 "vpn.example.com" #1: sending notification INVALID_HASH_INFORMATION to 192.0.2.23:500</codeblock>
+               </dd>
+            </dlentry>
+            <dlentry>
+               <dt>Mismatched PSK (IKEv1)</dt>
+               <dd>
+                  <p>The hash payload does not match, making the IKE message unreadable and resulting in an <codeph>INVALID_HASH_INFORMATION</codeph> error:</p>
+                  <codeblock># <b>ipsec auto --up vpn.example.com</b>
+...
+002 "vpn.example.com" #1: IKE SA authentication request rejected by peer: AUTHENTICATION_FAILED</codeblock>
+               </dd>
+            </dlentry>
+         </dl>
+      </section>
+   </refbody>
+</reference>

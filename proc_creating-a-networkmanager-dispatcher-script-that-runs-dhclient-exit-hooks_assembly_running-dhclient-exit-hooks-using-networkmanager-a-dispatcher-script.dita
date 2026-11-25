@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_creating-a-networkmanager-dispatcher-script-that-runs-dhclient-exit-hooks_assembly_running-dhclient-exit-hooks-using-networkmanager-a-dispatcher-script">
+   <title>Creating a NetworkManager dispatcher script that runs dhclient exit hooks</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>dhclient</codeph> exit hooks are stored in the <codeph>/etc/dhcp/dhclient-exit-hooks.d/</codeph> directory.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>When a DHCP server assigns or updates an IPv4 address, NetworkManager can run a dispatcher script stored in the <codeph>/etc/dhcp/dhclient-exit-hooks.d/</codeph> directory. This dispatcher script can then, for example, run <codeph>dhclient</codeph> exit hooks.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create the <codeph>/etc/NetworkManager/dispatcher.d/12-dhclient-down</codeph> file with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-bash">#!/bin/bash
+# Run dhclient.exit-hooks.d scripts
+
+if [ -n "$DHCP4_DHCP_LEASE_TIME" ] ; then
+  if [ "$2" = "dhcp4-change" ] || [ "$2" = "up" ] ; then
+    if [ -d /etc/dhcp/dhclient-exit-hooks.d ] ; then
+      for f in /etc/dhcp/dhclient-exit-hooks.d/*.sh ; do
+        if [ -x "${f}" ]; then
+          . "${f}"
+        fi
+      done
+    fi
+  fi
+fi</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the <codeph>root</codeph> user as owner of the file:</cmd>
+            <info>
+               <codeblock># <b>chown root:root <i>/etc/NetworkManager/dispatcher.d/12-dhclient-down</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Set the permissions so that only the root user can execute it:</cmd>
+            <info>
+               <codeblock># <b>chmod 0700 <i>/etc/NetworkManager/dispatcher.d/12-dhclient-down</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Restore the SELinux context:</cmd>
+            <info>
+               <codeblock># <b>restorecon <i>/etc/NetworkManager/dispatcher.d/12-dhclient-down</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

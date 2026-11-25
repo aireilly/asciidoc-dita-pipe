@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="con_benefits-of-vxlans_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms">
+   <title>Benefits of VXLANs</title>
+   <conbody>
+      <p>A virtual extensible LAN (VXLAN) provides the following major benefits:</p>
+      <ul>
+         <li>
+            <p>VXLANs use a 24-bit ID. Therefore, you can create up to 16,777,216 isolated networks. For example, a virtual LAN (VLAN), supports only 4,096 isolated networks.</p>
+         </li>
+         <li>
+            <p>VXLANs use the IP protocol. This enables you to route the traffic and virtually run systems in different networks and locations within the same layer-2 domain.</p>
+         </li>
+         <li>
+            <p>Unlike most tunnel protocols, a VXLAN is not only a point-to-point network. A VXLAN can learn the IP addresses of the other endpoints either dynamically or use statically-configured forwarding entries.</p>
+         </li>
+         <li>
+            <p>Certain network cards support UDP tunnel-related offload features.</p>
+         </li>
+      </ul>
+      <p>For further details, see the <codeph>/usr/share/doc/kernel-doc-<i>&lt;kernel_version&gt;</i>/Documentation/networking/vxlan.rst</codeph> file provided by the <codeph>kernel-doc</codeph> package.</p>
+   </conbody>
+</concept>

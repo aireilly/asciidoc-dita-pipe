@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Getting started with IPVLAN</title>
+   <topicref href="getting-started-with-ipvlan_configuring-and-managing-networking.dita">
+      <topicref href="ipvlan-modes_getting-started-with-ipvlan.dita"/>
+      <topicref href="ipvlan-and-macvlan_getting-started-with-ipvlan.dita"/>
+      <topicref href="creating-and-configuring-the-ipvlan-device-using-iproute2_getting-started-with-ipvlan.dita"/>
+   </topicref>
+</map>

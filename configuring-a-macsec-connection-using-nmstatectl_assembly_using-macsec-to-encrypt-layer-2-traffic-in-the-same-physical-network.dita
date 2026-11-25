@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-a-macsec-connection-using-nmstatectl_assembly_using-macsec-to-encrypt-layer-2-traffic-in-the-same-physical-network">
+   <title>Configuring a MACsec connection by using <codeph>nmstatectl</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A physical or virtual Ethernet Network Interface Controller (NIC) exists in the server configuration.</p>
+            </li>
+            <li>
+               <p>The <codeph>nmstate</codeph> package is installed.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>You can use the declarative Nmstate API to configure Ethernet interfaces to use MACsec. Nmstate ensures that the result matches the configuration file or rolls back the changes.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>On the first host on which you configure MACsec, create the connectivity association key (CAK) and connectivity-association key name (CKN) for the pre-shared key:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Create a 16-byte hexadecimal CAK:</p>
+                     <codeblock># <b>dd if=/dev/urandom count=16 bs=1 2&gt; /dev/null | hexdump -e '1/2 "%04x"'</b>
+50b71a8ef0bd5751ea76de6d6c98c03a</codeblock>
+                  </li>
+                  <li>
+                     <p>Create a 32-byte hexadecimal CKN:</p>
+                     <codeblock># <b>dd if=/dev/urandom count=32 bs=1 2&gt; /dev/null | hexdump -e '1/2 "%04x"'</b>
+f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550</codeblock>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>On both hosts that you want to connect over a MACsec connection, complete the following steps:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Create a YAML file, for example <codeph>create-macsec-connection.yml</codeph>, with the following settings:</p>
+                     <codeblock>---
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-interface: macsec0
+    next-hop-address: 192.0.2.2
+    table-id: 254
+  - destination: 192.0.2.2/32
+    next-hop-interface: macsec0
+    next-hop-address: 0.0.0.0
+    table-id: 254
+dns-resolver:
+  config:
+    search:
+    - example.com
+    server:
+    - 192.0.2.200
+    - 2001:db8:1::ffbb
+interfaces:
+- name: macsec0
+  type: macsec
+  state: up
+  ipv4:
+    enabled: true
+    address:
+    - ip: 192.0.2.1
+      prefix-length: 32
+  ipv6:
+    enabled: true
+    address:
+    - ip: 2001:db8:1::1
+      prefix-length: 64
+  macsec:
+    encrypt: true
+    base-iface: enp0s1
+    mka-cak: 50b71a8ef0bd5751ea76de6d6c98c03a
+    mka-ckn: f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550
+    port: 0
+    validation: strict
+    send-sci: true</codeblock>
+                  </li>
+                  <li>
+                     <p>Use the CAK and CKN generated in the previous step in the <codeph>mka-cak</codeph> and <codeph>mka-ckn</codeph> parameters. The values must be the same on every host in the MACsec-protected network.</p>
+                  </li>
+                  <li>
+                     <p>Optional: In the same YAML configuration file, you can also configure the following settings:</p>
+                     <ul>
+                        <li>
+                           <p>A static IPv4 address - <codeph>192.0.2.1</codeph> with the <codeph>/32</codeph> subnet mask</p>
+                        </li>
+                        <li>
+                           <p>A static IPv6 address - <codeph>2001:db8:1::1</codeph> with the <codeph>/64</codeph> subnet mask</p>
+                        </li>
+                        <li>
+                           <p>An IPv4 default gateway - <codeph>192.0.2.2</codeph>
+                           </p>
+                        </li>
+                        <li>
+                           <p>An IPv4 DNS server - <codeph>192.0.2.200</codeph>
+                           </p>
+                        </li>
+                        <li>
+                           <p>An IPv6 DNS server - <codeph>2001:db8:1::ffbb</codeph>
+                           </p>
+                        </li>
+                        <li>
+                           <p>A DNS search domain - <codeph>example.com</codeph>
+                           </p>
+                        </li>
+                     </ul>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Apply the settings to the system:</cmd>
+            <info>
+               <codeblock># <b>nmstatectl apply create-macsec-connection.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Display the current state in YAML format:</p>
+               <codeblock># <b>nmstatectl show macsec0</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Verify that the traffic is encrypted:</p>
+               <codeblock># <b>tcpdump -nn -i enp0s1</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Optional: Display the unencrypted traffic:</p>
+               <codeblock># <b>tcpdump -nn -i macsec0</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display MACsec statistics:</p>
+               <codeblock># <b>ip macsec show</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display individual counters for each type of protection: integrity-only (encrypt off) and encryption (encrypt on)</p>
+               <codeblock># <b>ip -s macsec show</b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://developers.redhat.com/blog/2016/10/14/macsec-a-different-solution-to-encrypt-network-traffic"
+                        format="html"
+                        scope="external">MACsec: a different solution to encrypt network traffic</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

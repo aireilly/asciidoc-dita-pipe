@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_providing-feedback-on-red-hat-documentation_configuring-and-managing-networking">
+   <title>Providing feedback on Red Hat documentation</title>
+   <taskbody>
+      <context>
+         <p>We appreciate your feedback on our documentation. Let us know how we can improve it.</p>
+         <p>Submitting feedback through Jira (account required)</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Log in to the <xref href="https://issues.redhat.com/projects/RHELDOCS/issues"
+                     format="html"
+                     scope="external">Jira</xref> website.</cmd>
+         </step>
+         <step>
+            <cmd>Click <b>Create</b> in the top navigation bar</cmd>
+         </step>
+         <step>
+            <cmd>Enter a descriptive title in the <b>Summary</b> field.</cmd>
+         </step>
+         <step>
+            <cmd>Enter your suggestion for improvement in the <b>Description</b> field. Include links to the relevant parts of the documentation.</cmd>
+         </step>
+         <step>
+            <cmd>Click <b>Create</b> at the bottom of the dialogue.</cmd>
+         </step>
+      </steps>
+   </taskbody>
+</task>

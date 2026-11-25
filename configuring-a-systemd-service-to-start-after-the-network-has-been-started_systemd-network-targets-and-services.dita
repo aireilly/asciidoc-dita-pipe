@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-a-systemd-service-to-start-after-the-network-has-been-started_systemd-network-targets-and-services">
+   <title>Configuring a systemd service to start after the network has been started</title>
+   <taskbody>
+      <context>
+         <p>RHEL installs <codeph>systemd</codeph> service files in the <codeph>/usr/lib/systemd/system/</codeph> directory. You can create a drop-in snippet in <codeph>/etc/systemd/system/<i>&lt;service_name&gt;</i>.service.d/</codeph> to start a service after the network is online.</p>
+         <p>This snippet’s settings override any conflicting settings in the original service file.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Open a service file in the editor:</cmd>
+            <info>
+               <codeblock># <b>systemctl edit <i>&lt;service_name&gt;</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Enter the following, and save the changes:</cmd>
+            <info>
+               <codeblock outputclass="language-console">[Unit]
+After=network-online.target</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Reload the <codeph>systemd</codeph> service.</cmd>
+            <info>
+               <codeblock># <b>systemctl daemon-reload</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+   </taskbody>
+</task>

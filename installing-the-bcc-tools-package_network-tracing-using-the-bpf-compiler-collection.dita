@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="installing-the-bcc-tools-package_network-tracing-using-the-bpf-compiler-collection">
+   <title>Installing the bcc-tools package</title>
+   <taskbody>
+      <context>
+         <p>Install the <codeph>bcc-tools</codeph> package, which also installs the BPF Compiler Collection (BCC) library as a dependency.</p>
+      </context>
+      <steps-unordered>
+         <step>
+            <cmd>Install <codeph>bcc-tools</codeph>.</cmd>
+            <info>
+               <codeblock># <b>dnf install bcc-tools</b>
+               </codeblock>
+               <p>The BCC tools are installed in the <codeph>/usr/share/bcc/tools/</codeph> directory.</p>
+            </info>
+         </step>
+      </steps-unordered>
+      <result>
+         <ul>
+            <li>
+               <p>Inspect the installed tools:</p>
+               <codeblock># <b>ls -l /usr/share/bcc/tools/</b>
+...
+-rwxr-xr-x. 1 root root  4198 Dec 14 17:53 dcsnoop
+-rwxr-xr-x. 1 root root  3931 Dec 14 17:53 dcstat
+-rwxr-xr-x. 1 root root 20040 Dec 14 17:53 deadlock_detector
+-rw-r--r--. 1 root root  7105 Dec 14 17:53 deadlock_detector.c
+drwxr-xr-x. 3 root root  8192 Mar 11 10:28 doc
+-rwxr-xr-x. 1 root root  7588 Dec 14 17:53 execsnoop
+-rwxr-xr-x. 1 root root  6373 Dec 14 17:53 ext4dist
+-rwxr-xr-x. 1 root root 10401 Dec 14 17:53 ext4slower
+...</codeblock>
+               <p>The <codeph>doc</codeph> directory in the listing provides documentation for each tool.</p>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

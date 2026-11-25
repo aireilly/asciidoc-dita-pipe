@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Troubleshooting IPsec configurations</title>
+   <topicref href="troubleshooting-ipsec-configurations_setting-up-an-ipsec-vpn.dita">
+      <topicref href="basic-connection-issues.dita"/>
+      <topicref href="firewall-related-problems.dita"/>
+      <topicref href="mismatched-configurations.dita"/>
+      <topicref href="mtu-issues.dita"/>
+      <topicref href="nat-conflicts.dita"/>
+      <topicref href="kernel-level-ipsec-issues.dita"/>
+      <topicref href="kernel-ipsec-subsystem-bugs.dita"/>
+      <topicref href="displaying-libreswan-logs.dita"/>
+   </topicref>
+</map>

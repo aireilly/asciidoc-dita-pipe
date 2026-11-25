@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="using-dnsmasq-in-networkmanager-to-send-dns-requests-for-a-specific-domain-to-a-selected-dns-server_using-different-dns-servers-for-different-domains">
+   <title>Using dnsmasq in NetworkManager to send DNS requests for a specific domain to a selected DNS server</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The system has multiple NetworkManager connections configured.</p>
+            </li>
+            <li>
+               <p>A DNS server and search domain are configured for the connection that is responsible for resolving a specific domain.</p>
+               <p>For example, to ensure that the DNS server specified in a VPN connection resolves queries for the <codeph>example.com</codeph> domain, the following settings must be available:</p>
+               <ul>
+                  <li>
+                     <p>A DNS server that can resolve <codeph>example.com</codeph>. A DHCP server can provide this information dynamically or you set the <codeph>ipv4.dns</codeph> and <codeph>ipv6.dns</codeph> parameters in the VPN connection profile.</p>
+                  </li>
+                  <li>
+                     <p>A search domain set to <codeph>example.com</codeph>. A DHCP server can provide this information dynamically or you set the <codeph>ipv4.dns-search</codeph> and <codeph>ipv6.dns-search</codeph> parameters in the VPN connection profile.</p>
+                  </li>
+               </ul>
+            </li>
+            <li>
+               <p>The <codeph>dnsmasq</codeph> service is not running or configured to listen on a different interface than <codeph>localhost</codeph>.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>On hosts with multiple network interfaces and where one DNS server cannot resolve all domains, you can configure RHEL to send DNS requests for a specific domain to a selected DNS server.</p>
+         <p>You can configure NetworkManager to start an instance of <codeph>dnsmasq</codeph>. This DNS caching server then listens on port <codeph>53</codeph> on the <codeph>loopback</codeph> device. Consequently, this service is only reachable from the local system and not from the network.</p>
+         <p>With this configuration, NetworkManager adds the <codeph>nameserver 127.0.0.1</codeph> entry to the <codeph>/etc/resolv.conf</codeph> file, and <codeph>dnsmasq</codeph> dynamically routes DNS requests to the corresponding DNS servers specified in the NetworkManager connection profiles.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Install the <codeph>dnsmasq</codeph> package:</cmd>
+            <info>
+               <codeblock># <b>dnf install dnsmasq</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Edit the <codeph>/etc/NetworkManager/NetworkManager.conf</codeph> file, and set the following entry in the <codeph>[main]</codeph> section:</cmd>
+            <info>
+               <codeblock outputclass="language-console">dns=dnsmasq</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Reload the <codeph>NetworkManager</codeph> service:</cmd>
+            <info>
+               <codeblock># <b>systemctl reload NetworkManager</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Search in the <codeph>systemd</codeph> journal of the <codeph>NetworkManager</codeph> unit for which domains the service uses a different DNS server:</p>
+               <codeblock># <b>journalctl -xeu NetworkManager</b>
+...
+Jun 02 13:30:17 &lt;client_hostname&gt;_ dnsmasq[5298]: using nameserver 198.51.100.7#53 for domain example.com
+...</codeblock>
+            </li>
+            <li>
+               <p>Use the <codeph>tcpdump</codeph> packet sniffer to verify the correct route of DNS requests:</p>
+               <ol>
+                  <li>
+                     <p>Install the <codeph>tcpdump</codeph> package:</p>
+                     <codeblock># <b>dnf install tcpdump</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>On one terminal, start <codeph>tcpdump</codeph> to capture DNS traffic on all interfaces:</p>
+                     <codeblock># <b>tcpdump -i any port 53</b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>On a different terminal, resolve host names for a domain for which an exception exists and another domain, for example:</p>
+                     <codeblock># <b>host -t A <i>www.example.com</i>
+                        </b>
+# <b>host -t A <i>www.redhat.com</i>
+                        </b>
+                     </codeblock>
+                  </li>
+                  <li>
+                     <p>Verify in the <codeph>tcpdump</codeph> output that Red Hat Enterprise Linux sends only DNS queries for the <codeph>example.com</codeph> domain to the designated DNS server and through the corresponding interface:</p>
+                     <codeblock>...
+13:52:42.234533 tun0   Out IP <i>server</i>.43534 &gt; <i>198.51.100.7</i>.domain: 50121+ A? www.example.com. (33)
+...
+13:52:57.753235 enp1s0 Out IP <i>server</i>.40864 &gt; <i>192.0.2.1</i>.domain: 6906+ A? www.redhat.com. (33)
+...</codeblock>
+                     <p>Red Hat Enterprise Linux sends the DNS query for <codeph>www.example.com</codeph> to the DNS server on <codeph>198.51.100.7</codeph> and the query for <codeph>www.redhat.com</codeph> to <codeph>192.0.2.1</codeph>.</p>
+                  </li>
+               </ol>
+            </li>
+         </ol>
+      </result>
+      <tasktroubleshooting>
+         <ol>
+            <li>
+               <p>Verify that the <codeph>nameserver</codeph> entry in the <codeph>/etc/resolv.conf</codeph> file refers to <codeph>127.0.0.1</codeph>:</p>
+               <codeblock># <b>cat /etc/resolv.conf</b>
+nameserver 127.0.0.1</codeblock>
+               <p>If the entry is missing, check the <codeph>dns</codeph> parameter in the <codeph>/etc/NetworkManager/NetworkManager.conf</codeph> file.</p>
+            </li>
+            <li>
+               <p>Verify that the <codeph>dnsmasq</codeph> service listens on port <codeph>53</codeph> on the <codeph>loopback</codeph> device:</p>
+               <codeblock># <b>ss -tulpn | grep "127.0.0.1:53"</b>
+udp  UNCONN 0  0    127.0.0.1:53   0.0.0.0:*    users:(("dnsmasq",pid=7340,fd=18))
+tcp  LISTEN 0  32   127.0.0.1:53   0.0.0.0:*    users:(("dnsmasq",pid=7340,fd=19))</codeblock>
+               <p>If the service does not listen on <codeph>127.0.0.1:53</codeph>, check the journal entries of the <codeph>NetworkManager</codeph> unit:</p>
+               <codeblock># <b>journalctl -u NetworkManager</b>
+               </codeblock>
+            </li>
+         </ol>
+      </tasktroubleshooting>
+   </taskbody>
+</task>

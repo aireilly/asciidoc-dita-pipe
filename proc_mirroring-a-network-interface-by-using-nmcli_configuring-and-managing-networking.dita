@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_mirroring-a-network-interface-by-using-nmcli_configuring-and-managing-networking">
+   <title>Mirroring a network interface by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>A network interface to mirror the network traffic to.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>Network administrators can use port mirroring to replicate inbound and outbound network traffic being communicated from one network device to another. Mirroring traffic of an interface can be helpful in the following situations:</p>
+         <ul>
+            <li>
+               <p>To debug networking issues and tune the network flow</p>
+            </li>
+            <li>
+               <p>To inspect and analyze the network traffic</p>
+            </li>
+            <li>
+               <p>To detect an intrusion</p>
+            </li>
+         </ul>
+      </context>
+      <steps>
+         <step>
+            <cmd>Add a network connection profile that you want to mirror the network traffic from:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type ethernet ifname <i>enp1s0</i> con-name <i>enp1s0</i> autoconnect <i>no</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Attach a <codeph>qdisc</codeph> of type <codeph>prio</codeph>  to <codeph>enp1s0</codeph> for the egress (outgoing) traffic with the <codeph>10:</codeph> handle:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>enp1s0</i> +tc.qdisc "root prio handle 10:"</b>
+               </codeblock>
+               <p>The <codeph>qdisc</codeph> set to <codeph>prio</codeph> attached without children allows attaching filters.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Add a <codeph>qdisc</codeph> for the ingress traffic, with the <codeph>ffff:</codeph> handle:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>enp1s0</i> +tc.qdisc "ingress handle ffff:"</b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Add the following filters to match packets on the ingress and egress <codeph>qdiscs</codeph>, and to mirror them to <codeph>enp7s0</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection modify <i>enp1s0</i> +tc.tfilter "parent ffff: matchall action mirred egress mirror dev <i>enp7s0</i>"</b>
+
+# <b>nmcli connection modify <i>enp1s0</i> +tc.tfilter "parent 10: matchall action mirred egress mirror dev <i>enp7s0</i>"</b>
+               </codeblock>
+               <p>The <codeph>matchall</codeph> filter matches all packets, and the <codeph>mirred</codeph> action redirects packets to destination.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the connection:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>enp1s0</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ol>
+            <li>
+               <p>Install the <codeph>tcpdump</codeph> utility:</p>
+               <codeblock># <b>dnf install tcpdump</b>
+               </codeblock>
+            </li>
+            <li>
+               <p>Display the traffic mirrored on the target device (<codeph>enp7s0</codeph>):</p>
+               <codeblock># <b>tcpdump -i <i>enp7s0</i>
+                  </b>
+               </codeblock>
+            </li>
+         </ol>
+      </result>
+      <postreq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/solutions/8787"
+                        format="html"
+                        scope="external">How to capture network packets using <codeph>tcpdump</codeph> (Red Hat Knowledgebase)</xref>
+               </p>
+            </li>
+         </ul>
+      </postreq>
+   </taskbody>
+</task>

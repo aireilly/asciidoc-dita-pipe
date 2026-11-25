@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Setting up an IPsec VPN</title>
+   <topicref href="setting-up-an-ipsec-vpn_configuring-and-managing-networking.dita">
+      <topicref href="components-in-an-ipsec-vpn_setting-up-an-ipsec-vpn.dita"/>
+      <topicref href="libreswan-authentication-methods_setting-up-an-ipsec-vpn.dita"/>
+      <topicref href="manually-configuring-an-ipsec-host-to-host-vpn-with-raw-rsa-key-authentication_setting-up-an-ipsec-vpn.dita"/>
+      <topicref href="manually-configuring-an-ipsec-site-to-site-vpn-with-raw-rsa-key-authentication_setting-up-an-ipsec-vpn.dita"/>
+      <topicref href="manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication_setting-up-an-ipsec-vpn.ditamap"
+                format="ditamap">
+         <topicref href="manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication_setting-up-an-ipsec-vpn.dita">
+            <topicref href="setting-up-an-ipsec-gateway-manually_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication.dita"/>
+            <topicref href="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-gnome-settings_manually-configuring-an-ipsec-host-to-site-vpn-with-certificate-based-authentication.dita"/>
+         </topicref>
+      </topicref>
+      <topicref href="manually-configuring-an-ipsec-mesh-vpn-with-certificate-based-authentication.dita"/>
+      <topicref href="protecting-the-ipsec-nss-database-with-a-password_setting-up-an-ipsec-vpn.dita"/>
+      <topicref href="using-ipsec-on-a-system-with-fips-mode-enabled.dita"/>
+      <topicref href="configuring-tcp-fallback-for-an-ipsec-vpn-connection_setting-up-an-ipsec-vpn.dita"/>
+      <topicref href="enabling-legacy-ciphers-and-algorithms-in-libreswan_setting-up-an-ipsec-vpn.dita"/>
+      <topicref href="assigning-a-vpn-connection-to-a-dedicated-routing-table-to-prevent-the-connection-from-bypassing-the-tunnel_setting-up-an-ipsec-vpn.dita"/>
+      <topicref href="assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role_setting-up-an-ipsec-vpn.ditamap"
+                format="ditamap">
+         <topicref href="assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role_setting-up-an-ipsec-vpn.dita">
+            <topicref href="configuring-an-ipsec-host-to-host-vpn-with-psk-authentication-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+            <topicref href="configuring-an-ipsec-host-to-host-vpn-with-psk-authentication-and-separate-data-and-control-planes-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+            <topicref href="configuring-an-ipsec-site-to-site-vpn-with-psk-authentication-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+            <topicref href="configuring-an-ipsec-mesh-vpn-with-certificate-based-authentication-by-using-the-vpn-rhel-system-role_assembly_configuring-vpn-connections-with-ipsec-by-using-the-rhel-vpn-system-role.dita"/>
+         </topicref>
+      </topicref>
+      <topicref href="configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl_setting-up-an-ipsec-vpn.ditamap"
+                format="ditamap">
+         <topicref href="configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl_setting-up-an-ipsec-vpn.dita">
+            <topicref href="configuring-an-ipsec-host-to-host-vpn-with-raw-rsa-key-authentication-by-using-nmstatectl_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl.dita"/>
+            <topicref href="configuring-an-ipsec-site-to-site-vpn-with-raw-rsa-key-authentication-by-using-nmstatectl_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl.dita"/>
+            <topicref href="configuring-a-client-to-connect-to-an-ipsec-vpn-gateway-by-using-nmstatectl_configuring-an-ipsec-based-vpn-connection-by-using-nmstatectl.dita"/>
+         </topicref>
+      </topicref>
+      <topicref href="troubleshooting-ipsec-configurations_setting-up-an-ipsec-vpn.ditamap"
+                format="ditamap">
+         <topicref href="troubleshooting-ipsec-configurations_setting-up-an-ipsec-vpn.dita">
+            <topicref href="basic-connection-issues.dita"/>
+            <topicref href="firewall-related-problems.dita"/>
+            <topicref href="mismatched-configurations.dita"/>
+            <topicref href="mtu-issues.dita"/>
+            <topicref href="nat-conflicts.dita"/>
+            <topicref href="kernel-level-ipsec-issues.dita"/>
+            <topicref href="kernel-ipsec-subsystem-bugs.dita"/>
+            <topicref href="displaying-libreswan-logs.dita"/>
+         </topicref>
+      </topicref>
+   </topicref>
+</map>

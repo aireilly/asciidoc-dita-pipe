@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="overview-of-networkmanager-wait-online_systemd-network-targets-and-services">
+   <title>Overview of <codeph>NetworkManager-wait-online</codeph>
+   </title>
+   <conbody>
+      <p>The <codeph>NetworkManager-wait-online</codeph> service delays reaching the <codeph>network-online</codeph> target until NetworkManager reports that the startup is complete.</p>
+      <p>During boot, NetworkManager activates all profiles with the <codeph>connection.autoconnect</codeph> parameter set to <codeph>yes</codeph>. However, the activation of profiles is not complete as long as NetworkManager profiles are in an activating state. If activation fails, NetworkManager retries the activation depending on the value of the <codeph>connection.autoconnect-retries</codeph>.</p>
+      <p>When a device reaches the activated state depends on its configuration. For example, if a profile contains both IPv4 and IPv6 configuration, by default, NetworkManager considers the device as fully activated when only one of the Address families is ready. The <codeph>ipv4.may-fail</codeph> and <codeph>ipv6.may-fail</codeph> parameters in a connection profile control this behavior.</p>
+      <p>For Ethernet devices, NetworkManager waits for the carrier with a timeout. Consequently, if the Ethernet cable is not connected, this can further delay <codeph>NetworkManager-wait-online.service</codeph>.</p>
+      <p>When the startup completes, either all profiles are in a disconnected state or are successfully activated. You can configure profiles to auto-connect. The following are a few examples of parameters that set timeouts or define when the connection is considered active:</p>
+      <ul>
+         <li>
+            <p>
+               <codeph>connection.wait-device-timeout</codeph>: Sets the timeout for the driver to detect the device.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>ipv4.may-fail</codeph> and <codeph>ipv6.may-fail</codeph>: Sets activation with one IP address family ready, or whether a particular address family must have completed configuration.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>ipv4.gateway-ping-timeout</codeph>: Delays network activation until NetworkManager receives a ping response from the IPv4 gateway. The system waits up to the specified number of seconds before proceeding.</p>
+         </li>
+         <li>
+            <p>
+               <codeph>ip-ping-timeout</codeph> and <codeph>ip-ping-addresses</codeph>: Delays network activation until NetworkManager receives a ping response from the hosts defined in <codeph>ip-ping-addresses</codeph>. The system waits up to the specified number of seconds before proceeding.</p>
+         </li>
+      </ul>
+      <p>For further details, see the <codeph>nm-settings(5)</codeph>, <codeph>systemd.special(7)</codeph>, <codeph>NetworkManager-wait-online.service(8)</codeph> man pages on your system.</p>
+   </conbody>
+</concept>

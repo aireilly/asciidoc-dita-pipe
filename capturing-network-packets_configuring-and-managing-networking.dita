@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept
+  PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="capturing-network-packets_configuring-and-managing-networking">
+   <title>Capturing network packets</title>
+   <conbody>
+      <p>To debug network issues and communications, you can capture network packets. The following sections provide instructions and additional information about capturing network packets.</p>
+   </conbody>
+</concept>

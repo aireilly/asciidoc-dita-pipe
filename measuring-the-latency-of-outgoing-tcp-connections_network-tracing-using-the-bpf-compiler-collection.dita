@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="measuring-the-latency-of-outgoing-tcp-connections_network-tracing-using-the-bpf-compiler-collection">
+   <title>Measuring the latency of outgoing TCP connections</title>
+   <taskbody>
+      <context>
+         <p>The <codeph>tcpconnlat</codeph> utility uses eBPF features to measure the time between a sent <codeph>SYN</codeph> packet and the received response packet.</p>
+         <p>The TCP connection latency is the time taken to establish a connection. This typically involves the kernel TCP/IP processing and network round trip time, and not the application runtime.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Start measuring the latency of outgoing connections:</cmd>
+            <info>
+               <codeblock># <b>/usr/share/bcc/tools/tcpconnlat</b>
+PID    COMM         IP SADDR      DADDR          DPORT LAT(ms)
+32151  isc-worker00 4  192.0.2.1  192.0.2.254    53    0.60
+32155  ssh          4  192.0.2.1  203.0.113.190  22    26.34
+32319  curl         4  192.0.2.1  198.51.100.59  443   188.96
+...</codeblock>
+               <p>Each time the kernel processes an outgoing connection, <codeph>tcpconnlat</codeph> displays the details of the connection after the kernel receives the response packet.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Press <ph>Ctrl</ph>+<ph>C</ph> to stop the tracing process.</cmd>
+         </step>
+      </steps>
+   </taskbody>
+</task>

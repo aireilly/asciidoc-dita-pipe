@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_configuring-firewalld-on-a-wireguard-server-by-using-the-graphical-interface_assembly_setting-up-a-wireguard-vpn">
+   <title>Configuring <codeph>firewalld</codeph> on a WireGuard server by using the graphical interface</title>
+   <taskbody>
+      <context>
+         <p>Configure the <codeph>firewalld</codeph> service on the WireGuard server, allowing incoming connections from clients. If clients need to use the server as their default gateway and route all traffic through the tunnel, enable also masquerading.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Press the <ph>Super</ph> key, enter <codeph>firewall</codeph>, and select the <b>Firewall</b> application from the results.</cmd>
+         </step>
+         <step>
+            <cmd>Select <codeph>Permanent</codeph> in the <b>Configuration</b> list.</cmd>
+         </step>
+         <step>
+            <cmd>Select the <codeph>public</codeph> zone.</cmd>
+         </step>
+         <step>
+            <cmd>Allow incoming connections to the WireGuard port:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>On the <b>Ports</b> tab, click <uicontrol>Add</uicontrol>.</p>
+                  </li>
+                  <li>
+                     <p>Enter the port number you set for incoming WireGuard connections:</p>
+                  </li>
+                  <li>
+                     <p>Select <codeph>udp</codeph> from the <codeph>Protocol</codeph> list.</p>
+                  </li>
+                  <li>
+                     <p>Click <uicontrol>OK</uicontrol>.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>If clients should route all traffic through the tunnel and use the WireGuard server as the default gateway:</cmd>
+            <info>
+               <ol>
+                  <li>
+                     <p>Navigate to the <b>Masquerading</b> tab of the <b>public</b> zone.</p>
+                  </li>
+                  <li>
+                     <p>Select <codeph>Masquerade zone</codeph>.</p>
+                  </li>
+               </ol>
+            </info>
+         </step>
+         <step>
+            <cmd>Select <menucascade>
+                  <uicontrol>Options</uicontrol>
+                  <uicontrol>Reload Firewalld</uicontrol>
+               </menucascade>.</cmd>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the configuration of the <codeph>public</codeph> zone:</p>
+               <codeblock># <b>firewall-cmd --list-all</b>
+public (active)
+  ...
+  ports: 51820/udp
+  masquerade: yes
+  ...</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Capturing network packets</title>
+   <topicref href="capturing-network-packets_configuring-and-managing-networking.dita">
+      <topicref href="using-xdpdump-to-capture-network-packets-including-packets-dropped-by-xdp-programs_capturing-network-packets.dita"/>
+      <topicref href="_additional_resources.dita"/>
+   </topicref>
+</map>

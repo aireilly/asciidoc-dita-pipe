@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="configuring-an-ethtool-channels-settings-by-using-nmcli_configuring-ethtool-settings-in-networkmanager-connection-profiles">
+   <title>Configuring an <codeph>ethtool</codeph> channels settings by using <codeph>nmcli</codeph>
+   </title>
+   <taskbody>
+      <context>
+         <p>The <codeph>ethtool</codeph> utility handles IRQ based communication with associated devices to manage related channels settings in connection profiles. Use the <codeph>nmcli</codeph> utility to configure <codeph>ethtool</codeph> settings in NetworkManager
+ connection profiles.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Display the channels associated with a network device:</cmd>
+            <info>
+               <codeblock outputclass="language-console"># <b>ethtool --show-channels <i>enp1s0</i>
+                  </b>
+Channel parameters for <i>enp1s0</i>:
+Pre-set maximums:
+RX:		4
+TX:		3
+Other:	   10
+Combined:  63
+
+Current hardware settings:
+RX:   	 1
+TX:   	 1
+Other:   1
+Combined:  1</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Update the channel settings of a network interface:</cmd>
+            <info>
+               <codeblock outputclass="language-console"># <b>nmcli connection modify <i>enp1s0</i> ethtool.channels-rx <i>4</i> ethtool.channels-tx <i>3</i> ethtools.channels-other <i>9</i> ethtool.channels-combined <i>50</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Reactivate the network profile:</cmd>
+            <info>
+               <codeblock outputclass="language-console"># <b>nmcli connection up <i>enp1s0</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Check the updated channel settings associated with the network device:</p>
+               <codeblock outputclass="language-console"># <b>ethtool --show-channels <i>enp1s0</i>
+                  </b>
+Channel parameters for <i>enp1s0</i>:
+Pre-set maximums:
+RX:		4
+TX:		3
+Other:	  10
+Combined: 63
+
+Current hardware settings:
+RX:   	 4
+TX:   	 3
+Other:   9
+Combined:  50</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

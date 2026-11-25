@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_managing-applications-with-mptcpize-tool_assembly_managing-the-mptcpd-service">
+   <title>Managing applications with mptcpize tool</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>The <codeph>mptcpd</codeph> package is installed</p>
+            </li>
+            <li>
+               <p>The <codeph>iperf3</codeph> package is installed</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>Using the <codeph>mptcpize</codeph> tool manage applications and services.</p>
+         <p>The instruction below shows how to use the <codeph>mptcpize</codeph> tool to manage applications in the <codeph>TCP</codeph> environment.</p>
+         <p>Assuming, you need to run the <codeph>iperf3</codeph> utility with the enabled <codeph>MPTCP</codeph> socket. You can achieve this goal by following the procedure below.</p>
+      </context>
+      <steps-unordered>
+         <step>
+            <cmd>Start <codeph>iperf3</codeph> utility with <codeph>MPTCP</codeph> sockets enabled:</cmd>
+            <info>
+               <codeblock># <b>mptcpize run iperf3 -s &amp;</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps-unordered>
+   </taskbody>
+</task>

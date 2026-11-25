@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference
+  PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="nat-conflicts">
+   <title>NAT conflicts</title>
+   <refbody>
+      <section>
+         <p>Resolve NAT conflicts that occur when an IPsec host also acts as a NAT router. Incorrect NAT application can translate source IP addresses before encryption, causing packets to be sent unencrypted over the network.</p>
+         <p>For example, if the source IP address of the packet is translated by a masquerade rule before IPsec encryption is applied, the packet’s source no longer matches the IPsec policy, and Libreswan sends it unencrypted over the network.</p>
+         <p>To solve this problem, add a firewall rule that excludes traffic between the IPsec subnets from NAT. This rule should be inserted at the beginning of the <codeph>POSTROUTING</codeph> chain to ensure it is processed before the general NAT rule.</p>
+      </section>
+      <example>
+         <title>Solution by using the <codeph>nftables</codeph> framework</title>
+         <p>The following example uses <codeph>nftables</codeph> to set up a basic NAT environment that excludes traffic between the 192.0.2.0/24 and 198.51.100.0/24 subnets from address translation:</p>
+         <codeblock># <b>nft add table ip nat</b>
+# <b>nft add chain ip nat postrouting { type nat hook postrouting priority 100 \; }</b>
+# <b>nft add rule ip nat postrouting ip saddr 192.0.2.0/24 ip daddr 198.51.100.0/24 return</b>
+         </codeblock>
+      </example>
+   </refbody>
+</reference>

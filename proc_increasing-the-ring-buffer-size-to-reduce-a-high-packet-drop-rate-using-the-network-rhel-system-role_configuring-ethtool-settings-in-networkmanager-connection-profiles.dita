@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_increasing-the-ring-buffer-size-to-reduce-a-high-packet-drop-rate-using-the-network-rhel-system-role_configuring-ethtool-settings-in-networkmanager-connection-profiles">
+   <title>Increasing the ring buffer size to reduce a high packet drop rate by using the <codeph>network</codeph> RHEL system role</title>
+   <taskbody>
+      <prereq>
+         <ul>
+            <li>
+               <p>
+                  <xref href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/automating_system_administration_by_using_rhel_system_roles/assembly_preparing-a-control-node-and-managed-nodes-to-use-rhel-system-roles_automating-system-administration-by-using-rhel-system-roles"
+                        format="html"
+                        scope="external">You have prepared the control node and the managed nodes</xref>.</p>
+            </li>
+            <li>
+               <p>The account you use to connect to the managed nodes has <codeph>sudo</codeph> permissions for these nodes.</p>
+            </li>
+            <li>
+               <p>You know the maximum ring buffer sizes that the device supports.</p>
+            </li>
+         </ul>
+      </prereq>
+      <context>
+         <p>Increase the size of an Ethernet device’s ring buffers if the packet drop rate causes applications to report a loss of data, timeouts, or other issues.</p>
+         <p>Ring buffers are circular buffers where an overflow overwrites existing data. The network card assigns a transmit (TX) and receive (RX) ring buffer. Receive ring buffers are shared between the device driver and the network interface controller (NIC). Data can move from NIC to the kernel through either hardware interrupts or software interrupts, also called SoftIRQs.</p>
+         <p>The kernel uses the RX ring buffer to store incoming packets until the device driver can process them. The device driver drains the RX ring, typically by using SoftIRQs, which puts the incoming packets into a kernel data structure called an <codeph>sk_buff</codeph> or <codeph>skb</codeph> to begin its journey through the kernel and up to the application that owns the relevant socket.</p>
+         <p>The kernel uses the TX ring buffer to hold outgoing packets which should be sent to the network. These ring buffers reside at the bottom of the stack and are a crucial point at which packet drop can occur, which in turn will adversely affect network performance.</p>
+         <p>You configure ring buffer settings in the NetworkManager connection profiles. By using Ansible and the <codeph>network</codeph> RHEL system role, you can automate this process and remotely configure connection profiles on the hosts defined in a playbook.</p>
+         <note type="attention">
+            <p>You cannot use the <codeph>network</codeph> RHEL system role to update only specific values in an existing connection profile. The role ensures that a connection profile exactly matches the settings in a playbook. If a connection profile with the same name already exists, the role applies the settings from the playbook and resets all other settings in the profile to their defaults. To prevent resetting values, always specify the whole configuration of the network connection profile in the playbook, including the settings that you do not want to change.</p>
+         </note>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create a playbook file, for example, <codeph>~/playbook.yml</codeph>, with the following content:</cmd>
+            <info>
+               <codeblock outputclass="language-yaml">---
+- name: Configure the network
+  hosts: managed-node-01.example.com
+  tasks:
+    - name: Ethernet connection profile with dynamic IP address setting and increased ring buffer sizes
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network
+      vars:
+        network_connections:
+          - name: enp1s0
+            type: ethernet
+            autoconnect: yes
+            ip:
+              dhcp4: yes
+              auto6: yes
+            <b>ethtool:</b>
+                  <b>ring:</b>
+                  <b>rx: 4096</b>
+                  <b>tx: 4096</b>
+            state: up</codeblock>
+               <p>The settings specified in the example playbook include the following:</p>
+               <dl>
+                  <dlentry>
+                     <dt>
+                        <codeph>rx: <i>&lt;value&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Sets the maximum number of received ring buffer entries.</p>
+                     </dd>
+                  </dlentry>
+                  <dlentry>
+                     <dt>
+                        <codeph>tx: <i>&lt;value&gt;</i>
+                        </codeph>
+                     </dt>
+                     <dd>
+                        <p>Sets the maximum number of transmitted ring buffer entries.</p>
+                     </dd>
+                  </dlentry>
+               </dl>
+               <p>For details about all variables used in the playbook, see the <codeph>/usr/share/ansible/roles/rhel-system-roles.network/README.md</codeph> file on the control node.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Validate the playbook syntax:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook --syntax-check ~/playbook.yml</b>
+               </codeblock>
+               <p>Note that this command only validates the syntax and does not protect against a wrong but valid configuration.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Run the playbook:</cmd>
+            <info>
+               <codeblock>$ <b>ansible-playbook ~/playbook.yml</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the maximum ring buffer sizes:</p>
+               <codeblock># <b>ansible managed-node-01.example.com -m command -a 'ethtool -g enp1s0'</b>
+managed-node-01.example.com | CHANGED | rc=0 &gt;&gt;
+...
+Current hardware settings:
+RX:             4096
+RX Mini:        0
+RX Jumbo:       0
+TX:             4096</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

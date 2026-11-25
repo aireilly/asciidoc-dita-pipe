@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Configuring NetworkManager to ignore certain devices</title>
+   <topicref href="configuring-networkmanager-to-ignore-certain-devices_configuring-and-managing-networking.dita">
+      <topicref href="permanently-configuring-a-device-as-unmanaged-in-networkmanager_configuring-networkmanager-to-ignore-certain-devices.dita"/>
+      <topicref href="temporarily-configuring-a-device-as-unmanaged-in-networkmanager_configuring-networkmanager-to-ignore-certain-devices.dita"/>
+      <topicref href="identifying-the-reason-why-networkmanager-does-not-manage-a-certain-network-device_configuring-networkmanager-to-ignore-certain-devices.dita"/>
+   </topicref>
+</map>

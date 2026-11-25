@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="permanently-configuring-a-device-as-unmanaged-in-networkmanager_configuring-networkmanager-to-ignore-certain-devices">
+   <title>Permanently configuring a device as unmanaged in NetworkManager</title>
+   <taskbody>
+      <context>
+         <p>You can configure devices as <codeph>unmanaged</codeph> based on several criteria, such as the interface name or MAC address. If you use a device section in the configuration to set a device as unmanaged, NetworkManager does not manage the device until you start using it in a connection profile.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Optional: Display the list of devices to identify the device or MAC address you want to set as <codeph>unmanaged</codeph>:</cmd>
+            <info>
+               <codeblock># <b>ip link show</b>
+...
+2: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 52:54:00:74:79:56 brd ff:ff:ff:ff:ff:ff
+...</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Create a <codeph>*.conf</codeph> file in the <codeph>/etc/NetworkManager/conf.d/</codeph> directory, for example, <codeph>/etc/NetworkManager/conf.d/99-unmanaged-devices.conf</codeph>.</cmd>
+         </step>
+         <step>
+            <cmd>For each device you want to configure as unmanaged, add a section with a unique name to the file.</cmd>
+            <info>
+               <note type="important">
+                  <p>The section name must begin with <codeph>device-</codeph>.</p>
+               </note>
+               <ul>
+                  <li>
+                     <p>To configure a specific interface as unmanaged, add:</p>
+                     <codeblock outputclass="language-console">[device-enp1s0-unmanaged]
+match-device=interface-name:enp1s0
+managed=0</codeblock>
+                  </li>
+                  <li>
+                     <p>To configure a device with a specific MAC address as unmanaged, add:</p>
+                     <codeblock outputclass="language-console">[device-mac525400747956-unmanaged]
+match-device=mac:52:54:00:74:79:56
+managed=0</codeblock>
+                  </li>
+                  <li>
+                     <p>To configure all devices of a specific type as unmanaged, add:</p>
+                     <codeblock outputclass="language-console">[device-ethernet-unmanaged]
+match-device=type:ethernet
+managed=0</codeblock>
+                  </li>
+                  <li>
+                     <p>To set multiple devices as unmanaged, separate the entries in the <codeph>unmanaged-devices</codeph> parameter with a semicolon, for example:</p>
+                     <codeblock outputclass="language-console">[device-multiple-devices-unmanaged]
+match-device=interface-name:enp1s0;interface-name:enp7s0
+managed=0</codeblock>
+                     <p>Alternatively, you can add separate sections for each device in this file or create additional <codeph>*.conf</codeph> files in the <codeph>/etc/NetworkManager/conf.d/</codeph> directory.</p>
+                  </li>
+               </ul>
+            </info>
+         </step>
+         <step>
+            <cmd>Restart the host system:</cmd>
+            <info>
+               <codeblock># <b>reboot</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the list of devices:</p>
+               <codeblock># <b>nmcli device status</b>
+DEVICE  TYPE      STATE      CONNECTION
+enp1s0  ethernet  <b>unmanaged</b>  --
+...</codeblock>
+               <p>The <codeph>unmanaged</codeph> state next to the <codeph>enp1s0</codeph> device indicates that NetworkManager does not manage this device.</p>
+            </li>
+         </ul>
+      </result>
+      <tasktroubleshooting>
+         <ul>
+            <li>
+               <p>If the output of the <codeph>nmcli device status</codeph> command does not list the device as <codeph>unmanaged</codeph>, display the NetworkManager configuration:</p>
+               <codeblock># <b>NetworkManager --print-config</b>
+...
+[device-enp1s0-unmanaged]
+match-device=interface-name:enp1s0
+managed=0
+...</codeblock>
+               <p>If the output does not match the settings that you configured, ensure that no configuration file with a higher priority overrides your settings. For details on how NetworkManager merges multiple configuration files, see the <codeph>NetworkManager.conf(5)</codeph> man page on your system.</p>
+            </li>
+         </ul>
+      </tasktroubleshooting>
+   </taskbody>
+</task>

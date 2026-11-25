@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="proc_creating-a-network-bridge-with-a-vxlan-attached_assembly_using-a-vxlan-to-create-a-virtual-layer-2-domain-for-vms">
+   <title>Creating a network bridge with a VXLAN attached</title>
+   <taskbody>
+      <context>
+         <p>To make a virtual extensible LAN (VXLAN) invisible to virtual machines (VMs), create a bridge on a host, and attach the VXLAN to the bridge. Use NetworkManager to create both the bridge and the VXLAN. You do not add any traffic access point (TAP) devices of the VMs, typically named <codeph>vnet*</codeph> on the host, to the bridge. The <codeph>libvirtd</codeph> service adds them dynamically when the VMs start.</p>
+         <p>Run this procedure on both RHEL hosts, and adjust the IP addresses accordingly.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Create the bridge <codeph>br0</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type bridge con-name br0 ifname br0 ipv4.method disabled ipv6.method disabled</b>
+               </codeblock>
+               <p>This command sets no IPv4 and IPv6 addresses on the bridge device, because this bridge works on layer 2.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Create the VXLAN interface and attach it to <codeph>br0</codeph>:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection add type vxlan port-type bridge con-name <i>br0-vxlan10</i> ifname <i>vxlan10</i> id <i>10</i> local <i>198.51.100.2</i> remote <i>203.0.113.1</i> controller <i>br0</i>
+                  </b>
+               </codeblock>
+               <p>This command uses the following settings:</p>
+               <ul>
+                  <li>
+                     <p>
+                        <codeph>id 10</codeph>: Sets the VXLAN identifier.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>local 198.51.100.2</codeph>: Sets the source IP address of outgoing packets.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>remote 203.0.113.1</codeph>: Sets the unicast or multicast IP address to use in outgoing packets when the destination link layer address is not known in the VXLAN device forwarding database.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>controller br0</codeph>: Sets this VXLAN connection to be created as a port in the <codeph>br0</codeph> connection.</p>
+                  </li>
+                  <li>
+                     <p>
+                        <codeph>ipv4.method disabled</codeph> and <codeph>ipv6.method disabled</codeph>: Disables IPv4 and IPv6 on the bridge.</p>
+                  </li>
+               </ul>
+               <p>By default, NetworkManager uses <codeph>8472</codeph> as the destination port. If the destination port is different, additionally, pass the <codeph>destination-port <i>&lt;port_number&gt;</i>
+                  </codeph> option to the command.</p>
+            </info>
+         </step>
+         <step>
+            <cmd>Activate the <codeph>br0</codeph> connection profile:</cmd>
+            <info>
+               <codeblock># <b>nmcli connection up <i>br0</i>
+                  </b>
+               </codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Open port <codeph>8472</codeph> for incoming UDP connections in the local firewall:</cmd>
+            <info>
+               <codeblock># <b>firewall-cmd --permanent --add-port=8472/udp</b>
+# <b>firewall-cmd --reload</b>
+               </codeblock>
+            </info>
+         </step>
+      </steps>
+      <result>
+         <ul>
+            <li>
+               <p>Display the forwarding table:</p>
+               <codeblock># <b>bridge fdb show dev <i>vxlan10</i>
+                  </b>
+2a:53:bd:d5:b3:0a master br0 permanent
+00:00:00:00:00:00 dst 203.0.113.1 self permanent
+...</codeblock>
+            </li>
+         </ul>
+      </result>
+   </taskbody>
+</task>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task
+  PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd">
+<task id="tracing-ipv4-and-ipv6-listen-attempts_network-tracing-using-the-bpf-compiler-collection">
+   <title>Tracing IPv4 and IPv6 listen attempts</title>
+   <taskbody>
+      <context>
+         <p>The <codeph>solisten</codeph> utility traces all IPv4 and IPv6 listen attempts. It traces the attempts including which ultimately fail or the listening program that does not accept the connection. The utility traces functions that the kernel calls when a program wants to listen for TCP connections.</p>
+      </context>
+      <steps>
+         <step>
+            <cmd>Enter the following command to start the tracing process that displays all listen TCP attempts:</cmd>
+            <info>
+               <codeblock outputclass="language-console"># <b>/usr/share/bcc/tools/solisten</b>
+PID    COMM           PROTO         BACKLOG     PORT     ADDR
+3643   nc             TCPv4         1           4242     0.0.0.0
+3659   nc             TCPv6         1           4242     2001:db8:1::1
+4221   redis-server   TCPv6         128         6379     ::
+4221   redis-server   TCPv4         128         6379     0.0.0.0
+....</codeblock>
+            </info>
+         </step>
+         <step>
+            <cmd>Press <ph>Ctrl</ph>+<ph>C</ph> to stop the tracing process.</cmd>
+         </step>
+      </steps>
+   </taskbody>
+</task>

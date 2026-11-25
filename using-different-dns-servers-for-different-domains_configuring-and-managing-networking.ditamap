@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map
+  PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+<map>
+   <title>Using different DNS servers for different domains</title>
+   <topicref href="using-different-dns-servers-for-different-domains_configuring-and-managing-networking.dita">
+      <topicref href="using-dnsmasq-in-networkmanager-to-send-dns-requests-for-a-specific-domain-to-a-selected-dns-server_using-different-dns-servers-for-different-domains.dita"/>
+      <topicref href="using-systemd-resolved-in-networkmanager-to-send-dns-requests-for-a-specific-domain-to-a-selected-dns-server_using-different-dns-servers-for-different-domains.dita"/>
+      <topicref href="routing-dns-traffic-through-a-certain-interface_using-different-dns-servers-for-different-domains.dita"/>
+   </topicref>
+</map>
