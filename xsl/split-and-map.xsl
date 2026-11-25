@@ -84,10 +84,28 @@
           <xsl:attribute name="href" select="concat(@id, '.dita')"/>
         </xsl:otherwise>
       </xsl:choose>
-      <xsl:for-each select="(topic|concept|task|reference)">
-        <xsl:call-template name="generate-topicref"/>
-      </xsl:for-each>
+      <xsl:call-template name="generate-child-topicrefs"/>
     </topicref>
+  </xsl:template>
+
+  <!-- Nest the topics of an assembly under its introduction, which has the ID of the assembly -->
+  <xsl:template name="generate-child-topicrefs">
+    <xsl:variable name="intro" select="concept[@id = current()/@id][current()/@outputclass = 'assembly']"/>
+    <xsl:variable name="children" select="(topic|concept|task|reference) except $intro"/>
+    <xsl:choose>
+      <xsl:when test="$intro">
+        <topicref href="{@id}.dita">
+          <xsl:for-each select="$children">
+            <xsl:call-template name="generate-topicref"/>
+          </xsl:for-each>
+        </topicref>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:for-each select="$children">
+          <xsl:call-template name="generate-topicref"/>
+        </xsl:for-each>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <!-- Generate a standalone sub-map -->
@@ -100,9 +118,7 @@
       </xsl:if>
       <map>
         <title><xsl:value-of select="title"/></title>
-        <xsl:for-each select="(topic|concept|task|reference)">
-          <xsl:call-template name="generate-topicref"/>
-        </xsl:for-each>
+        <xsl:call-template name="generate-child-topicrefs"/>
       </map>
     </xsl:result-document>
   </xsl:template>
@@ -185,7 +201,7 @@
     Cross-references within the composite use #id. Point them at the split files:
     - topic: id.dita
     - element in a topic: topic.dita#topic/id
-    - assembly, or an element in one: first topic in the assembly, because assemblies have no topic file
+    - assembly: first topic in the assembly, which is the introduction if there is one
   -->
   <xsl:template match="xref[starts-with(@href, '#')] | link[starts-with(@href, '#')]">
     <xsl:variable name="current-id" select="ancestor::*[self::topic or self::concept or self::task or self::reference][1]/@id"/>

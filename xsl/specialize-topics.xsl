@@ -31,7 +31,8 @@
         <xsl:when test="starts-with(@id, 'con_')">concept</xsl:when>
         <xsl:when test="starts-with(@id, 'proc_')">task</xsl:when>
         <xsl:when test="starts-with(@id, 'ref_')">reference</xsl:when>
-        <xsl:when test="@outputclass = 'assembly'">assembly</xsl:when>
+        <!-- Assemblies without child topics have nothing to map, so they fall through to concept -->
+        <xsl:when test="@outputclass = 'assembly' and topic">assembly</xsl:when>
         <!-- Unknown types default to concept, so that no generic topics are output -->
         <xsl:otherwise>concept</xsl:otherwise>
       </xsl:choose>
@@ -39,7 +40,7 @@
 
     <!-- Warn when the concept type is a default. Skip generated topics, such as the preface. -->
     <xsl:if test="$type = 'concept'
-                  and not(@outputclass = ('concept', 'db.article'))
+                  and not(@outputclass = ('concept', 'assembly', 'db.article'))
                   and not(starts-with(@id, 'con_'))
                   and not(starts-with(@id, 'id.d'))">
       <xsl:message>
@@ -100,17 +101,27 @@
       </xsl:when>
 
       <xsl:otherwise>
-        <!-- Assemblies become maps in the split stage, so no topic file is written for them -->
+        <!-- Assemblies become maps in the split stage. Any introduction becomes a concept
+             with the ID of the assembly, as the first topic in the map. -->
         <topic id="{@id}" outputclass="assembly">
           <xsl:call-template name="copy-topic-attrs"/>
           <xsl:apply-templates select="title"/>
-          <xsl:apply-templates select="shortdesc"/>
-          <xsl:if test="body/node()">
-            <body>
-              <xsl:apply-templates select="body/node()"/>
-            </body>
+          <xsl:variable name="intro" select="(shortdesc | body | related-links)[normalize-space() or .//image]"/>
+          <xsl:if test="$intro">
+            <concept id="{@id}">
+              <xsl:call-template name="copy-topic-attrs"/>
+              <xsl:apply-templates select="title"/>
+              <xsl:apply-templates select="$intro/self::shortdesc"/>
+              <xsl:if test="$intro/self::body">
+                <conbody>
+                  <xsl:call-template name="build-con-body">
+                    <xsl:with-param name="body" select="body"/>
+                  </xsl:call-template>
+                </conbody>
+              </xsl:if>
+              <xsl:apply-templates select="$intro/self::related-links"/>
+            </concept>
           </xsl:if>
-          <xsl:apply-templates select="related-links[.//text()[normalize-space()]]"/>
           <xsl:apply-templates select="topic"/>
         </topic>
       </xsl:otherwise>

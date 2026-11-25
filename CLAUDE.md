@@ -62,7 +62,7 @@ src/.../master.adoc
 
 - **XSLT only for content transforms** — no Python post-processing of DITA output
 - **Two-tier content type detection** — `:_mod-docs-content-type:` attribute first, filename prefix fallback
-- **No generic topics in the output** — unknown content types become `<concept>` with a warning; assemblies stay as `<topic>` in the composite only and are written as maps
+- **No generic topics in the output** — unknown content types become `<concept>` with a warning; assemblies stay as `<topic>` in the composite only and are written as maps; an assembly introduction becomes a `<concept>` with the assembly ID, and the other topics in the map nest under it
 - **Section title detection uses `@outputclass='db.title'`** not `contains()` — prevents false positives like "The procedure below..." being matched as a Procedure section title
 - **Reference `<refbody>` content model** — bare `<p>`, `<ul>`, `<ol>` are invalid; uses `for-each-group`/`group-adjacent` to wrap them in `<section>` elements
 - **Task body element ordering** is enforced by the DITA content model: `prereq, context, steps, result, tasktroubleshooting, postreq` — the XSLT must emit them in this exact order

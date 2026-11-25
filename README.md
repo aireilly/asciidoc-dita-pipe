@@ -110,7 +110,7 @@ Runs the IBM dbdita DocBook-to-DITA transform via Saxon. Produces a single compo
 - `<topic>` with task role/prefix -> `<task>` with `<taskbody>` containing `<prereq>`, `<context>`, `<steps>/<step>/<cmd>`, `<result>`
 - `<topic>` with reference role/prefix -> `<reference>` with `<refbody>` containing `<section>` wrappers
 - `<topic>` with an unknown type -> `<concept>`, with a warning (generic topics are never written to the output)
-- `<topic>` with assembly role -> kept in the composite only, and written as a map in Stage 5
+- `<topic>` with assembly role -> kept in the composite only, and written as a map in Stage 5. Any text before the first include becomes a `<concept>` with the ID of the assembly, as the first topic in the map, with the other topics nested under it. An assembly without child topics becomes a `<concept>`
 
 Also cleans up:
 - Removes `outputclass="db.*"` artifacts from dbdita
@@ -131,7 +131,7 @@ Cross-references are rewritten to the split files:
 
 - Topic -> `{id}.dita`
 - Element inside a topic -> `{topic}.dita#{topic}/{id}`
-- Assembly -> the first topic in the assembly, because assemblies have no topic file
+- Assembly -> the first topic in the assembly, which is the introduction if there is one
 - Target outside the build -> plain text, with a warning
 
 ## Content-type detection
