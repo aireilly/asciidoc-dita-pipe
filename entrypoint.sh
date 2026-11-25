@@ -203,9 +203,17 @@ ok "Split: ${TOPIC_COUNT} topics, ${MAP_COUNT} maps"
 
 # --- Copy images ---
 stage "+" "Copying images"
-if find "${SRC_WORK}" -name '*.png' -o -name '*.jpg' -o -name '*.gif' -o -name '*.svg' 2>/dev/null | head -1 | grep -q .; then
+# Skip hidden directories and the output directory when it is mounted from
+# inside /input. Same-named files there would overwrite the source images.
+# -samefile matches the bind mount by inode; the "out" name is a fallback for
+# hosts where the mounts do not share inodes. Search /input, not the working
+# copy, because copying changes the inodes.
+IMAGE_FIND=(find "${INPUT_DIR}" -mindepth 1
+    -type d \( -name '.*' -o -samefile "${OUTPUT_DIR}" -o -path "${INPUT_DIR}/out" \) -prune
+    -o -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.gif' -o -name '*.svg' \))
+if [ -n "$("${IMAGE_FIND[@]}" -print -quit)" ]; then
     mkdir -p "${OUTPUT_DIR}/dita/images"
-    find "${SRC_WORK}" -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.gif' -o -name '*.svg' \) -exec cp {} "${OUTPUT_DIR}/dita/images/" \;
+    "${IMAGE_FIND[@]}" -exec cp {} "${OUTPUT_DIR}/dita/images/" \;
     IMAGE_COUNT=$(ls "${OUTPUT_DIR}/dita/images/" 2>/dev/null | wc -l)
     ok "Images: ${IMAGE_COUNT} files"
 else

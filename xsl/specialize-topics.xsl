@@ -508,11 +508,13 @@
           <xsl:when test="name() = 'href'">
             <xsl:attribute name="href">
               <xsl:choose>
-                <xsl:when test="starts-with(., 'images/')">
-                  <xsl:value-of select="concat('../', .)"/>
+                <!-- Leave remote images alone -->
+                <xsl:when test="matches(., '^([a-zA-Z][a-zA-Z0-9+.\-]*:|//)')">
+                  <xsl:value-of select="."/>
                 </xsl:when>
+                <!-- Images are copied flat into images/, so keep only the file name -->
                 <xsl:otherwise>
-                  <xsl:value-of select="concat('../images/', .)"/>
+                  <xsl:value-of select="concat('../images/', tokenize(., '/')[last()])"/>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:attribute>
