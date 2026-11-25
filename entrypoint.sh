@@ -208,14 +208,29 @@ stage "+" "Copying images"
 # -samefile matches the bind mount by inode; the "out" name is a fallback for
 # hosts where the mounts do not share inodes. Search /input, not the working
 # copy, because copying changes the inodes.
-IMAGE_FIND=(find "${INPUT_DIR}" -mindepth 1
-    -type d \( -name '.*' -o -samefile "${OUTPUT_DIR}" -o -path "${INPUT_DIR}/out" \) -prune
-    -o -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.gif' -o -name '*.svg' \))
-if [ -n "$("${IMAGE_FIND[@]}" -print -quit)" ]; then
-    mkdir -p "${OUTPUT_DIR}/dita/images"
-    "${IMAGE_FIND[@]}" -exec cp {} "${OUTPUT_DIR}/dita/images/" \;
-    IMAGE_COUNT=$(ls "${OUTPUT_DIR}/dita/images/" 2>/dev/null | wc -l)
-    ok "Images: ${IMAGE_COUNT} files"
+IMAGE_TYPES=(\( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif' -o -iname '*.svg' -o -iname '*.webp' \))
+# List images next to the input file first, then the rest in a fixed order.
+# The output folder is flat, so the first image with a given name is kept.
+declare -A COPIED=()
+while IFS= read -r -d '' IMAGE; do
+    NAME=$(basename "${IMAGE}")
+    if [ -z "${COPIED[${NAME}]:-}" ]; then
+        mkdir -p "${OUTPUT_DIR}/dita/images"
+        cp "${IMAGE}" "${OUTPUT_DIR}/dita/images/"
+        COPIED[${NAME}]="${IMAGE}"
+    elif ! cmp -s "${IMAGE}" "${COPIED[${NAME}]}" && grep -qF "images/${NAME}\"" "${OUTPUT_DIR}"/dita/*.dita; then
+        warn "Two different images are named ${NAME}. Using ${COPIED[${NAME}]}, not ${IMAGE}. Rename one of them."
+    fi
+done < <(
+    if [ -d "${INPUT_PARENT}/images" ]; then
+        find -L "${INPUT_PARENT}/images" -type f "${IMAGE_TYPES[@]}" -print0 | sort -z
+    fi
+    find "${INPUT_DIR}" -mindepth 1 \
+        -type d \( -name '.*' -o -samefile "${OUTPUT_DIR}" -o -path "${INPUT_DIR}/out" \) -prune \
+        -o -type f "${IMAGE_TYPES[@]}" -print0 | sort -z
+)
+if [ "${#COPIED[@]}" -gt 0 ]; then
+    ok "Images: ${#COPIED[@]} files"
 else
     detail "No images found"
 fi
