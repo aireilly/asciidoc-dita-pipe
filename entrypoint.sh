@@ -114,7 +114,7 @@ fi
 
 # --- Prepare working directory ---
 mkdir -p "${BUILD}/docbook" "${BUILD}/dita-raw" "${BUILD}/dita-specialized"
-mkdir -p "${OUTPUT_DIR}/dita/topics" "${OUTPUT_DIR}/dita/maps" "${OUTPUT_DIR}/html"
+mkdir -p "${OUTPUT_DIR}/dita" "${OUTPUT_DIR}/html"
 
 # --- Build source tree for asciidoctor ---
 # Copy input tree so includes resolve correctly
@@ -197,8 +197,8 @@ java -jar "${PIPE}/SaxonHE12-4J/saxon-he-12.4.jar" -dtd:off \
     -o:"${BUILD}/split-result.xml" \
     "outdir=file://${OUTPUT_DIR}/dita" \
     "dita-version=${DITA_VERSION}"
-TOPIC_COUNT=$(find "${OUTPUT_DIR}/dita/topics" -name '*.dita' 2>/dev/null | wc -l)
-MAP_COUNT=$(find "${OUTPUT_DIR}/dita/maps" -name '*.ditamap' 2>/dev/null | wc -l)
+TOPIC_COUNT=$(find "${OUTPUT_DIR}/dita" -maxdepth 1 -name '*.dita' 2>/dev/null | wc -l)
+MAP_COUNT=$(find "${OUTPUT_DIR}/dita" -maxdepth 1 -name '*.ditamap' 2>/dev/null | wc -l)
 ok "Split: ${TOPIC_COUNT} topics, ${MAP_COUNT} maps"
 
 # --- Copy images ---
@@ -221,16 +221,17 @@ else
 fi
 
 # --- Find the ditamap ---
-DITAMAP=$(find "${OUTPUT_DIR}/dita" -maxdepth 1 -name '*.ditamap' | head -1)
-if [ -z "${DITAMAP}" ]; then
-    warn "No ditamap found in output — skipping HTML generation"
+# Sub-maps share the folder, so select the master map by name.
+DITAMAP="${OUTPUT_DIR}/dita/master.ditamap"
+if [ ! -f "${DITAMAP}" ]; then
+    warn "No master.ditamap found in output — skipping HTML generation"
     info "Done. DITA output is in ${OUTPUT_DIR}/dita/"
     exit 0
 fi
 
 # --- Generate HTML5 ---
 # Write HTML5 straight into {output-dir}/html so the output tree is
-# {output-dir}/html/index.html + {output-dir}/html/topics/*.html.
+# {output-dir}/html/*.html.
 stage "html" "Generating HTML5 output"
 if command -v dita >/dev/null 2>&1; then
     dita -i "${DITAMAP}" -f html5 \

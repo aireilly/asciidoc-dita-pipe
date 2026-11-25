@@ -47,7 +47,7 @@ src/.../master.adoc
   → [Stage 2] xsl/enrich-docbook.xsl    → build/docbook/master-enriched.xml
   → [Stage 3] dbdita DocBook-to-DITA    → build/dita-raw/master-composite.dita
   → [Stage 4] xsl/specialize-topics.xsl → build/dita-specialized/master-composite.dita
-  → [Stage 5] xsl/split-and-map.xsl     → out/{master.ditamap, topics/*.dita, maps/*.ditamap}
+  → [Stage 5] xsl/split-and-map.xsl     → out/{master.ditamap, *.ditamap, *.dita, images/}
 ```
 
 **Stage 0** (`scripts/build-manifest.py`): Scans `.adoc` files for `:_mod-docs-content-type:` attributes (CONCEPT/PROCEDURE/REFERENCE/ASSEMBLY) with filename prefix fallback (`con_`, `proc_`, `ref_`, `assembly_`). Outputs XML manifest mapping section IDs to DITA types.
@@ -56,12 +56,13 @@ src/.../master.adoc
 
 **Stage 4** (`xsl/specialize-topics.xsl`): The most complex transform. Converts generic `<topic>` to `<concept>`, `<task>`, or `<reference>` with proper body elements. For tasks, restructures flat content into DITA's strict task body model: `prereq → context → steps/steps-unordered → result → tasktroubleshooting → postreq`. Section titles are detected via `@outputclass='db.title'` (primary) with exact text match fallback — never `contains()` matching, which causes false positives.
 
-**Stage 5** (`xsl/split-and-map.xsl`): Uses `xsl:result-document` to write individual topic files with correct DOCTYPE declarations. Generates a hierarchical `master.ditamap` with nested `<topicref>` elements matching the AsciiDoc assembly nesting, plus standalone sub-maps in `maps/`.
+**Stage 5** (`xsl/split-and-map.xsl`): Uses `xsl:result-document` to write individual topic files with correct DOCTYPE declarations. Generates a hierarchical `master.ditamap` with nested `<topicref>` elements matching the AsciiDoc assembly nesting, plus a sub-map for each nested assembly. Rewrites `#id` cross-references to the split files. All maps and topics go in one flat folder; only images have a subfolder.
 
 ## Key Design Decisions
 
 - **XSLT only for content transforms** — no Python post-processing of DITA output
 - **Two-tier content type detection** — `:_mod-docs-content-type:` attribute first, filename prefix fallback
+- **No generic topics in the output** — unknown content types become `<concept>` with a warning; assemblies stay as `<topic>` in the composite only and are written as maps
 - **Section title detection uses `@outputclass='db.title'`** not `contains()` — prevents false positives like "The procedure below..." being matched as a Procedure section title
 - **Reference `<refbody>` content model** — bare `<p>`, `<ul>`, `<ol>` are invalid; uses `for-each-group`/`group-adjacent` to wrap them in `<section>` elements
 - **Task body element ordering** is enforced by the DITA content model: `prereq, context, steps, result, tasktroubleshooting, postreq` — the XSLT must emit them in this exact order

@@ -12,7 +12,7 @@ BUILD="$PROJECT_DIR/build"
 OUT="$PROJECT_DIR/out"
 
 ADOC_HTML="$BUILD/asciidoc-html/master.html"
-DITA_HTML_DIR="$OUT/html5/topics"
+DITA_HTML_DIR="$OUT/html5"
 
 if [ ! -f "$ADOC_HTML" ]; then
   echo "ERROR: AsciiDoc HTML not found at $ADOC_HTML"
@@ -38,7 +38,7 @@ html2text "$ADOC_HTML" 2>/dev/null | \
   sort -u > "$TMPDIR/adoc-sentences.txt"
 
 echo "Extracting text from DITA HTML..."
-cat "$DITA_HTML_DIR"/*.html 2>/dev/null | \
+find "$DITA_HTML_DIR" -maxdepth 1 -name '*.html' ! -name index.html -exec cat {} + 2>/dev/null | \
   html2text 2>/dev/null | \
   sed 's/[[:space:]]\+/ /g' | \
   tr '.' '\n' | \

@@ -41,20 +41,18 @@ Mount the root of your docs repo at `/input` so that `include::` directives reso
 out/
   dita/
     master.ditamap              # Top-level map
-    maps/
-      *.ditamap                 # Sub-assembly maps
-    topics/
-      *.dita                    # Specialized topics (concept, task, reference)
+    *.ditamap                   # Sub-maps, one for each nested assembly
+    *.dita                      # Specialized topics (concept, task, reference)
     images/
       *.png                     # Copied images
   html/
     index.html                  # HTML5 table of contents
-    topics/
-      *.html                    # Rendered topic pages
+    *.html                      # Rendered topic pages
     custom.css
 ```
 
-All `index.html` links resolve to `topics/*.html`. Cross-references to other assemblies outside the build scope are expected to be unresolved.
+All maps and topics are in the same folder, and only images have a subfolder.
+`index.html` links resolve to the topic pages in the same folder. Cross-references to other assemblies outside the build scope are expected to be unresolved.
 
 ## Pipeline stages
 
@@ -79,10 +77,10 @@ build/dita-raw/master-composite.dita
 build/dita-specialized/master-composite.dita
     |
     v  [Stage 5] xsl/split-and-map.xsl
-out/dita/{master.ditamap, topics/*.dita, maps/*.ditamap}
+out/dita/{master.ditamap, *.ditamap, *.dita, images/}
     |
     v  [HTML] dita -f html5
-out/html/{index.html, topics/*.html}
+out/html/{index.html, *.html}
 ```
 
 ### Stage 0: Content-type manifest
@@ -111,6 +109,8 @@ Runs the IBM dbdita DocBook-to-DITA transform via Saxon. Produces a single compo
 - `<topic>` with concept role/prefix -> `<concept>` with `<conbody>`
 - `<topic>` with task role/prefix -> `<task>` with `<taskbody>` containing `<prereq>`, `<context>`, `<steps>/<step>/<cmd>`, `<result>`
 - `<topic>` with reference role/prefix -> `<reference>` with `<refbody>` containing `<section>` wrappers
+- `<topic>` with an unknown type -> `<concept>`, with a warning (generic topics are never written to the output)
+- `<topic>` with assembly role -> kept in the composite only, and written as a map in Stage 5
 
 Also cleans up:
 - Removes `outputclass="db.*"` artifacts from dbdita
@@ -123,9 +123,16 @@ Also cleans up:
 
 `xsl/split-and-map.xsl` splits the composite into individual files:
 
-- Each topic -> `topics/{id}.dita` with proper DOCTYPE declaration (DITA 1.3) or `xml-model` processing instruction (DITA 2.0)
-- Assembly topics with children -> `maps/{id}.ditamap` (sub-maps)
+- Each topic -> `{id}.dita` with proper DOCTYPE declaration (DITA 1.3) or `xml-model` processing instruction (DITA 2.0)
+- Assembly topics with children -> `{id}.ditamap` (sub-maps). Other nested topics appear only in `master.ditamap`
 - Top-level -> `master.ditamap` with `<mapref>` to sub-maps and `<topicref>` to standalone topics
+
+Cross-references are rewritten to the split files:
+
+- Topic -> `{id}.dita`
+- Element inside a topic -> `{topic}.dita#{topic}/{id}`
+- Assembly -> the first topic in the assembly, because assemblies have no topic file
+- Target outside the build -> plain text, with a warning
 
 ## Content-type detection
 

@@ -71,13 +71,13 @@ $(BUILD)/dita-specialized/master-composite.dita: $(BUILD)/dita-raw/master-compos
 	@echo "== Specialized DITA: $$(ls -lh $@ | awk '{print $$5}')"
 
 split: $(BUILD)/dita-specialized/master-composite.dita xsl/split-and-map.xsl
-	@mkdir -p $(OUT)/topics $(OUT)/maps
+	@mkdir -p $(OUT)
 	$(SAXON) -xsl:xsl/split-and-map.xsl \
 		-s:$(BUILD)/dita-specialized/master-composite.dita \
 		-o:$(BUILD)/split-result.xml \
 		outdir=file:///$(CURDIR)/$(OUT) \
 		dita-version=$(DITA_VERSION)
-	@echo "== Split: $$(find $(OUT)/topics -name '*.dita' | wc -l) topics, $$(find $(OUT)/maps -name '*.ditamap' | wc -l) maps"
+	@echo "== Split: $$(find $(OUT) -maxdepth 1 -name '*.dita' | wc -l) topics, $$(find $(OUT) -maxdepth 1 -name '*.ditamap' | wc -l) maps"
 
 images:
 	@mkdir -p $(OUT)/images
@@ -98,4 +98,4 @@ stats:
 	@echo "  concept: $$(grep -c '<concept ' $(BUILD)/dita-specialized/master-composite.dita 2>/dev/null || echo 0)"
 	@echo "  task:    $$(grep -c '<task ' $(BUILD)/dita-specialized/master-composite.dita 2>/dev/null || echo 0)"
 	@echo "  reference: $$(grep -c '<reference ' $(BUILD)/dita-specialized/master-composite.dita 2>/dev/null || echo 0)"
-	@echo "  topic:   $$(grep -c '<topic ' $(BUILD)/dita-specialized/master-composite.dita 2>/dev/null || echo 0)"
+	@echo "  assembly (map only): $$(grep -c '<topic ' $(BUILD)/dita-specialized/master-composite.dita 2>/dev/null || echo 0)"

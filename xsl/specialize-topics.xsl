@@ -31,9 +31,23 @@
         <xsl:when test="starts-with(@id, 'con_')">concept</xsl:when>
         <xsl:when test="starts-with(@id, 'proc_')">task</xsl:when>
         <xsl:when test="starts-with(@id, 'ref_')">reference</xsl:when>
-        <xsl:otherwise>topic</xsl:otherwise>
+        <xsl:when test="@outputclass = 'assembly'">assembly</xsl:when>
+        <!-- Unknown types default to concept, so that no generic topics are output -->
+        <xsl:otherwise>concept</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
+
+    <!-- Warn when the concept type is a default. Skip generated topics, such as the preface. -->
+    <xsl:if test="$type = 'concept'
+                  and not(@outputclass = ('concept', 'db.article'))
+                  and not(starts-with(@id, 'con_'))
+                  and not(starts-with(@id, 'id.d'))">
+      <xsl:message>
+        <xsl:text>WARNING: Topic "</xsl:text>
+        <xsl:value-of select="@id"/>
+        <xsl:text>" has no concept/task/reference type, defaulting to concept. Add :_mod-docs-content-type: to the AsciiDoc source or use con_/proc_/ref_ filename prefix.</xsl:text>
+      </xsl:message>
+    </xsl:if>
 
     <xsl:choose>
       <xsl:when test="$type = 'concept'">
@@ -43,7 +57,9 @@
           <xsl:apply-templates select="shortdesc"/>
           <xsl:if test="body/node()">
             <conbody>
-              <xsl:apply-templates select="body/node()"/>
+              <xsl:call-template name="build-con-body">
+                <xsl:with-param name="body" select="body"/>
+              </xsl:call-template>
             </conbody>
           </xsl:if>
           <xsl:apply-templates select="related-links[.//text()[normalize-space()]]"/>
@@ -84,20 +100,9 @@
       </xsl:when>
 
       <xsl:otherwise>
-        <!-- Warn for non-assembly topics that lack specialization -->
-        <xsl:if test="@outputclass != 'assembly' and @outputclass != 'db.article' and not(starts-with(@id, 'id.d'))">
-          <xsl:message>
-            <xsl:text>WARNING: Topic "</xsl:text>
-            <xsl:value-of select="@id"/>
-            <xsl:text>" has no concept/task/reference type. Add :_mod-docs-content-type: to the AsciiDoc source or use con_/proc_/ref_ filename prefix.</xsl:text>
-          </xsl:message>
-        </xsl:if>
-        <!-- Keep as generic topic, preserve assembly outputclass for split stage -->
-        <topic id="{@id}">
+        <!-- Assemblies become maps in the split stage, so no topic file is written for them -->
+        <topic id="{@id}" outputclass="assembly">
           <xsl:call-template name="copy-topic-attrs"/>
-          <xsl:if test="@outputclass = 'assembly'">
-            <xsl:attribute name="outputclass">assembly</xsl:attribute>
-          </xsl:if>
           <xsl:apply-templates select="title"/>
           <xsl:apply-templates select="shortdesc"/>
           <xsl:if test="body/node()">
@@ -369,6 +374,30 @@
   </xsl:template>
 
   <!--
+    Build concept body following DITA content model:
+    (block content)*, (section | example)*
+
+    Strategy: pass block content through until the first section or example.
+    Wrap any later block content in <section> elements.
+  -->
+  <xsl:template name="build-con-body">
+    <xsl:param name="body"/>
+
+    <xsl:for-each-group select="$body/*" group-adjacent="boolean(self::section or self::example)">
+      <xsl:choose>
+        <xsl:when test="current-grouping-key() or position() = 1">
+          <xsl:apply-templates select="current-group()"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <section>
+            <xsl:apply-templates select="current-group()"/>
+          </section>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each-group>
+  </xsl:template>
+
+  <!--
     Build reference body following DITA content model:
     (section | simpletable | table | properties | example | ...)*
 
@@ -514,7 +543,7 @@
                 </xsl:when>
                 <!-- Images are copied flat into images/, so keep only the file name -->
                 <xsl:otherwise>
-                  <xsl:value-of select="concat('../images/', tokenize(., '/')[last()])"/>
+                  <xsl:value-of select="concat('images/', tokenize(., '/')[last()])"/>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:attribute>
